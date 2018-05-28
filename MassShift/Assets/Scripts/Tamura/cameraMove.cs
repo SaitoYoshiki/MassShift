@@ -56,6 +56,57 @@ public class cameraMove : MonoBehaviour {
             }
         }*/
 
+        /*if (zoomOutFlg) {
+            oldZoomOutFlg = zoomOutFlg;
+            st.CloseDoorParent();
+            Zoom(zoomOutTime, ref zoomOutFlg, cameraZoomPoint, cameraEndPoint);
+        }
+        else {
+            if (oldZoomOutFlg != zoomOutFlg) {
+                oldZoomOutFlg = zoomOutFlg;
+            }
+        }*/
+
+        // ズームインし終わっていたら何もしない
+        /*if(firstZoom){
+            return;
+        }
+        // ズームされていない初期状態なら
+        else {
+            if (Input.anyKeyDown) {
+                // 「InputAnyKey」の表示を消す
+                Debug.Log("inputany");
+                text.SetActive(false);
+                firstZoom = true;
+                zoomInFlg = true;
+                startZoomTime = Time.realtimeSinceStartup;
+            }
+        }*/
+
+        CheckFirstZoom();
+        CheckZoomIn();
+        CheckZoomOut();
+	}
+
+    void CheckFirstZoom() {
+        // ズームインし終わっていたら何もしない
+        if (firstZoom) {
+            return;
+        }
+        // ズームされていない初期状態なら
+        else {
+            if (Input.anyKeyDown) {
+                // 「InputAnyKey」の表示を消す
+                Debug.Log("inputany");
+                text.SetActive(false);
+                firstZoom = true;
+                zoomInFlg = true;
+                startZoomTime = Time.realtimeSinceStartup;
+            }
+        }
+    }
+
+    void CheckZoomIn() {
         // ズームイン中でなくて
         if (!zoomInFlg) {
             // 前フレームでもズームインしていなければ何もしない
@@ -75,33 +126,25 @@ public class cameraMove : MonoBehaviour {
             oldZoomInFlg = zoomInFlg;
             Zoom(zoomInTime, ref zoomInFlg, cameraStartPoint, cameraZoomPoint);
         }
+    }
 
-        /*if (zoomOutFlg) {
-            oldZoomOutFlg = zoomOutFlg;
-            st.CloseDoorParent();
-            Zoom(zoomOutTime, ref zoomOutFlg, cameraZoomPoint, cameraEndPoint);
-        }
-        else {
-            if (oldZoomOutFlg != zoomOutFlg) {
-                oldZoomOutFlg = zoomOutFlg;
-            }
-        }*/
-
+    void CheckZoomOut() {
         // ズームアウト中でなくて
         if (!zoomOutFlg) {
             // 前フレームでもズームアウトしていなければ何もしない
             if (oldZoomOutFlg == zoomOutFlg) {
-                return;
+                if (!st.GetCloseEnd()) {
+                    return;
+                }
+                // ドア閉めの演出が終わったら
+                else {
+                    // ステージセレクトへ飛ぶ(仮)
+                    cs.OnStageSelectButtonDown();
+                }
             }
             // 前フレームでズームアウトが終わったなら
             else {
                 oldZoomOutFlg = zoomOutFlg;
-
-                // ドア閉めの演出が終わったら
-                if (st.GetCloseEnd()) {
-                    // ステージセレクトへ飛ぶ(仮)
-                    cs.OnStageSelectButtonDown();
-                }
             }
         }
         // ズームアウト中なら
@@ -110,22 +153,7 @@ public class cameraMove : MonoBehaviour {
             st.CloseDoorParent();
             Zoom(zoomOutTime, ref zoomOutFlg, cameraZoomPoint, cameraEndPoint);
         }
-
-        // ズームインし終わっていたら何もしない
-        if(firstZoom){
-            return;
-        }
-        // ズームされていない初期状態なら
-        else {
-            if (Input.anyKeyDown) {
-                // 「InputAnyKey」の表示を消す
-                text.SetActive(false);
-                firstZoom = true;
-                zoomInFlg = true;
-                startZoomTime = Time.realtimeSinceStartup;
-            }
-        }
-	}
+    }
 
     // タイトルでボタンが押されたらズームアウト
     public void OnButtonDown() {

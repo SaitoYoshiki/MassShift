@@ -259,20 +259,25 @@ public class StageChangeScenematic : MonoBehaviour {
     }
 
     void Update() {
+        CheckOpening();
+        CheckClosing();
+    }
+
+    void CheckOpening() {
         if (!isOpening) {
             return;
         }
         else {
             AnimDoor(closePos, openPos, ref isOpening, true);
-            //OpenDoor();
         }
+    }
 
+    void CheckClosing() {
         if (!isClosing) {
             return;
         }
         else {
             AnimDoor(openPos, closePos, ref isClosing, false);
-            //CloseDoor();
         }
     }
 

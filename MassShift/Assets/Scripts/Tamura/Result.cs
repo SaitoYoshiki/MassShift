@@ -12,6 +12,7 @@ public class Result : MonoBehaviour {
 	void Update () {
         // ゴールしていないなら何もしない
         if (!canGoal) {
+            Debug.Log("NotcCanGoal");
             return;
         }
         // ゴールしたなら

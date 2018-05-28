@@ -8,16 +8,19 @@ public class DoorAnimManager : MonoBehaviour {
     MonoColorFade monoFade;
 
     string sceneName;       // 現在のシーン名
-
+    [SerializeField]
     int openDoorCount;      // 開き終わったドアの数
+    [SerializeField]
     int closeDoorCount;     // 閉まり終わったドアの数
-
+    [SerializeField]
     bool isDoorAnimating;   // ドアがアニメーションしているか
 
+    [SerializeField]
     bool isDoorOpenEnd;     // ドアの開き演出が終わったかどうか
+    [SerializeField]
     bool isDoorCloseEnd;    // ドアの閉まり演出が終わったかどうか
 
-	void Start () {
+	void Awake () {
         openDoorCount = 0;
         closeDoorCount = 0;
 
@@ -52,37 +55,8 @@ public class DoorAnimManager : MonoBehaviour {
                 }
             }*/
 
-            if (openDoorCount < doorList.Count) {
-                return;
-            }
-            // ドアが全て開き終わったら
-            else {
-                // ステージセレクトシーンでは
-                if (sceneName == "StageSelect") {
-                    // ステージ名を出さず開き演出終了
-                    isDoorOpenEnd = true;
-                    isDoorAnimating = false;
-                }
-                // ステージセレクトシーン以外では
-                else {
-                    // ステージ名フェードイン開始
-                    StageName.SetActive(true);
-                    if (!monoFade.IsFading()) {
-                        // ステージ名フェードアウトが終了した
-                        isDoorOpenEnd = true;
-                        isDoorAnimating = false;
-                    }
-                }
-            }
-
-            if (openDoorCount < doorList.Count) {
-                return;
-            }
-            else {
-                // ドア閉まるアニメーションが全て終了した
-                isDoorCloseEnd = true;
-                isDoorAnimating = false;
-            }
+            CheckOpenEnd();
+            CheckCloseEnd();
         }
     }
 
@@ -102,6 +76,42 @@ public class DoorAnimManager : MonoBehaviour {
         }
 
         isDoorAnimating = true;
+    }
+
+    void CheckOpenEnd() {
+        if (openDoorCount < doorList.Count || isDoorOpenEnd) {
+            return;
+        }
+        // ドアが全て開き終わったら
+        else {
+            // ステージセレクトシーンでは
+            if (sceneName == "StageSelect") {
+                // ステージ名を出さず開き演出終了
+                isDoorOpenEnd = true;
+                isDoorAnimating = false;
+            }
+            // ステージセレクトシーン以外では
+            else {
+                // ステージ名フェードイン開始
+                StageName.SetActive(true);
+                if (!monoFade.IsFading()) {
+                    // ステージ名フェードアウトが終了した
+                    isDoorOpenEnd = true;
+                    isDoorAnimating = false;
+                }
+            }
+        }
+    }
+
+    void CheckCloseEnd() {
+        if (closeDoorCount < doorList.Count || isDoorCloseEnd) {
+            return;
+        }
+        else {
+            // ドア閉まるアニメーションが全て終了した
+            isDoorCloseEnd = true;
+            isDoorAnimating = false;
+        }
     }
 
     // 開き終わったか
