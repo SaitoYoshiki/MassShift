@@ -33,6 +33,8 @@ public class cameraMove : MonoBehaviour {
     bool zoomOutFlg = false;
     bool oldZoomOutFlg;
 
+    bool goTutorialFlg = false;
+
     GameObject a;
 
     // ズームアウト終わった判定が必要
@@ -137,8 +139,14 @@ public class cameraMove : MonoBehaviour {
                 }
                 // ドア閉めの演出が終わったら
                 else {
-                    // ステージセレクトへ飛ぶ(仮)
-                    cs.OnStageSelectButtonDown();
+                    if (goTutorialFlg) {
+                        // チュートリアルへ飛ぶ
+                        cs.OnTutorialButtonDown();
+                    }
+                    else {
+                        // ステージセレクトへ飛ぶ
+                        cs.OnStageSelectButtonDown();
+                    }
                 }
             }
             // 前フレームでズームアウトが終わったなら
@@ -180,11 +188,13 @@ public class cameraMove : MonoBehaviour {
     }
 
     public void OnTutorialSelected() {
-
+        cameraEndPoint = new Vector3(0.0f, 1.0f, -35.0f);
+        goTutorialFlg = true;
     }
 
     public void OnStageSelectSelected() {
         cameraEndPoint = new Vector3(0.0f, 1.0f, -50.0f);
+        goTutorialFlg = false;
     }
 
     // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする

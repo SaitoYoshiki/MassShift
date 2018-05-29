@@ -11,6 +11,7 @@ public class ChangeScene : MonoBehaviour {
     private enum CHANGE_SCENE_MODE{
         NEXT,
         RETRY,
+        TUTORIAL,
         STAGESELECT,
         TITLE,
         SELECTSCENE
@@ -87,6 +88,12 @@ public class ChangeScene : MonoBehaviour {
                     SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
                     break;
 
+                // チュートリアル
+                case CHANGE_SCENE_MODE.TUTORIAL:
+                    // チュートリアルシーンを読み込み
+                    SceneManager.LoadScene("Tutorial-1", LoadSceneMode.Single);
+                    break;
+
                 // ステージセレクト
                 case CHANGE_SCENE_MODE.STAGESELECT:
                     // ステセレシーンを読み込み
@@ -128,6 +135,13 @@ public class ChangeScene : MonoBehaviour {
         // ポーズを解除してシーン変更フラグを立てる
         pauseFlg = false;
         changeSceneMode = CHANGE_SCENE_MODE.RETRY;
+        changeSceneFlg = true;
+    }
+
+    public void OnTutorialButtonDown() {
+        // ポーズを解除してシーン変更フラグを立てる
+        pauseFlg = false;
+        changeSceneMode = CHANGE_SCENE_MODE.TUTORIAL;
         changeSceneFlg = true;
     }
 
