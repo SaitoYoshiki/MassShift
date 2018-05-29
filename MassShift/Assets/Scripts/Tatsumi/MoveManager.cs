@@ -422,9 +422,11 @@ public class MoveManager : MonoBehaviour {
 					// 着地判定
 					Landing land = _moveCol.GetComponent<Landing>();
 					if (land != null) {
-						// 着地先がステージ又はステージに接地中のオブジェクトなら
+						// 着地先がステージ又はステージに接地中や水上安定状態のオブジェクトなら
 						Landing hitLand = nearHitinfo.collider.GetComponent<Landing>(); // nullならステージ
-						if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding)) {
+						WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
+						if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
+							(hitWaterStt && hitWaterStt.IsWaterSurface) || (hitLand.IsWaterFloatLanding)) {
 							land.IsLanding = land.GetIsLanding(Vector3.up * moveVec.y);
 							land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
 						}
