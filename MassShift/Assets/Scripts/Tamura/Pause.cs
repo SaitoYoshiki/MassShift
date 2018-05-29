@@ -20,6 +20,13 @@ public class Pause : MonoBehaviour {
     [SerializeField]
     Blur blur;
 
+    [SerializeField]
+    GameObject PauseStartSEPrefab;
+    [SerializeField]
+    GameObject PauseEndSEPrefab;
+    [SerializeField]
+    GameObject ButtonSelectSEPrefab;
+
     // GameMain側から変更される、ポーズ可能かどうか
     public bool canPause = true;
 
@@ -27,7 +34,6 @@ public class Pause : MonoBehaviour {
     bool optionFlg = false;         // オプション画面を開いているかどうか
 
     float intencity = 0.0f;
-    //float intencityMax = 10.0f;
 
     // ぼかし処理終了までの時間
     public float blurTime;
@@ -72,11 +78,13 @@ public class Pause : MonoBehaviour {
         if (Time.timeScale != 0.0f) {
             Time.timeScale = 0.0f;
             pauseCanvas.SetActive(true);
+            SoundManager.SPlay(PauseStartSEPrefab);
         }
         // ポーズ解除
         else {
             Time.timeScale = 1.0f;
             pauseCanvas.SetActive(false);
+            //SoundManager.SPlay(PauseEndSEPrefab);
         }
 
         // 登録された関数を実行

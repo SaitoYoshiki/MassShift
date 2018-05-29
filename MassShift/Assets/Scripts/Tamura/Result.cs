@@ -6,6 +6,9 @@ public class Result : MonoBehaviour {
     [SerializeField]
     GameObject ResultCanvas;
 
+    [SerializeField]
+    GameObject ClearJingleSEPrefab;
+
     // ゴールしたかどうか、GameManager側から変更
     public bool canGoal;
 
