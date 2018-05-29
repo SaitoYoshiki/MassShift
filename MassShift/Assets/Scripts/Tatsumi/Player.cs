@@ -71,6 +71,11 @@ public class Player : MonoBehaviour {
 	}
 
 	[SerializeField]
+	bool useManualJump = true;		// ボタン入力での通常ジャンプを使用する
+	[SerializeField]
+	bool useAutoClimbJump = true;	// 左右移動のみでの自動小ジャンプを使用する
+
+	[SerializeField]
 	float walkSpd = 2.0f;       // 左右移動最高速度
 	[SerializeField]
 	float walkStopTime = 0.2f;  // 左右移動最高速度から停止までの時間
@@ -197,15 +202,20 @@ public class Player : MonoBehaviour {
 	float jumpStartOneTimeLimitSpd = 1.0f;
 
 	[SerializeField]
-	Transform ClimbJumpCollider = null;   // 自動ジャンプ当たり判定
+	List<Transform> ClimbJumpWeightLvCollider = new List<Transform>(3);   // 自動ジャンプ当たり判定
+	[SerializeField]
+	List<Transform> ClimbJumpWeightLvInWaterCollider = new List<Transform>(3);   // 水中での自動ジャンプ当たり判定
 	[SerializeField]
 	LayerMask climbJumpMask;
 	[SerializeField]
 	bool autoClimbJumpMask = true;
 	[SerializeField]
 	List<float> ClimbJumpWeightLvHeight = new List<float>(3);
+	[SerializeField]
+	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
+
 	void Awake () {
-		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box" });
+		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 	}
 
 	void Update() {
@@ -315,6 +325,8 @@ public class Player : MonoBehaviour {
 		}
 	}
 	bool Jump() {
+		if (!useManualJump) return false;
+
 		// ジャンプ入力(トリガー)がなければ
 		if (!jumpStandbyFlg || prevJumpStandbyFlg) return false;
 
@@ -461,6 +473,8 @@ public class Player : MonoBehaviour {
 	//	}
 
 	void ClimbJump() {
+		if (!useAutoClimbJump) return;
+
 		// 持ち上げ中や持ち上げ入力があれば処理しない
 		if (Lift.IsLifting || (Input.GetAxis("Lift") != 0.0f)) return;
 
@@ -468,19 +482,29 @@ public class Player : MonoBehaviour {
 		if (!canJump) return;
 
 		// 接地中でも水上安定中でもなく、水上安定中ブロックに乗ってもいなければ処理しない
-		if (!Land.IsLanding && !Land.IsWaterFloatLanding && !Land.IsWaterFloatLanding) return;
+		if (!Land.IsLanding && !WaterStt.IsWaterSurface && !Land.IsWaterFloatLanding) return;
 
 		// 左右への移動入力がなければ処理しない
 		if (walkStandbyVec == 0.0f) return;
 
 		// 自動ジャンプ判定がなければ処理しない
-		if (!ClimbJumpCollider) return;
+		if ((ClimbJumpWeightLvCollider == null) || (ClimbJumpWeightLvCollider.Count <= (int)WeightMng.WeightLv) || (ClimbJumpWeightLvCollider[(int)WeightMng.WeightLv] == null) ||
+			(ClimbJumpWeightLvInWaterCollider == null) || (ClimbJumpWeightLvInWaterCollider.Count <= (int)WeightMng.WeightLv) || (ClimbJumpWeightLvInWaterCollider[(int)WeightMng.WeightLv] == null)) return;
+
+		Transform climbJumpCol;
+		if (!WaterStt.IsInWater) {
+			climbJumpCol = ClimbJumpWeightLvCollider[(int)WeightMng.WeightLv];
+		} else {
+			climbJumpCol = ClimbJumpWeightLvInWaterCollider[(int)WeightMng.WeightLv];
+		}
 
 		// 自動ジャンプ判定内に対象オブジェクトがなければ処理しない
-		if (Physics.OverlapBox(ClimbJumpCollider.transform.position, ClimbJumpCollider.transform.lossyScale * 0.5f, ClimbJumpCollider.transform.rotation, climbJumpMask).Length <= 0) return;
+		if (Physics.OverlapBox(climbJumpCol.transform.position,
+			climbJumpCol.lossyScale * 0.5f,
+			climbJumpCol.rotation, climbJumpMask).Length <= 0) return;
 
 		// 現在の向きと移動入力方向が異なれば処理しない
-		if (Vector3.Dot((ClimbJumpCollider.position - transform.position), (Vector3.right * walkStandbyVec)) <= 0.0f) return;
+		if (Vector3.Dot((climbJumpCol.position - transform.position), (Vector3.right * walkStandbyVec)) <= 0.0f) return;
 
 		// ジャンプアニメーション
 		if (!Lift.IsLifting) {
@@ -496,7 +520,13 @@ public class Player : MonoBehaviour {
 		MoveMng.OneTimeMaxSpd = jumpStartOneTimeLimitSpd;
 
 		// 上方向へ加速
-		MoveMng.AddMove(new Vector3(0.0f, ClimbJumpWeightLvHeight[(int)WeightMng.WeightLv], 0.0f));
+		if (!WaterStt.IsInWater) {
+			MoveMng.AddMove(new Vector3(0.0f, ClimbJumpWeightLvHeight[(int)WeightMng.WeightLv], 0.0f));
+		}
+		// 水中
+		else {
+			MoveMng.AddMove(new Vector3(0.0f, ClimbJumpWeightLvHeightInWater[(int)WeightMng.WeightLv], 0.0f));
+		}
 
 		// 離地
 		Land.IsLanding = false;
