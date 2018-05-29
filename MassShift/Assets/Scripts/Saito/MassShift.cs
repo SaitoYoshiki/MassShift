@@ -565,15 +565,14 @@ public class MassShift : MonoBehaviour
 			//共有ボックスの処理
 			//
 
-			ShareWeightBox lDestShare = mDest.GetComponent<ShareWeightBox>();
+			ShareWeightBox lSourceShare = mSource.GetComponent<ShareWeightBox>();
 			mLightBallShare.Clear();
 
 			//共有ボックスの数だけ光の弾を生成
-			foreach (var s in lDestShare.GetShareAllListExceptOwn())
-			{
+			foreach (var s in lSourceShare.GetShareAllListExceptOwn()) {
 
 				GameObject l = Instantiate(mLightBallPrefab, transform);
-				l.GetComponent<LightBall>().InitPoint(GetMassPosition(mDest), GetMassPosition(s.gameObject));
+				l.GetComponent<LightBall>().InitPoint(GetMassPosition(mSource), GetMassPosition(s.gameObject));
 				l.GetComponent<LightBall>().PlayEffect();
 				mLightBallShare.Add(l);
 			}
@@ -583,19 +582,17 @@ public class MassShift : MonoBehaviour
 			//移す先の共有ボックスと、他の共有ボックスの一番近い距離を求め、その時間で到達するように速度を変更する
 			//
 			float lMinDistance = float.MaxValue;
-			foreach (var l in mLightBallShare)
-			{
+			foreach (var l in mLightBallShare) {
 				LightBall lc = l.GetComponent<LightBall>();
 				lMinDistance = Mathf.Min((lc.From - lc.To).magnitude, lMinDistance);
 			}
 
-			foreach (var l in mLightBallShare)
-			{
+			foreach (var l in mLightBallShare) {
 				LightBall lc = l.GetComponent<LightBall>();
 				lc.mMoveSpeed = (lc.From - lc.To).magnitude / lMinDistance * mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed;
 			}
 
-			SoundManager.SPlay(mShiftDestSE);
+			SoundManager.SPlay(mShiftSourceSE);
 		}
 
 
@@ -605,15 +602,13 @@ public class MassShift : MonoBehaviour
 		var lShareList = mSource.GetComponent<ShareWeightBox>().GetShareAllListExceptOwn();
 
 		bool lAllReach = true;
-		for (int i = 0; i < mLightBallShare.Count; i++)
-		{
+		for (int i = 0; i < mLightBallShare.Count; i++) {
 
 			LightBall l = mLightBallShare[i].GetComponent<LightBall>();
 			ShareWeightBox s = lShareList[i].GetComponent<ShareWeightBox>();
-			l.SetPoint(GetMassPosition(mDest), GetMassPosition(s.gameObject));
+			l.SetPoint(GetMassPosition(mSource), GetMassPosition(s.gameObject));
 			l.UpdatePoint();
-			if (l.IsReached == false)
-			{
+			if (l.IsReached == false) {
 				lAllReach = false;
 			}
 		}
@@ -627,11 +622,11 @@ public class MassShift : MonoBehaviour
 			}
 
 			//見かけの重さを戻す
-			foreach (var s in mDest.GetComponent<ShareWeightBox>().GetShareAllListExceptOwn()) {
+			foreach (var s in mSource.GetComponent<ShareWeightBox>().GetShareAllListExceptOwn()) {
 				s.GetComponent<WeightManager>().WeightLvSeem += GetShiftWeight();
 			}
 			ChangeState(CSelectState.cFail);    //失敗状態へ
-			SoundManager.SPlay(mShiftDestSE);
+			SoundManager.SPlay(mShiftSourceSE);
 		}
 
 	}
