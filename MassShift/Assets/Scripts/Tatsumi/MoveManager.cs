@@ -373,6 +373,7 @@ public class MoveManager : MonoBehaviour {
 						((moveWeightMng.WeightLv > hitWeightMng.WeightLv) ||		// 自身の重さレベルが相手の重さレベルより重い、又は
 						(moveMng.extrusionForcible || _extrusionForcible));         // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
 					bool stopFlg = false;   // 移動量を削除するフラグ
+					bool breakFlg = false;
 	
 					// 押し出せない場合
 					if (!canExtrusion) {
@@ -387,7 +388,7 @@ public class MoveManager : MonoBehaviour {
 						ret = false;
 
 						//	より遠いオブジェクトとの処理は行わない
-						break;
+						breakFlg = true;
 					}
 					// 押し出せる場合
 					else {
@@ -443,6 +444,10 @@ public class MoveManager : MonoBehaviour {
 						moveMng.GravityCustomFlg = false;
 					}
 					/**/
+
+					if (breakFlg) {
+						break;
+					}
 				}
 ///				dis += ColMargin;
 ///				///Debug.LogError("dis:" + dis);

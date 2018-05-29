@@ -447,4 +447,8 @@ public class Player : MonoBehaviour {
 		}
 	}
 	//	}
+
+	void ClimbJump() {
+		
+	}
 }
