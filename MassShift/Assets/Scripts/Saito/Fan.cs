@@ -11,7 +11,7 @@ public class Fan : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		UpdateRotate();
 		UpdateWindHitList();
 		ApplyWindMove();
@@ -32,6 +32,22 @@ public class Fan : MonoBehaviour {
 	//風に当たっているオブジェクトを動かす
 	void ApplyWindMove() {
 		//TODO
+		foreach (var windHit in mWindHitList) {
+			MoveManager hitMoveMng = windHit.GetComponent<MoveManager>();
+			WeightManager hitWeightMng = windHit.GetComponent<WeightManager>();
+			if (hitMoveMng && hitWeightMng &&
+				(hitWeightMng.WeightLv < WeightManager.Weight.heavy)) {
+				// 左右移動を加える
+				if (MoveManager.Move(GetDirectionVector(mDirection) * 0.1f, windHit.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Player", "Box" }))) {
+					// 上下の移動量を削除
+					hitMoveMng.StopMoveVirticalAll();
+
+					// 左右の移動量を削除
+					hitMoveMng.StopMoveHorizontalAll();
+				}
+			}
+		}
+
 	}
 
 	List<GameObject> GetWindHitList() {

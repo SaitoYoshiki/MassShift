@@ -314,6 +314,10 @@ public class Lifting : MonoBehaviour {
 				Pl.CanShift = false;
 				Pl.CanRotation = false;
 
+				// 移動量を削除
+				MoveMng.StopMoveVirticalAll();
+				MoveMng.StopMoveHorizontalAll();
+
 				// 持ち上げ開始
 				return LiftUp(liftableObj);
 			} else {
@@ -329,6 +333,10 @@ public class Lifting : MonoBehaviour {
 
 			// 下ろし始める
 			LiftDown();
+
+			// 移動量を削除
+			MoveMng.StopMoveVirticalAll();
+			MoveMng.StopMoveHorizontalAll();
 
 			break;
 

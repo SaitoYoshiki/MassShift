@@ -57,12 +57,13 @@ public class MassShift : MonoBehaviour
 	void PlayerIsShift(bool aValue) {
 		var p = FindObjectOfType<Player>();
 		if (p == null) return;
-		p.IsShift = aValue;
+		//p.IsShift = aValue;
 	}
 	bool PlayerCanShift() {
 		var p = FindObjectOfType<Player>();
 		if (p == null) return true;
-		return p.CanShift;
+		return true;
+		//return p.CanShift;
 	}
 
 

@@ -242,13 +242,13 @@ public class Player : MonoBehaviour {
 		Rotate();
 
 		// 着地アニメーション
-		if (Land.IsLanding && Land.IsLandingChange) {
+		if ((Land.IsLanding && Land.IsLandingChange) ||
+			(land.IsWaterFloatLanding && Land.IsWaterFloatLandingChange)) {
 			Land.IsLandingChange = false;
-
+			Land.IsWaterFloatLandingChange = false;
 			if (!Lift.IsLifting) {
 				PlAnim.StartLand();
-			}
-			else {
+			} else {
 				PlAnim.StartHoldLand();
 			}
 		}
@@ -259,8 +259,7 @@ public class Player : MonoBehaviour {
 			if (!isJump) {
 				if (!Lift.IsLifting) {
 					PlAnim.StartFall();
-				}
-				else {
+				} else {
 					PlAnim.StartHoldFall();
 				}
 			}
@@ -311,7 +310,7 @@ public class Player : MonoBehaviour {
 		if (!canJump) return false;
 
 		// ステージに接地、又は水面で安定していなければ
-		Debug.LogWarning("IsLanding:" + Land.IsLanding);
+//		Debug.LogWarning("IsLanding:" + Land.IsLanding);
 		//if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
 		if (!(Land.IsLanding || WaterStt.IsWaterSurface)) {
 			PileWeight pile = GetComponent<PileWeight>();
@@ -321,8 +320,11 @@ public class Player : MonoBehaviour {
 			foreach (var pileObj in pileObjs) {
 				Landing pileLand = pileObj.GetComponent<Landing>();
 				WaterState pileWaterStt = pileObj.GetComponent<WaterState>();
-				if ((pileLand && (pileLand.IsLanding || pileLand.IsExtrusionLanding)) || (pileWaterStt && (pileWaterStt.IsWaterSurface))) {
+				//				WaterState pileWaterStt = pileObj.GetComponent<WaterState>();
+				//				if ((pileLand && (pileLand.IsLanding || pileLand.IsExtrusionLanding)) || (pileWaterStt && (pileWaterStt.IsWaterSurface))) {
+				if ((pileLand && (pileLand.IsLanding || pileLand.IsExtrusionLanding || pileWaterStt.IsWaterSurface))) {
 					stagePile = true;
+					break;
 				}
 			}
 			if ((pileObjs.Count == 0) || !stagePile) {
@@ -379,9 +381,10 @@ public class Player : MonoBehaviour {
 		return true;
 	}
 	void WalkDown() {
-		// 接地中でなく、水上で安定状態もなければ
-		if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
-
+		// 接地中でなく、水上での安定状態でもなければ
+		if (!Land.IsLanding && !WaterStt.IsWaterSurface && !Land.IsWaterFloatLanding) {
+			// 水上で安定状態のオブジェクトやそれに積み重なっているオブジェクトの上でもなければ
+			List<Transform> underPileObj = GetComponent<PileWeight>().GetPileBoxList(Vector3.down);
 			return;
 		}
 
@@ -444,4 +447,8 @@ public class Player : MonoBehaviour {
 		}
 	}
 	//	}
+
+	void ClimbJump() {
+		
+	}
 }

@@ -60,12 +60,11 @@ public class PileWeight : MonoBehaviour {
 		hitObjList.Remove(transform);
 
 		//パイルを持っていないオブジェクトは排除
-		for(int i = hitObjList.Count - 1; i >= 0; i--) {
-			if(hitObjList[i].GetComponent<PileWeight>() == null) {
+		for (int i = hitObjList.Count - 1; i >= 0; i--) {
+			if (hitObjList[i].GetComponent<PileWeight>() == null) {
 				hitObjList.RemoveAt(i);
 			}
 		}
-
 
 		// 指定方向の反対側の四辺コライダーに接触している対象オブジェクトのコライダーをリスト化	
 		List<Collider> outColList = new List<Collider>();
