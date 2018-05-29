@@ -385,6 +385,9 @@ public class MoveManager : MonoBehaviour {
 
 						// 指定位置まで移動できない
 						ret = false;
+
+						//	より遠いオブジェクトとの処理は行わない
+						break;
 					}
 					// 押し出せる場合
 					else {
