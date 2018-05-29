@@ -20,8 +20,9 @@ public class Lifting : MonoBehaviour {
 	[SerializeField] Collider liftingCol = null;    // 持ち上げ中の本体当たり判定
 	[SerializeField] float stdLiftingColPoint = 1.0f;	// 接地方向が通常時の持ち上げ中の本体当たり判定の位置
 	[SerializeField] float revLiftingColPoint = 0.0f;	// 接地方向が逆の時の持ち上げ中の本体当たり判定の位置
-	[SerializeField] float liftObjMaxDisX = 0.9f;		// 持ち上げ時にx軸距離がこれ以上離れないように補正
-	[SerializeField] LiftState st;
+	[SerializeField] float liftObjMaxDisX = 0.9f;       // 持ち上げ時にx軸距離がこれ以上離れないように補正
+	[SerializeField] bool afterHoldInput = false;		// 持ち上げ/下ろし後にそのまま入力を続けている
+	[SerializeField] LiftState st;	
 	public LiftState St {
 		get {
 			return st;
@@ -104,6 +105,12 @@ public class Lifting : MonoBehaviour {
 
 	void Update() {
 		UpdateLifting();
+
+		// 入力がなければ
+		if (Input.GetAxis("Lift") == 0.0f) {
+			// 処理後状態を解除
+			afterHoldInput = false;
+		}
 	}
 
 	void UpdateLifting() {
@@ -153,8 +160,8 @@ public class Lifting : MonoBehaviour {
 
 				plAnim.ExitCatch();
 
-				// 持ち上げ中状態
-				St = LiftState.lifting;
+//				// 持ち上げ後処理状態
+//				St = LiftState.liftUpAfterHoldInput;
 			}
 			break;
 
@@ -170,8 +177,9 @@ public class Lifting : MonoBehaviour {
 				// 同期できなければ離す
 				LiftEndObject(liftObj, false);
 
-				// 待機状態に
+				// 下ろし処理後状態に
 				St = LiftState.standby;
+				afterHoldInput = true;
 
 				// アニメーション遷移
 				PlAnim.ExitRelease();
@@ -196,8 +204,9 @@ public class Lifting : MonoBehaviour {
 				//				MoveManager.MoveTo(liftPoint.position, liftObj.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "" }));
 				//				liftObj = null;
 
-				// 待機状態に
+				// 下ろし処理後状態に
 				St = LiftState.standby;
+				afterHoldInput = true;
 
 				// アニメーション遷移
 				PlAnim.ExitRelease();
@@ -214,9 +223,11 @@ public class Lifting : MonoBehaviour {
 				Debug.Log("持ち上げ失敗に失敗");
 
 				// 同期できなければ下ろす
-				St = LiftState.standby;
-
 				LiftEndObject(liftObj, false);
+
+				// 下ろし処理後状態に
+				St = LiftState.standby;
+				afterHoldInput = true;
 
 				// 待機アニメーションへの遷移
 				PlAnim.ExitCatchFailed();
@@ -281,6 +292,9 @@ public class Lifting : MonoBehaviour {
 	}
 
 	public GameObject Lift() {
+		// 処理後状態なら入力が解除されるまで処理しない
+		if (afterHoldInput) return null;
+
 		Debug.Log("lift");
 		switch (St) {
 		case LiftState.standby:
@@ -408,13 +422,15 @@ public class Lifting : MonoBehaviour {
 
 		// 持ち上げきったのなら
 		if (_liftUp) {
-			// 持ち上げ状態に遷移
+			// 持ち上げ処理後状態に
 			St = LiftState.lifting;
+			afterHoldInput = true;
 		}
 		// 下ろし切ったのなら
 		else {
-			// 待機状態に遷移
+			// 処理後状態に
 			St = LiftState.standby;
+			afterHoldInput = true;
 
 			// 持ち上げオブジェクト中をnullに
 			liftObj = null;

@@ -213,12 +213,15 @@ public class Player : MonoBehaviour {
 		// 持ち上げ/下げ
 		if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation) {
 			if ((Input.GetAxis("Lift") != 0.0f)) {
-				if (!liftTrg) {
+				if (canInputHoldLift) {
+					//if (!liftTrg) {
 					Lift.Lift();
+
+					//}
+					//	liftTrg = true;
+					//} else {
+					//	liftTrg = false;
 				}
-				liftTrg = true;
-			} else {
-				liftTrg = false;
 			}
 		}
 	}
