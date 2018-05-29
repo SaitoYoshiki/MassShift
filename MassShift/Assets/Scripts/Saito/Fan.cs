@@ -19,7 +19,7 @@ public class Fan : MonoBehaviour {
 
 	//モデルの回転処理
 	void UpdateRotate() {
-		float lRotateDegree = Time.deltaTime * 360.0f * mRotateSpeed;
+		float lRotateDegree = Time.fixedDeltaTime * 360.0f * mRotateSpeed;
 		//mRotateFanModel.transform.localRotation *= Quaternion.Euler(0.0f, 0.0f, lRotateDegree);
 		mRotateFanModel.transform.localRotation *= Quaternion.Euler(lRotateDegree, 0.0f, 0.0f);
 	}
@@ -38,7 +38,7 @@ public class Fan : MonoBehaviour {
 			if (hitMoveMng && hitWeightMng &&
 				(hitWeightMng.WeightLv < WeightManager.Weight.heavy)) {
 				// 左右移動を加える
-				if (MoveManager.Move(GetDirectionVector(mDirection) * 0.1f, windHit.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Player", "Box" }))) {
+				if (MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, windHit.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Player", "Box" }))) {
 					// 上下の移動量を削除
 					hitMoveMng.StopMoveVirticalAll();
 
@@ -63,13 +63,19 @@ public class Fan : MonoBehaviour {
 		var lRes = new List<GameObject>();
 
 		foreach(var h in lHit) {
-			//ステージに達するまで風は適用される
-			if (h.mGameObject.layer == LayerMask.NameToLayer("Stage")) {
-				break;
-			}
+			//どのオブジェクトも、3つの風判定のうち1つしか当たっていないと効果範囲外
 			if(h.mHitTimes < 2) {
 				continue;
 			}
+			//ステージなら、障害物扱いなので風を止める
+			if (h.mGameObject.layer == LayerMask.NameToLayer("Stage")) {
+				break;
+			}
+			//重いオブジェクトなら、風を止める
+			if (h.mGameObject.GetComponent<WeightManager>().WeightLv == WeightManager.Weight.heavy) {
+				break;
+			}
+			//風が適用されるオブジェクト
 			lRes.Add(h.mGameObject);
 		}
 
@@ -164,6 +170,9 @@ public class Fan : MonoBehaviour {
 
 	[SerializeField, Tooltip("風が吹く方向")]
 	CDirection mDirection;
+
+	[SerializeField, EditOnPrefab, Tooltip("オブジェクトを飛ばす速度")]
+	float mWindMoveSpeed = 0.1f;
 
 	[SerializeField, EditOnPrefab, Tooltip("ファンの回転する速度")]
 	float mRotateSpeed;

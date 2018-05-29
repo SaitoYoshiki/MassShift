@@ -23,7 +23,7 @@ public class ChangeStageScene : MonoBehaviour {
 		using (new GUILayout.HorizontalScope()) {
 
 			foreach(var s in mSceneNameList) {
-				if (GUILayout.Button(s, GUILayout.MinWidth(200.0f), GUILayout.MinHeight(100.0f))) {
+				if (GUILayout.Button(s, GUILayout.MinWidth(100.0f), GUILayout.MinHeight(50.0f))) {
 					UnityEngine.SceneManagement.SceneManager.LoadScene(s);
 				}
 			}
