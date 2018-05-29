@@ -309,9 +309,9 @@ public class Lifting : MonoBehaviour {
 				liftPoint.rotation, float.Epsilon, boxMask));
 			GameObject liftableObj = null;
 			float dis = float.MaxValue;
-			Debug.LogWarning(hitInfos.Count);
+//			Debug.LogWarning(hitInfos.Count);
 			foreach (var hitInfo in hitInfos) {
-				Debug.LogWarning(hitInfo.collider.name + " " + hitInfo.collider.tag);
+//				Debug.LogWarning(hitInfo.collider.name + " " + hitInfo.collider.tag);
 				if ((hitInfo.collider.tag == "LiftableObject") && (hitInfo.distance < dis)) {
 					liftableObj = hitInfo.collider.gameObject;
 					dis = hitInfo.distance;

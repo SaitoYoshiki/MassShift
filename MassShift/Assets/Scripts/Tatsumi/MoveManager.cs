@@ -282,9 +282,9 @@ public class MoveManager : MonoBehaviour {
 			}
 		}
 
-		if (name == "Player_test") {
-			Debug.LogWarning("move:" + move);
-		}
+//		if (name == "Player_test") {
+//			Debug.LogWarning("move:" + move);
+//		}
 
 		// 移動
 		Vector3 resMove;    // 実際に移動出来た移動量

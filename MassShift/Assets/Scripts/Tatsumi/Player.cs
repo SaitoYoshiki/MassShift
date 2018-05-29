@@ -196,10 +196,18 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	float jumpStartOneTimeLimitSpd = 1.0f;
 
-	// Use this for initialization
-	//	void Start () {}
+	[SerializeField]
+	Transform ClimbJumpCollider = null;   // 自動ジャンプ当たり判定
+	[SerializeField]
+	LayerMask climbJumpMask;
+	[SerializeField]
+	bool autoClimbJumpMask = true;
+	[SerializeField]
+	List<float> ClimbJumpWeightLvHeight = new List<float>(3);
+	void Awake () {
+		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box" });
+	}
 
-	// Update is called once per frame
 	void Update() {
 		// 左右移動入力
 		walkStandbyVec = Input.GetAxis("Horizontal");
@@ -241,6 +249,9 @@ public class Player : MonoBehaviour {
 
 		// 左右上下回転
 		Rotate();
+
+		// 自動ジャンプ
+		ClimbJump();
 
 		// 着地アニメーション
 		if ((Land.IsLanding && Land.IsLandingChange) ||
@@ -450,6 +461,46 @@ public class Player : MonoBehaviour {
 	//	}
 
 	void ClimbJump() {
-		
+		// 持ち上げ中や持ち上げ入力があれば処理しない
+		if (Lift.IsLifting || (Input.GetAxis("Lift") != 0.0f)) return;
+
+		// ジャンプ可能でなければ処理しない
+		if (!canJump) return;
+
+		// 接地中でも水上安定中でもなく、水上安定中ブロックに乗ってもいなければ処理しない
+		if (!Land.IsLanding && !Land.IsWaterFloatLanding && !Land.IsWaterFloatLanding) return;
+
+		// 左右への移動入力がなければ処理しない
+		if (walkStandbyVec == 0.0f) return;
+
+		// 自動ジャンプ判定がなければ処理しない
+		if (!ClimbJumpCollider) return;
+
+		// 自動ジャンプ判定内に対象オブジェクトがなければ処理しない
+		if (Physics.OverlapBox(ClimbJumpCollider.transform.position, ClimbJumpCollider.transform.lossyScale * 0.5f, ClimbJumpCollider.transform.rotation, climbJumpMask).Length <= 0) return;
+
+		// 現在の向きと移動入力方向が異なれば処理しない
+		if (Vector3.Dot((ClimbJumpCollider.position - transform.position), (Vector3.right * walkStandbyVec)) <= 0.0f) return;
+
+		// ジャンプアニメーション
+		if (!Lift.IsLifting) {
+			PlAnim.StartJump();
+		} else {
+			PlAnim.StartHoldJump();
+		}
+
+		// 前回までの上下方向の加速度を削除
+		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+
+		// 左右方向の移動量も一更新だけ制限
+		MoveMng.OneTimeMaxSpd = jumpStartOneTimeLimitSpd;
+
+		// 上方向へ加速
+		MoveMng.AddMove(new Vector3(0.0f, ClimbJumpWeightLvHeight[(int)WeightMng.WeightLv], 0.0f));
+
+		// 離地
+		Land.IsLanding = false;
+		WaterStt.IsWaterSurface = false;
+		WaterStt.BeginWaterStopIgnore();
 	}
 }
