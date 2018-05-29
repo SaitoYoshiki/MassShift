@@ -97,7 +97,6 @@ public class cameraMove : MonoBehaviour {
         else {
             if (Input.anyKeyDown) {
                 // 「InputAnyKey」の表示を消す
-                Debug.Log("inputany");
                 text.SetActive(false);
                 firstZoom = true;
                 zoomInFlg = true;

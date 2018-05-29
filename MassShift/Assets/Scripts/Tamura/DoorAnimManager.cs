@@ -8,17 +8,18 @@ public class DoorAnimManager : MonoBehaviour {
     MonoColorFade monoFade;
 
     string sceneName;       // 現在のシーン名
-    [SerializeField]
     int openDoorCount;      // 開き終わったドアの数
-    [SerializeField]
     int closeDoorCount;     // 閉まり終わったドアの数
-    [SerializeField]
+
     bool isDoorAnimating;   // ドアがアニメーションしているか
 
-    [SerializeField]
     bool isDoorOpenEnd;     // ドアの開き演出が終わったかどうか
-    [SerializeField]
     bool isDoorCloseEnd;    // ドアの閉まり演出が終わったかどうか
+
+    [SerializeField]
+    GameObject doorOpenSEPrefab;
+    [SerializeField]
+    GameObject doorCloseSEPrefab;
 
 	void Awake () {
         openDoorCount = 0;
@@ -35,26 +36,6 @@ public class DoorAnimManager : MonoBehaviour {
             return;
         }
         else{
-            // ドアが全て開き終わったら
-            /*if (openDoorCount >= doorList.Count) {
-                // ステージセレクトシーン以外では
-                if (sceneName != "StageSelect") {
-                    // ステージ名フェードイン開始
-                    StageName.SetActive(true);
-                    if (!monoFade.IsFading()) {
-                        Debug.Log("文字フェード終了");
-                        // ステージ名フェードアウトが終了した
-                        isDoorOpenEnd = true;
-                        Debug.Log("開き演出終了" + isDoorOpenEnd);
-                    }
-                }
-                // ステージセレクトシーンでは
-                else {
-                    // ステージ名を出さず開き演出終了
-                    isDoorOpenEnd = true;
-                }
-            }*/
-
             CheckOpenEnd();
             CheckCloseEnd();
         }
@@ -62,6 +43,7 @@ public class DoorAnimManager : MonoBehaviour {
 
     // ドア開き開始(親から呼び出し)
     public void StartDoorOpen() {
+        SoundManager.SPlay(doorOpenSEPrefab);
         foreach (GameObject door in doorList) {
             door.GetComponent<StageChangeScenematic>().StartOpening();
         }
@@ -71,6 +53,7 @@ public class DoorAnimManager : MonoBehaviour {
 
     // ドア閉じ開始(親から呼び出し)
     public void StartDoorClose() {
+        SoundManager.SPlay(doorCloseSEPrefab);
         foreach (GameObject door in doorList) {
             door.GetComponent<StageChangeScenematic>().StartClosing();
         }

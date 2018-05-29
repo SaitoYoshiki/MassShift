@@ -65,10 +65,10 @@ public class StageTransition : MonoBehaviour {
     // ドア閉め演出が終了したかどうか取得
     public bool GetCloseEnd() {
         if (area > 0) {
-            return door[area - 1].GetComponent<DoorAnimManager>().isCloseEnd();
+            return false;
         }
         else {
-            return door[0].GetComponent<DoorAnimManager>().isCloseEnd();
+            return false;
         }
     }
 }
