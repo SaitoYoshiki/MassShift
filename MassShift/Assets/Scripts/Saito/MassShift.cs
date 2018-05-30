@@ -448,6 +448,13 @@ public class MassShift : MonoBehaviour
 		lLightBall.UpdatePoint();
 
 
+		//もし障害物に当たっていたら
+		if (lLightBall.IsHit) {
+			SoundManager.SPlay(mCancelShiftSE);
+			ChangeState(CSelectState.cReturnToSource);
+			return;
+		}
+
 		//もし移し先へ到達していたら
 		if (lLightBall.IsReached) {
 			
@@ -471,13 +478,6 @@ public class MassShift : MonoBehaviour
 				SoundManager.SPlay(mCantShiftSE);
 				return;
 			}
-		}
-
-		//もし障害物に当たっていたら
-		if (lLightBall.IsHit) {
-			SoundManager.SPlay(mCancelShiftSE);
-			ChangeState(CSelectState.cReturnToSource);
-			return;
 		}
 	}
 
