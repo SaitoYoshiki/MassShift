@@ -144,7 +144,7 @@ public class StageBlock : MonoBehaviour {
 	}
 
 	[ContextMenu("Resize")]
-	void Resize()
+	public void Resize()
 	{
 		if (this == null) return;
 		if (EditorUtility.IsPrefab(gameObject)) return;
