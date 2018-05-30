@@ -43,7 +43,7 @@ public class Fence : MonoBehaviour
 #if UNITY_EDITOR
 
 	[ContextMenu("Resize")]
-	void Resize()
+	public void Resize()
 	{
 		if (this == null) return;
 		if (EditorUtility.IsPrefab(gameObject)) return;
