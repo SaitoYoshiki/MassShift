@@ -140,7 +140,7 @@ public class OnewayFloor : MonoBehaviour {
 	}
 
 	[ContextMenu("Resize")]
-	void Resize() {
+	public void Resize() {
 		if (this == null) return;
 		if (EditorUtility.IsPrefab(gameObject)) return;
 		if (UnityEditor.EditorApplication.isPlaying) return;

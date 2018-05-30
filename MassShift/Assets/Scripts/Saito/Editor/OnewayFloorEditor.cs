@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(Fence)), CanEditMultipleObjects]
-public class FenceEditor : Editor {
+[CustomEditor(typeof(OnewayFloor)), CanEditMultipleObjects]
+public class OnewayFloorEditor : Editor {
 
 	public override void OnInspectorGUI() {
-		
+
 		EditorGUI.BeginChangeCheck();
 
 		base.OnInspectorGUI();
@@ -16,8 +16,8 @@ public class FenceEditor : Editor {
 			Resize();
 		}
 
-		//ボタンが押されたら、サイズの適用を行う
-		if (GUILayout.Button("サイズを適用")) {
+		//ボタンが押されたら、サイズ変更を行う
+		if (GUILayout.Button("サイズ・上下の向きを適用")) {
 			Resize();
 		}
 	}
@@ -25,8 +25,8 @@ public class FenceEditor : Editor {
 	void Resize() {
 		Undo.RecordObjects(targets, "Resize");
 		foreach (var t in targets) {
-			Fence lFence = t as Fence;
-			lFence.Resize();
+			OnewayFloor lOnewayFloor = t as OnewayFloor;
+			lOnewayFloor.Resize();
 		}
 	}
 }
