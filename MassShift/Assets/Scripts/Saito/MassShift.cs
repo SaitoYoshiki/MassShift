@@ -291,7 +291,8 @@ public class MassShift : MonoBehaviour
 
 			foreach (var l in mLightBallShare) {
 				LightBall lc = l.GetComponent<LightBall>();
-				lc.mMoveSpeed = (lc.From - lc.To).magnitude / lMinDistance * mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed;
+				float lSpeed = (lc.From - lc.To).magnitude / lMinDistance * mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed;
+				lc.mMoveSpeed = Mathf.Min(lSpeed, mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed * 2);	//速度を制限する
 			}
 
 			SoundManager.SPlay(mShiftSourceSE);
@@ -362,7 +363,8 @@ public class MassShift : MonoBehaviour
 
 			foreach (var l in mLightBallShare) {
 				LightBall lc = l.GetComponent<LightBall>();
-				lc.mMoveSpeed = (lc.From - lc.To).magnitude / lMinDistance * mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed;
+				float lSpeed = (lc.From - lc.To).magnitude / lMinDistance * mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed;
+				lc.mMoveSpeed = Mathf.Min(lSpeed, mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed * 2);    //速度を制限する
 			}
 
 			SoundManager.SPlay(mShiftDestSE);
@@ -446,6 +448,13 @@ public class MassShift : MonoBehaviour
 		lLightBall.UpdatePoint();
 
 
+		//もし障害物に当たっていたら
+		if (lLightBall.IsHit) {
+			SoundManager.SPlay(mCancelShiftSE);
+			ChangeState(CSelectState.cReturnToSource);
+			return;
+		}
+
 		//もし移し先へ到達していたら
 		if (lLightBall.IsReached) {
 			
@@ -469,13 +478,6 @@ public class MassShift : MonoBehaviour
 				SoundManager.SPlay(mCantShiftSE);
 				return;
 			}
-		}
-
-		//もし障害物に当たっていたら
-		if (lLightBall.IsHit) {
-			SoundManager.SPlay(mCancelShiftSE);
-			ChangeState(CSelectState.cReturnToSource);
-			return;
 		}
 	}
 
@@ -589,7 +591,8 @@ public class MassShift : MonoBehaviour
 
 			foreach (var l in mLightBallShare) {
 				LightBall lc = l.GetComponent<LightBall>();
-				lc.mMoveSpeed = (lc.From - lc.To).magnitude / lMinDistance * mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed;
+				float lSpeed = (lc.From - lc.To).magnitude / lMinDistance * mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed;
+				lc.mMoveSpeed = Mathf.Min(lSpeed, mLightBallTemplate.GetComponent<LightBall>().mMoveSpeed * 2);    //速度を制限する
 			}
 
 			SoundManager.SPlay(mShiftSourceSE);

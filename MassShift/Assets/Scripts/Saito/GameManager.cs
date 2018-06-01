@@ -46,15 +46,19 @@ public class GameManager : MonoBehaviour {
 		//ステージ開始時の演出
 		//
 
-		//プレイヤーを操作不可に
-		OnCantOperation();
+		//現状Area2とArea3のフェード演出などが結合できていないため、フェードが終わらずにプレイできない
+		//とりあえずプレイするためにエリア番号によって最初の演出をするかどうか決めている
+		if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
+			//プレイヤーを操作不可に
+			OnCantOperation();
 
-		mTransition.OpenDoorParent();
+			mTransition.OpenDoorParent();
 
-		//演出が終了するまで待機
-		while (true) {
-			if (mTransition.GetOpenEnd()) break;
-			yield return null;
+			//演出が終了するまで待機
+			while (true) {
+				if (mTransition.GetOpenEnd()) break;
+				yield return null;
+			}
 		}
 
 		//BGMを再生する

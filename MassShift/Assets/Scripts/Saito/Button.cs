@@ -67,8 +67,7 @@ public class Button : MonoBehaviour {
 
 #if UNITY_EDITOR
 
-	private void OnValidate()
-	{
+	public void Resize() {
 		if (this == null) return;
 		if (EditorUtility.IsPrefab(gameObject)) return;
 
@@ -83,6 +82,10 @@ public class Button : MonoBehaviour {
 				Debug.LogError("Button Direction Is None", this);
 				break;
 		}
+	}
+
+	private void OnValidate() {
+		//Resize();
 	}
 
 #endif
