@@ -234,6 +234,9 @@ public class Goal : MonoBehaviour {
 			Destroy(mLampModel.transform.GetChild(i).gameObject);
 		}
 
+		//ボタンの数が0なら、ランプ部分を作成しない
+		if (mButtonList.Count == 0) return;
+
 		//モデルの配置
 
 		mLampList = new List<GameObject>();
