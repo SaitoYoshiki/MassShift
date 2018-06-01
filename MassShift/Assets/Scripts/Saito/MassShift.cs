@@ -271,7 +271,7 @@ public class MassShift : MonoBehaviour
 			//共有ボックスの数だけ光の弾を生成
 			foreach (var s in lSourceShare.GetShareAllListExceptOwn()) {
 
-				GameObject l = Instantiate(mLightBallPrefab, transform);
+				GameObject l = Instantiate(mLightBallSharePrefab, transform);
 				l.GetComponent<LightBall>().InitPoint(GetMassPosition(s.gameObject), GetMassPosition(mSource));
 				l.GetComponent<LightBall>().PlayEffect();
 				mLightBallShare.Add(l);
@@ -345,7 +345,7 @@ public class MassShift : MonoBehaviour
 			//共有ボックスの数だけ光の弾を生成
 			foreach (var s in lDestShare.GetShareAllListExceptOwn()) {
 
-				GameObject l = Instantiate(mLightBallPrefab, transform);
+				GameObject l = Instantiate(mLightBallSharePrefab, transform);
 				l.GetComponent<LightBall>().InitPoint(GetMassPosition(mDest), GetMassPosition(s.gameObject));
 				l.GetComponent<LightBall>().PlayEffect();
 				mLightBallShare.Add(l);
@@ -573,7 +573,7 @@ public class MassShift : MonoBehaviour
 			//共有ボックスの数だけ光の弾を生成
 			foreach (var s in lSourceShare.GetShareAllListExceptOwn()) {
 
-				GameObject l = Instantiate(mLightBallPrefab, transform);
+				GameObject l = Instantiate(mLightBallSharePrefab, transform);
 				l.GetComponent<LightBall>().InitPoint(GetMassPosition(mSource), GetMassPosition(s.gameObject));
 				l.GetComponent<LightBall>().PlayEffect();
 				mLightBallShare.Add(l);
@@ -759,18 +759,21 @@ public class MassShift : MonoBehaviour
 		cShotLineNotThrough,	//選択時、射線が通っていない
 	}
 
-	[SerializeField, PrefabOnly]
+	[SerializeField, EditOnPrefab]
 	GameObject mMassShiftLinePrefab;
 
 	GameObject mMassShiftLine;
 
-	[SerializeField, PrefabOnly]
+	[SerializeField, EditOnPrefab]
 	GameObject mCursorPrefab;
 
 	GameObject mCursor;
 
-	[SerializeField, PrefabOnly]
+	[SerializeField, EditOnPrefab, Tooltip("重さを移す玉")]
 	GameObject mLightBallPrefab;
+
+	[SerializeField, EditOnPrefab, Tooltip("共有ボックスの、重さを移す玉")]
+	GameObject mLightBallSharePrefab;
 
 	GameObject mLightBallTemplate;	//ひな型としてインスタンス化しておく
 	GameObject mLightBall;	//重さを移すときに使う
