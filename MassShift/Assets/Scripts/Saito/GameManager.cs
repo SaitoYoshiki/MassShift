@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour {
 
 	Pause mPause;
 
+	[SerializeField]
+	bool _Debug_ClearFlag = false;	//クリアしたことにするフラグ
 
 	// Use this for initialization
 	void Start() {
@@ -86,7 +88,7 @@ public class GameManager : MonoBehaviour {
 
 			//ゴール判定
 			//
-			if (CanGoal()) {
+			if (CanGoal() || _Debug_ClearFlag) {
 				break;
 			}
 
@@ -105,6 +107,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	bool CanGoal() {
+		
 		//全てのボタンがオンでないなら
 		if (!mGoal.IsAllButtonOn) {
 			return false;   //ゴールできない
