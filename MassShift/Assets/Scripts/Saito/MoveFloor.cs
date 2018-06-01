@@ -195,11 +195,11 @@ public class MoveFloor : MonoBehaviour {
 	Vector3 GetTargetLocalPosition() {
 		switch (GetWeight()) {
 			case WeightManager.Weight.flying:
-				return Vector3.up * mUpHeight;
+				return Vector3.up * (mUpHeight - 0.02f);
 			case WeightManager.Weight.light:
 				return Vector3.zero;
 			case WeightManager.Weight.heavy:
-				return Vector3.down * mDownHeight;
+				return Vector3.down * (mDownHeight - 0.02f);
 		}
 		Debug.LogError("ErrorWeight", this);
 		return Vector3.zero;

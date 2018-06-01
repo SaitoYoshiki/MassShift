@@ -21,13 +21,13 @@ public class StageSelectManager : MonoBehaviour {
 	[SerializeField]
 	Color mStagePlateOffColor;
 
-	[SerializeField]
 	StageTransition mTransition;
 
 	// Use this for initialization
 	void Start() {
 
 		mPlayer = FindObjectOfType<Player>();
+		mTransition = FindObjectOfType<StageTransition>();
 
 		//ゲーム進行のコルーチンを開始
 		StartCoroutine(StageSelectMain());
