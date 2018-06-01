@@ -1,16 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Goal : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake() {
 
+		Resize();
+
+		/*
 		mLampList = new List<GameObject>();
-		for (int i = 0; i < mButtonList.Count; i++) {
-			mLampList.Add(mLampModel.transform.GetChild(i).gameObject);
+		for(int i = 0; i < mLampModel.transform.childCount; i++) {
+			if(mLampModel.transform.GetChild(i).name == mLampPrefab.name) {
+				mLampList.Add(mLampModel.transform.GetChild(i).gameObject);
+			}
 		}
+		mLampList = mLampList.OrderByDescending(x => x.transform.localPosition.y).ToList();
+		*/
 
 		TurnLamp();
 
@@ -62,6 +70,9 @@ public class Goal : MonoBehaviour {
 		if(mBeforeAllButtonOn == false) {
 			if(IsAllButtonOn == true) {
 				SetAnimation(true);
+				if(mPlayOpenSE) {
+					SoundManager.SPlay(mOpenSE);    //音を鳴らす
+				}
 			}
 		}
 
@@ -213,10 +224,49 @@ public class Goal : MonoBehaviour {
 		return aCollider.transform.position + aPositionOffset;
 	}
 
+
+	void Resize() {
+
+		mButtonList = FindObjectsOfType<Button>().ToList();
+
+		//現在のモデルの削除
+		for (int i = mLampModel.transform.childCount - 1; i >= 0; i--) {
+			Destroy(mLampModel.transform.GetChild(i).gameObject);
+		}
+
+		//モデルの配置
+
+		mLampList = new List<GameObject>();
+		//ランプ
+		for (int i = 0; i < mButtonList.Count; i++) {
+			GameObject lLamp = Instantiate(mLampPrefab, mLampModel.transform);
+			lLamp.transform.localPosition = mLampBasePosition + Vector3.down * mLampInterval * i;
+			mLampList.Add(lLamp);
+		}
+
+		//土台
+		Vector3 lBase = mLampBasePosition;
+
+		//上端
+		GameObject lTop = Instantiate(mLampTopPrefab, mLampModel.transform);
+		lTop.transform.localPosition = lBase;
+
+		//真ん中
+		for (int i = 0; i < mButtonList.Count - 1; i++) {
+			lBase += Vector3.down * mLampInterval;
+			GameObject lMid = Instantiate(mLampMidPrefab, mLampModel.transform);
+			lMid.transform.localPosition = lBase - Vector3.down * mLampInterval * 0.5f;
+		}
+
+		//下端
+		GameObject lBottom = Instantiate(mLampBottomPrefab, mLampModel.transform);
+		lBottom.transform.localPosition = lBase;
+	}
+
 #if UNITY_EDITOR
 
 	[ContextMenu("Resize")]
-	public void Resize() {
+	public void ResizeOnEditor() {
 
 		if (this == null) return;
 		if (EditorUtility.IsPrefab(gameObject)) return;
@@ -229,6 +279,7 @@ public class Goal : MonoBehaviour {
 		}
 
 		//モデルの配置
+
 
 		//ランプ
 		for (int i = 0; i < mButtonList.Count; i++) {
@@ -257,12 +308,12 @@ public class Goal : MonoBehaviour {
 
 
 	private void OnValidate() {
-		//UnityEditor.EditorApplication.delayCall += Resize;
+		//UnityEditor.EditorApplication.delayCall += ResizeOnEditor;
 	}
 
 #endif
 
-	[SerializeField]
+	//[SerializeField]
 	List<Button> mButtonList;
 
 	[SerializeField]
@@ -271,13 +322,19 @@ public class Goal : MonoBehaviour {
 	bool mBeforeAllButtonOn = false;
 	int mBeforeButtonOnCount = 0;
 
-	float mOpenRate = 0.0f;	//扉が開いている割合
+	float mOpenRate = 0.0f; //扉が開いている割合
 
-	[SerializeField, Tooltip("扉が開くのに何秒かかるか")]
+	[HideInInspector]
+	public bool mPlayOpenSE = true;
+
+	[SerializeField, Tooltip("扉が開くのに何秒かかるか"), EditOnPrefab]
 	float mOpenTakeTime = 1.0f;
 
-	[SerializeField, Tooltip("扉が閉まるのに何秒かかるか")]
+	[SerializeField, Tooltip("扉が閉まるのに何秒かかるか"), EditOnPrefab]
 	float mCloseTakeTime = 1.0f;
+
+	[SerializeField, Tooltip("扉が開くときに鳴るSE"), EditOnPrefab]
+	GameObject mOpenSE;
 
 	[SerializeField, Disable]
 	List<Player> mInPlayerList = new List<Player>();
@@ -310,7 +367,6 @@ public class Goal : MonoBehaviour {
 	float mLampInterval = 1.0f;
 
 	List<GameObject> mLampList;	//ランプのインスタンス。０から順に、上から
-
 
 	[SerializeField, EditOnPrefab, Tooltip("ゴールのモデル")]
 	GameObject mModel;

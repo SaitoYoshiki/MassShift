@@ -3,29 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-// ブラーの処理も統合する
-// PauseObjectという親オブジェクトを作り、そこにPause.csをアタッチ　
-
 // βでの実装予定
 // ドアに入れるようになった段階でキャラ手前に上矢印などGUI or 光る感圧板などの3Dオブジェクト(常設)と、ドアに入る為のキー操作(チュートリアルのみ)を表示する
+// ドアに入ったときにキャラクターをドア奥に向かって歩かせ、縮小とフェードを同時にかけてそれが完了したらリザルト画面を出す
+
+// ゲームパッドでの操作に対応させる
 
 public class Pause : MonoBehaviour {
     [SerializeField]
     GameObject pauseCanvas;
     [SerializeField]
     GameObject optionCanvas;
-
     [SerializeField]
+    GameObject quitCanvas;
+
     Blur blur;
 
-    // ゲームメイン側から受け取る、ポーズ可能かどうか
+    [SerializeField]
+    GameObject PauseStartSEPrefab;
+    [SerializeField]
+    GameObject PauseEndSEPrefab;
+    [SerializeField]
+    GameObject ButtonSelectSEPrefab;
+
+    // GameMain側から変更される、ポーズ可能かどうか
     public bool canPause = true;
 
-    public bool pauseFlg = false;
-    bool optionFlg = false;
-    float intencity;
-    float intencityMax = 10.0f;
-    float prevTime;
+    public bool pauseFlg = false;   // ポーズ中かどうか
+    bool optionFlg = false;         // オプション画面を開いているかどうか
+
+    float intencity = 0.0f;
 
     // ぼかし処理終了までの時間
     public float blurTime;
@@ -33,9 +40,12 @@ public class Pause : MonoBehaviour {
     // ポーズイベント
     public UnityEvent pauseEvent = new UnityEvent();
 
+    void Start() {
+        blur = Camera.main.GetComponent<Blur>();
+    }
+
     void Update() {
         var deltaTime = Time.unscaledDeltaTime;
-        //var deltaTime = Time.realtimeSinceStartup - prevTime;
 
         // Escキーでポーズ / ポーズ解除
         if (Input.GetKeyDown(KeyCode.Escape) && canPause) {
@@ -49,10 +59,12 @@ public class Pause : MonoBehaviour {
         }
 
         if (pauseFlg) {
-            intencity += intencityMax * (deltaTime / blurTime);
+            //intencity += intencityMax * (deltaTime / blurTime);
+            intencity += deltaTime / blurTime;
         }
         else {
-            intencity -= intencityMax * (deltaTime / blurTime);
+            //intencity -= intencityMax * (deltaTime / blurTime);
+            intencity -= deltaTime / blurTime;
         }
 
         // 0～1の範囲の値を返す
@@ -60,8 +72,6 @@ public class Pause : MonoBehaviour {
 
         // intensityをintに変換
         blur.Resolution = (int)(intencity * 10);
-
-        prevTime = Time.realtimeSinceStartup;
     }
 
     public void PauseFunc() {
@@ -71,11 +81,13 @@ public class Pause : MonoBehaviour {
         if (Time.timeScale != 0.0f) {
             Time.timeScale = 0.0f;
             pauseCanvas.SetActive(true);
+            SoundManager.SPlay(PauseStartSEPrefab);
         }
         // ポーズ解除
         else {
             Time.timeScale = 1.0f;
             pauseCanvas.SetActive(false);
+            //SoundManager.SPlay(PauseEndSEPrefab);
         }
 
         // 登録された関数を実行
@@ -95,5 +107,13 @@ public class Pause : MonoBehaviour {
             optionCanvas.SetActive(false);
             pauseCanvas.SetActive(true);
         }
+    }
+
+    public void OnGameExitButtonDown() {
+        // 本当に終了してもええかウィンドウを出す
+        quitCanvas.SetActive(true);
+
+        // exeの終了
+        //Application.Quit();
     }
 }

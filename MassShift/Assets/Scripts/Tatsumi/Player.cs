@@ -71,6 +71,11 @@ public class Player : MonoBehaviour {
 	}
 
 	[SerializeField]
+	bool useManualJump = true;		// ボタン入力での通常ジャンプを使用する
+	[SerializeField]
+	bool useAutoClimbJump = true;	// 左右移動のみでの自動小ジャンプを使用する
+
+	[SerializeField]
 	float walkSpd = 2.0f;       // 左右移動最高速度
 	[SerializeField]
 	float walkStopTime = 0.2f;  // 左右移動最高速度から停止までの時間
@@ -196,17 +201,29 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	float jumpStartOneTimeLimitSpd = 1.0f;
 
-	// Use this for initialization
-	//	void Start () {}
+	[SerializeField]
+	List<Transform> ClimbJumpWeightLvCollider = new List<Transform>(3);   // 自動ジャンプ当たり判定
+	[SerializeField]
+	List<Transform> ClimbJumpWeightLvInWaterCollider = new List<Transform>(3);   // 水中での自動ジャンプ当たり判定
+	[SerializeField]
+	LayerMask climbJumpMask;
+	[SerializeField]
+	bool autoClimbJumpMask = true;
+	[SerializeField]
+	List<float> ClimbJumpWeightLvHeight = new List<float>(3);
+	[SerializeField]
+	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
 
-	// Update is called once per frame
+	void Awake () {
+		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
+	}
+
 	void Update() {
 		// 左右移動入力
 		walkStandbyVec = Input.GetAxis("Horizontal");
 
 		// ジャンプ入力
-		prevJumpStandbyFlg = jumpStandbyFlg;
-		jumpStandbyFlg = (Input.GetAxis("Jump") != 0.0f);
+		jumpStandbyFlg |= (Input.GetAxis("Jump") != 0.0f);
 
 		// ジャンプ滞空時間
 		remainJumpTime = (!Land.IsLanding ? remainJumpTime + Time.deltaTime : 0.0f);
@@ -214,12 +231,13 @@ public class Player : MonoBehaviour {
 		// 持ち上げ/下げ
 		if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation) {
 			if ((Input.GetAxis("Lift") != 0.0f)) {
-				if (!liftTrg) {
-					Lift.Lift();
-				}
-				liftTrg = true;
-			} else {
-				liftTrg = false;
+				//if (!liftTrg) {
+				Lift.Lift();
+
+				//}
+				//	liftTrg = true;
+				//} else {
+				//	liftTrg = false;
 			}
 		}
 	}
@@ -233,6 +251,8 @@ public class Player : MonoBehaviour {
 
 		// ジャンプ
 		bool isJump = Jump();
+		prevJumpStandbyFlg = jumpStandbyFlg;
+		jumpStandbyFlg = false;
 
 		// 立ち止まり
 		WalkDown();
@@ -240,17 +260,30 @@ public class Player : MonoBehaviour {
 		// 左右上下回転
 		Rotate();
 
+		// 自動ジャンプ
+		ClimbJump();
+
 		// 着地アニメーション
-		if (Land.IsLanding && Land.IsLandingChange) {
+		if ((Land.IsLanding && Land.IsLandingChange) ||
+			(land.IsWaterFloatLanding && Land.IsWaterFloatLandingChange)) {
 			Land.IsLandingChange = false;
-			PlAnim.StartLand();
+			Land.IsWaterFloatLandingChange = false;
+			if (!Lift.IsLifting) {
+				PlAnim.StartLand();
+			} else {
+				PlAnim.StartHoldLand();
+			}
 		}
 
 		// 落下アニメーション
 		if (!Land.IsLanding && Land.IsLandingChange) {
 			Land.IsLandingChange = false;
 			if (!isJump) {
-				//PlAnim.StartFall();
+				if (!Lift.IsLifting) {
+					PlAnim.StartFall();
+				} else {
+					PlAnim.StartHoldFall();
+				}
 			}
 		}
 	}
@@ -292,6 +325,8 @@ public class Player : MonoBehaviour {
 		}
 	}
 	bool Jump() {
+		if (!useManualJump) return false;
+
 		// ジャンプ入力(トリガー)がなければ
 		if (!jumpStandbyFlg || prevJumpStandbyFlg) return false;
 
@@ -299,7 +334,7 @@ public class Player : MonoBehaviour {
 		if (!canJump) return false;
 
 		// ステージに接地、又は水面で安定していなければ
-		Debug.LogWarning("IsLanding:" + Land.IsLanding);
+//		Debug.LogWarning("IsLanding:" + Land.IsLanding);
 		//if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
 		if (!(Land.IsLanding || WaterStt.IsWaterSurface)) {
 			PileWeight pile = GetComponent<PileWeight>();
@@ -309,8 +344,11 @@ public class Player : MonoBehaviour {
 			foreach (var pileObj in pileObjs) {
 				Landing pileLand = pileObj.GetComponent<Landing>();
 				WaterState pileWaterStt = pileObj.GetComponent<WaterState>();
-				if ((pileLand && (pileLand.IsLanding || pileLand.IsExtrusionLanding)) || (pileWaterStt && (pileWaterStt.IsWaterSurface))) {
+				//				WaterState pileWaterStt = pileObj.GetComponent<WaterState>();
+				//				if ((pileLand && (pileLand.IsLanding || pileLand.IsExtrusionLanding)) || (pileWaterStt && (pileWaterStt.IsWaterSurface))) {
+				if ((pileLand && (pileLand.IsLanding || pileLand.IsExtrusionLanding || pileWaterStt.IsWaterSurface))) {
 					stagePile = true;
+					break;
 				}
 			}
 			if ((pileObjs.Count == 0) || !stagePile) {
@@ -367,9 +405,10 @@ public class Player : MonoBehaviour {
 		return true;
 	}
 	void WalkDown() {
-		// 接地中でなく、水上で安定状態もなければ
-		if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
-
+		// 接地中でなく、水上での安定状態でもなければ
+		if (!Land.IsLanding && !WaterStt.IsWaterSurface && !Land.IsWaterFloatLanding) {
+			// 水上で安定状態のオブジェクトやそれに積み重なっているオブジェクトの上でもなければ
+			List<Transform> underPileObj = GetComponent<PileWeight>().GetPileBoxList(Vector3.down);
 			return;
 		}
 
@@ -432,4 +471,66 @@ public class Player : MonoBehaviour {
 		}
 	}
 	//	}
+
+	void ClimbJump() {
+		if (!useAutoClimbJump) return;
+
+		// 持ち上げ中や持ち上げ入力があれば処理しない
+		if (Lift.IsLifting || (Input.GetAxis("Lift") != 0.0f)) return;
+
+		// ジャンプ可能でなければ処理しない
+		if (!canJump) return;
+
+		// 接地中でも水上安定中でもなく、水上安定中ブロックに乗ってもいなければ処理しない
+		if (!Land.IsLanding && !WaterStt.IsWaterSurface && !Land.IsWaterFloatLanding) return;
+
+		// 左右への移動入力がなければ処理しない
+		if (walkStandbyVec == 0.0f) return;
+
+		// 自動ジャンプ判定がなければ処理しない
+		if ((ClimbJumpWeightLvCollider == null) || (ClimbJumpWeightLvCollider.Count <= (int)WeightMng.WeightLv) || (ClimbJumpWeightLvCollider[(int)WeightMng.WeightLv] == null) ||
+			(ClimbJumpWeightLvInWaterCollider == null) || (ClimbJumpWeightLvInWaterCollider.Count <= (int)WeightMng.WeightLv) || (ClimbJumpWeightLvInWaterCollider[(int)WeightMng.WeightLv] == null)) return;
+
+		Transform climbJumpCol;
+		if (!WaterStt.IsInWater) {
+			climbJumpCol = ClimbJumpWeightLvCollider[(int)WeightMng.WeightLv];
+		} else {
+			climbJumpCol = ClimbJumpWeightLvInWaterCollider[(int)WeightMng.WeightLv];
+		}
+
+		// 自動ジャンプ判定内に対象オブジェクトがなければ処理しない
+		if (Physics.OverlapBox(climbJumpCol.transform.position,
+			climbJumpCol.lossyScale * 0.5f,
+			climbJumpCol.rotation, climbJumpMask).Length <= 0) return;
+
+		// 現在の向きと移動入力方向が異なれば処理しない
+		if (Vector3.Dot((climbJumpCol.position - transform.position), (Vector3.right * walkStandbyVec)) <= 0.0f) return;
+
+		// ジャンプアニメーション
+		if (!Lift.IsLifting) {
+			PlAnim.StartJump();
+		} else {
+			PlAnim.StartHoldJump();
+		}
+
+		// 前回までの上下方向の加速度を削除
+		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+
+		// 左右方向の移動量も一更新だけ制限
+		MoveMng.OneTimeMaxSpd = jumpStartOneTimeLimitSpd;
+
+		// 上方向へ加速
+		if (!WaterStt.IsInWater) {
+			MoveMng.AddMove(new Vector3(0.0f, ClimbJumpWeightLvHeight[(int)WeightMng.WeightLv], 0.0f));
+		}
+		// 水中
+		else {
+			MoveMng.AddMove(new Vector3(0.0f, ClimbJumpWeightLvHeightInWater[(int)WeightMng.WeightLv], 0.0f));
+		}
+
+		// 離地
+		Land.IsLanding = false;
+		WaterStt.IsWaterSurface = false;
+		WaterStt.BeginWaterStopIgnore();
+	}
 }

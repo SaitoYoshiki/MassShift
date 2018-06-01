@@ -282,6 +282,10 @@ public class MoveManager : MonoBehaviour {
 			}
 		}
 
+//		if (name == "Player_test") {
+//			Debug.LogWarning("move:" + move);
+//		}
+
 		// 移動
 		Vector3 resMove;    // 実際に移動出来た移動量
 		Move(move * Time.fixedDeltaTime, (BoxCollider)useCol, mask, out resMove);
@@ -334,12 +338,20 @@ public class MoveManager : MonoBehaviour {
 		if (moveVec.y != 0) {
 			// y軸の衝突を全て取得
 			//			RaycastHit[] hitInfos = Physics.BoxCastAll(_moveCol.bounds.center, _moveCol.size * 0.5f, new Vector3(0.0f, _move.y, 0.0f));
-			RaycastHit[] hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(0.0f, _move.y, 0.0f), _mask, _ignoreColList).ToArray();
+			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(0.0f, _move.y, 0.0f), _mask, _ignoreColList);
+
+			// 一致方向のすり抜け床の除外
+			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+				OnewayFloor oneway = hitInfos[idx].collider.GetComponent<OnewayFloor>();
+				if (oneway && oneway.IsThrough(Vector3.up * _move.y, _moveCol.gameObject)) {
+					hitInfos.RemoveAt(idx);
+				}
+			}
 
 			// y軸判定衝突判定
-			if (hitInfos.Length > 0) {
+			if (hitInfos.Count > 0) {
 				// 近い順にソート
-				hitInfos = hitInfos.OrderBy(x => x.distance).ToArray();
+				hitInfos = hitInfos.OrderBy(x => x.distance).ToList();
 
 				///Debug.LogError(_moveCol.name + " y軸衝突");
 				///foreach (var hitInfo in hitInfos) {
@@ -373,6 +385,7 @@ public class MoveManager : MonoBehaviour {
 						((moveWeightMng.WeightLv > hitWeightMng.WeightLv) ||		// 自身の重さレベルが相手の重さレベルより重い、又は
 						(moveMng.extrusionForcible || _extrusionForcible));         // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
 					bool stopFlg = false;   // 移動量を削除するフラグ
+					bool breakFlg = false;
 	
 					// 押し出せない場合
 					if (!canExtrusion) {
@@ -385,6 +398,9 @@ public class MoveManager : MonoBehaviour {
 
 						// 指定位置まで移動できない
 						ret = false;
+
+						//	より遠いオブジェクトとの処理は行わない
+						breakFlg = true;
 					}
 					// 押し出せる場合
 					else {
@@ -397,8 +413,11 @@ public class MoveManager : MonoBehaviour {
 							hitMoveMng.AddMove(new Vector3(0.0f, moveMng.PrevMove.y * 1.1f, 0.0f));
 						}
 
+						float otherMoveDistance = Mathf.Clamp(Mathf.Abs(_move.y) - dis, 0.0f, float.MaxValue);
+
 						// 押し出しを行い、押し出し切れた場合
-						if (Move(new Vector3(0.0f, (_move.y - dis), 0.0f), (BoxCollider)nearHitinfo.collider, _mask,
+						//if (Move(new Vector3(0.0f, (_move.y - dis), 0.0f), (BoxCollider)nearHitinfo.collider, _mask,
+						if (Move(new Vector3(0.0f, moveVec.y * otherMoveDistance, 0.0f), (BoxCollider)nearHitinfo.collider, _mask,
 							false, (moveMng.extrusionForcible || _extrusionForcible), _ignoreColList)) {	// 押し出し優先情報を使用
 							// 自身は指定通り移動
 							Move(new Vector3(0.0f, _move.y, 0.0f), _moveCol, _mask, true, false, _ignoreColList);  // 押し出し不可移動
@@ -406,7 +425,7 @@ public class MoveManager : MonoBehaviour {
 						// 押し出しきれない場合
 						else {
 							// 自身も直前まで移動
-							Move(new Vector3(0.0f, (_move.y - dis), 0.0f), _moveCol, _mask, true, false, _ignoreColList);  // 押し出し不可移動
+							Move(new Vector3(0.0f, dis, 0.0f), _moveCol, _mask, true, false, _ignoreColList);  // 押し出し不可移動
 
 							// 指定位置まで移動できない
 							ret = false;
@@ -419,9 +438,11 @@ public class MoveManager : MonoBehaviour {
 					// 着地判定
 					Landing land = _moveCol.GetComponent<Landing>();
 					if (land != null) {
-						// 着地先がステージ又はステージに接地中のオブジェクトなら
+						// 着地先がステージ又はステージに接地中や水上安定状態のオブジェクトなら
 						Landing hitLand = nearHitinfo.collider.GetComponent<Landing>(); // nullならステージ
-						if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding)) {
+						WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
+						if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
+							(hitWaterStt && hitWaterStt.IsWaterSurface) || (hitLand.IsWaterFloatLanding)) {
 							land.IsLanding = land.GetIsLanding(Vector3.up * moveVec.y);
 							land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
 						}
@@ -435,6 +456,10 @@ public class MoveManager : MonoBehaviour {
 						moveMng.GravityCustomFlg = false;
 					}
 					/**/
+
+					if (breakFlg) {
+						break;
+					}
 				}
 ///				dis += ColMargin;
 ///				///Debug.LogError("dis:" + dis);
@@ -509,10 +534,18 @@ public class MoveManager : MonoBehaviour {
 		if (moveVec.x != 0.0f) {
 			// x軸の衝突を全て取得
 			//			RaycastHit[] hitInfos = Physics.BoxCastAll(_moveCol.bounds.center, _moveCol.size * 0.5f, new Vector3(_move.x, 0.0f, 0.0f));
-			RaycastHit[] hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(_move.x, 0.0f, 0.0f), _mask, _ignoreColList).ToArray();
+			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(_move.x, 0.0f, 0.0f), _mask, _ignoreColList);
+
+			// 一致方向のすり抜け床の除外
+			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+				OnewayFloor oneway = hitInfos[idx].collider.GetComponent<OnewayFloor>();
+				if (oneway && oneway.IsThrough(Vector3.up * _move.y, _moveCol.gameObject)) {
+					hitInfos.RemoveAt(idx);
+				}
+			}
 
 			// x軸衝突判定
-			if (hitInfos.Length > 0) {
+			if (hitInfos.Count > 0) {
 				///Debug.LogError(_moveCol.name + " x軸衝突");
 				//foreach (var hitInfo in hitInfos) {
 					///Debug.LogError(hitInfo.collider.name);
@@ -521,21 +554,21 @@ public class MoveManager : MonoBehaviour {
 
 				// x軸で最もめり込んでいる衝突を取得
 //				RaycastHit nearHitinfo = new RaycastHit();
-				float dis = float.MinValue;
+				float dis = float.MaxValue;
 				foreach (var hitInfo in hitInfos) {
-					float cmpDis = (Mathf.Abs(_moveCol.bounds.center.x - hitInfo.collider.bounds.center.x) - (_moveCol.bounds.size.x + hitInfo.collider.bounds.size.x) * 0.5f) * -1;
-					if (cmpDis > dis) {
+					float cmpDis = (Mathf.Abs(_moveCol.bounds.center.x - hitInfo.collider.bounds.center.x) - (_moveCol.bounds.size.x + hitInfo.collider.bounds.size.x) * 0.5f);
+					if (cmpDis < dis) {
 						dis = cmpDis;
 //						nearHitinfo = hitInfo;
 					}
 				}
-				dis += ColMargin;
+				dis -= ColMargin;
 				///Debug.LogError("dis:" + dis);
 
 				// x軸は押し出しを行わない
 
 				// 直前まで移動
-				_moveCol.transform.position += new Vector3(-moveVec.x * dis, 0.0f, 0.0f);
+				_moveCol.transform.position += new Vector3(moveVec.x * dis, 0.0f, 0.0f);
 				
 				// 指定位置まで移動できない
 				ret = false;

@@ -10,7 +10,7 @@ public class OnewayFloor : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		UpdateInObject();
 	}
 
@@ -24,7 +24,9 @@ public class OnewayFloor : MonoBehaviour {
 		var l = new List<GameObject>();
 
 		LayerMask lMask = LayerMask.GetMask(new string[] { "Player", "Box" });
-		var rc = Physics.OverlapBox(transform.position, transform.lossyScale / 2.0f, transform.rotation, lMask);
+
+		var lCollider = GetComponent<BoxCollider>();
+		var rc = Physics.OverlapBox(lCollider.bounds.center, lCollider.bounds.size / 2.0f, transform.rotation, lMask);
 
 		foreach (var r in rc) {
 			l.Add(r.gameObject);
@@ -140,7 +142,7 @@ public class OnewayFloor : MonoBehaviour {
 	}
 
 	[ContextMenu("Resize")]
-	void Resize() {
+	public void Resize() {
 		if (this == null) return;
 		if (EditorUtility.IsPrefab(gameObject)) return;
 		if (UnityEditor.EditorApplication.isPlaying) return;

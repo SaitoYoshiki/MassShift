@@ -7,16 +7,17 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 #endif
 
+// changeSceneFlgをドア閉じが終わったらtrueにする
+
 public class ChangeScene : MonoBehaviour {
     private enum CHANGE_SCENE_MODE{
         NEXT,
         RETRY,
+        TUTORIAL,
         STAGESELECT,
         TITLE,
         SELECTSCENE
     }
-
-    Scene nowScene;
 
     public SceneObject titleScene;
     public SceneObject stageSelectScene;
@@ -26,16 +27,10 @@ public class ChangeScene : MonoBehaviour {
     private bool endGameFlg;
     private bool pauseFlg;
 
+    [SerializeField]
+    private StageTransition st;
+
     void Start() {
-        // 現在のシーンを取得
-        nowScene = SceneManager.GetActiveScene();
-
-        // ステセレ以外では
-        /*if (nowScene.name != "Title" || nowScene.name != "StageSelect") {
-            // 現在のシーンのステージインフォを取得
-            nowStageInfo = FindObjectOfType<StageInfo>();
-        }*/
-
         changeSceneFlg = false;
         endGameFlg = false;
         pauseFlg = false;
@@ -51,18 +46,24 @@ public class ChangeScene : MonoBehaviour {
     }
 
     void Update() {
-        // 
-        if (changeSceneFlg) {
+        if (!changeSceneFlg) {
+            if (!st.GetCloseEnd()) {
+                return;
+            }
+            else {
+                changeSceneFlg = true;
+            }
+        }
+        else {
             switch (changeSceneMode) {
                 // 次のステージへ
                 case CHANGE_SCENE_MODE.NEXT: 
                     {
-                        // 後でArea.cs対応に書き直し
                         int area, stage;
                         area = Area.GetAreaNumber();
                         stage = Area.GetStageNumber();
 
-                        stage++;
+                        /*stage++;
 
                         if (stage == (int)StageInfo.STAGE.STAGE_MAX) {
                             area++;
@@ -76,50 +77,55 @@ public class ChangeScene : MonoBehaviour {
 
                         if (!endGameFlg) {
                             // 次のステージを読み込む
-                            //後で修正？
-                            //SceneManager.LoadSceneAsync(loadSceneName, LoadSceneMode.Single);
+                            // 後で修正
                             SceneManager.LoadScene(loadSceneName, LoadSceneMode.Single);
                         }
                         else {
                             // 最終ステージクリア後の処理
-                        }
+                        }*/
+
+                        // 次のステージがない場合はResult.cs側で「次のステージへ」ボタンを非アクティブにするのでここでの判定はいらない
+                        string nextSceneName = Area.GetNextStageSceneName(area, stage);
+                        // 次のステージを読み込む
+                        SceneManager.LoadScene(nextSceneName, LoadSceneMode.Single);
                     }
                     break;
 
                 // リトライ
                 case CHANGE_SCENE_MODE.RETRY:
                     // 現在のシーンを再読込
-                    //SceneManager.LoadSceneAsync(nowScene.name, LoadSceneMode.Single);
-                    SceneManager.LoadScene(nowScene.name, LoadSceneMode.Single);
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+                    break;
+
+                // チュートリアル
+                case CHANGE_SCENE_MODE.TUTORIAL:
+                    // チュートリアルシーンを読み込み
+                    SceneManager.LoadScene("Tutorial-1", LoadSceneMode.Single);
                     break;
 
                 // ステージセレクト
                 case CHANGE_SCENE_MODE.STAGESELECT:
                     // ステセレシーンを読み込み
-                    //SceneManager.LoadSceneAsync(stageSelectScene, LoadSceneMode.Single);
                     SceneManager.LoadScene(stageSelectScene, LoadSceneMode.Single);
                     break;
 
                 // タイトル
                 case CHANGE_SCENE_MODE.TITLE:
                     // タイトルシーンを読み込み
-                    //SceneManager.LoadSceneAsync(titleScene, LoadSceneMode.Single);
                     SceneManager.LoadScene(titleScene, LoadSceneMode.Single);
                     break;
 
-                case CHANGE_SCENE_MODE.SELECTSCENE:
+                // StageSelectManager側に実装されているので使わない
+                /*case CHANGE_SCENE_MODE.SELECTSCENE:
                     // 選択されたステージを読み込み
                     {
-                        // このへんステセレのシーン選択仕様決定後に書き直し
                         int area, stage;
                         area = Area.GetAreaNumber();
                         stage = Area.GetAreaNumber();
                         string loadSceneName = "Stage" + area.ToString() + "-" + stage.ToString();
-
-                        //SceneManager.LoadSceneAsync(loadSceneName, LoadSceneMode.Single);
                         SceneManager.LoadScene(loadSceneName, LoadSceneMode.Single);
                     }
-                    break;
+                    break;*/
 
                 default:
                     break;
@@ -131,7 +137,10 @@ public class ChangeScene : MonoBehaviour {
         // ポーズを解除してシーン変更フラグを立てる
         pauseFlg = false;
         changeSceneMode = CHANGE_SCENE_MODE.NEXT;
-        changeSceneFlg = true;
+        //changeSceneFlg = true;
+
+        // ドア閉め演出
+        st.CloseDoorParent();
     }
 
     public void OnRetryButtonDown() {
@@ -141,11 +150,24 @@ public class ChangeScene : MonoBehaviour {
         changeSceneFlg = true;
     }
 
+    public void OnTutorialButtonDown() {
+        // ポーズを解除してシーン変更フラグを立てる
+        pauseFlg = false;
+        changeSceneMode = CHANGE_SCENE_MODE.TUTORIAL;
+        changeSceneFlg = true;
+    }
+
     public void OnStageSelectButtonDown() {
         // ポーズを解除してシーン変更フラグを立てる
         pauseFlg = false;
         changeSceneMode = CHANGE_SCENE_MODE.STAGESELECT;
-        changeSceneFlg = true;
+        if (SceneManager.GetActiveScene().name == "Title") {
+            changeSceneFlg = true;
+        }
+        else {
+            // ドア閉め演出
+            st.CloseDoorParent();
+        }
     }
 
     public void OnTitleButtonDown() {
@@ -163,12 +185,12 @@ public class ChangeScene : MonoBehaviour {
     // 必要なもの
     /* 5/4
      *変数
-     * 現在のシーン┐
-     * 次のシーン　├シーンのリストを作ることで一つにまとめられる？
-     * 前のシーン　┘
-     * ポーズ中かどうか
-     * オプション画面かどうか
-     * 各エリアの最終ステージかどうか
+     * E現在のシーン┐
+     * E次のシーン　├シーンのリストを作ることで一つにまとめられる？
+     * E前のシーン　┘
+     * Eポーズ中かどうか
+     * Eオプション画面かどうか
+     * E各エリアの最終ステージかどうか
      * 
      *関数
      * シーンロード/アンロード

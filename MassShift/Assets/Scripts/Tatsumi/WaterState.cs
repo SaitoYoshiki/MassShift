@@ -5,7 +5,8 @@ using UnityEngine;
 public class WaterState : MonoBehaviour {
 	const float DefaultWaterIgnoreTime = 0.1f;
 
-	[SerializeField] bool isInWater = false;
+	[SerializeField]
+	bool isInWater = false;
 	public bool IsInWater {
 		get {
 			return isInWater;
@@ -33,17 +34,44 @@ public class WaterState : MonoBehaviour {
 		}
 	}
 
-	[SerializeField] bool isWaterSurface = false;
+	// 水面で安定状態にあるフラグ
+	[SerializeField]
+	bool isWaterSurface = false;
 	public bool IsWaterSurface {
 		get {
 			return isWaterSurface;
 		}
 		set {
+			// 変化時
+			if (IsWaterSurface != value) {
+				//				IsWaterSurfaceChange = true;
+				// trueへの変化時
+				if (value) {
+					// 安定時の高さを保持
+					prevHeight = transform.position.y;
+				}
+			}
+			//			else {
+			//				IsWaterSurfaceChange = false;
+			//			}
+
+			// 値の変更
 			isWaterSurface = value;
 		}
 	}
 
-	[SerializeField] List<float> waterFloatSpd = new List<float>(); // 重さ毎の上昇量
+	//	[SerializeField] bool isWaterSurfaceChange = false;
+	//	public bool IsWaterSurfaceChange {
+	//		get {
+	//			return isWaterSurfaceChange;
+	//		}
+	//		set {
+	//			isWaterSurfaceChange = value;
+	//		}
+	//	}
+
+	[SerializeField]
+	List<float> waterFloatSpd = new List<float>(); // 重さ毎の上昇量
 
 	WeightManager weightMng = null;
 	WeightManager WeightMng {
@@ -71,11 +99,16 @@ public class WaterState : MonoBehaviour {
 		}
 	}
 
-	[SerializeField] List<float> weightLvEnterWaterMoveMax = new List<float>(3);    // 各重さレベルの入水時の最高移動量
-	[SerializeField] List<float> weightLvStayWaterMoveMax = new List<float>(3);     // 各重さレベルの入水中の最高移動量
-	[SerializeField] List<float> weightLvExitWaterMoveMax = new List<float>(3);     // 各重さレベルの出水時の最高移動量
-	[SerializeField] float cutOutSpd = 1.0f;                                        // 水面に浮く重さレベルでの入出水時に完全に移動を停止する移動量基準
-	[SerializeField] float waterStopIgnoreRemainTime = 0.0f;
+	[SerializeField]
+	List<float> weightLvEnterWaterMoveMax = new List<float>(3);    // 各重さレベルの入水時の最高移動量
+	[SerializeField]
+	List<float> weightLvStayWaterMoveMax = new List<float>(3);     // 各重さレベルの入水中の最高移動量
+	[SerializeField]
+	List<float> weightLvExitWaterMoveMax = new List<float>(3);     // 各重さレベルの出水時の最高移動量
+	[SerializeField]
+	float cutOutSpd = 1.0f;                                        // 水面に浮く重さレベルでの入出水時に完全に移動を停止する移動量基準
+	[SerializeField]
+	float waterStopIgnoreRemainTime = 0.0f;
 	float WaterStopIgnoreRemainTime {
 		get {
 			return waterStopIgnoreRemainTime;
@@ -84,8 +117,10 @@ public class WaterState : MonoBehaviour {
 			waterStopIgnoreRemainTime = value;
 		}
 	}
+	[SerializeField]
+	float prevHeight = 0.0f;
 
-	void FixedUpdate () {
+	void FixedUpdate() {
 		IsInWater = (Support.GetColliderHitInfoList(GetComponent<Collider>(), Vector3.zero, LayerMask.GetMask("WaterArea")).Count > 0);
 
 		// 水中/水上の挙動
@@ -97,13 +132,13 @@ public class WaterState : MonoBehaviour {
 			}
 			// 水上なら
 			else {
-				// 重さに変化が無ければ
-				if (WeightMng.WeightLv == WeightManager.Weight.light) {
+				// 重さや位置に変化が無ければ
+				if ((WeightMng.WeightLv == WeightManager.Weight.light) && (transform.position.y == prevHeight)) {
 					// 落下しない
 					MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
 					MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 				}
-				// 重さが変化していれば
+				// 重さや位置が変化していれば
 				else {
 					// 水面状態を解除
 					IsWaterSurface = false;
@@ -120,7 +155,8 @@ public class WaterState : MonoBehaviour {
 			Debug.Log("WaterState CutOut" + MoveMng.PrevMove.magnitude);
 			MoveMng.OneTimeMaxSpd = 0.0f;
 			IsWaterSurface = true;
-		} else {
+		}
+		else {
 			// 一度の更新に限り最大速度を制限
 			MoveMng.OneTimeMaxSpd = _oneTimeWeightLvMaxSpd[(int)WeightMng.WeightLv];
 		}
@@ -128,7 +164,8 @@ public class WaterState : MonoBehaviour {
 		// 継続的に最大速度を制限
 		if (_stayWeightLvMaxSpd != null) {
 			MoveMng.CustomWeightLvMaxSpd.AddRange(_stayWeightLvMaxSpd);
-		} else {
+		}
+		else {
 			moveMng.CustomWeightLvMaxSpd.Clear();
 		}
 	}

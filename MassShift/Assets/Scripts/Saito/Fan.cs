@@ -11,7 +11,7 @@ public class Fan : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		UpdateRotate();
 		UpdateWindHitList();
 		ApplyWindMove();
@@ -19,7 +19,9 @@ public class Fan : MonoBehaviour {
 
 	//モデルの回転処理
 	void UpdateRotate() {
-		mFanModel.transform.localRotation *= Quaternion.Euler(0.0f, 0.0f, Time.deltaTime * 360.0f / 1.0f);
+		float lRotateDegree = Time.fixedDeltaTime * 360.0f * mRotateSpeed;
+		//mRotateFanModel.transform.localRotation *= Quaternion.Euler(0.0f, 0.0f, lRotateDegree);
+		mRotateFanModel.transform.localRotation *= Quaternion.Euler(lRotateDegree, 0.0f, 0.0f);
 	}
 
 	//風に当たっているオブジェクトのリストを取得
@@ -30,6 +32,22 @@ public class Fan : MonoBehaviour {
 	//風に当たっているオブジェクトを動かす
 	void ApplyWindMove() {
 		//TODO
+		foreach (var windHit in mWindHitList) {
+			MoveManager hitMoveMng = windHit.GetComponent<MoveManager>();
+			WeightManager hitWeightMng = windHit.GetComponent<WeightManager>();
+			if (hitMoveMng && hitWeightMng &&
+				(hitWeightMng.WeightLv < WeightManager.Weight.heavy)) {
+				// 左右移動を加える
+				if (MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, windHit.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" }))) {
+					// 上下の移動量を削除
+					hitMoveMng.StopMoveVirticalAll();
+
+					// 左右の移動量を削除
+					hitMoveMng.StopMoveHorizontalAll();
+				}
+			}
+		}
+
 	}
 
 	List<GameObject> GetWindHitList() {
@@ -45,13 +63,23 @@ public class Fan : MonoBehaviour {
 		var lRes = new List<GameObject>();
 
 		foreach(var h in lHit) {
-			//ステージに達するまで風は適用される
+			//どのオブジェクトも、3つの風判定のうち1つしか当たっていないと効果範囲外
+			if(h.mHitTimes < mHitConditionCount) {
+				continue;
+			}
+			//ステージなら、障害物扱いなので風を止める
 			if (h.mGameObject.layer == LayerMask.NameToLayer("Stage")) {
 				break;
 			}
-			if(h.mHitTimes < 2) {
-				continue;
+			//動く床でも、障害物扱いなので風を止める
+			if (h.mGameObject.CompareTag("MoveFloor")) {
+				break;
 			}
+			//重いオブジェクトなら、風を止める
+			if (h.mGameObject.GetComponent<WeightManager>().WeightLv == WeightManager.Weight.heavy) {
+				break;
+			}
+			//風が適用されるオブジェクト
 			lRes.Add(h.mGameObject);
 		}
 
@@ -118,7 +146,7 @@ public class Fan : MonoBehaviour {
 			return;
 		}
 
-		mFanModel.transform.rotation = Quaternion.Euler(0.0f, GetDirectionVector(mDirection).x * -30.0f, 0.0f);
+		mFanModel.transform.rotation = Quaternion.Euler(0.0f, GetDirectionVector(mDirection).x * -mModelRotate, 0.0f);
 
 		foreach(var c in mHitColliderList) {
 			Vector3 lNewPos = c.gameObject.transform.localPosition;
@@ -147,9 +175,24 @@ public class Fan : MonoBehaviour {
 	[SerializeField, Tooltip("風が吹く方向")]
 	CDirection mDirection;
 
-	[SerializeField, EditOnPrefab, Tooltip("回転するファンのモデル")]
+	[SerializeField, EditOnPrefab, Tooltip("オブジェクトを飛ばす速度")]
+	float mWindMoveSpeed = 0.1f;
+
+	[SerializeField, EditOnPrefab, Tooltip("ファンの回転する速度")]
+	float mRotateSpeed;
+
+	[SerializeField, EditOnPrefab, Tooltip("モデル")]
 	GameObject mFanModel;
 
-	[SerializeField, EditOnPrefab, Tooltip("風の当たり判定のコライダー")]
+	[SerializeField, EditOnPrefab, Tooltip("回転するファンのモデル")]
+	GameObject mRotateFanModel;
+
+	[SerializeField, EditOnPrefab, Tooltip("モデルを回転させる角度")]
+	float mModelRotate = 10.0f;
+
+	[SerializeField, Tooltip("風の当たり判定のコライダー")]
 	List<GameObject> mHitColliderList;
+
+	[SerializeField, EditOnPrefab, Tooltip("風の当たり判定のコライダーがいくつ当たっていたら風に当たっている判定か")]
+	int mHitConditionCount = 1;
 }

@@ -63,6 +63,26 @@ public class Landing : MonoBehaviour {
 		}
 	}
 
+	[SerializeField]
+	bool isWaterFloatLanding = false;
+	public bool IsWaterFloatLanding {
+		get {
+			return isWaterFloatLanding;
+		}
+	}
+
+	[SerializeField]
+	bool isWaterFloatLandingChange = false;
+	public bool IsWaterFloatLandingChange {
+		get {
+			return isWaterFloatLanding;
+		}
+		set {
+			isWaterFloatLanding = value;
+		}
+	}
+
+
 	[SerializeField] List<Collider> landColList = new List<Collider>();				// 接地しているオブジェクト
 	[SerializeField] List<Collider> landExtrusionColList = new List<Collider>();	// 押し出しによって接地しているオブジェクト
 
@@ -110,6 +130,32 @@ public class Landing : MonoBehaviour {
 		}
 	}
 
+	WaterState waterStt = null;
+	WaterState WaterStt {
+		get {
+			if (waterStt == null) {
+				waterStt = GetComponent<WaterState>();
+				if (waterStt == null) {
+					Debug.LogError("WaterStateが見つかりませんでした。");
+				}
+			}
+			return waterStt;
+		}
+	}
+
+	PileWeight pile = null;
+	PileWeight Pile {
+		get {
+			if (pile == null) {
+				pile = GetComponent<PileWeight>();
+				if (pile == null) {
+					Debug.LogError("PileWeightが見つかりませんでした。");
+				}
+			}
+			return pile;
+		}
+	}
+
 	// 当たり判定を行うレイヤーマスク
 	[SerializeField] LayerMask mask;
 	[SerializeField] bool autoMask = true;
@@ -122,6 +168,7 @@ public class Landing : MonoBehaviour {
 		if ((IsLanding) || (IsExtrusionLanding)) {
 			CheckLandingFalse();
 		}
+		UpdateWaterFloatLanding();
 	}
 
 	// 接触時にその接触が指定方向への接触かを判定
@@ -217,5 +264,31 @@ public class Landing : MonoBehaviour {
 			IsExtrusionLanding = false;
 			Debug.Log("Ext離地");
 		}
+	}
+
+	void UpdateWaterFloatLanding() {
+		bool prevIsWaterFloatLanding = isWaterFloatLanding;
+		isWaterFloatLanding = false;
+		// 水中で無く、水面に浮かぶ重さである場合
+		if (!WaterStt.IsInWater && (WeightMng.WeightLv == WeightManager.Weight.light)) {
+			// 水面に浮かぶオブジェクトの上に積まれていればtrue
+			List<Transform> underPileObjs = Pile.GetPileBoxList(Vector3.down);  // 自身が積まれているオブジェクト
+//			Debug.LogWarning(name + " " + underPileObjs.Count);
+			foreach (var underPileObj in underPileObjs) {
+				// 水面に浮かぶオブジェクトが見つかればtrue
+				WaterState underPileWaterStt = underPileObj.GetComponent<WaterState>();
+				if (underPileWaterStt && underPileWaterStt.IsWaterSurface) {
+					isWaterFloatLanding = true;
+					break;
+				}
+			}
+		}
+
+		// 値変化時
+		if (prevIsWaterFloatLanding != isWaterFloatLanding) {
+			IsWaterFloatLandingChange = true;
+		}
+
+//		Debug.LogWarning("UpdateWaterFloatLanding:" + IsWaterFloatLanding);
 	}
 }
