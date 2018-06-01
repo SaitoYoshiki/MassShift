@@ -7,7 +7,7 @@ public class DebugInstanciate {
 	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 	static void Init() {
 		Instantiate();
-		DisableLog();
+		//DisableLog();
 	}
 
 	static void Instantiate() {
