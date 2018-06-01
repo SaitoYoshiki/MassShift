@@ -22,24 +22,6 @@ public class Goal : MonoBehaviour {
 
 		TurnLamp();
 
-		//エリアによって、マテリアルの変更
-		switch (Area.GetAreaNumber()) {
-			case 0:
-				Utility.ChangeMaterial(mModel, mArea1Material, mBackGroundMaterial);
-				break;
-			case 1:
-				Utility.ChangeMaterial(mModel, mArea1Material, mBackGroundMaterial);
-				break;
-			case 2:
-				Utility.ChangeMaterial(mModel, mArea2Material, mBackGroundMaterial);
-				break;
-			case 3:
-				Utility.ChangeMaterial(mModel, mArea3Material, mBackGroundMaterial);
-				break;
-			default:
-				//Utility.ChangeMaterial(mModel, null, mBackGroundMaterial);
-				break;
-		}
 	}
 	
 	// Update is called once per frame
@@ -342,17 +324,6 @@ public class Goal : MonoBehaviour {
 	[SerializeField, Disable]
 	List<Player> mInPlayerList = new List<Player>();
 
-	[SerializeField, EditOnPrefab, Tooltip("背景の変更対象のマテリアル")]
-	Material mBackGroundMaterial;
-
-	[SerializeField, EditOnPrefab, Tooltip("エリア1の背景のマテリアル")]
-	Material mArea1Material;
-
-	[SerializeField, EditOnPrefab, Tooltip("エリア2の背景のマテリアル")]
-	Material mArea2Material;
-
-	[SerializeField, EditOnPrefab, Tooltip("エリア3の背景のマテリアル")]
-	Material mArea3Material;
 
 	[SerializeField, PrefabOnly,EditOnPrefab, Tooltip("ランプの上端のモデル")]
 	GameObject mLampTopPrefab;
