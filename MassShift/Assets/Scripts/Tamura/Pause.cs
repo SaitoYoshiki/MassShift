@@ -17,7 +17,6 @@ public class Pause : MonoBehaviour {
     [SerializeField]
     GameObject quitCanvas;
 
-    [SerializeField]
     Blur blur;
 
     [SerializeField]
@@ -40,6 +39,10 @@ public class Pause : MonoBehaviour {
 
     // ポーズイベント
     public UnityEvent pauseEvent = new UnityEvent();
+
+    void Start() {
+        blur = Camera.main.GetComponent<Blur>();
+    }
 
     void Update() {
         var deltaTime = Time.unscaledDeltaTime;
