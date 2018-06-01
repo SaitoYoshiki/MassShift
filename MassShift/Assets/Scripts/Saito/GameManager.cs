@@ -11,13 +11,10 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	List<GameObject> mAreaBGM;
 
-	[SerializeField]
 	StageTransition mTransition;
 
-	[SerializeField]
 	Result mResult;
 
-	[SerializeField]
 	Pause mPause;
 
 
@@ -26,6 +23,10 @@ public class GameManager : MonoBehaviour {
 		mMassShift = FindObjectOfType<MassShift>();
 		mPlayer = FindObjectOfType<Player>();
 		mGoal = FindObjectOfType<Goal>();
+
+		mTransition = FindObjectOfType<StageTransition>();
+		mResult = FindObjectOfType<Result>();
+		mPause = FindObjectOfType<Pause>();
 
 		Time.timeScale = 1.0f;
 		mPause.pauseEvent.Invoke();
