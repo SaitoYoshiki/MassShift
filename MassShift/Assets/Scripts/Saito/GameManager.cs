@@ -47,9 +47,8 @@ public class GameManager : MonoBehaviour {
 		//ステージ開始時の演出
 		//
 
-		//現状Area2とArea3のフェード演出などが結合できていないため、フェードが終わらずにプレイできない
-		//とりあえずプレイするためにエリア番号によって最初の演出をするかどうか決めている
-		if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
+		//if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
+		{
 			//プレイヤーを操作不可に
 			OnCantOperation();
 
