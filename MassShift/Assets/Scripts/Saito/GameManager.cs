@@ -11,13 +11,10 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	List<GameObject> mAreaBGM;
 
-	[SerializeField]
 	StageTransition mTransition;
 
-	[SerializeField]
 	Result mResult;
 
-	[SerializeField]
 	Pause mPause;
 
 
@@ -26,6 +23,10 @@ public class GameManager : MonoBehaviour {
 		mMassShift = FindObjectOfType<MassShift>();
 		mPlayer = FindObjectOfType<Player>();
 		mGoal = FindObjectOfType<Goal>();
+
+		mTransition = FindObjectOfType<StageTransition>();
+		mResult = FindObjectOfType<Result>();
+		mPause = FindObjectOfType<Pause>();
 
 		Time.timeScale = 1.0f;
 		mPause.pauseEvent.Invoke();
@@ -46,9 +47,8 @@ public class GameManager : MonoBehaviour {
 		//ステージ開始時の演出
 		//
 
-		//現状Area2とArea3のフェード演出などが結合できていないため、フェードが終わらずにプレイできない
-		//とりあえずプレイするためにエリア番号によって最初の演出をするかどうか決めている
-		if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
+		//if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
+		{
 			//プレイヤーを操作不可に
 			OnCantOperation();
 
