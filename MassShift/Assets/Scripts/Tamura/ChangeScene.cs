@@ -25,6 +25,10 @@ public class ChangeScene : MonoBehaviour {
     private bool endGameFlg;
     private bool pauseFlg;
 
+    [SerializeField]
+    private StageTransition st;
+    Result result;
+
     void Start() {
         changeSceneFlg = false;
         endGameFlg = false;
@@ -38,12 +42,18 @@ public class ChangeScene : MonoBehaviour {
         if (stageSelectScene == null) {
             Debug.LogError("ステージセレクトシーンが指定されていません");
         }
+
+        result = GetComponent<Result>();
     }
 
     void Update() {
-        // 
         if (!changeSceneFlg) {
-            return;
+            if (!st.GetCloseEnd()) {
+                return;
+            }
+            else {
+                changeSceneFlg = true;
+            }
         }
         else {
             switch (changeSceneMode) {
@@ -128,7 +138,16 @@ public class ChangeScene : MonoBehaviour {
         // ポーズを解除してシーン変更フラグを立てる
         pauseFlg = false;
         changeSceneMode = CHANGE_SCENE_MODE.NEXT;
-        changeSceneFlg = true;
+        //changeSceneFlg = true;
+
+        // リザルト画面を消す
+        if (result.IsResultCanvasActive()) {
+            result.SetResultCanvasActive(false);
+            result.canGoal = false;
+        }
+
+        // ドア閉め演出
+        st.CloseDoorParent();
     }
 
     public void OnRetryButtonDown() {
@@ -136,6 +155,12 @@ public class ChangeScene : MonoBehaviour {
         pauseFlg = false;
         changeSceneMode = CHANGE_SCENE_MODE.RETRY;
         changeSceneFlg = true;
+
+        // リザルト画面を消す
+        if (result.IsResultCanvasActive()) {
+            result.SetResultCanvasActive(false);
+            result.canGoal = false;
+        }
     }
 
     public void OnTutorialButtonDown() {
@@ -149,7 +174,20 @@ public class ChangeScene : MonoBehaviour {
         // ポーズを解除してシーン変更フラグを立てる
         pauseFlg = false;
         changeSceneMode = CHANGE_SCENE_MODE.STAGESELECT;
-        changeSceneFlg = true;
+
+        // リザルト画面を消す
+        if (result.IsResultCanvasActive()) {
+            result.SetResultCanvasActive(false);
+            result.canGoal = false;
+        }
+
+        if (SceneManager.GetActiveScene().name == "Title") {
+            changeSceneFlg = true;
+        }
+        else {
+            // ドア閉め演出
+            st.CloseDoorParent();
+        }
     }
 
     public void OnTitleButtonDown() {

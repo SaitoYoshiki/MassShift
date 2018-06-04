@@ -38,7 +38,7 @@ public class Fan : MonoBehaviour {
 			if (hitMoveMng && hitWeightMng &&
 				(hitWeightMng.WeightLv < WeightManager.Weight.heavy)) {
 				// 左右移動を加える
-				if (MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, windHit.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Player", "Box" }))) {
+				if (MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, (BoxCollider)hitMoveMng.UseCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" }))) {
 					// 上下の移動量を削除
 					hitMoveMng.StopMoveVirticalAll();
 
@@ -64,11 +64,15 @@ public class Fan : MonoBehaviour {
 
 		foreach(var h in lHit) {
 			//どのオブジェクトも、3つの風判定のうち1つしか当たっていないと効果範囲外
-			if(h.mHitTimes < 2) {
+			if(h.mHitTimes < mHitConditionCount) {
 				continue;
 			}
 			//ステージなら、障害物扱いなので風を止める
 			if (h.mGameObject.layer == LayerMask.NameToLayer("Stage")) {
+				break;
+			}
+			//動く床でも、障害物扱いなので風を止める
+			if (h.mGameObject.CompareTag("MoveFloor")) {
 				break;
 			}
 			//重いオブジェクトなら、風を止める
@@ -186,6 +190,9 @@ public class Fan : MonoBehaviour {
 	[SerializeField, EditOnPrefab, Tooltip("モデルを回転させる角度")]
 	float mModelRotate = 10.0f;
 
-	[SerializeField, EditOnPrefab, Tooltip("風の当たり判定のコライダー")]
+	[SerializeField, Tooltip("風の当たり判定のコライダー")]
 	List<GameObject> mHitColliderList;
+
+	[SerializeField, EditOnPrefab, Tooltip("風の当たり判定のコライダーがいくつ当たっていたら風に当たっている判定か")]
+	int mHitConditionCount = 1;
 }

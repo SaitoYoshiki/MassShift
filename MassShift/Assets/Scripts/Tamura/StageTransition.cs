@@ -43,11 +43,9 @@ public class StageTransition : MonoBehaviour {
     public void CloseDoorParent() {
         // 対応したエリアが存在するなら
         if (area > 0) {
-            Debug.Log("Big"+door[area - 1].name);
             door[area - 1].GetComponent<DoorAnimManager>().StartDoorClose();
         }
         else {
-            Debug.Log("Small"+door[0].name);
             door[0].GetComponent<DoorAnimManager>().StartDoorClose();
         }
     }

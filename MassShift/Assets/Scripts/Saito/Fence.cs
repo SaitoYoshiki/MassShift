@@ -18,7 +18,7 @@ public class Fence : MonoBehaviour
 	[SerializeField, Tooltip("長さ")]
 	int mLength;
 
-	[SerializeField, EditOnPrefab, PrefabOnly, Tooltip("モデル")]
+	[SerializeField, EditOnPrefab, Tooltip("モデル")]
 	GameObject mModelPrefab;
 
 	[SerializeField, EditOnPrefab, Tooltip("モデルの親となるオブジェクト")]
@@ -43,7 +43,7 @@ public class Fence : MonoBehaviour
 #if UNITY_EDITOR
 
 	[ContextMenu("Resize")]
-	void Resize()
+	public void Resize()
 	{
 		if (this == null) return;
 		if (EditorUtility.IsPrefab(gameObject)) return;

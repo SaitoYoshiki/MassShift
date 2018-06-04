@@ -11,21 +11,24 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	List<GameObject> mAreaBGM;
 
-	[SerializeField]
 	StageTransition mTransition;
 
-	[SerializeField]
 	Result mResult;
 
-	[SerializeField]
 	Pause mPause;
 
+	[SerializeField]
+	bool _Debug_ClearFlag = false;	//クリアしたことにするフラグ
 
 	// Use this for initialization
 	void Start() {
 		mMassShift = FindObjectOfType<MassShift>();
 		mPlayer = FindObjectOfType<Player>();
 		mGoal = FindObjectOfType<Goal>();
+
+		mTransition = FindObjectOfType<StageTransition>();
+		mResult = FindObjectOfType<Result>();
+		mPause = FindObjectOfType<Pause>();
 
 		Time.timeScale = 1.0f;
 		mPause.pauseEvent.Invoke();
@@ -46,19 +49,25 @@ public class GameManager : MonoBehaviour {
 		//ステージ開始時の演出
 		//
 
-		//プレイヤーを操作不可に
-		OnCantOperation();
+		//if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
+		{
+			//プレイヤーを操作不可に
+			OnCantOperation();
 
-		mTransition.OpenDoorParent();
+			mTransition.OpenDoorParent();
 
-		//演出が終了するまで待機
-		while (true) {
-			if (mTransition.GetOpenEnd()) break;
-			yield return null;
+			//演出が終了するまで待機
+			while (true) {
+				if (mTransition.GetOpenEnd()) break;
+				yield return null;
+			}
 		}
 
 		//BGMを再生する
-		SoundManager.SPlay(mAreaBGM[Area.GetAreaNumber()]);
+		int lAreaNumber = Area.GetAreaNumber();
+		if(lAreaNumber != -1) {
+			SoundManager.SPlay(mAreaBGM[lAreaNumber]);
+		}
 
 
 		//ゲームメインの開始
@@ -82,7 +91,7 @@ public class GameManager : MonoBehaviour {
 
 			//ゴール判定
 			//
-			if (CanGoal()) {
+			if (CanGoal() || _Debug_ClearFlag) {
 				break;
 			}
 
@@ -101,6 +110,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	bool CanGoal() {
+		
 		//全てのボタンがオンでないなら
 		if (!mGoal.IsAllButtonOn) {
 			return false;   //ゴールできない

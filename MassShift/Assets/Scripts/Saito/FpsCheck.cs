@@ -5,7 +5,7 @@ using UnityEngine;
 public class FpsCheck : MonoBehaviour {
 
 	[SerializeField]
-	TextMesh mText;
+	UnityEngine.UI.Text mText;
 
 	[SerializeField]
 	float mCountFpsMinTime = 0.5f;

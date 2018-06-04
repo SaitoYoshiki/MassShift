@@ -195,11 +195,11 @@ public class MoveFloor : MonoBehaviour {
 	Vector3 GetTargetLocalPosition() {
 		switch (GetWeight()) {
 			case WeightManager.Weight.flying:
-				return Vector3.up * mUpHeight;
+				return Vector3.up * (mUpHeight - 0.0025f);
 			case WeightManager.Weight.light:
 				return Vector3.zero;
 			case WeightManager.Weight.heavy:
-				return Vector3.down * mDownHeight;
+				return Vector3.down * (mDownHeight - 0.0025f);
 		}
 		Debug.LogError("ErrorWeight", this);
 		return Vector3.zero;
@@ -365,7 +365,7 @@ public class MoveFloor : MonoBehaviour {
 	}
 
 	[ContextMenu("Resize")]
-	void Resize() {
+	public void Resize() {
 		if (this == null) return;
 		if (EditorUtility.IsPrefab(gameObject)) return;
 		ResizeFloor();
@@ -400,41 +400,41 @@ public class MoveFloor : MonoBehaviour {
 	GameObject mMoveFloorSEInstance;
 
 
-	[SerializeField, Tooltip("重さ"), Space(16)]
+	[HideInInspector]
 	public WeightManager mWeightManager;
 
-	[SerializeField, Tooltip("動き出すときの振動数")]
+	[SerializeField, EditOnPrefab, Tooltip("動き出すときの振動数"), Space(16)]
 	int mToMovingHz = 5;
 
-	[SerializeField, Tooltip("動き出すときの振動の強さ")]
+	[SerializeField, EditOnPrefab, Tooltip("動き出すときの振動の強さ")]
 	float mToMovingAmp = 0.05f;
 
-	[SerializeField, Tooltip("止まっている状態から、動き始めるまでの時間")]
+	[SerializeField, EditOnPrefab, Tooltip("止まっている状態から、動き始めるまでの時間")]
 	float mToMovingTime = 1.0f;
 
-	[SerializeField, Tooltip("止まる時の振動数")]
+	[SerializeField, EditOnPrefab, Tooltip("止まる時の振動数")]
 	int mFromMovingHz = 5;
 
-	[SerializeField, Tooltip("止まる時の振動の強さ")]
+	[SerializeField, EditOnPrefab, Tooltip("止まる時の振動の強さ")]
 	float mFromMovingAmp = 0.05f;
 
-	[SerializeField, Tooltip("動いている状態から止まるまでの時間")]
+	[SerializeField, EditOnPrefab, Tooltip("動いている状態から止まるまでの時間")]
 	float mFromMovingTime = 1.0f;
 
-	[SerializeField, Tooltip("ターンの時の振動数")]
+	[SerializeField, EditOnPrefab, Tooltip("ターンの時の振動数")]
 	int mTurnHz = 5;
 
-	[SerializeField, Tooltip("ターンの時の振動の強さ")]
+	[SerializeField, EditOnPrefab, Tooltip("ターンの時の振動の強さ")]
 	float mTurnAmp = 0.05f;
 
-	[SerializeField, Tooltip("逆に動くときの、方向転換で止まる時間")]
+	[SerializeField, EditOnPrefab, Tooltip("逆に動くときの、方向転換で止まる時間")]
 	float mTurnTime = 1.0f;
 
-	[SerializeField, Tooltip("床が1秒間に動く距離")]
+	[SerializeField, EditOnPrefab, Tooltip("床が1秒間に動く距離")]
 	float mMoveSpeed = 1.0f;
 
 
-	[SerializeField, Tooltip("床"), Space(16)]
+	[SerializeField, EditOnPrefab, Tooltip("床"), Space(16)]
 	GameObject mFloor;
 
 	[SerializeField, EditOnPrefab, Tooltip("選択されたときに光るフレーム")]

@@ -20,7 +20,7 @@ public class Result : MonoBehaviour {
         // ゴールしたなら
         else {
             // リザルト画面が表示されているなら何もしない
-            if (ResultCanvas.activeSelf) {
+            if (IsResultCanvasActive()) {
                 return;
             }
             // リザルト画面が表示されていなければ
@@ -39,4 +39,12 @@ public class Result : MonoBehaviour {
             }
         }
 	}
+
+    public bool IsResultCanvasActive() {
+        return ResultCanvas.activeSelf;
+    }
+
+    public void SetResultCanvasActive(bool _active) {
+        ResultCanvas.SetActive(_active);
+    }
 }
