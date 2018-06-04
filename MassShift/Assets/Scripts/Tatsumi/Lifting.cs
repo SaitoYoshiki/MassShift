@@ -183,6 +183,9 @@ public class Lifting : MonoBehaviour {
 				if (heavyFailedFlg || (!MoveManager.MoveTo(GetLiftUpBoxPoint(), liftObj.GetComponent<BoxCollider>(), liftingColMask))) {
 					Debug.Log("持ち上げ失敗");
 
+					// 対象をすり抜けオブジェクトに追加
+					MoveMng.AddThroughCollider(liftObj.GetComponent<Collider>());
+
 					// 同期できなければ下ろす
 					St = LiftState.liftUpFailed;
 
