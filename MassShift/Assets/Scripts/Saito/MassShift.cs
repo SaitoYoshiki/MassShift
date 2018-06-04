@@ -1006,8 +1006,9 @@ public class MassShift : MonoBehaviour
 		GameObject lSelect = mCursor.transform.Find("Model/Select").gameObject;
 
 		if (aCursorState == CCursorState.cNormal) {
-			lNormal.SetActive(true);
-			lSelect.SetActive(false);
+			lNormal.SetActive(false);
+			lSelect.SetActive(true);
+			lSelect.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.white);
 		}
 		else if(aCursorState == CCursorState.cCanNotShift) {
 			lNormal.SetActive(false);
