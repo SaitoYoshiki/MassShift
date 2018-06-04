@@ -94,7 +94,19 @@ public class LightBall : MonoBehaviour {
 		}
 
 		LayerMask l = LayerMask.GetMask(new string[] { "Box", "Stage" });
-		var rcs = Physics.SphereCastAll(aFrom, mCollider.transform.lossyScale.x / 2.0f, lDir, (aTo - aFrom).magnitude, l);
+		List<RaycastHit> rcs = Physics.SphereCastAll(aFrom, mCollider.transform.lossyScale.x / 2.0f, lDir, (aTo - aFrom).magnitude, l).ToList();
+
+		//一方向からすり抜ける床で、順方向を除外
+		for(int i = rcs.Count - 1; i >= 0; i--) {
+			OnewayFloor o = rcs[i].collider.GetComponent<OnewayFloor>();
+			if (o == null) continue;
+
+			//もし通り抜けられるなら、判定から除外
+			if(o.IsThrough(lDir)) {
+				rcs.RemoveAt(i);
+			}
+		}
+
 		foreach(var rc in rcs) {
 			if (aIgnoreList == null) return false;
 			if (aIgnoreList.Contains(rc.collider.gameObject) == false) {
