@@ -196,6 +196,11 @@ public class MoveManager : MonoBehaviour {
 	List<MoveType> stopHorizontalMoveType = new List<MoveType>();
 	List<MoveType> stopVirticalMoveType = new List<MoveType>();
 
+	[SerializeField]
+	bool nestingThroughFlg = false; // 例外的なめり込みが発生した際にそのコライダーをすり抜けるフラグ
+	[SerializeField]
+	List<Collider> throughColList = new List<Collider>(); // 例外的なめり込みが発生しているコライダーリスト
+
 	void Awake() {
 		if (autoMask) mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });
 	}
@@ -326,11 +331,20 @@ public class MoveManager : MonoBehaviour {
 			_ignoreColList.Add(_moveCol);
 		}
 
-//		string testStr = _moveCol.name;
-//		foreach (var ignoreCol in _ignoreColList) {
-//			testStr += "\n" + ignoreCol.name;
-//		}
-//		Debug.LogWarning(testStr);
+		// すり抜け指定オブジェクトが接触していなければそのオブジェクトのすり抜け指定を解除
+		if (moveMng && moveMng.nestingThroughFlg) {
+			for (int idx = moveMng.throughColList.Count - 1; idx >= 0; idx--) {
+				BoxCollider throughBoxCol = (BoxCollider)moveMng.throughColList[idx];
+				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.5f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
+					moveMng.throughColList.RemoveAt(idx);
+				}
+			}
+		}
+		//		string testStr = _moveCol.name;
+		//		foreach (var ignoreCol in _ignoreColList) {
+		//			testStr += "\n" + ignoreCol.name;
+		//		}
+		//		Debug.LogWarning(testStr);
 
 		///Debug.LogError(moveVec);
 
@@ -339,6 +353,13 @@ public class MoveManager : MonoBehaviour {
 			// y軸の衝突を全て取得
 			//			RaycastHit[] hitInfos = Physics.BoxCastAll(_moveCol.bounds.center, _moveCol.size * 0.5f, new Vector3(0.0f, _move.y, 0.0f));
 			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(0.0f, _move.y, 0.0f), _mask, _ignoreColList);
+
+			// すり抜け指定オブジェクトを除外
+			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+				if (moveMng.throughColList.Contains(hitInfos[idx].collider)) {
+					hitInfos.RemoveAt(idx);
+				}
+			}
 
 			// 一致方向のすり抜け床の除外
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
@@ -367,7 +388,7 @@ public class MoveManager : MonoBehaviour {
 					float dis = (Mathf.Abs(_moveCol.bounds.center.y - hitInfo.collider.bounds.center.y) - (_moveCol.bounds.size.y + hitInfo.collider.bounds.size.y) * 0.5f);
 //					if (cmpDis > dis) {
 //					dis = cmpDis;
-						nearHitinfo = hitInfo;
+//						nearHitinfo = hitInfo;
 //					}
 
 					/**/
@@ -386,6 +407,12 @@ public class MoveManager : MonoBehaviour {
 						(moveMng.extrusionForcible || _extrusionForcible));         // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
 					bool stopFlg = false;   // 移動量を削除するフラグ
 					bool breakFlg = false;
+
+					// 相手側の自身に対するすり抜け指定があれば
+					if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughColList.Contains(_moveCol)) {
+						// 押し出し不可
+						canExtrusion = false;
+					}
 	
 					// 押し出せない場合
 					if (!canExtrusion) {
@@ -536,6 +563,13 @@ public class MoveManager : MonoBehaviour {
 			//			RaycastHit[] hitInfos = Physics.BoxCastAll(_moveCol.bounds.center, _moveCol.size * 0.5f, new Vector3(_move.x, 0.0f, 0.0f));
 			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(_move.x, 0.0f, 0.0f), _mask, _ignoreColList);
 
+			// すり抜け指定オブジェクトを除外
+			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+				if (moveMng.throughColList.Contains(hitInfos[idx].collider)) {
+					hitInfos.RemoveAt(idx);
+				}
+			}
+
 			// 一致方向のすり抜け床の除外
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
 				OnewayFloor oneway = hitInfos[idx].collider.GetComponent<OnewayFloor>();
@@ -552,7 +586,7 @@ public class MoveManager : MonoBehaviour {
 				//}
 				//UnityEditor.EditorApplication.isPaused = true;
 
-				// x軸で最もめり込んでいる衝突を取得
+				// x軸の最も近い衝突を取得
 //				RaycastHit nearHitinfo = new RaycastHit();
 				float dis = float.MaxValue;
 				foreach (var hitInfo in hitInfos) {
@@ -955,100 +989,106 @@ public class MoveManager : MonoBehaviour {
 	}
 
 	// 衝突しているコライダーのどちらかを押し出す
-//	static Vector3 ExtrusionMove(Vector3 _move, BoxCollider _moveCol, BoxCollider _hitCol, int _mask, bool _disExtFlg = false) {
-//		//		Vector3 extrusionVec = Vector3.zero;
-//		//		// 横
-//		//		extrusionVec.x = (Mathf.Min(
-//		//			(_moveCol.transform.position.x + _moveCol.center.x + _moveCol.size.x * 0.5f) - (_hitCol.transform.position.x + _hitCol.center.x - _hitCol.size.x * 0.5f),
-//		//			(_hitCol.transform.position.x + _hitCol.center.x + _hitCol.size.x * 0.5f) - (_moveCol.transform.position.x + _moveCol.center.x - _moveCol.size.x * 0.5f)));
-//		//
-//		//		// 縦
-//		//		extrusionVec.y = (Mathf.Min(
-//		//			(_moveCol.transform.position.y + _moveCol.center.y + _moveCol.size.y * 0.5f) - (_hitCol.transform.position.y + _hitCol.center.y - _hitCol.size.y * 0.5f),
-//		//			(_hitCol.transform.position.y + _hitCol.center.y + _hitCol.size.y * 0.5f) - (_moveCol.transform.position.y + _moveCol.center.y - _moveCol.size.y * 0.5f)));
-//		//
-//		//		extrusionVec += (_moveCol.size * 0.5f + _hitCol.size * 0.5f);
-//		//
-//		//		// 差が小さい方向に押し出し
-//		//		if (extrusionVec.x < extrusionVec.y) {
-//		//			extrusionVec.y = 0.0f;
-//		//		}
-//		//		else {
-//		//			extrusionVec.x = 0.0f;
-//		//		}
-//		//		extrusionVec *= -1.0f;
-//
-//		Vector3 moveVec = new Vector3(Mathf.Sign(_move.x), Mathf.Sign(_move.y), 0.0f);
-//		Vector3 befPos = (_moveCol.transform.position + _moveCol.center);
-//		Vector3 aftPos = (befPos + _move);
-//		Vector3 colPos = (_hitCol.transform.position + _hitCol.center);
-//		Vector3 resMove = _move;
-//		Vector3 moveColSize = (new Vector3((_moveCol.transform.lossyScale.x * _moveCol.size.x), (_moveCol.transform.lossyScale.y * _moveCol.size.y), (_moveCol.transform.lossyScale.z * _moveCol.size.z)));
-//		Vector3 hitColSize = (new Vector3((_hitCol.transform.lossyScale.x * _hitCol.size.x), (_hitCol.transform.lossyScale.y * _hitCol.size.y), (_hitCol.transform.lossyScale.z * _hitCol.size.z)));
-//
-//		Debug.Log("size:" + moveColSize + " " + hitColSize);
-//
-//		// 各軸の移動により重なった長さを求める
-//		Vector3 dis = new Vector3(
-//			(((aftPos.x + moveColSize.x) * 0.5f * moveVec.x) - ((colPos.x - hitColSize.x) * 0.5f * moveVec.x)),
-//			(((aftPos.y + moveColSize.y) * 0.5f * moveVec.y) - ((colPos.y - hitColSize.y) * 0.5f * moveVec.y)), 0.0f);
-//
-//		// 重なった長さが0未満の軸は衝突していない
-//		if (dis.x < 0.0f) {
-//			dis.x = 0.0f;
-//		}
-//		if (dis.y < 0.0f) {
-//			dis.y = 0.0f;
-//		}
-//		dis.x *= moveVec.x;
-//		dis.y *= moveVec.y;
-//		dis.z *= moveVec.z;
-//		Debug.Log("dis:" + dis);
-//
-//		WeightManager moveWeightMng = _moveCol.GetComponent<WeightManager>(), hitWeightMng = _hitCol.GetComponent<WeightManager>();
-//		MoveManager hitMoveMng = _hitCol.GetComponent<MoveManager>();
-//
-//		// _hitCol側が押される場合
-//		if (((moveWeightMng != null) && (hitWeightMng != null) && (hitMoveMng != null)) &&
-//			!_disExtFlg &&										// 押し出し不可フラグがfalse
-//			(moveWeightMng.WeightLv > hitWeightMng.WeightLv) &&	// _hitCol側の方が軽い
-//			!hitMoveMng.extrusionIgnore) {                  // _hitColの他オブジェクトからの押し出しが無効
-//
-//			Debug.LogWarning("押し出したい");
-//
-//			// 押し出そうとする
-//			Vector3 extResMove;
-//			Move((_move - dis), _hitCol, _mask, out extResMove);
-//
-//			// 押し出し切れなかった場合
-//			if ((_move - dis) != extResMove) {
-//				Debug.LogWarning("押し出しきれない");
-//
-//				// それ以上は押せないので自身も移動できる限りの移動に留める
-//				ExtrusionMove(_move, _moveCol, _hitCol, _mask, true);	// 押し出し不可でもう一度押し出され移動処理
-//			}
-//			// 押し出し切れた場合
-//			else {
-//				Debug.LogWarning("押し出しきれた");
-//
-//				// 自身はそのまま移動
-//				resMove = (_move - dis);
-//				_moveCol.transform.position += _move;
-//			}
-//		}
-//		// _moveCol側が押される場合
-//		else {
-//			Debug.LogWarning("押し出される");
-//
-//			// 移動できる限りの移動を行う
-////			resMove = (_move - dis);
-//			_moveCol.transform.position += _move;
-//
-//			Debug.LogWarning("pos:" + _moveCol.transform.position);
-//		}
-//
-//		Debug.Log("_move:" + _move + " resMove(return):" + resMove);
-//
-//		return resMove;
-//	}
+	//	static Vector3 ExtrusionMove(Vector3 _move, BoxCollider _moveCol, BoxCollider _hitCol, int _mask, bool _disExtFlg = false) {
+	//		//		Vector3 extrusionVec = Vector3.zero;
+	//		//		// 横
+	//		//		extrusionVec.x = (Mathf.Min(
+	//		//			(_moveCol.transform.position.x + _moveCol.center.x + _moveCol.size.x * 0.5f) - (_hitCol.transform.position.x + _hitCol.center.x - _hitCol.size.x * 0.5f),
+	//		//			(_hitCol.transform.position.x + _hitCol.center.x + _hitCol.size.x * 0.5f) - (_moveCol.transform.position.x + _moveCol.center.x - _moveCol.size.x * 0.5f)));
+	//		//
+	//		//		// 縦
+	//		//		extrusionVec.y = (Mathf.Min(
+	//		//			(_moveCol.transform.position.y + _moveCol.center.y + _moveCol.size.y * 0.5f) - (_hitCol.transform.position.y + _hitCol.center.y - _hitCol.size.y * 0.5f),
+	//		//			(_hitCol.transform.position.y + _hitCol.center.y + _hitCol.size.y * 0.5f) - (_moveCol.transform.position.y + _moveCol.center.y - _moveCol.size.y * 0.5f)));
+	//		//
+	//		//		extrusionVec += (_moveCol.size * 0.5f + _hitCol.size * 0.5f);
+	//		//
+	//		//		// 差が小さい方向に押し出し
+	//		//		if (extrusionVec.x < extrusionVec.y) {
+	//		//			extrusionVec.y = 0.0f;
+	//		//		}
+	//		//		else {
+	//		//			extrusionVec.x = 0.0f;
+	//		//		}
+	//		//		extrusionVec *= -1.0f;
+	//
+	//		Vector3 moveVec = new Vector3(Mathf.Sign(_move.x), Mathf.Sign(_move.y), 0.0f);
+	//		Vector3 befPos = (_moveCol.transform.position + _moveCol.center);
+	//		Vector3 aftPos = (befPos + _move);
+	//		Vector3 colPos = (_hitCol.transform.position + _hitCol.center);
+	//		Vector3 resMove = _move;
+	//		Vector3 moveColSize = (new Vector3((_moveCol.transform.lossyScale.x * _moveCol.size.x), (_moveCol.transform.lossyScale.y * _moveCol.size.y), (_moveCol.transform.lossyScale.z * _moveCol.size.z)));
+	//		Vector3 hitColSize = (new Vector3((_hitCol.transform.lossyScale.x * _hitCol.size.x), (_hitCol.transform.lossyScale.y * _hitCol.size.y), (_hitCol.transform.lossyScale.z * _hitCol.size.z)));
+	//
+	//		Debug.Log("size:" + moveColSize + " " + hitColSize);
+	//
+	//		// 各軸の移動により重なった長さを求める
+	//		Vector3 dis = new Vector3(
+	//			(((aftPos.x + moveColSize.x) * 0.5f * moveVec.x) - ((colPos.x - hitColSize.x) * 0.5f * moveVec.x)),
+	//			(((aftPos.y + moveColSize.y) * 0.5f * moveVec.y) - ((colPos.y - hitColSize.y) * 0.5f * moveVec.y)), 0.0f);
+	//
+	//		// 重なった長さが0未満の軸は衝突していない
+	//		if (dis.x < 0.0f) {
+	//			dis.x = 0.0f;
+	//		}
+	//		if (dis.y < 0.0f) {
+	//			dis.y = 0.0f;
+	//		}
+	//		dis.x *= moveVec.x;
+	//		dis.y *= moveVec.y;
+	//		dis.z *= moveVec.z;
+	//		Debug.Log("dis:" + dis);
+	//
+	//		WeightManager moveWeightMng = _moveCol.GetComponent<WeightManager>(), hitWeightMng = _hitCol.GetComponent<WeightManager>();
+	//		MoveManager hitMoveMng = _hitCol.GetComponent<MoveManager>();
+	//
+	//		// _hitCol側が押される場合
+	//		if (((moveWeightMng != null) && (hitWeightMng != null) && (hitMoveMng != null)) &&
+	//			!_disExtFlg &&										// 押し出し不可フラグがfalse
+	//			(moveWeightMng.WeightLv > hitWeightMng.WeightLv) &&	// _hitCol側の方が軽い
+	//			!hitMoveMng.extrusionIgnore) {                  // _hitColの他オブジェクトからの押し出しが無効
+	//
+	//			Debug.LogWarning("押し出したい");
+	//
+	//			// 押し出そうとする
+	//			Vector3 extResMove;
+	//			Move((_move - dis), _hitCol, _mask, out extResMove);
+	//
+	//			// 押し出し切れなかった場合
+	//			if ((_move - dis) != extResMove) {
+	//				Debug.LogWarning("押し出しきれない");
+	//
+	//				// それ以上は押せないので自身も移動できる限りの移動に留める
+	//				ExtrusionMove(_move, _moveCol, _hitCol, _mask, true);	// 押し出し不可でもう一度押し出され移動処理
+	//			}
+	//			// 押し出し切れた場合
+	//			else {
+	//				Debug.LogWarning("押し出しきれた");
+	//
+	//				// 自身はそのまま移動
+	//				resMove = (_move - dis);
+	//				_moveCol.transform.position += _move;
+	//			}
+	//		}
+	//		// _moveCol側が押される場合
+	//		else {
+	//			Debug.LogWarning("押し出される");
+	//
+	//			// 移動できる限りの移動を行う
+	////			resMove = (_move - dis);
+	//			_moveCol.transform.position += _move;
+	//
+	//			Debug.LogWarning("pos:" + _moveCol.transform.position);
+	//		}
+	//
+	//		Debug.Log("_move:" + _move + " resMove(return):" + resMove);
+	//
+	//		return resMove;
+	//	}
+
+	public void AddThroughCollider(Collider _throughCol) {
+		if (_throughCol && !throughColList.Contains(_throughCol)) {
+			throughColList.Add(_throughCol);
+		}
+	}
 }
