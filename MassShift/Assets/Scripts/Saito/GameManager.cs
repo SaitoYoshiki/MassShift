@@ -64,7 +64,10 @@ public class GameManager : MonoBehaviour {
 		}
 
 		//BGMを再生する
-		SoundManager.SPlay(mAreaBGM[Area.GetAreaNumber()]);
+		int lAreaNumber = Area.GetAreaNumber();
+		if(lAreaNumber != -1) {
+			SoundManager.SPlay(mAreaBGM[lAreaNumber]);
+		}
 
 
 		//ゲームメインの開始
