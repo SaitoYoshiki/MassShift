@@ -18,8 +18,9 @@ public class Lifting : MonoBehaviour {
 	[SerializeField] GameObject liftObj = null;     // 持ち上げ中オブジェクト
 	[SerializeField] Collider standbyCol = null;    // 非持ち上げ中の本体当たり判定
 	[SerializeField] Collider liftingCol = null;    // 持ち上げ中の本体当たり判定
-	[SerializeField] float stdLiftingColPoint = 1.0f;	// 接地方向が通常時の持ち上げ中の本体当たり判定の位置
-	[SerializeField] float revLiftingColPoint = 0.0f;	// 接地方向が逆の時の持ち上げ中の本体当たり判定の位置
+	//[SerializeField] float colCenterPoint = 0.75f;		// 本体当たり判定の中心位置
+	//[SerializeField] float stdLiftingColPoint = 1.0f;	// 接地方向が通常時の持ち上げ中の本体当たり判定の位置
+	//[SerializeField] float revLiftingColPoint = 0.0f;	// 接地方向が逆の時の持ち上げ中の本体当たり判定の位置
 	[SerializeField] float liftObjMaxDisX = 0.9f;       // 持ち上げ時にx軸距離がこれ以上離れないように補正
 	[SerializeField] bool afterHoldInput = false;		// 持ち上げ/下ろし後にそのまま入力を続けている
 	[SerializeField] LiftState st;	
@@ -91,15 +92,60 @@ public class Lifting : MonoBehaviour {
 	[SerializeField] bool autoBoxMask = true;
 	[SerializeField] LayerMask boxMask;
 
+	[SerializeField]
+	Transform offsetTransform = null;
+	[SerializeField]
+	Transform rotationTransform = null;
+	[SerializeField]
+	Transform modelTransform = null;
+	[SerializeField]
+	Transform fourSideTransform = null;
+
+	[SerializeField]
+	float downOffsetPos = -0.75f;
+	[SerializeField]
+	float downRotationPos = 0.5f;
+	[SerializeField]
+	float downModelPos = -0.25f;
+	[SerializeField]
+	float downFourSidePos = -0.5f;
+	[SerializeField]
+	float upStdOffsetPos = 0.375f;
+	[SerializeField]
+	float upRevOffsetPos = -1.125f;
+	[SerializeField]
+	float upRotationPos = 0.0f;
+	[SerializeField]
+	float upModelPos = -0.875f;
+	[SerializeField]
+	float upStdFourSidePos = -0.5f;
+	[SerializeField]
+	float upRevFourSidePos = -0.75f;
+	[SerializeField]
+	float liftingPosOffset = -1.25f;
+
 	void Awake() {
 		if (autoLiftingColMask) liftingColMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		if (autoBoxMask) boxMask = LayerMask.GetMask(new string[] { "Box" });
 	}
 
 	void Start() {
-		if (liftPoint == null) {
+		if (!liftPoint) {
 			Debug.LogError("LiftPointが設定されていません。");
 			enabled = false;
+		}
+
+		if (!offsetTransform) {
+			Debug.LogError("OffsetTransformが設定されていません。");
+		}
+		if (!modelTransform) {
+			Debug.LogError("ModelTransformが設定されていません。");
+		}
+		if (!offsetTransform) {
+			Debug.LogError("OffsetTransformが設定されていません。");
+		}
+		if (!fourSideTransform) {
+			Debug.LogError("FourSideTransformが設定されていません。");
 		}
 	}
 
@@ -174,7 +220,10 @@ public class Lifting : MonoBehaviour {
 			if (!MoveManager.MoveTo(PlAnim.GetBoxPosition(), liftObj.GetComponent<BoxCollider>(), liftingColMask)) {
 				Debug.Log("下ろし失敗");
 
-				// 同期できなければ離す
+				// 対象をすり抜けオブジェクトに追加
+				MoveMng.AddThroughCollider(liftObj.GetComponent<Collider>());
+
+				// 同期できなければ強制的に離す
 				LiftEndObject(liftObj, false);
 
 				// 下ろし処理後状態に
@@ -222,7 +271,10 @@ public class Lifting : MonoBehaviour {
 			if (!MoveManager.MoveTo(PlAnim.GetBoxPosition(), liftObj.GetComponent<BoxCollider>(), liftingColMask)) {
 				Debug.Log("持ち上げ失敗に失敗");
 
-				// 同期できなければ下ろす
+				// 対象をすり抜けオブジェクトに追加
+				MoveMng.AddThroughCollider(liftObj.GetComponent<Collider>());
+
+				// 同期できなければ強制的に離す
 				LiftEndObject(liftObj, false);
 
 				// 下ろし処理後状態に
@@ -249,6 +301,7 @@ public class Lifting : MonoBehaviour {
 				liftObj = null;
 			}
 			break;
+
 
 /// ひとまず下ろし失敗状態に遷移する事はない
 //		case LiftState.liftDownFailed:
@@ -321,7 +374,7 @@ public class Lifting : MonoBehaviour {
 			// 持ち上げれるオブジェクトがあれば
 			if (liftableObj != null) {
 				// 重さがプレイヤーより重ければ失敗フラグを立てる
-				heavyFailedFlg = (Pl.GetComponent<WeightManager>().WeightLv < liftableObj.GetComponent<WeightManager>().WeightLv);
+				heavyFailedFlg = (Pl.GetComponent<WeightManager>().WeightLv<liftableObj.GetComponent<WeightManager>().WeightLv);
 
 				// ジャンプ、重さ変更、振り向きを不可に
 				Pl.CanJump = false;
@@ -398,27 +451,34 @@ public class Lifting : MonoBehaviour {
 		liftObj.GetComponent<BoxCollider>().enabled = !_liftUp;
 		liftObj.GetComponent<MoveManager>().enabled = !_liftUp;
 
-		// 通常時のプレイヤー当たり判定を無効化/有効化
-		standbyCol.enabled = !_liftUp;
+		//		// 通常時のプレイヤー当たり判定を無効化/有効化
+		//		standbyCol.enabled = !_liftUp;
+		//
+		//		// 持ち上げ中のプレイヤー当たり判定有効化時に接地方向によって判定位置を移動
+		//		if (_liftUp) {
+		//			BoxCollider liftingBoxCol = ((BoxCollider)liftingCol);
+		//			float dis = Mathf.Abs(liftingBoxCol.center.y - colCenterPoint);
+		//
+		//			if (Pl.GetComponent<WeightManager>().WeightForce < 0.0f) {
+		//				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, colCenterPoint + dis, liftingBoxCol.center.z);
+		////				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, stdLiftingColPoint, liftingBoxCol.center.z);
+		//			}else {
+		//				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, colCenterPoint - dis, liftingBoxCol.center.z);
+		//				//				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, revLiftingColPoint, liftingBoxCol.center.z);
+		//			}
+		//		}
+		//		// 持ち上げ中のプレイヤー当たり判定を有効化/無効化
+		//		liftingCol.enabled = _liftUp;
+		//
+		//		// 有効な当たり判定をMoveManagerに登録
+		//		if (standbyCol.enabled) {
+		//			MoveMng.UseCol = standbyCol;
+		//		}else {
+		//			MoveMng.UseCol = liftingCol;
+		//		}
 
-		// 持ち上げ中のプレイヤー当たり判定有効化時に接地方向によって判定位置を移動
-		if (_liftUp) {
-			BoxCollider liftingBoxCol = ((BoxCollider)liftingCol);
-			if (Pl.GetComponent<WeightManager>().WeightForce < 0.0f) {
-				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, stdLiftingColPoint, liftingBoxCol.center.z);
-			}else {
-				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, revLiftingColPoint, liftingBoxCol.center.z);
-			}
-		}
-		// 持ち上げ中のプレイヤー当たり判定を有効化/無効化
-		liftingCol.enabled = _liftUp;
-
-		// 有効な当たり判定をMoveManagerに登録
-		if (standbyCol.enabled) {
-			MoveMng.UseCol = standbyCol;
-		}else {
-			MoveMng.UseCol = liftingCol;
-		}
+		// プレイヤー当たり判定の設定
+		SwitchLiftCollider(_liftUp);
 
 		// 持ち上げきったのなら
 		if (_liftUp) {
@@ -442,6 +502,80 @@ public class Lifting : MonoBehaviour {
 		// プレイヤーのジャンプ、振り向きを可能に
 		Pl.CanJump = true;
 		Pl.CanRotation = true;
+	}
+
+	void SwitchLiftCollider(bool _liftUp) {
+		// 通常時のプレイヤー当たり判定を無効化/有効化
+		standbyCol.enabled = !_liftUp;
+
+		//		// 持ち上げ中のプレイヤー当たり判定有効化時に接地方向によって判定位置を移動
+		//		if (_liftUp) {
+		//			BoxCollider liftingBoxCol = ((BoxCollider)liftingCol);
+		//			float dis = Mathf.Abs(liftingBoxCol.center.y - colCenterPoint);
+		//
+		//			if (Pl.GetComponent<WeightManager>().WeightForce < 0.0f) {
+		//				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, colCenterPoint + dis, liftingBoxCol.center.z);
+		//				//				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, stdLiftingColPoint, liftingBoxCol.center.z);
+		//			} else {
+		//				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, colCenterPoint - dis, liftingBoxCol.center.z);
+		//				//				liftingBoxCol.center = new Vector3(liftingBoxCol.center.x, revLiftingColPoint, liftingBoxCol.center.z);
+		//			}
+		//		}
+
+		WeightManager weightMng = GetComponent<WeightManager>();
+		if (!weightMng) {
+			Debug.LogError("WeightManagerが見つかりませんでした。");
+		}
+
+		// プレイヤー当たり判定とモデルの位置を調整
+		if (_liftUp) {
+			offsetTransform.localPosition = new Vector3(offsetTransform.localPosition.x, upStdOffsetPos, offsetTransform.localPosition.z);
+			rotationTransform.localPosition = new Vector3(rotationTransform.localPosition.x, upRotationPos, rotationTransform.localPosition.z);
+			modelTransform.localPosition = new Vector3(modelTransform.localPosition.x, upModelPos, modelTransform.localPosition.z);
+
+			if (weightMng.WeightLv <= WeightManager.Weight.flying) {
+				transform.position += new Vector3(0.0f, liftingPosOffset, 0.0f);
+			}
+		} else {
+			offsetTransform.localPosition = new Vector3(offsetTransform.localPosition.x, downOffsetPos, offsetTransform.localPosition.z);
+			rotationTransform.localPosition = new Vector3(rotationTransform.localPosition.x, downRotationPos, rotationTransform.localPosition.z);
+			modelTransform.localPosition = new Vector3(modelTransform.localPosition.x, downModelPos, modelTransform.localPosition.z);
+
+			if (weightMng.WeightLv <= WeightManager.Weight.flying) {
+				transform.position -= new Vector3(0.0f, liftingPosOffset, 0.0f);
+			}
+		}
+
+		// 四辺コライダーの位置を調整
+		CorrectFourSideCollider(_liftUp);
+
+		// 持ち上げ中のプレイヤー当たり判定を有効化/無効化
+		liftingCol.enabled = _liftUp;
+
+		// 有効な当たり判定をMoveManagerに登録
+		if (standbyCol.enabled) {
+			MoveMng.UseCol = standbyCol;
+		} else {
+			MoveMng.UseCol = liftingCol;
+		}
+	}
+
+	public void CorrectFourSideCollider(bool _liftUp) {
+		WeightManager weightMng = GetComponent<WeightManager>();
+		if (!weightMng) {
+			Debug.LogError("WeightManagerが見つかりませんでした。");
+		}
+
+		// 四辺当たり判定の位置を調整
+		if (_liftUp) {
+			if (weightMng.WeightLv > WeightManager.Weight.flying) {
+				fourSideTransform.localPosition = new Vector3(fourSideTransform.localPosition.x, upStdFourSidePos, fourSideTransform.localPosition.z);
+			} else {
+				fourSideTransform.localPosition = new Vector3(fourSideTransform.localPosition.x, upRevFourSidePos, fourSideTransform.localPosition.z);
+			}
+		} else {
+			fourSideTransform.localPosition = new Vector3(fourSideTransform.localPosition.x, downFourSidePos, fourSideTransform.localPosition.z);
+		}
 	}
 
 	Vector3 GetLiftUpBoxPoint() {
