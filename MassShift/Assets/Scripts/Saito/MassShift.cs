@@ -1013,7 +1013,7 @@ public class MassShift : MonoBehaviour
 		else if(aCursorState == CCursorState.cCanNotShift) {
 			lNormal.SetActive(false);
 			lSelect.SetActive(true);
-			lSelect.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.gray);
+			lSelect.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.white * 0.25f);
 		}
 		else if (aCursorState == CCursorState.cShotLineThrough) {
 			lNormal.SetActive(false);
