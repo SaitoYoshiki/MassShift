@@ -17,7 +17,7 @@ public class Saito_Trial_Tutorial : MonoBehaviour {
 	int mTargetIndex = -1;
 
 	[SerializeField]
-	float mFadeTime = 1.0f;
+	float mFadeTime = 0.2f;
 
 
 	// Use this for initialization
