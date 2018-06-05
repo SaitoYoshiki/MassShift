@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	List<GameObject> mAreaBGM;
 
+	[SerializeField]
+	MoveTransform mCameraMove;
+
 	StageTransition mTransition;
 
 	Result mResult;
@@ -56,6 +59,8 @@ public class GameManager : MonoBehaviour {
 
 			mTransition.OpenDoorParent();
 
+			//mCameraMove.MoveStartPoisition();
+
 			//演出が終了するまで待機
 			while (true) {
 				if (mTransition.GetOpenEnd()) break;
@@ -69,6 +74,15 @@ public class GameManager : MonoBehaviour {
 			SoundManager.SPlay(mAreaBGM[lAreaNumber]);
 		}
 
+		//カメラを動かす
+		/*
+		mCameraMove.MoveStart();
+		//演出が終了するまで待機
+		while (true) {
+			if (mCameraMove.IsMoveEnd()) break;
+			yield return null;
+		}
+		//*/
 
 		//ゲームメインの開始
 		//
