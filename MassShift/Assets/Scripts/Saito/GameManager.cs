@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
@@ -10,9 +11,6 @@ public class GameManager : MonoBehaviour {
 
 	[SerializeField, EditOnPrefab]
 	List<GameObject> mAreaBGM;
-
-	[SerializeField]
-	MoveTransform mCameraMove;
 
 	StageTransition mTransition;
 
@@ -36,14 +34,23 @@ public class GameManager : MonoBehaviour {
 		Time.timeScale = 1.0f;
 		mPause.pauseEvent.Invoke();
 
-		//ゲーム進行のコルーチンを開始
-		StartCoroutine(GameMain());
+        //ゲーム進行のコルーチンを開始
+        if (!cameraMove.fromTitle) {
+            StartCoroutine(GameMain());
+        }
+        else {
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
+        }
 	}
 
 	// Update is called once per frame
 	void Update() {
 
 	}
+
+    void OnActiveSceneChanged(Scene i_preChangedScene, Scene i_postChangedScene) {
+        StartCoroutine(GameMain());
+    }
 
 	IEnumerator GameMain() {
 
@@ -57,15 +64,23 @@ public class GameManager : MonoBehaviour {
 			//プレイヤーを操作不可に
 			OnCantOperation();
 
-			mTransition.OpenDoorParent();
+            // タイトルシーンからの遷移でなければ
+            if (!cameraMove.fromTitle) {
+                //ステージ開始時の演出
+                mTransition.OpenDoorParent();
 
-			//mCameraMove.MoveStartPoisition();
-
-			//演出が終了するまで待機
-			while (true) {
-				if (mTransition.GetOpenEnd()) break;
-				yield return null;
-			}
+                //演出が終了するまで待機
+                while (true) {
+                    if (mTransition.GetOpenEnd()) break;
+                    yield return null;
+                }
+            }
+            else {
+                cameraMove.fromTitle = false;
+                SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+                yield return null;
+                //yield return new WaitForSeconds(1.0f);
+            }
 		}
 
 		//BGMを再生する
@@ -74,15 +89,6 @@ public class GameManager : MonoBehaviour {
 			SoundManager.SPlay(mAreaBGM[lAreaNumber]);
 		}
 
-		//カメラを動かす
-		/*
-		mCameraMove.MoveStart();
-		//演出が終了するまで待機
-		while (true) {
-			if (mCameraMove.IsMoveEnd()) break;
-			yield return null;
-		}
-		//*/
 
 		//ゲームメインの開始
 		//
