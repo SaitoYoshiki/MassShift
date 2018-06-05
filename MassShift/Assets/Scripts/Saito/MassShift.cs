@@ -826,6 +826,12 @@ public class MassShift : MonoBehaviour
 
 			mBeforeSelect = null;
 			mSelect = null;
+
+
+			//ダブル選択はできない仕様なので、この後の処理をスキップ
+			UpdateMassShiftLine(mMassShiftLine, mSource, mCursor);
+			ChangeState(CSelectState.cDrag);    //ドラッグの状態へ
+			return;
 		}
 
 		//重さを移す表示の線を出す
