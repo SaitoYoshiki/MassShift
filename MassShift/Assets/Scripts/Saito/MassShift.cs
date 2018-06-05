@@ -33,6 +33,7 @@ public class MassShift : MonoBehaviour
 		UpdateCanShift();
 		
 		UpdateState();
+		mFromLastShiftTime += Time.deltaTime;
 	}
 
 	void UpdateCanShift() {
@@ -513,6 +514,8 @@ public class MassShift : MonoBehaviour
 		ChangeState(CSelectState.cNormal);  //通常状態へ
 
 		SoundManager.SPlay(mShiftDestSE);
+
+		mFromLastShiftTime = 0.0f;
 	}
 
 
@@ -747,7 +750,14 @@ public class MassShift : MonoBehaviour
 	GameObject mBeforeSelect; //現在選択している奴
 	GameObject mSelect; //現在選択している奴
 
-	bool mShiftDouble;	//重さを2つ移すモードか
+	bool mShiftDouble;  //重さを2つ移すモードか
+
+	float mFromLastShiftTime = 0.0f;	//最後に重さを移してから何秒経過しているか
+	public float FromLastShiftTime {
+		get {
+			return mFromLastShiftTime;
+		}
+	}
 
 
 	//

@@ -147,8 +147,8 @@ public class GameManager : MonoBehaviour {
 		}
 
 		//重さを移した後1秒以内なら
-		if(mMassShift) {
-			//return false;	//ゴールできない
+		if(mMassShift.FromLastShiftTime <= 1.0f) {
+			return false;	//ゴールできない
 		}
 
 		return true;	//ゴール可能
