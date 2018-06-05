@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	List<GameObject> mAreaBGM;
 
+	[SerializeField, EditOnPrefab, Tooltip("重さを移してから何秒間はゴールできないか")]
+	float mCanGoalTimeFromShift = 1.0f;
+
 	StageTransition mTransition;
 
 	Result mResult;
@@ -147,7 +150,7 @@ public class GameManager : MonoBehaviour {
 		}
 
 		//重さを移した後1秒以内なら
-		if(mMassShift.FromLastShiftTime <= 1.0f) {
+		if(mMassShift.FromLastShiftTime <= mCanGoalTimeFromShift) {
 			return false;	//ゴールできない
 		}
 
