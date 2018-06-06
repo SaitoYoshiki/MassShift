@@ -45,7 +45,7 @@ public class LandImpact : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 
 		//ポーズ中なら処理しない
 		if(Time.deltaTime == 0.0f) {
