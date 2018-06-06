@@ -48,7 +48,7 @@ public class ChangeScene : MonoBehaviour {
 
     void Update() {
         if (!changeSceneFlg) {
-            if (!st.GetCloseEnd()) {
+            if (!st.GetCloseEnd() || !st.GetOpenEnd()) {
                 return;
             }
             else {
@@ -63,7 +63,6 @@ public class ChangeScene : MonoBehaviour {
                         int area, stage;
                         area = Area.GetAreaNumber();
                         stage = Area.GetStageNumber();
-
                         /*stage++;
 
                         if (stage == (int)StageInfo.STAGE.STAGE_MAX) {
@@ -138,7 +137,7 @@ public class ChangeScene : MonoBehaviour {
         // ポーズを解除してシーン変更フラグを立てる
         pauseFlg = false;
         changeSceneMode = CHANGE_SCENE_MODE.NEXT;
-        //changeSceneFlg = true;
+        changeSceneFlg = true;
 
         // リザルト画面を消す
         if (result.IsResultCanvasActive()) {
