@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	List<GameObject> mAreaBGM;
 
+	[SerializeField]
+	MoveTransform mCameraMove;
+
 	[SerializeField, EditOnPrefab, Tooltip("重さを移してから何秒間はゴールできないか")]
 	float mCanGoalTimeFromShift = 1.0f;
 
@@ -62,6 +65,9 @@ public class GameManager : MonoBehaviour {
 		//ステージ開始時の演出
 		//
 
+		//カメラをズームされた位置に移動
+		mCameraMove.MoveStartPoisition();
+
 		//if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
 		{
 			//プレイヤーを操作不可に
@@ -98,6 +104,10 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーが操作可能になる
 		OnCanOperation();
+
+		//カメラのズームアウトを始める
+		mCameraMove.MoveStart();
+
 
 		//ゲームメインのループ
 		while (true) {

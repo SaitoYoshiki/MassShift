@@ -16,6 +16,10 @@ public class MoveTransform : MonoBehaviour {
 	float mDeltaTime = 0.0f;
 	bool mIsMove = false;
 
+	private void Awake() {
+		mEndPosition = transform.position;
+	}
+
 	// Use this for initialization
 	void Start () {
 		
@@ -28,7 +32,11 @@ public class MoveTransform : MonoBehaviour {
 			mDeltaTime += Time.deltaTime;
 			mDeltaTime = Mathf.Clamp(mDeltaTime, 0.0f, mTakeTime);
 
-			transform.position = Vector3.Lerp(mStartPosition, mEndPosition, mDeltaTime / mTakeTime);
+			float t = mDeltaTime / mTakeTime;
+			//t = (-Mathf.Cos(t * 2 * Mathf.PI / 2.0f) + 1.0f) / 2.0f;
+			t = t * t;
+
+			transform.position = Vector3.Lerp(mStartPosition, mEndPosition, t);
 
 			if(IsMoveEnd()) {
 				mIsMove = false;
