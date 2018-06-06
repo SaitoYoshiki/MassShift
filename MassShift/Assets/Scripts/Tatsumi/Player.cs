@@ -189,7 +189,9 @@ public class Player : MonoBehaviour {
 	}
 
 	[SerializeField]
-	Transform rotTransform = null;
+	Transform modelRotTransform = null;
+	[SerializeField]
+	Transform colRotTransform = null;
 	[SerializeField]
 	Vector3 rotVec = new Vector3(1.0f, 0.0f, 0.0f); // 左右向きと非接地面
 	[SerializeField]
@@ -457,18 +459,23 @@ public class Player : MonoBehaviour {
 		Quaternion qt = Quaternion.Euler(rotVec.y * 180.0f, -90.0f + rotVec.x * 90.0f, 0.0f);
 
 		// 現在の向きと結果の向きとの角度が一定以内なら
-		float angle = Quaternion.Angle(rotTransform.rotation, qt);
+		float angle = Quaternion.Angle(modelRotTransform.rotation, qt);
 		if (angle < correctionaAngle) {
 			// 向きを合わせる
-			rotTransform.rotation = Quaternion.Lerp(rotTransform.rotation, qt, 1);
+			modelRotTransform.rotation = Quaternion.Lerp(modelRotTransform.rotation, qt, 1);
 			IsRotation = false;
 		}
 		// 角度が一定以上なら
 		else {
 			// 設定された向きにスラープ
-			rotTransform.rotation = Quaternion.Slerp(rotTransform.rotation, qt, rotSpd);
+			modelRotTransform.rotation = Quaternion.Slerp(modelRotTransform.rotation, qt, rotSpd);
 			IsRotation = true;
 		}
+
+		colRotTransform.rotation = modelRotTransform.rotation;
+
+		// 重さに合わせてモデルと当たり判定位置を補正
+		Lift.CorrectFourSideCollider(Lift.IsLifting);
 	}
 	//	}
 

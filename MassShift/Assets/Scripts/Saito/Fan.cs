@@ -38,7 +38,7 @@ public class Fan : MonoBehaviour {
 			if (hitMoveMng && hitWeightMng &&
 				(hitWeightMng.WeightLv < WeightManager.Weight.heavy)) {
 				// 左右移動を加える
-				if (MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, windHit.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" }))) {
+				if (MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, (BoxCollider)hitMoveMng.UseCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" }))) {
 					// 上下の移動量を削除
 					hitMoveMng.StopMoveVirticalAll();
 

@@ -48,7 +48,7 @@ public class Fence : MonoBehaviour
 		if (this == null) return;
 		if (EditorUtility.IsPrefab(gameObject)) return;
 
-		if (!(mLength >= 2)) {
+		if (!(mLength >= 1)) {
 			Debug.LogError("Length is small", this);
 			return;
 		}

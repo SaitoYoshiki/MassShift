@@ -45,15 +45,20 @@ public class StageSelectManager : MonoBehaviour {
 
 		LimitPlayDoorSE();
 
-		//ステージ開始時の演出
-		mTransition.OpenDoorParent();
+		// タイトルシーンからの遷移でなければ
+        if (!cameraMove.fromTitle) {
+            //ステージ開始時の演出
+            mTransition.OpenDoorParent();
 
-		//演出が終了するまで待機
-		while (true) {
-			if (mTransition.GetOpenEnd()) break;
-			yield return null;
-		}
-
+            //演出が終了するまで待機
+            while (true) {
+                if (mTransition.GetOpenEnd()) break;
+                yield return null;
+            }
+        }
+        else {
+            cameraMove.fromTitle = false;
+        }
 
 		//BGMを流し始める
 		var t = SoundManager.SPlay(mStageSelectBGMPrefab);

@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class cameraMove : MonoBehaviour {
 
-    private Vector3 cameraStartPoint = new Vector3(-5.0f, -6.0f, -15.0f);
-    private Vector3 cameraZoomPoint = new Vector3(-7.0f, -6.5f, -5.0f);
+    private Vector3 cameraStartPoint = new Vector3(-41.0f, -0.0f, -15.0f);
+    private Vector3 cameraZoomPoint = new Vector3(-43.0f, -0.5f, -5.0f);
     private Vector3 cameraEndPoint = new Vector3(0.0f, 1.0f, -50.0f);
 
     public float zoomInTime;
@@ -35,56 +36,23 @@ public class cameraMove : MonoBehaviour {
 
     bool goTutorialFlg = false;
 
-    GameObject a;
+    bool isAdditiveLoad = false;
+    bool isAdditiveLoadEnd = false;
 
-    // ズームアウト終わった判定が必要
+    AsyncOperation TutorialActive;
+    AsyncOperation StageSelectActive;
+
+    public static bool fromTitle = false;
 
 	void Start () {
         this.transform.position = cameraStartPoint;
         st = GameObject.Find("StageChangeCanvas").GetComponent<StageTransition>();
         cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
+
+        RenderSettings.ambientSkyColor = new Color(0.0f, 0.0f, 0.0f);
 	}
 	
 	void Update () {
-        /*if (zoomInFlg) {
-            oldZoomInFlg = zoomInFlg;
-            Zoom(zoomInTime, ref zoomInFlg, cameraStartPoint, cameraZoomPoint);
-        }
-        else {
-            if (oldZoomInFlg != zoomInFlg) {
-                oldZoomInFlg = zoomInFlg;
-                tutorial.SetActive(true);
-                stageselect.SetActive(true);
-            }
-        }*/
-
-        /*if (zoomOutFlg) {
-            oldZoomOutFlg = zoomOutFlg;
-            st.CloseDoorParent();
-            Zoom(zoomOutTime, ref zoomOutFlg, cameraZoomPoint, cameraEndPoint);
-        }
-        else {
-            if (oldZoomOutFlg != zoomOutFlg) {
-                oldZoomOutFlg = zoomOutFlg;
-            }
-        }*/
-
-        // ズームインし終わっていたら何もしない
-        /*if(firstZoom){
-            return;
-        }
-        // ズームされていない初期状態なら
-        else {
-            if (Input.anyKeyDown) {
-                // 「InputAnyKey」の表示を消す
-                Debug.Log("inputany");
-                text.SetActive(false);
-                firstZoom = true;
-                zoomInFlg = true;
-                startZoomTime = Time.realtimeSinceStartup;
-            }
-        }*/
-
         CheckFirstZoom();
         CheckZoomIn();
         CheckZoomOut();
@@ -134,18 +102,26 @@ public class cameraMove : MonoBehaviour {
         if (!zoomOutFlg) {
             // 前フレームでもズームアウトしていなければ何もしない
             if (oldZoomOutFlg == zoomOutFlg) {
-                if (!st.GetCloseEnd()) {
-                    return;
-                }
-                // ドア閉めの演出が終わったら
-                else {
-                    if (goTutorialFlg) {
-                        // チュートリアルへ飛ぶ
-                        cs.OnTutorialButtonDown();
+                if (goTutorialFlg) {
+                    // チュートリアルへ飛ぶ
+                    if (!isAdditiveLoad) {
+                        return;
                     }
                     else {
-                        // ステージセレクトへ飛ぶ
-                        cs.OnStageSelectButtonDown();
+                        isAdditiveLoad = false;
+                        isAdditiveLoadEnd = true;
+                        SceneManager.UnloadSceneAsync("Title");
+                    }
+                }
+                else {
+                    // ステージセレクトへ飛ぶ
+                    if (!isAdditiveLoad) {
+                        return;
+                    }
+                    else {
+                        isAdditiveLoad = false;
+                        isAdditiveLoadEnd = true;
+                        SceneManager.UnloadSceneAsync("Title");
                     }
                 }
             }
@@ -157,7 +133,7 @@ public class cameraMove : MonoBehaviour {
         // ズームアウト中なら
         else {
             oldZoomOutFlg = zoomOutFlg;
-            st.CloseDoorParent();
+            //st.CloseDoorParent();
             Zoom(zoomOutTime, ref zoomOutFlg, cameraZoomPoint, cameraEndPoint);
         }
     }
@@ -170,6 +146,16 @@ public class cameraMove : MonoBehaviour {
         title.SetActive(false);
         tutorial.SetActive(false);
         stageselect.SetActive(false);
+
+        RenderSettings.ambientSkyColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
+
+        isAdditiveLoad = true;
+        fromTitle = true;
+        Destroy(GameObject.Find("EventSystem"));
+        Destroy(GameObject.Find("Player_test"));
+        Destroy(GameObject.Find("Directional Light"));
+        Destroy(GameObject.Find("SoundManager"));
+        Camera.main.GetComponent<AudioListener>().enabled = false;
     }
 
     // ズームイン/アウト
@@ -188,13 +174,18 @@ public class cameraMove : MonoBehaviour {
     }
 
     public void OnTutorialSelected() {
-        cameraEndPoint = new Vector3(0.0f, 1.0f, -35.0f);
+        cameraEndPoint = new Vector3(-36.0f, 3.0f, -35.0f);
         goTutorialFlg = true;
+
+        Debug.Log("Before");
+        TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Additive);
+        Debug.Log("After");
     }
 
     public void OnStageSelectSelected() {
-        cameraEndPoint = new Vector3(0.0f, 1.0f, -50.0f);
+        cameraEndPoint = new Vector3(-32.0f, 1.0f, -50.0f);
         goTutorialFlg = false;
+        StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Additive);
     }
 
     // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする

@@ -33,6 +33,7 @@ public class MassShift : MonoBehaviour
 		UpdateCanShift();
 		
 		UpdateState();
+		mFromLastShiftTime += Time.deltaTime;
 	}
 
 	void UpdateCanShift() {
@@ -271,7 +272,7 @@ public class MassShift : MonoBehaviour
 			//共有ボックスの数だけ光の弾を生成
 			foreach (var s in lSourceShare.GetShareAllListExceptOwn()) {
 
-				GameObject l = Instantiate(mLightBallPrefab, transform);
+				GameObject l = Instantiate(mLightBallSharePrefab, transform);
 				l.GetComponent<LightBall>().InitPoint(GetMassPosition(s.gameObject), GetMassPosition(mSource));
 				l.GetComponent<LightBall>().PlayEffect();
 				mLightBallShare.Add(l);
@@ -345,7 +346,7 @@ public class MassShift : MonoBehaviour
 			//共有ボックスの数だけ光の弾を生成
 			foreach (var s in lDestShare.GetShareAllListExceptOwn()) {
 
-				GameObject l = Instantiate(mLightBallPrefab, transform);
+				GameObject l = Instantiate(mLightBallSharePrefab, transform);
 				l.GetComponent<LightBall>().InitPoint(GetMassPosition(mDest), GetMassPosition(s.gameObject));
 				l.GetComponent<LightBall>().PlayEffect();
 				mLightBallShare.Add(l);
@@ -513,6 +514,8 @@ public class MassShift : MonoBehaviour
 		ChangeState(CSelectState.cNormal);  //通常状態へ
 
 		SoundManager.SPlay(mShiftDestSE);
+
+		mFromLastShiftTime = 0.0f;
 	}
 
 
@@ -573,7 +576,7 @@ public class MassShift : MonoBehaviour
 			//共有ボックスの数だけ光の弾を生成
 			foreach (var s in lSourceShare.GetShareAllListExceptOwn()) {
 
-				GameObject l = Instantiate(mLightBallPrefab, transform);
+				GameObject l = Instantiate(mLightBallSharePrefab, transform);
 				l.GetComponent<LightBall>().InitPoint(GetMassPosition(mSource), GetMassPosition(s.gameObject));
 				l.GetComponent<LightBall>().PlayEffect();
 				mLightBallShare.Add(l);
@@ -747,7 +750,14 @@ public class MassShift : MonoBehaviour
 	GameObject mBeforeSelect; //現在選択している奴
 	GameObject mSelect; //現在選択している奴
 
-	bool mShiftDouble;	//重さを2つ移すモードか
+	bool mShiftDouble;  //重さを2つ移すモードか
+
+	float mFromLastShiftTime = 0.0f;	//最後に重さを移してから何秒経過しているか
+	public float FromLastShiftTime {
+		get {
+			return mFromLastShiftTime;
+		}
+	}
 
 
 	//
@@ -759,18 +769,21 @@ public class MassShift : MonoBehaviour
 		cShotLineNotThrough,	//選択時、射線が通っていない
 	}
 
-	[SerializeField, PrefabOnly]
+	[SerializeField, EditOnPrefab]
 	GameObject mMassShiftLinePrefab;
 
 	GameObject mMassShiftLine;
 
-	[SerializeField, PrefabOnly]
+	[SerializeField, EditOnPrefab]
 	GameObject mCursorPrefab;
 
 	GameObject mCursor;
 
-	[SerializeField, PrefabOnly]
+	[SerializeField, EditOnPrefab, Tooltip("重さを移す玉")]
 	GameObject mLightBallPrefab;
+
+	[SerializeField, EditOnPrefab, Tooltip("共有ボックスの、重さを移す玉")]
+	GameObject mLightBallSharePrefab;
 
 	GameObject mLightBallTemplate;	//ひな型としてインスタンス化しておく
 	GameObject mLightBall;	//重さを移すときに使う
@@ -823,6 +836,12 @@ public class MassShift : MonoBehaviour
 
 			mBeforeSelect = null;
 			mSelect = null;
+
+
+			//ダブル選択はできない仕様なので、この後の処理をスキップ
+			UpdateMassShiftLine(mMassShiftLine, mSource, mCursor);
+			ChangeState(CSelectState.cDrag);    //ドラッグの状態へ
+			return;
 		}
 
 		//重さを移す表示の線を出す
@@ -1003,13 +1022,14 @@ public class MassShift : MonoBehaviour
 		GameObject lSelect = mCursor.transform.Find("Model/Select").gameObject;
 
 		if (aCursorState == CCursorState.cNormal) {
-			lNormal.SetActive(true);
-			lSelect.SetActive(false);
+			lNormal.SetActive(false);
+			lSelect.SetActive(true);
+			lSelect.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.white);
 		}
 		else if(aCursorState == CCursorState.cCanNotShift) {
 			lNormal.SetActive(false);
 			lSelect.SetActive(true);
-			lSelect.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.gray);
+			lSelect.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.white * 0.25f);
 		}
 		else if (aCursorState == CCursorState.cShotLineThrough) {
 			lNormal.SetActive(false);
@@ -1066,7 +1086,7 @@ public class MassShift : MonoBehaviour
 
 		Transform lFrame = aModel.transform.Find("Model/Hilight");
 		if (lFrame == null) {
-			lFrame = aModel.transform.Find("Rotation/Model/Hilight");   //プレイヤー用
+			lFrame = aModel.transform.Find("Offset/RotOffset/Rotation/Model/Hilight");   //プレイヤー用
 			if (lFrame == null) return;
 		}
 

@@ -119,9 +119,17 @@ public class WaterState : MonoBehaviour {
 	}
 	[SerializeField]
 	float prevHeight = 0.0f;
+	[SerializeField]
+	BoxCollider waterCol = null;
+
+	void Start() {
+		if (!waterCol) {
+			waterCol = GetComponent<BoxCollider>();
+		}
+	}																											
 
 	void FixedUpdate() {
-		IsInWater = (Support.GetColliderHitInfoList(GetComponent<Collider>(), Vector3.zero, LayerMask.GetMask("WaterArea")).Count > 0);
+		IsInWater = (Support.GetColliderHitInfoList(waterCol, Vector3.zero, LayerMask.GetMask("WaterArea")).Count > 0);
 
 		// 水中/水上の挙動
 		if (IsInWater) {

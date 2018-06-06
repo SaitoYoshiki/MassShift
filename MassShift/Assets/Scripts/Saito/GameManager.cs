@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
@@ -11,12 +12,20 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	List<GameObject> mAreaBGM;
 
+	[SerializeField]
+	MoveTransform mCameraMove;
+
+	[SerializeField, EditOnPrefab, Tooltip("重さを移してから何秒間はゴールできないか")]
+	float mCanGoalTimeFromShift = 1.0f;
+
 	StageTransition mTransition;
 
 	Result mResult;
 
 	Pause mPause;
 
+	[SerializeField]
+	bool _Debug_ClearFlag = false;	//クリアしたことにするフラグ
 
 	// Use this for initialization
 	void Start() {
@@ -31,14 +40,23 @@ public class GameManager : MonoBehaviour {
 		Time.timeScale = 1.0f;
 		mPause.pauseEvent.Invoke();
 
-		//ゲーム進行のコルーチンを開始
-		StartCoroutine(GameMain());
+        //ゲーム進行のコルーチンを開始
+        if (!cameraMove.fromTitle) {
+            StartCoroutine(GameMain());
+        }
+        else {
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
+        }
 	}
 
 	// Update is called once per frame
 	void Update() {
 
 	}
+
+    void OnActiveSceneChanged(Scene i_preChangedScene, Scene i_postChangedScene) {
+        StartCoroutine(GameMain());
+    }
 
 	IEnumerator GameMain() {
 
@@ -47,22 +65,38 @@ public class GameManager : MonoBehaviour {
 		//ステージ開始時の演出
 		//
 
+		//カメラをズームされた位置に移動
+		mCameraMove.MoveStartPoisition();
+
 		//if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
 		{
 			//プレイヤーを操作不可に
 			OnCantOperation();
 
-			mTransition.OpenDoorParent();
+            // タイトルシーンからの遷移でなければ
+            if (!cameraMove.fromTitle) {
+                //ステージ開始時の演出
+                mTransition.OpenDoorParent();
 
-			//演出が終了するまで待機
-			while (true) {
-				if (mTransition.GetOpenEnd()) break;
-				yield return null;
-			}
+                //演出が終了するまで待機
+                while (true) {
+                    if (mTransition.GetOpenEnd()) break;
+                    yield return null;
+                }
+            }
+            else {
+                cameraMove.fromTitle = false;
+                SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+                yield return null;
+                //yield return new WaitForSeconds(1.0f);
+            }
 		}
 
 		//BGMを再生する
-		SoundManager.SPlay(mAreaBGM[Area.GetAreaNumber()]);
+		int lAreaNumber = Area.GetAreaNumber();
+		if(lAreaNumber != -1) {
+			SoundManager.SPlay(mAreaBGM[lAreaNumber]);
+		}
 
 
 		//ゲームメインの開始
@@ -70,6 +104,10 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーが操作可能になる
 		OnCanOperation();
+
+		//カメラのズームアウトを始める
+		mCameraMove.MoveStart();
+
 
 		//ゲームメインのループ
 		while (true) {
@@ -86,7 +124,7 @@ public class GameManager : MonoBehaviour {
 
 			//ゴール判定
 			//
-			if (CanGoal()) {
+			if (CanGoal() || _Debug_ClearFlag) {
 				break;
 			}
 
@@ -105,6 +143,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	bool CanGoal() {
+		
 		//全てのボタンがオンでないなら
 		if (!mGoal.IsAllButtonOn) {
 			return false;   //ゴールできない
@@ -121,8 +160,8 @@ public class GameManager : MonoBehaviour {
 		}
 
 		//重さを移した後1秒以内なら
-		if(mMassShift) {
-			//return false;	//ゴールできない
+		if(mMassShift.FromLastShiftTime <= mCanGoalTimeFromShift) {
+			return false;	//ゴールできない
 		}
 
 		return true;	//ゴール可能
