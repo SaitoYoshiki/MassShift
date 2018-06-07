@@ -71,6 +71,11 @@ public class Fan : MonoBehaviour {
 			if (h.mGameObject.layer == LayerMask.NameToLayer("Stage")) {
 				break;
 			}
+			//静的な箱なら、障害物扱いで風を止める
+			if (h.mGameObject.GetComponent<MoveManager>() == null) {
+				break;
+			}
+
 			//動く床でも、障害物扱いなので風を止める
 			if (h.mGameObject.CompareTag("MoveFloor")) {
 				break;

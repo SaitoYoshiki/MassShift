@@ -70,6 +70,15 @@ public class WeightManager : MonoBehaviour {
 			if (pileWeightUpdateTime < Time.time) {
 				pileWeightUpdateTime = Time.time;
 				pileMaxWeightLv = WeightLv;
+
+				// 自身がflyingであり、持っているオブジェクトがheavyなら
+				if ((WeightLv == Weight.flying) &&
+					(LiftWeightMng && (LiftWeightMng.WeightLv == Weight.heavy))) {
+					// heavyを返す
+					Debug.LogWarning("return heavy");
+					return Weight.heavy;
+				}
+
 				if (Pile && MoveMng) {
 					List<Transform> pileObjs = Pile.GetPileBoxList(Vector3.up * MoveMng.GravityForce);
 					foreach (var pileObj in pileObjs) {
@@ -81,6 +90,22 @@ public class WeightManager : MonoBehaviour {
 				}
 			}
 			return pileMaxWeightLv;
+		}
+	}
+
+	[SerializeField] WeightManager liftWeightMng = null;
+	public WeightManager LiftWeightMng {
+		private get {
+			if (!liftWeightMng) {
+				Lifting lift = GetComponent<Lifting>();
+				if (lift && lift.LiftObj) {
+					liftWeightMng = lift.LiftObj.GetComponent<WeightManager>();
+				}
+			}
+			return liftWeightMng;
+		}
+		set {
+			liftWeightMng = value;
 		}
 	}
 
