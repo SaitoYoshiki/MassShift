@@ -16,6 +16,11 @@ public class Lifting : MonoBehaviour {
 	[SerializeField] Transform liftPoint = null;    // 持ち上げ位置
 	[SerializeField] Transform liftUpCol = null;    // 持ち上げ可能判定
 	[SerializeField] GameObject liftObj = null;     // 持ち上げ中オブジェクト
+	public GameObject LiftObj {
+		get {
+			return liftObj;
+		}
+	}
 	[SerializeField] Collider standbyCol = null;    // 非持ち上げ中の本体当たり判定
 	[SerializeField] Collider liftingCol = null;    // 持ち上げ中の本体当たり判定
 	//[SerializeField] float colCenterPoint = 0.75f;		// 本体当たり判定の中心位置
@@ -222,19 +227,7 @@ public class Lifting : MonoBehaviour {
 			// オブジェクトの位置を同期
 			if (!MoveManager.MoveTo(PlAnim.GetBoxPosition(), liftObj.GetComponent<BoxCollider>(), liftingColMask)) {
 				Debug.Log("下ろし失敗");
-
-				// 対象をすり抜けオブジェクトに追加
-				MoveMng.AddThroughCollider(liftObj.GetComponent<Collider>());
-
-				// 同期できなければ強制的に離す
-				LiftEndObject(liftObj, false);
-
-				// 下ろし処理後状態に
-				St = LiftState.standby;
-				afterHoldInput = true;
-
-				// アニメーション遷移
-				PlAnim.ExitRelease();
+				LiftDownFailed();
 
 				return;
 			}
@@ -495,7 +488,7 @@ public class Lifting : MonoBehaviour {
 			St = LiftState.standby;
 			afterHoldInput = true;
 
-			// 持ち上げオブジェクト中をnullに
+			// 持ち上げ中オブジェクトをnullに
 			liftObj = null;
 
 			// プレイヤーの重さ移しを可能に
@@ -591,5 +584,20 @@ public class Lifting : MonoBehaviour {
 			ret = new Vector3(Pl.transform.position.x + liftObjMaxDisX * Mathf.Sign(dis), ret.y, ret.z);
 		}
 		return ret;
+	}
+
+	public void LiftDownFailed() {
+		// 対象をすり抜けオブジェクトに追加
+		MoveMng.AddThroughCollider(liftObj.GetComponent<Collider>());
+
+		// 強制的に離す
+		LiftEndObject(liftObj, false);
+
+		// 下ろし処理後状態に
+		St = LiftState.standby;
+		afterHoldInput = true;
+
+		// アニメーション遷移
+		PlAnim.ExitRelease();
 	}
 }
