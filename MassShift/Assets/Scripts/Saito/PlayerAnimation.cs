@@ -63,6 +63,11 @@ public class PlayerAnimation : MonoBehaviour {
 		cCatchFailed,
 		cRelease,
 
+		cWaterStandBy,
+		cHoldWaterStandBy,
+
+		cSwim,
+		cHoldSwim,
 	}
 
 	[SerializeField]
@@ -124,6 +129,20 @@ public class PlayerAnimation : MonoBehaviour {
 			case CState.cWalk:
 				UpdateWalk();
 				break;
+
+			case CState.cWaterStandBy:
+				UpdateWaterStandBy();
+				break;
+			case CState.cSwim:
+				UpdateSwim();
+				break;
+			case CState.cHoldWaterStandBy:
+				UpdateHoldStandBy();
+				break;
+			case CState.cHoldSwim:
+				UpdateHoldSwim();
+				break;
+
 			case CState.cJumpStart:
 				UpdateJumpStart();
 				break;
@@ -179,6 +198,60 @@ public class PlayerAnimation : MonoBehaviour {
 			mIsInit = false;
 		}
 	}
+
+	void InitWaterStandBy() {
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("WaterStandBy", 0.2f);
+		}
+	}
+
+	void UpdateWaterStandBy() {
+		if (mIsInit) {
+			InitWaterStandBy();
+			mIsInit = false;
+		}
+	}
+
+	void InitSwim() {
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("Swim", 0.2f);
+		}
+	}
+
+	void UpdateSwim() {
+		if (mIsInit) {
+			InitSwim();
+			mIsInit = false;
+		}
+	}
+
+
+	void InitHoldWaterStandBy() {
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("HoldWaterStandBy", 0.2f);
+		}
+	}
+
+	void UpdateHoldWaterStandBy() {
+		if (mIsInit) {
+			InitHoldWaterStandBy();
+			mIsInit = false;
+		}
+	}
+
+	void InitHoldSwim() {
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("HoldSwim", 0.2f);
+		}
+	}
+
+	void UpdateHoldSwim() {
+		if (mIsInit) {
+			InitHoldSwim();
+			mIsInit = false;
+		}
+	}
+
 
 
 	void InitWalk() {
@@ -557,6 +630,23 @@ public class PlayerAnimation : MonoBehaviour {
 	public void StartWalk() {
 		if (mState != CState.cStandBy && mState != CState.cJumpLand) return; //立ち止まり状態からしか外からは呼び出せない
 		ChangeState(CState.cWalk);
+	}
+
+	public void StartWaterStandBy() {
+		if (!StartLandCheck()) return;
+		ChangeState(CState.cWaterStandBy);
+	}
+	public void StartHoldWaterStandBy() {
+		if (!StartHoldLandCheck()) return;
+		ChangeState(CState.cHoldWaterStandBy);
+	}
+	public void StartSwim() {
+		if (!StartLandCheck()) return;
+		ChangeState(CState.cSwim);
+	}
+	public void StartHoldSwim() {
+		if (!StartHoldLandCheck()) return;
+		ChangeState(CState.cHoldSwim);
 	}
 
 	public void StartJump() {

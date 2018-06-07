@@ -7,7 +7,7 @@ public class MoveFloor : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		//現在の重さの位置へ移動する
-		mFloor.transform.localPosition = GetTargetLocalPosition();
+		MoveFloorByMoveManager(GetTargetLocalPosition());
 	}
 	
 	// Update is called once per frame
@@ -192,17 +192,21 @@ public class MoveFloor : MonoBehaviour {
 
 	Vector3 mMoveDirection;
 
-	Vector3 GetTargetLocalPosition() {
+	Vector3 GetTargetLocalPosition(float aOffset) {
 		switch (GetWeight()) {
 			case WeightManager.Weight.flying:
-				return Vector3.up * (mUpHeight - 0.0025f);
+				return Vector3.up * (mUpHeight - aOffset);
 			case WeightManager.Weight.light:
 				return Vector3.zero;
 			case WeightManager.Weight.heavy:
-				return Vector3.down * (mDownHeight - 0.0025f);
+				return Vector3.down * (mDownHeight - aOffset);
 		}
 		Debug.LogError("ErrorWeight", this);
 		return Vector3.zero;
+	}
+
+	Vector3 GetTargetLocalPosition() {
+		return GetTargetLocalPosition(0.0f);
 	}
 
 	WeightManager.Weight GetWeight() {
@@ -372,7 +376,7 @@ public class MoveFloor : MonoBehaviour {
 		ResizeRail();
 
 		//現在の重さの位置へ移動する
-		mFloor.transform.localPosition = GetTargetLocalPosition();
+		mFloor.transform.localPosition = GetTargetLocalPosition(0.5f);
 	}
 
 	private void OnValidate() {
