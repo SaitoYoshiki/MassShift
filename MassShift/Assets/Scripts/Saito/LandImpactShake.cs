@@ -18,7 +18,7 @@ public class LandImpactShake : MonoBehaviour {
 		
 	}
 
-	void OnLand(WeightManager.Weight aWeight, LandImpact.CEnviroment aEnviroment) {
+	void OnLand(WeightManager.Weight aWeight, LandImpact.CEnviroment aEnviroment, float aFallDistance) {
 
 		//重さが2で
 		if(aWeight == WeightManager.Weight.heavy) {
