@@ -15,6 +15,9 @@ public class Fan : MonoBehaviour {
 		UpdateRotate();
 		UpdateWindHitList();
 		ApplyWindMove();
+
+		//風のエフェクトを止める
+		mWindStop.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 0.5f);
 	}
 
 	//モデルの回転処理
@@ -62,26 +65,32 @@ public class Fan : MonoBehaviour {
 
 		var lRes = new List<GameObject>();
 
-		foreach(var h in lHit) {
+		mWindHitDistance = 100.0f;
+
+		foreach (var h in lHit) {
 			//どのオブジェクトも、3つの風判定のうち1つしか当たっていないと効果範囲外
 			if(h.mHitTimes < mHitConditionCount) {
 				continue;
 			}
 			//ステージなら、障害物扱いなので風を止める
 			if (h.mGameObject.layer == LayerMask.NameToLayer("Stage")) {
+				mWindHitDistance = h.mHitDistance;
 				break;
 			}
 			//静的な箱なら、障害物扱いで風を止める
 			if (h.mGameObject.GetComponent<MoveManager>() == null) {
+				mWindHitDistance = h.mHitDistance;
 				break;
 			}
 
 			//動く床でも、障害物扱いなので風を止める
 			if (h.mGameObject.CompareTag("MoveFloor")) {
+				mWindHitDistance = h.mHitDistance;
 				break;
 			}
 			//重いオブジェクトなら、風を止める
 			if (h.mGameObject.GetComponent<WeightManager>().WeightLv == WeightManager.Weight.heavy) {
+				mWindHitDistance = h.mHitDistance;
 				break;
 			}
 			//風が適用されるオブジェクト
@@ -153,7 +162,10 @@ public class Fan : MonoBehaviour {
 
 		mFanModel.transform.rotation = Quaternion.Euler(0.0f, GetDirectionVector(mDirection).x * -mModelRotate, 0.0f);
 
-		foreach(var c in mHitColliderList) {
+		float lAngle = GetDirectionVector(mDirection).x < 0.0f ? 0.0f : 1.0f;
+		mWindEffect.transform.rotation = Quaternion.Euler(0.0f, lAngle * 180.0f, 0.0f);
+
+		foreach (var c in mHitColliderList) {
 			Vector3 lNewPos = c.gameObject.transform.localPosition;
 			lNewPos.x = Mathf.Abs(lNewPos.x) * GetDirectionVector(mDirection).x;
 			c.gameObject.transform.localPosition = lNewPos;
@@ -192,12 +204,20 @@ public class Fan : MonoBehaviour {
 	[SerializeField, EditOnPrefab, Tooltip("回転するファンのモデル")]
 	GameObject mRotateFanModel;
 
+	[SerializeField, EditOnPrefab, Tooltip("風のエフェクト")]
+	GameObject mWindEffect;
+
 	[SerializeField, EditOnPrefab, Tooltip("モデルを回転させる角度")]
 	float mModelRotate = 10.0f;
+
+	[SerializeField, EditOnPrefab, Tooltip("風のエフェクトを止めるモデル")]
+	GameObject mWindStop;
 
 	[SerializeField, Tooltip("風の当たり判定のコライダー")]
 	List<GameObject> mHitColliderList;
 
 	[SerializeField, EditOnPrefab, Tooltip("風の当たり判定のコライダーがいくつ当たっていたら風に当たっている判定か")]
-	int mHitConditionCount = 1;
+	int mHitConditionCount = 3;
+
+	float mWindHitDistance = float.MaxValue;
 }
