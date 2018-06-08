@@ -38,6 +38,18 @@ public class StageSelectManager : MonoBehaviour {
 
 	}
 
+	private void FixedUpdate() {
+		//ゴール判定
+		//
+		for (int i = 0; i < mGoal.Count; i++) {
+			if (CanEnter(mGoal[i])) {
+				mSelectStageNum = i;
+				break;
+			}
+		}
+	}
+	int mSelectStageNum = -1;
+
 	IEnumerator StageSelectMain() {
 
 		//プレートの色を変える
@@ -75,23 +87,16 @@ public class StageSelectManager : MonoBehaviour {
 
 			//ゴール判定
 			//
-			for(int i = 0; i < mGoal.Count; i++) {
-				if(CanEnter(mGoal[i])) {
+			if(mSelectStageNum != -1) {
+				SetEnterColor(mSelectStageNum);
 
-					SetEnterColor(i);
-
-					//もし入る操作が行われているなら
-					if(lIsEnter) {
-						lSelectStageNum = i;
-						break;
-					}
+				//もし入る操作が行われているなら
+				if (lIsEnter) {
+					lSelectStageNum = mSelectStageNum;
+					break;
 				}
 			}
-
-			//ステージが選択されていたら
-			if(lSelectStageNum != -1) {
-				break;	//遷移へ
-			}
+			
 			
 			yield return null;	//ゲームメインを続ける
 		}

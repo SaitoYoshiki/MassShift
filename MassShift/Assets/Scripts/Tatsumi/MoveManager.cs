@@ -351,8 +351,9 @@ public class MoveManager : MonoBehaviour {
 		// y軸判定
 		if (moveVec.y != 0) {
 			// y軸の衝突を全て取得
+			float yRange = ((Mathf.Abs(_move.y) + ColMargin) * Mathf.Sign(_move.y));
 			//			RaycastHit[] hitInfos = Physics.BoxCastAll(_moveCol.bounds.center, _moveCol.size * 0.5f, new Vector3(0.0f, _move.y, 0.0f));
-			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(0.0f, _move.y, 0.0f), _mask, _ignoreColList);
+			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(0.0f, yRange, 0.0f), _mask, _ignoreColList);
 
 			// すり抜け指定オブジェクトを除外
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
@@ -400,19 +401,47 @@ public class MoveManager : MonoBehaviour {
 					WeightManager moveWeightMng = _moveCol.GetComponent<WeightManager>();
 					WeightManager hitWeightMng = nearHitinfo.collider.GetComponent<WeightManager>();
 					MoveManager hitMoveMng = nearHitinfo.collider.GetComponent<MoveManager>();
-					bool canExtrusion = // 自身が衝突相手を押し出せるか
-						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) &&		// 判定に必要なコンポーネントが揃っている
-						(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&	// 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
-						((moveWeightMng.WeightLv > hitWeightMng.WeightLv) ||		// 自身の重さレベルが相手の重さレベルより重い、又は
+
+					// 水中で上のオブジェクトを押し上げている場合
+					WaterState moveWaterStt = _moveCol.GetComponent<WaterState>();
+					bool waterFloatExtrusion = false;
+					waterFloatExtrusion = (
+						(moveWaterStt && moveWeightMng && hitWeightMng) &&			// コンポーネントが揃っている
+						(moveWaterStt.IsInWater) &&									// 自身が水中
+						(moveWeightMng.WeightLv == WeightManager.Weight.light) &&	// 自身の重さが水面に浮かぶ重さ
+						(hitWeightMng.WeightLv <= moveWeightMng.WeightLv) &&		// 相手の重さが自身より軽いか同じ
+						(moveVec.y > 0.0f));                                        // 移動する方向が上方向
+
+					//test
+					string testStr =(waterFloatExtrusion + "\n" +
+					(moveWaterStt != null) + " " + (moveWeightMng != null) + " " + (hitWeightMng != null) + "\n");
+					if (moveWaterStt && moveWeightMng && hitWeightMng) {
+					testStr += "" +
+						(moveWaterStt.IsInWater) + " " +
+						(moveWeightMng.WeightLv == WeightManager.Weight.light) + " " +
+						(hitWeightMng.WeightLv <= moveWeightMng.WeightLv) + "\n" +
+						(moveVec.y > 0.0f) + " " + moveVec.y;
+					}
+					Debug.LogWarning(testStr);
+					//test
+
+					// 自身が衝突相手を押し出せるか
+					bool canExtrusion =
+						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) &&        // 判定に必要なコンポーネントが揃っている
+						(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&    // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
+						((moveWeightMng.WeightLv > hitWeightMng.WeightLv) ||        // 自身の重さレベルが相手の重さレベルより重い、又は
+						(waterFloatExtrusion) ||									// 水中で上のオブジェクトを押し上げている、または
 						(moveMng.extrusionForcible || _extrusionForcible));         // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
-					bool stopFlg = false;   // 移動量を削除するフラグ
-					bool breakFlg = false;
 
 					// 相手側の自身に対するすり抜け指定があれば
 					if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughColList.Contains(_moveCol)) {
 						// 押し出し不可
 						canExtrusion = false;
 					}
+
+					bool stopFlg = false;   // 移動量を削除するフラグ
+					bool breakFlg = false;
+
 	
 					// 押し出せない場合
 					if (!canExtrusion) {
@@ -560,8 +589,9 @@ public class MoveManager : MonoBehaviour {
 		// x軸判定
 		if (moveVec.x != 0.0f) {
 			// x軸の衝突を全て取得
+			float xRange = ((Mathf.Abs(_move.x) + ColMargin) * Mathf.Sign(_move.x));
 			//			RaycastHit[] hitInfos = Physics.BoxCastAll(_moveCol.bounds.center, _moveCol.size * 0.5f, new Vector3(_move.x, 0.0f, 0.0f));
-			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(_move.x, 0.0f, 0.0f), _mask, _ignoreColList);
+			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(xRange, 0.0f, 0.0f), _mask, _ignoreColList);
 
 			// すり抜け指定オブジェクトを除外
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
@@ -597,7 +627,7 @@ public class MoveManager : MonoBehaviour {
 					}
 				}
 				dis -= ColMargin;
-				///Debug.LogError("dis:" + dis);
+				//				Debug.LogError("dis:" + dis);
 
 				// x軸は押し出しを行わない
 

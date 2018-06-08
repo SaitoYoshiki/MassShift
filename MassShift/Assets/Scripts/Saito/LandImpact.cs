@@ -45,7 +45,7 @@ public class LandImpact : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 
 		//ポーズ中なら処理しない
 		if(Time.deltaTime == 0.0f) {
@@ -98,14 +98,14 @@ public class LandImpact : MonoBehaviour {
 		//下向きに落ちるなら
 		if(mMoveManager.GravityForce < 0.0f) {
 			//上向きに進んでいたら
-			if (transform.position.y > mBeforePosition.y) {
+			if (transform.position.y >= mBeforePosition.y) {
 				mHighestPosition = transform.position;  //最高地点を更新
 			}
 		}
 		//上向きに落ちるなら
 		else {
 			//下向きに進んでいたら
-			if (transform.position.y < mBeforePosition.y) {
+			if (transform.position.y <= mBeforePosition.y) {
 				mHighestPosition = transform.position;  //最高地点を更新
 			}
 		}

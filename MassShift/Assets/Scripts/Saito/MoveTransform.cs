@@ -4,10 +4,7 @@ using UnityEngine;
 
 public class MoveTransform : MonoBehaviour {
 
-	[SerializeField, Tooltip("開始位置")]
 	Vector3 mStartPosition;
-
-	[SerializeField, Tooltip("終了位置")]
 	Vector3 mEndPosition;
 
 	[SerializeField, Tooltip("移動にかける時間")]
@@ -18,6 +15,12 @@ public class MoveTransform : MonoBehaviour {
 
 	private void Awake() {
 		mEndPosition = transform.position;
+
+		Player p = GetPlayer();
+
+		mStartPosition = p.transform.position;
+		mStartPosition.z = 40.0f;
+		mStartPosition.y -= 1.0f;
 	}
 
 	// Use this for initialization
@@ -55,5 +58,14 @@ public class MoveTransform : MonoBehaviour {
 
 	public void MoveStartPoisition() {
 		transform.position = mStartPosition;
+	}
+
+	Player GetPlayer() {
+		foreach(var p in FindObjectsOfType<Player>()) {
+			if(p.gameObject.activeSelf == true) {
+				return p;
+			}
+		}
+		return null;
 	}
 }

@@ -73,6 +73,7 @@ public class PileWeight : MonoBehaviour {
 		}
 
 		// 除外オブジェクトのコライダーのリストをオブジェクトのリストに変換
+
 		List<Transform> outObjList = new List<Transform>();
 		while (outColList.Count > 0) {
 			outObjList.Add(outColList[0].transform);

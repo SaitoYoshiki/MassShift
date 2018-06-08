@@ -66,14 +66,22 @@ public class Player : MonoBehaviour {
 			return isRotation;
 		}
 		set {
+			prevIsRotation = isRotation;
 			isRotation = value;
 		}
 	}
 
+	bool IsRotationChange {
+		get {
+			return (isRotation != prevIsRotation);
+		}
+	}
+	bool prevIsRotation = false;
+
 	[SerializeField]
-	bool useManualJump = true;		// ボタン入力での通常ジャンプを使用する
+	bool useManualJump = true;      // ボタン入力での通常ジャンプを使用する
 	[SerializeField]
-	bool useAutoClimbJump = true;	// 左右移動のみでの自動小ジャンプを使用する
+	bool useAutoClimbJump = true;   // 左右移動のみでの自動小ジャンプを使用する
 
 	[SerializeField]
 	float walkSpd = 2.0f;       // 左右移動最高速度
@@ -216,7 +224,7 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
 
-	void Awake () {
+	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 	}
 
@@ -267,7 +275,7 @@ public class Player : MonoBehaviour {
 
 		// 着地アニメーション
 		if ((Land.IsLanding && Land.IsLandingChange) ||
-			(land.IsWaterFloatLanding && Land.IsWaterFloatLandingChange)) {
+			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingChange)) {
 			Land.IsLandingChange = false;
 			Land.IsWaterFloatLandingChange = false;
 			if (!Lift.IsLifting) {
@@ -336,7 +344,7 @@ public class Player : MonoBehaviour {
 		if (!canJump) return false;
 
 		// ステージに接地、又は水面で安定していなければ
-//		Debug.LogWarning("IsLanding:" + Land.IsLanding);
+		//		Debug.LogWarning("IsLanding:" + Land.IsLanding);
 		//if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
 		if (!(Land.IsLanding || WaterStt.IsWaterSurface)) {
 			PileWeight pile = GetComponent<PileWeight>();
@@ -423,30 +431,33 @@ public class Player : MonoBehaviour {
 	}
 
 	void Rotate() {
-		if (!CanRotation) return;
+		if (!CanRotation) {
+			IsRotation = false;
+			return;
+		}
 
 		//		// 持ち上げモーション中は処理しない
 		//		if ((Lift.St == Lifting.LiftState.invalid) ||
 		//			(Lift.St == Lifting.LiftState.standby)) {
-//		// 接地中なら
-//		if (Land.IsLanding || WaterStt.IsWaterSurface) {
-			// 左右入力中なら
-			if (walkStandbyVec != 0.0f) {
-				// 一定の移動がある方向に向きを設定
-				if (MoveMng.PrevMove.x > turnRotBorderSpd) {
+		//		// 接地中なら
+		//		if (Land.IsLanding || WaterStt.IsWaterSurface) {
+		// 左右入力中なら
+		if (walkStandbyVec != 0.0f) {
+			// 一定の移動がある方向に向きを設定
+			if (MoveMng.PrevMove.x > turnRotBorderSpd) {
+				rotVec.x = 1.0f;
+			} else if (MoveMng.PrevMove.x < -turnRotBorderSpd) {
+				rotVec.x = -1.0f;
+			} else {
+				// 移動量が一定以下なら入力方向に向く
+				if (walkStandbyVec > 0.0f) {
 					rotVec.x = 1.0f;
-				} else if (MoveMng.PrevMove.x < -turnRotBorderSpd) {
+				} else if (walkStandbyVec < 0.0f) {
 					rotVec.x = -1.0f;
-				} else {
-					// 移動量が一定以下なら入力方向に向く
-					if (walkStandbyVec > 0.0f) {
-						rotVec.x = 1.0f;
-					} else if (walkStandbyVec < 0.0f) {
-						rotVec.x = -1.0f;
-					}
 				}
 			}
-//		}
+		}
+		//		}
 
 		// 接地方向によって向きを設定
 		if (WeightMng.WeightLv == WeightManager.Weight.flying) {
@@ -454,6 +465,17 @@ public class Player : MonoBehaviour {
 		} else {
 			rotVec.y = 0.0f;
 		}
+
+//		// 自身が重さ0であり、重さ2のブロックを持ち上げている場合
+//		if (WeightMng.WeightLv == WeightManager.Weight.flying) {
+//			if (Lift && Lift.LiftObj) {
+//				WeightManager liftWeightMng = Lift.LiftObj.GetComponent<WeightManager>();
+//				if (liftWeightMng && (liftWeightMng.WeightLv == WeightManager.Weight.heavy)) {
+//					// 接地変更を指定
+//					rotVec.y = 0.0f;
+//				}
+//			}
+//		}
 
 		// 結果の姿勢を求める
 		Quaternion qt = Quaternion.Euler(rotVec.y * 180.0f, -90.0f + rotVec.x * 90.0f, 0.0f);
@@ -464,6 +486,18 @@ public class Player : MonoBehaviour {
 			// 向きを合わせる
 			modelRotTransform.rotation = Quaternion.Lerp(modelRotTransform.rotation, qt, 1);
 			IsRotation = false;
+
+			// 自身が重さ0であり、重さ2のブロックを持ち上げている場合
+			if (WeightMng.WeightLv == WeightManager.Weight.flying) {
+				if (Lift && Lift.LiftObj) {
+					WeightManager liftWeightMng = Lift.LiftObj.GetComponent<WeightManager>();
+					if (liftWeightMng && (liftWeightMng.WeightLv == WeightManager.Weight.heavy)) {
+						// 強制的に持っているブロックを離す
+						Lift.LiftDownFailed();
+						WeightMng.LiftWeightMng = null;
+					}
+				}
+			}
 		}
 		// 角度が一定以上なら
 		else {

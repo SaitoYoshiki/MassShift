@@ -75,10 +75,10 @@ public class Landing : MonoBehaviour {
 	bool isWaterFloatLandingChange = false;
 	public bool IsWaterFloatLandingChange {
 		get {
-			return isWaterFloatLanding;
+			return isWaterFloatLandingChange;
 		}
 		set {
-			isWaterFloatLanding = value;
+			isWaterFloatLandingChange = value;
 		}
 	}
 
@@ -188,8 +188,17 @@ public class Landing : MonoBehaviour {
 	void CheckLandingFalse() {
 		landColList.Clear();
 
-		// 接地方向に移動していなければ接地していない
-		if (WeightMng.WeightLv != WeightManager.Weight.flying) {
+		// 接地方向を求める
+		float landVec = -1.0f;
+		// 宙に浮かぶ重さ、又は水中の水面に浮かぶ重さなら
+		if ((WeightMng.WeightLv == WeightManager.Weight.flying) ||
+			(WaterStt.IsInWater && WeightMng.WeightLv <= WeightManager.Weight.light)) {
+			// 上方向に接地
+			landVec = 1.0f;
+		}
+
+		// 接地方向の逆方向に移動していれば接地していない
+		if (landVec == -1.0f) {
 			if (MoveMng.PrevMove.y > 0.0f) {
 				IsLanding = false;
 				return;
@@ -226,45 +235,45 @@ public class Landing : MonoBehaviour {
 		}
 	}
 
-	void CheckExtrusionLandingFalse() {
-		landExtrusionColList.Clear();
-
-		// 接地方向の反対方向に移動していなければ接地していない
-		if (WeightMng.WeightLv != WeightManager.Weight.flying) {
-			if (MoveMng.TotalMove.y < 0.0f) {
-				IsExtrusionLanding = false;
-				return;
-			}
-		} else {
-			if (MoveMng.TotalMove.y > 0.0f) {
-				IsExtrusionLanding = false;
-				return;
-			}
-		}
-
-		// 非接地側の判定オブジェクトを取得
-		if (MoveMng.GravityForce > 0.0f) {
-			landingCol = FourSideCol.BottomCol;
-		} else {
-			landingCol = FourSideCol.TopCol;
-		}
-
-		// 離地判定
-		landExtrusionColList.AddRange(Physics.OverlapBox(landingCol.position, landingCol.localScale * 0.5f, landingCol.rotation, mask));
-
-		// 自身は反接地対象から除く
-		for (int idx = landExtrusionColList.Count - 1; idx >= 0; idx--) {
-			if (landExtrusionColList[idx].gameObject == gameObject) {
-				landExtrusionColList.RemoveAt(idx);
-			}
-		}
-
-		// 接地・反接地しているオブジェクトが存在しなければ離地
-		if (landExtrusionColList.Count <= 0) {
-			IsExtrusionLanding = false;
-			Debug.Log("Ext離地");
-		}
-	}
+//	void CheckExtrusionLandingFalse() {
+//		landExtrusionColList.Clear();
+//
+//		// 接地方向の反対方向に移動していなければ接地していない
+//		if (WeightMng.WeightLv != WeightManager.Weight.flying) {
+//			if (MoveMng.TotalMove.y < 0.0f) {
+//				IsExtrusionLanding = false;
+//				return;
+//			}
+//		} else {
+//			if (MoveMng.TotalMove.y > 0.0f) {
+//				IsExtrusionLanding = false;
+//				return;
+//			}
+//		}
+//
+//		// 非接地側の判定オブジェクトを取得
+//		if (MoveMng.GravityForce > 0.0f) {
+//			landingCol = FourSideCol.BottomCol;
+//		} else {
+//			landingCol = FourSideCol.TopCol;
+//		}
+//
+//		// 離地判定
+//		landExtrusionColList.AddRange(Physics.OverlapBox(landingCol.position, landingCol.localScale * 0.5f, landingCol.rotation, mask));
+//
+//		// 自身は反接地対象から除く
+//		for (int idx = landExtrusionColList.Count - 1; idx >= 0; idx--) {
+//			if (landExtrusionColList[idx].gameObject == gameObject) {
+//				landExtrusionColList.RemoveAt(idx);
+//			}
+//		}
+//
+//		// 接地・反接地しているオブジェクトが存在しなければ離地
+//		if (landExtrusionColList.Count <= 0) {
+//			IsExtrusionLanding = false;
+//			Debug.Log("Ext離地");
+//		}
+//	}
 
 	void UpdateWaterFloatLanding() {
 		bool prevIsWaterFloatLanding = isWaterFloatLanding;
