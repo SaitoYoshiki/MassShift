@@ -920,6 +920,7 @@ public class MassShift : MonoBehaviour
 
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		Plane plane = new Plane(new Vector3(0.0f, 0.0f, -1.0f), 0.0f);
+		//FindObjectOfType<TextDebug>().SetText("RayOrigin:" + ray.origin);
 
 		float enter = 0.0f;
 		if (plane.Raycast(ray, out enter)) {
