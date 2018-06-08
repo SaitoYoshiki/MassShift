@@ -495,6 +495,9 @@ public class Player : MonoBehaviour {
 		// 前回までの上下方向の加速度を削除
 		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 
+		// 左右方向の移動量をジャンプ中速度まで下げる
+		MoveMng.PrevMove = new Vector3(Mathf.Sign(MoveMng.PrevMove.x) * Mathf.Clamp(MoveMng.PrevMove.x, -JumpSpd, JumpSpd), MoveMng.PrevMove.y, MoveMng.PrevMove.z);
+
 		// 左右方向の加速度を削除
 		//		MoveMng.StopMoveHorizontalAll();
 

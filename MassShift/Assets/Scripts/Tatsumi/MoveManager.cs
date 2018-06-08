@@ -27,7 +27,7 @@ public class MoveManager : MonoBehaviour {
 		get {
 			return prevMove;
 		}
-		private set {
+		set {
 			prevMove = value;
 		}
 	}
