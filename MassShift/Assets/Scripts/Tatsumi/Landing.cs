@@ -176,8 +176,8 @@ public class Landing : MonoBehaviour {
 
 		// 接地方向
 		float landVec = WeightMng.WeightForce;
-		// 水中であり水面に浮く重さなら
-		if (WaterStt && WeightMng && WaterStt.IsInWater && (WeightMng.WeightLv == WeightManager.Weight.light)) {
+		// 水中であり水に浮く重さなら
+		if (WaterStt && WeightMng && WaterStt.IsInWater && !WaterStt.IsWaterSurface && (WeightMng.WeightLv <= WeightManager.Weight.light)) {
 			landVec = 1.0f;
 		}
 
@@ -217,7 +217,7 @@ public class Landing : MonoBehaviour {
 		}
 
 		// 接地側の判定オブジェクトを取得
-		if (MoveMng.GravityForce <= 0.0f) {
+		if (landVec <= 0.0f) {
 			landingCol = FourSideCol.BottomCol;
 		} else {
 			landingCol = FourSideCol.TopCol;
