@@ -36,8 +36,7 @@ public class cameraMove : MonoBehaviour {
 
     bool goTutorialFlg = false;
 
-    bool isAdditiveLoad = false;
-    bool isAdditiveLoadEnd = false;
+    //bool isAdditiveLoad = false;
 
     AsyncOperation TutorialActive;
     AsyncOperation StageSelectActive;
@@ -55,7 +54,7 @@ public class cameraMove : MonoBehaviour {
 	void Update () {
         CheckFirstZoom();
         CheckZoomIn();
-        CheckZoomOut();
+        //CheckZoomOut();
 	}
 
     void CheckFirstZoom() {
@@ -97,7 +96,7 @@ public class cameraMove : MonoBehaviour {
         }
     }
 
-    void CheckZoomOut() {
+    /*void CheckZoomOut() {
         // ズームアウト中でなくて
         if (!zoomOutFlg) {
             // 前フレームでもズームアウトしていなければ何もしない
@@ -109,7 +108,6 @@ public class cameraMove : MonoBehaviour {
                     }
                     else {
                         isAdditiveLoad = false;
-                        isAdditiveLoadEnd = true;
                         SceneManager.UnloadSceneAsync("Title");
                     }
                 }
@@ -120,7 +118,6 @@ public class cameraMove : MonoBehaviour {
                     }
                     else {
                         isAdditiveLoad = false;
-                        isAdditiveLoadEnd = true;
                         SceneManager.UnloadSceneAsync("Title");
                     }
                 }
@@ -136,26 +133,21 @@ public class cameraMove : MonoBehaviour {
             //st.CloseDoorParent();
             Zoom(zoomOutTime, ref zoomOutFlg, cameraZoomPoint, cameraEndPoint);
         }
-    }
+    }*/
 
     // タイトルでボタンが押されたらズームアウト
     public void OnButtonDown() {
-        Debug.Log("ズームアウト開始");
-        zoomOutFlg = true;
-        startZoomTime = Time.realtimeSinceStartup;
+        //Debug.Log("ズームアウト開始");
+        //zoomOutFlg = true;
+        //startZoomTime = Time.realtimeSinceStartup;
         title.SetActive(false);
         tutorial.SetActive(false);
         stageselect.SetActive(false);
 
         RenderSettings.ambientSkyColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
 
-        isAdditiveLoad = true;
+        //isAdditiveLoad = true;
         fromTitle = true;
-        Destroy(GameObject.Find("EventSystem"));
-        Destroy(GameObject.Find("Player_test"));
-        Destroy(GameObject.Find("Directional Light"));
-        Destroy(GameObject.Find("SoundManager"));
-        Camera.main.GetComponent<AudioListener>().enabled = false;
     }
 
     // ズームイン/アウト
@@ -177,15 +169,18 @@ public class cameraMove : MonoBehaviour {
         cameraEndPoint = new Vector3(-36.0f, 3.0f, -35.0f);
         goTutorialFlg = true;
 
-        Debug.Log("Before");
-        TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Additive);
-        Debug.Log("After");
+        TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Single);
+        SceneManager.UnloadSceneAsync("Title");
+        //TutorialActive.allowSceneActivation = false;
     }
 
     public void OnStageSelectSelected() {
         cameraEndPoint = new Vector3(-32.0f, 1.0f, -50.0f);
         goTutorialFlg = false;
-        StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Additive);
+
+        StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
+        SceneManager.UnloadSceneAsync("Title");
+        //TutorialActive.allowSceneActivation = false;
     }
 
     // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする

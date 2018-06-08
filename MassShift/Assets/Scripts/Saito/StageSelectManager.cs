@@ -23,6 +23,12 @@ public class StageSelectManager : MonoBehaviour {
 
 	StageTransition mTransition;
 
+    [SerializeField]
+    MoveTransform mCameraMove;
+
+    [SerializeField]
+    Vector3 cameraStartPos;
+
 	// Use this for initialization
 	void Start() {
 
@@ -55,6 +61,16 @@ public class StageSelectManager : MonoBehaviour {
 		//プレートの色を変える
 		SetEnterColor(-1);
 
+        // タイトルシーンからの遷移であれば
+        if (cameraMove.fromTitle) {
+            // カメラの初期位置を変更
+            mCameraMove.mStartPosition = cameraStartPos;
+            cameraMove.fromTitle = false;
+        }
+
+        //カメラをズームされた位置に移動
+        mCameraMove.MoveStartPoisition();
+
 		LimitPlayDoorSE();
 
 		// タイトルシーンからの遷移でなければ
@@ -77,6 +93,9 @@ public class StageSelectManager : MonoBehaviour {
 		SoundManager.SFade(t, 0.0f, 1.0f, 2.0f);
 
 		int lSelectStageNum = -1;
+
+        //カメラのズームアウトを始める
+        mCameraMove.MoveStart();
 
 		//ゲームメインのループ
 		while (true) {
