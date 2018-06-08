@@ -884,7 +884,8 @@ public class MassShift : MonoBehaviour
 
 	float GetShiftXAxis() {
 		if (Utility.IsJoystickConnect()) {
-			return Input.GetAxis("JoyShiftHorizontal");
+			//return Input.GetAxis("JoyShiftHorizontal");
+			return 0.0f;
 		}
 		else {
 			if (Input.GetKey(KeyCode.J)) return -1.0f;
@@ -895,7 +896,8 @@ public class MassShift : MonoBehaviour
 	float GetShiftYAxis()
 	{
 		if (Utility.IsJoystickConnect()) {
-			return Input.GetAxis("JoyShiftVertical");
+			//return Input.GetAxis("JoyShiftVertical");
+			return 0.0f;
 		}
 		else {
 			if (Input.GetKey(KeyCode.I)) return 1.0f;
