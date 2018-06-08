@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MoveTransform : MonoBehaviour {
-
-	Vector3 mStartPosition;
+	public Vector3 mStartPosition;
 	Vector3 mEndPosition;
 
 	[SerializeField, Tooltip("移動にかける時間")]
