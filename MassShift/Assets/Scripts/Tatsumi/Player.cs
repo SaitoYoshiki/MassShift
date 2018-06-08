@@ -342,7 +342,8 @@ public class Player : MonoBehaviour {
 		ClimbJump();
 
 		// 上下回転
-		if (Land.IsLandingChange || Land.IsWaterFloatLandingChange || (WaterStt.IsInWater != prevIsInWater)) {
+		if (Land.IsLandingChange || Land.IsWaterFloatLandingChange ||
+			((WaterStt.IsInWater != prevIsInWater) && WeightMng.WeightLv == WeightManager.Weight.light)) {
 			prevIsInWater = WaterStt.IsInWater;
 
 			// 必要なら回転アニメーション
@@ -493,6 +494,9 @@ public class Player : MonoBehaviour {
 
 		// 前回までの上下方向の加速度を削除
 		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+
+		// 左右方向の移動量をジャンプ中速度まで下げる
+		MoveMng.PrevMove = new Vector3(Mathf.Sign(MoveMng.PrevMove.x) * Mathf.Clamp(MoveMng.PrevMove.x, -JumpSpd, JumpSpd), MoveMng.PrevMove.y, MoveMng.PrevMove.z);
 
 		// 左右方向の加速度を削除
 		//		MoveMng.StopMoveHorizontalAll();
