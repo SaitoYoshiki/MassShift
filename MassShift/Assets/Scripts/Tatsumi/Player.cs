@@ -268,40 +268,8 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
 
-	// purfabを編集しないでもいい様に
-	[SerializeField]
-	bool testAutoSetParam = true;
-
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
-
-		//test
-		if (walkWeightLvSpd == null || walkWeightLvSpd.Count == 0) {
-			Debug.LogWarning(
-				"TestAutoSetParamがtrueです。\n" +
-				"walkWeightLvSpd,, walkWeightLvStopTime, jumpWeightLvSpdを仮設定します。");
-
-			walkWeightLvSpd = new List<float>();
-			walkWeightLvSpd.Add(0.1f);
-			walkWeightLvSpd.Add(0.1f);
-			walkWeightLvSpd.Add(0.1f);
-
-			walkWeightLvStop = new List<float>();
-			walkWeightLvStop.Add(1.0f);
-			walkWeightLvStop.Add(1.0f);
-			walkWeightLvStop.Add(1.0f);
-
-			jumpWeightLvSpd = new List<float>();
-			jumpWeightLvSpd.Add(0.1f);
-			jumpWeightLvSpd.Add(0.1f);
-			jumpWeightLvSpd.Add(0.1f);
-
-			jumpWeightLvStop = new List<float>();
-			jumpWeightLvStop.Add(1.0f);
-			jumpWeightLvStop.Add(1.0f);
-			jumpWeightLvStop.Add(1.0f);
-		}
-		//test
 	}
 
 	void Update() {
@@ -350,9 +318,9 @@ public class Player : MonoBehaviour {
 		ClimbJump();
 
 		// 上下回転
-		if (Land.IsLandingChange || Land.IsWaterFloatLandingChange ||
-			((WaterStt.IsInWater != prevIsInWater) && WeightMng.WeightLv == WeightManager.Weight.light)) {
-			prevIsInWater = WaterStt.IsInWater;
+		if ((Land.IsLandingChange || Land.IsWaterFloatLandingChange) ||   // 着地時の判定
+			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {   // 入/出水時の戻り回転
+				prevIsInWater = WaterStt.IsInWater;
 
 			// 必要なら回転アニメーション
 			float nowRotVec = RotVec.y;
@@ -520,9 +488,11 @@ public class Player : MonoBehaviour {
 		//		Debug.Log(jumpGravityForce);
 
 		// 離地方向に移動
-		if (!WaterStt.IsInWater) {
+		if (!WaterStt.IsInWater || WaterStt.IsWaterSurface) {
+			Debug.LogWarning("landJump");
 			MoveMng.AddMove(new Vector3(0.0f, (JumpHeight), 0.0f));
 		} else {
+			Debug.LogWarning("inWaterJump");
 			MoveMng.AddMove(new Vector3(0.0f, (JumpHeightInWater), 0.0f));
 		}
 
