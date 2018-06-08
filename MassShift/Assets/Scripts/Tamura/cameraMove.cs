@@ -46,6 +46,7 @@ public class cameraMove : MonoBehaviour {
 	void Start () {
         this.transform.position = cameraStartPoint;
         st = GameObject.Find("StageChangeCanvas").GetComponent<StageTransition>();
+        st.gameObject.SetActive(false);
         cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
 
         RenderSettings.ambientSkyColor = new Color(0.0f, 0.0f, 0.0f);
