@@ -6,7 +6,6 @@ public class ShakeCamera : MonoBehaviour {
 
 	Vector3 mBeforeMove;
 
-	[SerializeField, Tooltip("振動の大きさ")]
 	float mMagnitude = 0.2f;
 
 	//振動し始めてから何秒か
@@ -51,14 +50,15 @@ public class ShakeCamera : MonoBehaviour {
 		}
 	}
 
-	public void Shake(float aTime) {
+	public void Shake(float aTime, float aMagnitude) {
 		mShakeTime = aTime;
 		mShakeTimeFromStart = 0.0f;
+		mMagnitude = aMagnitude;
 	}
 
-	public static void ShakeAll(float aTime) {
+	public static void ShakeAll(float aTime, float aMagnitude) {
 		foreach (var s in FindObjectsOfType<ShakeCamera>()) {
-			s.Shake(aTime);
+			s.Shake(aTime, aMagnitude);
 		}
 	}
 }

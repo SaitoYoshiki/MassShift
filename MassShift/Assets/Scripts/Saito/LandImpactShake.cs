@@ -7,6 +7,9 @@ public class LandImpactShake : MonoBehaviour {
 
 	[SerializeField, Tooltip("揺れる時間"), EditOnPrefab]
 	float mShakeTime = 0.2f;
+	
+	//揺れる大きさ
+	float mShakeMagnitude = 0.2f;
 
 	// Use this for initialization
 	void Awake () {
@@ -24,7 +27,7 @@ public class LandImpactShake : MonoBehaviour {
 		if(aWeight == WeightManager.Weight.heavy) {
 			//水中か、地上に着地したら
 			if(aEnviroment == LandImpact.CEnviroment.cWater || aEnviroment == LandImpact.CEnviroment.cGround) {
-				ShakeCamera.ShakeAll(mShakeTime);	//カメラを揺らす
+				ShakeCamera.ShakeAll(mShakeTime, 0.2f);	//カメラを揺らす
 			}
 		}
 	}
