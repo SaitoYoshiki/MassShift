@@ -233,9 +233,12 @@ public class Player : MonoBehaviour {
 	}
 
 	[SerializeField]
-	Transform modelRotTransform = null;
+	Transform rotTransform = null;
 	[SerializeField]
 	Transform colRotTransform = null;
+	[SerializeField]
+	Transform modelTransform = null;
+
 	[SerializeField]
 	Vector3 rotVec = new Vector3(1.0f, 0.0f, 0.0f); // 左右向きと非接地面
 	public Vector3 RotVec {
@@ -267,6 +270,11 @@ public class Player : MonoBehaviour {
 	List<float> ClimbJumpWeightLvHeight = new List<float>(3);
 	[SerializeField]
 	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
+
+	[SerializeField]
+	float cameraLockSpd = 1.0f;			// 待機時のカメラの方を向く速さ
+	[SerializeField]
+	float cameraLockCancelSpd = 1.0f;	// 待機時のカメラの方を向く状態を解除する速さ
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -586,10 +594,10 @@ public class Player : MonoBehaviour {
 		Quaternion qt = Quaternion.Euler(RotVec.y * 180.0f, -90.0f + RotVec.x * 90.0f, 0.0f);
 
 		// 現在の向きと結果の向きとの角度が一定以内なら
-		float angle = Quaternion.Angle(modelRotTransform.rotation, qt);
+		float angle = Quaternion.Angle(rotTransform.rotation, qt);
 		if (angle < correctionaAngle) {
 			// 向きを合わせる
-			modelRotTransform.rotation = Quaternion.Lerp(modelRotTransform.rotation, qt, 1);
+			rotTransform.rotation = Quaternion.Lerp(rotTransform.rotation, qt, 1);
 			IsRotation = false;
 
 			// 自身が重さ0であり、重さ2のブロックを持ち上げている場合
@@ -607,11 +615,11 @@ public class Player : MonoBehaviour {
 		// 角度が一定以上なら
 		else {
 			// 設定された向きにスラープ
-			modelRotTransform.rotation = Quaternion.Slerp(modelRotTransform.rotation, qt, rotSpd);
+			rotTransform.rotation = Quaternion.Slerp(rotTransform.rotation, qt, rotSpd);
 			IsRotation = true;
 		}
 
-		colRotTransform.rotation = modelRotTransform.rotation;
+		colRotTransform.rotation = rotTransform.rotation;
 
 		// 重さに合わせてモデルと当たり判定位置を補正
 		Lift.CorrectFourSideCollider(Lift.IsLifting);
@@ -679,4 +687,17 @@ public class Player : MonoBehaviour {
 		WaterStt.IsWaterSurface = false;
 		WaterStt.BeginWaterStopIgnore();
 	}
+
+//	void LockCamera() {
+//		Vector3 angle = modelTransform.rotation.eulerAngles;
+//		// 移動がなければ少しカメラ方向を向く
+//		if (MoveMng.TotalMove.x == 0.0f) {
+//			angle.y += (cameraLockSpd * -RotVec.x);
+//		}
+//		// 移動があればキャラクター進行方向を向く
+//		else {
+//			angle.y -= (Mathf.Min(cameraLockSpd, Mathf.Abs(angle.y)) * RotVec.x);
+//		}
+//		modelTransform.rotation = Quaternion.Euler(angle);
+//	}
 }
