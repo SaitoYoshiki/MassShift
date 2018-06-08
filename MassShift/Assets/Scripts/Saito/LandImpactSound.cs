@@ -27,7 +27,7 @@ public class LandImpactSound : MonoBehaviour {
 
 	}
 
-	void OnLand(WeightManager.Weight aWeight, LandImpact.CEnviroment aEnviroment) {
+	void OnLand(WeightManager.Weight aWeight, LandImpact.CEnviroment aEnviroment, float aFallDistance) {
 
 		//水面に落ちたなら
 		if(aEnviroment == LandImpact.CEnviroment.cWaterSurface) {

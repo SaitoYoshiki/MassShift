@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShakeCameraTest : MonoBehaviour {
+public class TextDebug : MonoBehaviour {
 
-	[SerializeField]
-	float mTime = 0.0f;
+	public void SetText(string aString) {
+		GetComponent<UnityEngine.UI.Text>().text = aString;
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -15,10 +16,5 @@ public class ShakeCameraTest : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		if(Input.GetKeyDown(KeyCode.T)) {
-			//Shake(mTime);
-			ShakeCamera.ShakeAll(mTime, 0.2f);
-		}
 	}
-
 }

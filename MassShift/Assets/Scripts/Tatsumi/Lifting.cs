@@ -333,6 +333,10 @@ public class Lifting : MonoBehaviour {
 		case LiftState.lifting:
 			// オブジェクトの位置を同期
 			MoveManager.MoveTo(PlAnim.GetBoxPosition(), liftObj.GetComponent<BoxCollider>(), liftingColMask);
+
+			// プレイヤーのモデルと同じ回転をオブジェクトに加える
+			LiftObj.transform.rotation = modelTransform.rotation;
+
 			break;
 
 		default:
@@ -431,13 +435,16 @@ public class Lifting : MonoBehaviour {
 		Debug.Log("LiftDown:" + liftObj.name);
 
 		// 持ち上げ中オブジェクトの判定を有効化
-		liftObj.GetComponent<BoxCollider>().enabled = true;
+		LiftObj.GetComponent<BoxCollider>().enabled = true;
 
 		// 下ろしアニメーションへの遷移
 		PlAnim.StartRelease();
 
 		// 状態の変更
 		St = LiftState.liftDown;
+
+		// プレイヤーのモデルに同期していた回転を消去
+		LiftObj.transform.rotation = Quaternion.identity;
 
 		return liftObj;
 	}

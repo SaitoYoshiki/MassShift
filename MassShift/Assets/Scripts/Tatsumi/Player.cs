@@ -77,38 +77,72 @@ public class Player : MonoBehaviour {
 		}
 	}
 	bool prevIsRotation = false;
-
+		
 	[SerializeField]
 	bool useManualJump = true;      // ボタン入力での通常ジャンプを使用する
 	[SerializeField]
 	bool useAutoClimbJump = true;   // 左右移動のみでの自動小ジャンプを使用する
 
 	[SerializeField]
-	float walkSpd = 2.0f;       // 左右移動最高速度
-	[SerializeField]
-	float walkStopTime = 0.2f;  // 左右移動最高速度から停止までの時間
-
-	[SerializeField]
-	List<float> jumpWeightLvDis;       // 最大ジャンプ距離
-	float JumpDis {
+	List<float> walkWeightLvSpd = new List<float>(3);		// 左右移動速度
+	float WalkSpd {
 		get {
-			return jumpWeightLvDis[(int)WeightMng.WeightLv];
+			return walkWeightLvSpd[(int)WeightMng.WeightLv];
 		}
 	}
 	[SerializeField]
-	List<float> jumpWeightLvHeight;    // 最大ジャンプ高度
+	List<float> walkWeightLvStop = new List<float>(3);	// 左右移動速度から停止
+	float WalkStop {
+		get {
+			return walkWeightLvStop[(int)WeightMng.WeightLv];
+		}
+	}
+	[SerializeField]
+	List<float> jumpWeightLvSpd = new List<float>(3);		// ジャンプ中左右移動速度
+	float JumpSpd {
+		get {
+			return jumpWeightLvSpd[(int)WeightMng.WeightLv];
+		}
+	}
+	[SerializeField]
+	List<float> jumpWeightLvStop = new List<float>(3);	// ジャンプ中左右移動から停止
+	float JumpStop {
+		get {
+			return jumpWeightLvStop[(int)WeightMng.WeightLv];
+		}
+	}
+
+	[SerializeField]
+	List<float> jumpWeightLvHeight = new List<float>(3);    // ジャンプ力
 	float JumpHeight {
 		get {
 			return jumpWeightLvHeight[(int)WeightMng.WeightLv];
 		}
 	}
+
 	[SerializeField]
-	List<float> jumpWeightLvTime;      // 最大ジャンプ滞空時間
-	float JumpTime {
+	List<float> jumpWeightLvHeightInWater = new List<float>(3);	// 水中でのジャンプ力
+	float JumpHeightInWater {
 		get {
-			return jumpWeightLvTime[(int)WeightMng.WeightLv];
+			return jumpWeightLvHeightInWater[(int)WeightMng.WeightLv];
 		}
 	}
+
+	//	[SerializeField]
+	//	List<float> jumpWeightLvDis;       // 最大ジャンプ距離
+	//	float JumpDis {
+	//		get {
+	//			return jumpWeightLvDis[(int)WeightMng.WeightLv];
+	//		}
+	//	}
+
+	//	[SerializeField]
+	//	List<float> jumpWeightLvTime;      // 最大ジャンプ滞空時間
+	//	float JumpTime {
+	//		get {
+	//			return jumpWeightLvTime[(int)WeightMng.WeightLv];
+	//		}
+	//	}
 
 	[SerializeField]
 	float walkStandbyVec = 0.0f;    // 移動しようとしている方向
@@ -119,6 +153,8 @@ public class Player : MonoBehaviour {
 
 	[SerializeField]
 	float remainJumpTime = 0.0f;
+	[SerializeField]
+	bool prevIsInWater = false;
 
 	WeightManager weightMng = null;
 	WeightManager WeightMng {
@@ -197,11 +233,22 @@ public class Player : MonoBehaviour {
 	}
 
 	[SerializeField]
-	Transform modelRotTransform = null;
+	Transform rotTransform = null;
 	[SerializeField]
 	Transform colRotTransform = null;
 	[SerializeField]
+	Transform modelTransform = null;
+
+	[SerializeField]
 	Vector3 rotVec = new Vector3(1.0f, 0.0f, 0.0f); // 左右向きと非接地面
+	public Vector3 RotVec {
+		get {
+			return rotVec;
+		}
+		set {
+			rotVec = value;
+		}
+	}
 	[SerializeField]
 	float rotSpd = 0.2f;
 	[SerializeField]
@@ -223,6 +270,11 @@ public class Player : MonoBehaviour {
 	List<float> ClimbJumpWeightLvHeight = new List<float>(3);
 	[SerializeField]
 	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
+
+	[SerializeField]
+	float cameraLockSpd = 1.0f;			// 待機時のカメラの方を向く速さ
+	[SerializeField]
+	float cameraLockCancelSpd = 1.0f;	// 待機時のカメラの方を向く状態を解除する速さ
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -273,6 +325,28 @@ public class Player : MonoBehaviour {
 		// 自動ジャンプ
 		ClimbJump();
 
+		// 上下回転
+		if ((Land.IsLandingChange || Land.IsWaterFloatLandingChange) ||   // 着地時の判定
+			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {   // 入/出水時の戻り回転
+				prevIsInWater = WaterStt.IsInWater;
+
+			// 必要なら回転アニメーション
+			float nowRotVec = RotVec.y;
+			float landRotVec = 0.0f;
+
+			if (MoveMng.PrevMove.y > 0.0f) {
+				if ((WeightMng.WeightLv == WeightManager.Weight.flying) ||
+				((WeightMng.WeightLv == WeightManager.Weight.light) && (WaterStt.IsInWater))) {
+					landRotVec = 1.0f;
+				}
+			}
+
+			// 回転アニメーション
+			if (nowRotVec != landRotVec) {
+				RotVec = new Vector3(RotVec.x, landRotVec, RotVec.z);
+			}
+		}
+
 		// 着地アニメーション
 		if ((Land.IsLanding && Land.IsLandingChange) ||
 			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingChange)) {
@@ -282,6 +356,19 @@ public class Player : MonoBehaviour {
 				PlAnim.StartLand();
 			} else {
 				PlAnim.StartHoldLand();
+			}
+		}
+
+		// 着水アニメーション
+		if (WaterStt.IsWaterSurfaceChange) {
+			WaterStt.IsWaterSurfaceChange = false;
+
+			if (WaterStt.IsWaterSurface) {
+				if (!Lift.IsLifting) {
+					PlAnim.StartLand();
+				} else {
+					PlAnim.StartHoldLand();
+				}
 			}
 		}
 
@@ -301,12 +388,22 @@ public class Player : MonoBehaviour {
 	void Walk() {
 		// 歩行アニメーション
 		if ((walkStandbyVec != 0.0f) && CanWalk) {
-			if (!Lift.IsLifting) {
-				PlAnim.StartWalk();
-			} else {
-				PlAnim.StartHoldWalk();
+			if (!WaterStt.IsWaterSurface) {
+				if (!Lift.IsLifting) {
+					PlAnim.StartWalk();
+				} else {
+					PlAnim.StartHoldWalk();
+				}
+				PlAnim.SetSpeed(Mathf.Abs(walkStandbyVec));
 			}
-			PlAnim.SetSpeed(Mathf.Abs(walkStandbyVec));
+			// 泳ぎアニメーション
+			else {
+				if (!Lift.IsLifting) {
+					PlAnim.StartSwim();
+				} else {
+					PlAnim.StartHoldSwim();
+				}
+			}
 		}
 		// 待機アニメーション
 		else {
@@ -326,12 +423,12 @@ public class Player : MonoBehaviour {
 		// 地上なら
 		if (Land.IsLanding) {
 			// 左右方向へ加速
-			MoveMng.AddMove(new Vector3(walkStandbyVec * walkSpd, 0.0f, 0.0f));
+			MoveMng.AddMove(new Vector3(walkStandbyVec * WalkSpd, 0.0f, 0.0f));
 		}
 		// 空中なら
 		else {
 			// 左右方向へ加速
-			MoveMng.AddMove(new Vector3(walkStandbyVec * (JumpDis / JumpTime) * Time.fixedDeltaTime, 0.0f, 0.0f));
+			MoveMng.AddMove(new Vector3(walkStandbyVec * JumpSpd, 0.0f, 0.0f));
 		}
 	}
 	bool Jump() {
@@ -382,11 +479,14 @@ public class Player : MonoBehaviour {
 		// 前回までの上下方向の加速度を削除
 		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 
+		// 左右方向の移動量をジャンプ中速度まで下げる
+		MoveMng.PrevMove = new Vector3(Mathf.Sign(MoveMng.PrevMove.x) * Mathf.Clamp(MoveMng.PrevMove.x, -JumpSpd, JumpSpd), MoveMng.PrevMove.y, MoveMng.PrevMove.z);
+
 		// 左右方向の加速度を削除
 		//		MoveMng.StopMoveHorizontalAll();
 
 		// 左右方向の移動量も一更新だけ制限
-		MoveMng.OneTimeMaxSpd = jumpStartOneTimeLimitSpd;
+		//		MoveMng.OneTimeMaxSpd = jumpStartOneTimeLimitSpd;
 
 		// 上方向へ加速
 		//float jumpGravityForce = (0.5f * Mathf.Pow(jumpTime * 0.5f, 2) + jumpHeight);	// ジャンプ中の重力加速度
@@ -395,7 +495,14 @@ public class Player : MonoBehaviour {
 		//		MoveMng.AddMove(new Vector3(0.0f, (-jumpGravityForce * JumpTime * 0.5f), 0.0f));
 		//		Debug.Log(jumpGravityForce);
 
-		MoveMng.AddMove(new Vector3(0.0f, (JumpHeight), 0.0f));
+		// 離地方向に移動
+		if (!WaterStt.IsInWater || WaterStt.IsWaterSurface) {
+			Debug.LogWarning("landJump");
+			MoveMng.AddMove(new Vector3(0.0f, (JumpHeight), 0.0f));
+		} else {
+			Debug.LogWarning("inWaterJump");
+			MoveMng.AddMove(new Vector3(0.0f, (JumpHeightInWater), 0.0f));
+		}
 
 		// 離地
 		Land.IsLanding = false;
@@ -415,19 +522,21 @@ public class Player : MonoBehaviour {
 		return true;
 	}
 	void WalkDown() {
-		// 接地中でなく、水上での安定状態でもなければ
-		if (!Land.IsLanding && !WaterStt.IsWaterSurface && !Land.IsWaterFloatLanding) {
-			// 水上で安定状態のオブジェクトやそれに積み重なっているオブジェクトの上でもなければ
-			List<Transform> underPileObj = GetComponent<PileWeight>().GetPileBoxList(Vector3.down);
-			return;
-		}
-
 		// 進行方向側への左右入力があれば
 		if ((walkStandbyVec != 0.0f) && (Mathf.Sign(MoveMng.PrevMove.x) == Mathf.Sign(walkStandbyVec))) return;
 
-		// 減速
-		float moveX = (Mathf.Min((walkSpd / walkStopTime), Mathf.Abs(MoveMng.PrevMove.x))) * -Mathf.Sign(MoveMng.PrevMove.x);
-		MoveMng.AddMove(new Vector3(moveX, 0.0f, 0.0f));
+		// 接地中、または水上での安定状態、安定状態オブジェクトへの接地であれば
+		if (Land.IsLanding || WaterStt.IsWaterSurface || Land.IsWaterFloatLanding) {
+			// 減速
+			float moveX = (Mathf.Min((WalkSpd / WalkStop), Mathf.Abs(MoveMng.PrevMove.x))) * -Mathf.Sign(MoveMng.PrevMove.x);
+			MoveMng.AddMove(new Vector3(moveX, 0.0f, 0.0f));
+		}
+		// 空中であれば
+		else if (!WaterStt.IsInWater && !WaterStt.IsWaterSurface) {
+			// 空中での減速
+			float moveX = (Mathf.Min((JumpSpd / JumpStop), Mathf.Abs(MoveMng.PrevMove.x))) * -Mathf.Sign(MoveMng.PrevMove.x);
+			MoveMng.AddMove(new Vector3(moveX, 0.0f, 0.0f));
+		}
 	}
 
 	void Rotate() {
@@ -445,26 +554,30 @@ public class Player : MonoBehaviour {
 		if (walkStandbyVec != 0.0f) {
 			// 一定の移動がある方向に向きを設定
 			if (MoveMng.PrevMove.x > turnRotBorderSpd) {
-				rotVec.x = 1.0f;
+				RotVec = new Vector3(1.0f, RotVec.y, RotVec.z);
 			} else if (MoveMng.PrevMove.x < -turnRotBorderSpd) {
-				rotVec.x = -1.0f;
+				RotVec = new Vector3(-1.0f, RotVec.y, RotVec.z);
 			} else {
 				// 移動量が一定以下なら入力方向に向く
 				if (walkStandbyVec > 0.0f) {
-					rotVec.x = 1.0f;
+					RotVec = new Vector3(1.0f, RotVec.y, RotVec.z);
 				} else if (walkStandbyVec < 0.0f) {
-					rotVec.x = -1.0f;
+					RotVec = new Vector3(-1.0f, RotVec.y, RotVec.z);
 				}
 			}
 		}
 		//		}
 
-		// 接地方向によって向きを設定
-		if (WeightMng.WeightLv == WeightManager.Weight.flying) {
-			rotVec.y = 1.0f;
-		} else {
-			rotVec.y = 0.0f;
-		}
+//		RotVec = new Vector3(RotVec.x, 0.0f, RotVec.z);
+//		// 接地方向によって向きを設定
+//		if (WeightMng.WeightLv == WeightManager.Weight.flying) {
+//			RotVec = new Vector3(RotVec.x, 1.0f, RotVec.z);
+//		}
+//		if ((WeightMng.WeightLv == WeightManager.Weight.light) &&
+//			(WaterStt.IsInWater && false)) {
+//			RotVec = new Vector3(RotVec.x, 1.0f, RotVec.z); ;
+//		}
+
 
 //		// 自身が重さ0であり、重さ2のブロックを持ち上げている場合
 //		if (WeightMng.WeightLv == WeightManager.Weight.flying) {
@@ -472,19 +585,19 @@ public class Player : MonoBehaviour {
 //				WeightManager liftWeightMng = Lift.LiftObj.GetComponent<WeightManager>();
 //				if (liftWeightMng && (liftWeightMng.WeightLv == WeightManager.Weight.heavy)) {
 //					// 接地変更を指定
-//					rotVec.y = 0.0f;
+//					RotVec.y = 0.0f;
 //				}
 //			}
 //		}
 
 		// 結果の姿勢を求める
-		Quaternion qt = Quaternion.Euler(rotVec.y * 180.0f, -90.0f + rotVec.x * 90.0f, 0.0f);
+		Quaternion qt = Quaternion.Euler(RotVec.y * 180.0f, -90.0f + RotVec.x * 90.0f, 0.0f);
 
 		// 現在の向きと結果の向きとの角度が一定以内なら
-		float angle = Quaternion.Angle(modelRotTransform.rotation, qt);
+		float angle = Quaternion.Angle(rotTransform.rotation, qt);
 		if (angle < correctionaAngle) {
 			// 向きを合わせる
-			modelRotTransform.rotation = Quaternion.Lerp(modelRotTransform.rotation, qt, 1);
+			rotTransform.rotation = Quaternion.Lerp(rotTransform.rotation, qt, 1);
 			IsRotation = false;
 
 			// 自身が重さ0であり、重さ2のブロックを持ち上げている場合
@@ -502,11 +615,11 @@ public class Player : MonoBehaviour {
 		// 角度が一定以上なら
 		else {
 			// 設定された向きにスラープ
-			modelRotTransform.rotation = Quaternion.Slerp(modelRotTransform.rotation, qt, rotSpd);
+			rotTransform.rotation = Quaternion.Slerp(rotTransform.rotation, qt, rotSpd);
 			IsRotation = true;
 		}
 
-		colRotTransform.rotation = modelRotTransform.rotation;
+		colRotTransform.rotation = rotTransform.rotation;
 
 		// 重さに合わせてモデルと当たり判定位置を補正
 		Lift.CorrectFourSideCollider(Lift.IsLifting);
@@ -574,4 +687,17 @@ public class Player : MonoBehaviour {
 		WaterStt.IsWaterSurface = false;
 		WaterStt.BeginWaterStopIgnore();
 	}
+
+//	void LockCamera() {
+//		Vector3 angle = modelTransform.rotation.eulerAngles;
+//		// 移動がなければ少しカメラ方向を向く
+//		if (MoveMng.TotalMove.x == 0.0f) {
+//			angle.y += (cameraLockSpd * -RotVec.x);
+//		}
+//		// 移動があればキャラクター進行方向を向く
+//		else {
+//			angle.y -= (Mathf.Min(cameraLockSpd, Mathf.Abs(angle.y)) * RotVec.x);
+//		}
+//		modelTransform.rotation = Quaternion.Euler(angle);
+//	}
 }
