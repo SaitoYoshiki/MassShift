@@ -356,9 +356,11 @@ public class MoveManager : MonoBehaviour {
 			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(0.0f, yRange, 0.0f), _mask, _ignoreColList);
 
 			// すり抜け指定オブジェクトを除外
-			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
-				if (moveMng.throughColList.Contains(hitInfos[idx].collider)) {
-					hitInfos.RemoveAt(idx);
+			if (moveMng) {
+				for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+					if (moveMng.throughColList.Contains(hitInfos[idx].collider)) {
+						hitInfos.RemoveAt(idx);
+					}
 				}
 			}
 
@@ -413,16 +415,16 @@ public class MoveManager : MonoBehaviour {
 						(moveVec.y > 0.0f));                                        // 移動する方向が上方向
 
 					//test
-					string testStr =(waterFloatExtrusion + "\n" +
-					(moveWaterStt != null) + " " + (moveWeightMng != null) + " " + (hitWeightMng != null) + "\n");
-					if (moveWaterStt && moveWeightMng && hitWeightMng) {
-					testStr += "" +
-						(moveWaterStt.IsInWater) + " " +
-						(moveWeightMng.WeightLv == WeightManager.Weight.light) + " " +
-						(hitWeightMng.WeightLv <= moveWeightMng.WeightLv) + "\n" +
-						(moveVec.y > 0.0f) + " " + moveVec.y;
-					}
-					Debug.LogWarning(testStr);
+					//string testStr =(waterFloatExtrusion + "\n" +
+					//(moveWaterStt != null) + " " + (moveWeightMng != null) + " " + (hitWeightMng != null) + "\n");
+					//if (moveWaterStt && moveWeightMng && hitWeightMng) {
+					//testStr += "" +
+					//	(moveWaterStt.IsInWater) + " " +
+					//	(moveWeightMng.WeightLv == WeightManager.Weight.light) + " " +
+					//	(hitWeightMng.WeightLv <= moveWeightMng.WeightLv) + "\n" +
+					//	(moveVec.y > 0.0f) + " " + moveVec.y;
+					//}
+					//Debug.LogWarning(testStr);
 					//test
 
 					// 自身が衝突相手を押し出せるか
