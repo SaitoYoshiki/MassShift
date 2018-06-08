@@ -65,7 +65,6 @@ public class StageSelectManager : MonoBehaviour {
         if (cameraMove.fromTitle) {
             // カメラの初期位置を変更
             mCameraMove.mStartPosition = cameraStartPos;
-            cameraMove.fromTitle = false;
         }
 
         //カメラをズームされた位置に移動
