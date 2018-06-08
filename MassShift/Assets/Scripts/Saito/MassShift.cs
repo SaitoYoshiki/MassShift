@@ -227,10 +227,12 @@ public class MassShift : MonoBehaviour
 				//共有ボックスなら
 				if (mSource.GetComponent<ShareWeightBox>()) {
 					ChangeState(CSelectState.cMoveFromShare);   //共有ボックスから重さが集まる状態へ
+					//GetComponent<HitStop>().StartHitStop();
 					return;
 				}
 				else {
 					ChangeState(CSelectState.cMoveSourceToDest);    //重さを移す状態へ
+					//GetComponent<HitStop>().StartHitStop();
 					return;
 				}
 			}
@@ -468,6 +470,7 @@ public class MassShift : MonoBehaviour
 					return;
 				}
 				else {
+					//GetComponent<HitStop>().StartHitStop();
 					ChangeState(CSelectState.cSuccess); //成功
 					return;
 				}
