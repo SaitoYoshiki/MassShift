@@ -10,16 +10,19 @@ public class LoadManager : MonoBehaviour {
     GameObject uiObject;
 
     void Start() {
-        gameDirectionalLight = GameObject.Find("GameDirectionalLight");
+        if (cameraMove.fromTitle) {
+            if (SceneManager.GetActiveScene().name != "Title") {
+                gameDirectionalLight = GameObject.Find("GameDirectionalLight");
 
-        gameCamera.enabled = false;
-        gameDirectionalLight.SetActive(false);
+                gameCamera.enabled = false;
+                gameDirectionalLight.SetActive(false);
 
-        SceneManager.sceneUnloaded += OnSceneUnloaded;
+                SceneManager.sceneUnloaded += OnSceneUnloaded;
+            }
+        }
     }
 
     void OnSceneUnloaded(Scene i_unloadedScene) {
-        Debug.Log("ActiveSceneName:" + SceneManager.GetActiveScene().name);
         gameCamera.enabled = true;
         gameDirectionalLight.SetActive(true);
         SceneManager.sceneUnloaded -= OnSceneUnloaded;

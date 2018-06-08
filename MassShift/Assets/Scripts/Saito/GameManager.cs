@@ -27,6 +27,9 @@ public class GameManager : MonoBehaviour {
 	[SerializeField]
 	bool _Debug_ClearFlag = false;	//クリアしたことにするフラグ
 
+    [SerializeField]
+    Vector3 cameraStartPos;
+
 	// Use this for initialization
 	void Start() {
 		mMassShift = FindObjectOfType<MassShift>();
@@ -41,12 +44,7 @@ public class GameManager : MonoBehaviour {
 		mPause.pauseEvent.Invoke();
 
         //ゲーム進行のコルーチンを開始
-        if (!cameraMove.fromTitle) {
-            StartCoroutine(GameMain());
-        }
-        else {
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
-        }
+        StartCoroutine(GameMain());
 	}
 
 	// Update is called once per frame
@@ -54,16 +52,18 @@ public class GameManager : MonoBehaviour {
 
 	}
 
-    void OnActiveSceneChanged(Scene i_preChangedScene, Scene i_postChangedScene) {
-        StartCoroutine(GameMain());
-    }
-
 	IEnumerator GameMain() {
 
 		float lTakeTime;
 
 		//ステージ開始時の演出
 		//
+
+        // タイトルシーンからの遷移であれば
+        if (cameraMove.fromTitle) {
+            // カメラの初期位置を変更
+            mCameraMove.mStartPosition = cameraStartPos;
+        }
 
 		//カメラをズームされた位置に移動
 		mCameraMove.MoveStartPoisition();
@@ -86,9 +86,7 @@ public class GameManager : MonoBehaviour {
             }
             else {
                 cameraMove.fromTitle = false;
-                SceneManager.activeSceneChanged -= OnActiveSceneChanged;
                 yield return null;
-                //yield return new WaitForSeconds(1.0f);
             }
 		}
 
