@@ -342,7 +342,8 @@ public class Player : MonoBehaviour {
 		ClimbJump();
 
 		// 上下回転
-		if (Land.IsLandingChange || Land.IsWaterFloatLandingChange || (WaterStt.IsInWater != prevIsInWater)) {
+		if (Land.IsLandingChange || Land.IsWaterFloatLandingChange ||
+			((WaterStt.IsInWater != prevIsInWater) && WeightMng.WeightLv == WeightManager.Weight.light)) {
 			prevIsInWater = WaterStt.IsInWater;
 
 			// 必要なら回転アニメーション
