@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Button : MonoBehaviour {
 
 	// Use this for initialization
@@ -86,7 +87,7 @@ public class Button : MonoBehaviour {
 	}
 
 	private void OnValidate() {
-		//Resize();
+		Resize();
 	}
 
 #endif
@@ -132,13 +133,25 @@ public class Button : MonoBehaviour {
 	//
 	void UpdateIsPush() {
 		LayerMask lLayerMask = LayerMask.GetMask(new string[] { "Box", "Player" });
-		Collider[] lHitColliders = Physics.OverlapBox(mWeightCheckCollider.transform.position, mWeightCheckCollider.transform.localScale / 2.0f, mWeightCheckCollider.transform.rotation, lLayerMask);
 
 		bool lIsPush = false;
+
+		Collider[] lHitColliders = Physics.OverlapBox(mWeightCheckCollider.transform.position, mWeightCheckCollider.transform.localScale / 2.0f, mWeightCheckCollider.transform.rotation, lLayerMask);
 		foreach(var c in lHitColliders) {
 			if(c.gameObject.layer == LayerMask.NameToLayer("Box") || c.gameObject.layer == LayerMask.NameToLayer("Player")) {
 				lIsPush = true;
 				break;
+			}
+		}
+
+		foreach(var lSide in mSideCheckCollider) {
+			Collider[] lSideHitColliders = Physics.OverlapBox(lSide.transform.position, lSide.transform.localScale / 2.0f, lSide.transform.rotation, lLayerMask);
+			foreach (var c in lSideHitColliders) {
+				if (c.gameObject.layer == LayerMask.NameToLayer("Box") || c.gameObject.layer == LayerMask.NameToLayer("Player")) {
+					lIsPush = true;
+					mPushRate = 1.0f;
+					break;
+				}
 			}
 		}
 
@@ -196,5 +209,8 @@ public class Button : MonoBehaviour {
 
 	[SerializeField, Tooltip("押されているオブジェクトを見つけるときに使うコライダー"), EditOnPrefab]
 	GameObject mWeightCheckCollider;
+
+	[SerializeField, Tooltip("左右で引っかかっているオブジェクトを見つけるときに使うコライダー"), EditOnPrefab]
+	List<GameObject> mSideCheckCollider;
 	
 }
