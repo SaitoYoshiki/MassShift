@@ -82,7 +82,6 @@ public class Landing : MonoBehaviour {
 		}
 	}
 
-
 	[SerializeField] List<Collider> landColList = new List<Collider>();				// 接地しているオブジェクト
 	[SerializeField] List<Collider> landExtrusionColList = new List<Collider>();	// 押し出しによって接地しているオブジェクト
 
@@ -223,6 +222,14 @@ public class Landing : MonoBehaviour {
 		// 自身は接地対象から除く
 		for (int idx = landColList.Count - 1; idx >= 0; idx--) {
 			if (landColList[idx].gameObject == gameObject) {
+				landColList.RemoveAt(idx);
+			}
+		}
+
+		// 一致方向のすり抜け床の除外
+		for (int idx = landColList.Count - 1; idx >= 0; idx--) {
+			OnewayFloor oneway = landColList[idx].GetComponent<OnewayFloor>();
+			if (oneway && oneway.IsThrough(Vector3.up * MoveMng.PrevMove.y, gameObject)) {
 				landColList.RemoveAt(idx);
 			}
 		}
