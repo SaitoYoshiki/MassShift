@@ -80,6 +80,7 @@ public class Fan : MonoBehaviour {
 			//静的な箱なら、障害物扱いで風を止める
 			if (h.mGameObject.GetComponent<MoveManager>() == null) {
 				mWindHitDistance = h.mHitDistance;
+				Debug.Log("StaticBox", this);
 				break;
 			}
 
