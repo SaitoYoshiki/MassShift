@@ -5,8 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class cameraMove : MonoBehaviour {
 
-    private Vector3 cameraStartPoint = new Vector3(-41.0f, -0.0f, -15.0f);
-    private Vector3 cameraZoomPoint = new Vector3(-43.0f, -0.5f, -5.0f);
+    private Vector3 cameraStartPoint = new Vector3(-15.0f, -0.0f, -15.0f);
+    private Vector3 cameraZoomPoint = new Vector3(-17.0f, -0.5f, -5.0f);
     private Vector3 cameraEndPoint = new Vector3(0.0f, 1.0f, -50.0f);
 
     public float zoomInTime;
@@ -170,8 +170,6 @@ public class cameraMove : MonoBehaviour {
         goTutorialFlg = true;
 
         TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Single);
-        SceneManager.UnloadSceneAsync("Title");
-        //TutorialActive.allowSceneActivation = false;
     }
 
     public void OnStageSelectSelected() {
@@ -179,8 +177,6 @@ public class cameraMove : MonoBehaviour {
         goTutorialFlg = false;
 
         StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
-        SceneManager.UnloadSceneAsync("Title");
-        //TutorialActive.allowSceneActivation = false;
     }
 
     // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする
