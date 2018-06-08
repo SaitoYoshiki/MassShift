@@ -153,7 +153,10 @@ public class Fan : MonoBehaviour {
 
 		mFanModel.transform.rotation = Quaternion.Euler(0.0f, GetDirectionVector(mDirection).x * -mModelRotate, 0.0f);
 
-		foreach(var c in mHitColliderList) {
+		float lAngle = GetDirectionVector(mDirection).x < 0.0f ? 0.0f : 1.0f;
+		mWindEffect.transform.rotation = Quaternion.Euler(0.0f, lAngle * 180.0f, 0.0f);
+
+		foreach (var c in mHitColliderList) {
 			Vector3 lNewPos = c.gameObject.transform.localPosition;
 			lNewPos.x = Mathf.Abs(lNewPos.x) * GetDirectionVector(mDirection).x;
 			c.gameObject.transform.localPosition = lNewPos;
@@ -191,6 +194,9 @@ public class Fan : MonoBehaviour {
 
 	[SerializeField, EditOnPrefab, Tooltip("回転するファンのモデル")]
 	GameObject mRotateFanModel;
+
+	[SerializeField, EditOnPrefab, Tooltip("風のエフェクト")]
+	GameObject mWindEffect;
 
 	[SerializeField, EditOnPrefab, Tooltip("モデルを回転させる角度")]
 	float mModelRotate = 10.0f;
