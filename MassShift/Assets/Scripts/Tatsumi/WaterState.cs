@@ -44,7 +44,7 @@ public class WaterState : MonoBehaviour {
 		set {
 			// 変化時
 			if (IsWaterSurface != value) {
-//				IsWaterSurfaceChange = true;
+				IsWaterSurfaceChange = true;
 				
 				// trueへの変化時
 				if (value) {
@@ -60,16 +60,16 @@ public class WaterState : MonoBehaviour {
 			isWaterSurface = value;
 		}
 	}
-//	[SerializeField]
-//	bool isWaterSurfaceChange = false;
-//	public bool IsWaterSurfaceChange {
-//		get {
-//			return isWaterSurfaceChange;
-//		}
-//		set {
-//			isWaterSurfaceChange = value;
-//		}
-//	}
+	[SerializeField]
+	bool isWaterSurfaceChange = false;
+	public bool IsWaterSurfaceChange {
+		get {
+			return isWaterSurfaceChange;
+		}
+		set {
+			isWaterSurfaceChange = value;
+		}
+	}
 
 	//	[SerializeField] bool isWaterSurfaceChange = false;
 	//	public bool IsWaterSurfaceChange {

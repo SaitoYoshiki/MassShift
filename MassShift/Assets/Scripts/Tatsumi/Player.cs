@@ -120,6 +120,14 @@ public class Player : MonoBehaviour {
 		}
 	}
 
+	[SerializeField]
+	List<float> jumpWeightLvHeightInWater = new List<float>(3);	// 水中でのジャンプ力
+	float JumpHeightInWater {
+		get {
+			return jumpWeightLvHeightInWater[(int)WeightMng.WeightLv];
+		}
+	}
+
 	//	[SerializeField]
 	//	List<float> jumpWeightLvDis;       // 最大ジャンプ距離
 	//	float JumpDis {
@@ -375,18 +383,18 @@ public class Player : MonoBehaviour {
 			}
 		}
 
-//		// 着水アニメーション
-//		if (WaterStt.IsWaterSurfaceChange) {
-//			WaterStt.IsWaterSurfaceChange = false;
-//
-//			if (WaterStt.IsWaterSurface) {
-//				if (!Lift.IsLifting) {
-//					PlAnim.StartSwim();
-//				} else {
-//					PlAnim.StartHoldSwim();
-//				}
-//			}
-//		}
+		// 着水アニメーション
+		if (WaterStt.IsWaterSurfaceChange) {
+			WaterStt.IsWaterSurfaceChange = false;
+
+			if (WaterStt.IsWaterSurface) {
+				if (!Lift.IsLifting) {
+					PlAnim.StartLand();
+				} else {
+					PlAnim.StartHoldLand();
+				}
+			}
+		}
 
 		// 落下アニメーション
 		if (!Land.IsLanding && Land.IsLandingChange) {
@@ -502,7 +510,7 @@ public class Player : MonoBehaviour {
 		//		MoveMng.StopMoveHorizontalAll();
 
 		// 左右方向の移動量も一更新だけ制限
-//		MoveMng.OneTimeMaxSpd = jumpStartOneTimeLimitSpd;
+		//		MoveMng.OneTimeMaxSpd = jumpStartOneTimeLimitSpd;
 
 		// 上方向へ加速
 		//float jumpGravityForce = (0.5f * Mathf.Pow(jumpTime * 0.5f, 2) + jumpHeight);	// ジャンプ中の重力加速度
@@ -511,7 +519,12 @@ public class Player : MonoBehaviour {
 		//		MoveMng.AddMove(new Vector3(0.0f, (-jumpGravityForce * JumpTime * 0.5f), 0.0f));
 		//		Debug.Log(jumpGravityForce);
 
-		MoveMng.AddMove(new Vector3(0.0f, (JumpHeight), 0.0f));
+		// 離地方向に移動
+		if (!WaterStt.IsInWater) {
+			MoveMng.AddMove(new Vector3(0.0f, (JumpHeight), 0.0f));
+		} else {
+			MoveMng.AddMove(new Vector3(0.0f, (JumpHeightInWater), 0.0f));
+		}
 
 		// 離地
 		Land.IsLanding = false;
