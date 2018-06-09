@@ -7,7 +7,10 @@ public class Fan : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+		mWindStopEffect = Instantiate(mWindStopEffectPrefab, transform);
+
+		float lAngle = GetDirectionVector(mDirection).x < 0.0f ? 0.0f : 1.0f;
+		mWindStopEffect.transform.rotation = Quaternion.Euler(0.0f, lAngle * 180.0f, 0.0f);
 	}
 	
 	// Update is called once per frame
@@ -16,8 +19,9 @@ public class Fan : MonoBehaviour {
 		UpdateWindHitList();
 		ApplyWindMove();
 
-		//風のエフェクトを止める
-		mWindStop.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 0.5f);
+		//風のエフェクトを止めるコライダーの位置を更新
+		mWindStop.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 1.0f);
+		mWindStopEffect.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 0.5f);
 	}
 
 	//モデルの回転処理
@@ -218,6 +222,11 @@ public class Fan : MonoBehaviour {
 
 	[SerializeField, EditOnPrefab, Tooltip("風のエフェクト")]
 	GameObject mWindEffect;
+
+	[SerializeField, EditOnPrefab, Tooltip("風が障害物に当たっているところのエフェクト")]
+	GameObject mWindStopEffectPrefab;
+
+	GameObject mWindStopEffect;
 
 	[SerializeField, EditOnPrefab, Tooltip("モデルを回転させる角度")]
 	float mModelRotate = 10.0f;
