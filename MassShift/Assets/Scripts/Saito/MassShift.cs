@@ -1101,6 +1101,7 @@ public class MassShift : MonoBehaviour
 		if(_Debug_mInvisibleCursor) {
 			lNormal.SetActive(false);
 			lSelect.SetActive(false);
+			return;
 		}
 
 
