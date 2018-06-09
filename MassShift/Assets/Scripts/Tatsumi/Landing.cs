@@ -31,18 +31,18 @@ public class Landing : MonoBehaviour {
 				MoveMng.GravityCustomTime = 0.0f;
 
 				// 有効になった瞬間
-				IsLandingChange = true;
+				IsLandingTrueChange = true;
 			}
 		}
 	}
 
-	[SerializeField] bool isLandingChange = false;
-	public bool IsLandingChange {
+	[SerializeField] bool isLandingTrueChange = false;
+	public bool IsLandingTrueChange {
 		get {
-			return isLandingChange;
+			return isLandingTrueChange;
 		}
 		set {
-			isLandingChange = value;
+			isLandingTrueChange = value;
 		}
 	}
 		
@@ -69,16 +69,28 @@ public class Landing : MonoBehaviour {
 		get {
 			return isWaterFloatLanding;
 		}
+		set {
+			// 値に変更が無ければ処理しない
+			if (isWaterFloatLanding == value) return;
+
+			// 値の変更
+			isWaterFloatLanding = value;
+
+			// 有効化になった瞬間
+			if (value == true) {
+				IsWaterFloatLandingTrueChange = true;
+			}
+		}
 	}
 
 	[SerializeField]
-	bool isWaterFloatLandingChange = false;
-	public bool IsWaterFloatLandingChange {
+	bool isWaterFloatLandingTrueChange = false;
+	public bool IsWaterFloatLandingTrueChange {
 		get {
-			return isWaterFloatLandingChange;
+			return isWaterFloatLandingTrueChange;
 		}
 		set {
-			isWaterFloatLandingChange = value;
+			isWaterFloatLandingTrueChange = value;
 		}
 	}
 
@@ -290,8 +302,8 @@ public class Landing : MonoBehaviour {
 //	}
 
 	void UpdateWaterFloatLanding() {
-		bool prevIsWaterFloatLanding = isWaterFloatLanding;
-		isWaterFloatLanding = false;
+		bool prevIsWaterFloatLanding = IsWaterFloatLanding;
+		bool waterFloat = false;
 		// 水中で無く、水面に浮かぶ重さである場合
 		if (!WaterStt.IsInWater && (WeightMng.WeightLv == WeightManager.Weight.light)) {
 			// 水面に浮かぶオブジェクトの上に積まれていればtrue
@@ -301,16 +313,18 @@ public class Landing : MonoBehaviour {
 				// 水面に浮かぶオブジェクトが見つかればtrue
 				WaterState underPileWaterStt = underPileObj.GetComponent<WaterState>();
 				if (underPileWaterStt && underPileWaterStt.IsWaterSurface) {
-					isWaterFloatLanding = true;
+					waterFloat = true;
 					break;
 				}
 			}
 		}
 
-		// 値変化時
-		if (prevIsWaterFloatLanding != isWaterFloatLanding) {
-			IsWaterFloatLandingChange = true;
-		}
+		IsWaterFloatLanding = waterFloat;
+
+//		// 値変化時
+//		if (prevIsWaterFloatLanding != IsWaterFloatLanding) {
+//			IsWaterFloatLandingTrueChange = true;
+//		}
 
 //		Debug.LogWarning("UpdateWaterFloatLanding:" + IsWaterFloatLanding);
 	}

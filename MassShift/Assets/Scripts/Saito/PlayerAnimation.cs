@@ -68,6 +68,9 @@ public class PlayerAnimation : MonoBehaviour {
 
 		cSwim,
 		cHoldSwim,
+
+		cHandSpring,
+		cHoldHandSpring,
 	}
 
 	[SerializeField]
