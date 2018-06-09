@@ -60,7 +60,9 @@ public class Button : MonoBehaviour {
 		if(mBeforeButtonOn == false && IsButtonOn == true) {
 			ChangeLightColor(mButtonOnColor * mButtonOnColorPower);
 			SoundManager.SPlay(mPushSE);
-
+			var g = Instantiate(mPushEffect, transform);
+			g.transform.position = mPushEffectTransform.transform.position;
+			g.transform.rotation = mPushEffectTransform.transform.rotation;
 		}
 
 		//消えた瞬間
@@ -122,17 +124,24 @@ public class Button : MonoBehaviour {
 		cLeft,
 		cRight
 	}
-	[SerializeField, Tooltip("スイッチの方向")]
+	[SerializeField, Tooltip("ボタンの方向")]
 	CDirection mDirection;
 
-	[SerializeField, Tooltip("スイッチがオンになる、押される割合"), EditOnPrefab]
+	[SerializeField, Tooltip("ボタンがオンになる、押される割合"), EditOnPrefab]
 	float mPushRateOn = 1.0f;
 
-	[SerializeField, Tooltip("スイッチがオフになる、押される割合"), EditOnPrefab]
+	[SerializeField, Tooltip("ボタンがオフになる、押される割合"), EditOnPrefab]
 	float mPushRateOff = 1.0f;
 
-	[SerializeField, Tooltip("スイッチがオンになる時の音"), EditOnPrefab]
+	[SerializeField, Tooltip("ボタンがオンになる時の音"), EditOnPrefab]
 	GameObject mPushSE;
+
+	[SerializeField, Tooltip("ボタンが押されたときに発生するエフェクト"), EditOnPrefab]
+	GameObject mPushEffect;
+
+	[SerializeField, Tooltip("ボタンが押されたときに発生するエフェクトの、発生位置"), EditOnPrefab]
+	GameObject mPushEffectTransform;
+
 
 	float mPushingTime = 0.0f;	//押し続けられている時間
 
