@@ -44,6 +44,8 @@ public class LightBall : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	GameObject mModel;
 
+	[SerializeField]
+	List<GameObject> mStopEffectErase;
 
 	public void UpdatePoint() {
 		
@@ -153,6 +155,9 @@ public class LightBall : MonoBehaviour {
 		}
 		foreach (var p in mModel.GetComponentsInChildren<MeshRenderer>()) {
 			p.enabled = false;
+		}
+		foreach (var p in mStopEffectErase) {
+			p.SetActive(false);
 		}
 	}
 }
