@@ -50,6 +50,9 @@ public class cameraMove : MonoBehaviour {
         cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
 
         RenderSettings.ambientSkyColor = new Color(0.0f, 0.0f, 0.0f);
+
+        StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
+        StageSelectActive.allowSceneActivation = false;
 	}
 	
 	void Update () {
@@ -177,7 +180,7 @@ public class cameraMove : MonoBehaviour {
         cameraEndPoint = new Vector3(-32.0f, 1.0f, -50.0f);
         goTutorialFlg = false;
 
-        StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
+        StageSelectActive.allowSceneActivation = true;
     }
 
     // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする
