@@ -117,9 +117,15 @@ public class Goal : MonoBehaviour {
 	//ボタンが全てオンかどうか
 	public bool IsAllButtonOn {
 		get {
-			if (mTotalButtonOn_Debug) return true;
-			if (ButtonOnCount() == ButtonCount()) {
-				return true;
+			//強制的に開くフラグがtrueなら
+			if (mOpenForce) return true;
+
+			//ボタンの数が0ではなくて
+			if (ButtonCount() != 0) {
+				//全てのボタンが点灯していたら
+				if (ButtonOnCount() == ButtonCount()) {
+					return true;
+				}
 			}
 			return false;
 		}
@@ -301,8 +307,8 @@ public class Goal : MonoBehaviour {
 	//[SerializeField]
 	List<Button> mButtonList;
 
-	[SerializeField]
-	bool mTotalButtonOn_Debug;
+	[SerializeField, Tooltip("扉を強制的に開かせる")]
+	public bool mOpenForce = false;
 
 	bool mBeforeAllButtonOn = false;
 	int mBeforeButtonOnCount = 0;
