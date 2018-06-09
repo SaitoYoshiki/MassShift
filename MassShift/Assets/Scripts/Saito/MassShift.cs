@@ -528,6 +528,7 @@ public class MassShift : MonoBehaviour
 		//もし障害物に当たっていたら
 		if (lLightBall.IsHit) {
 			SoundManager.SPlay(mCancelShiftSE);
+			GenerateShiftFailedEffect(lLightBall.mHitPosition, lLightBall.mHitDirection);
 			ChangeState(CSelectState.cReturnToSource);
 			return;
 		}
@@ -554,6 +555,7 @@ public class MassShift : MonoBehaviour
 				MassShiftFail(mDest);
 				ChangeState(CSelectState.cReturnToSource);  //移し元へ光の弾は帰っていく
 				SoundManager.SPlay(mCantShiftSE);
+				GenerateShiftFailedEffect(lLightBall);
 				return;
 			}
 		}
@@ -872,8 +874,11 @@ public class MassShift : MonoBehaviour
 
 	GameObject mLightBallTemplate;	//ひな型としてインスタンス化しておく
 	GameObject mLightBall;	//重さを移すときに使う
-	List<GameObject> mLightBallShare = new List<GameObject>();	//共有ブロック間で移すときに使う
+	List<GameObject> mLightBallShare = new List<GameObject>();  //共有ブロック間で移すときに使う
 
+
+	[SerializeField, EditOnPrefab, Tooltip("重さを移すのに失敗したときのエフェクト")]
+	GameObject mShiftFailedEffectPrefab;
 
 	[SerializeField]
 	Color mCanSelectColor;
@@ -1072,11 +1077,25 @@ public class MassShift : MonoBehaviour
 	}
 
 
+	//各オブジェクトの、重さを移すのに失敗したときの動作を呼び出す
+	//
 	void MassShiftFail(GameObject aTarget) {
 		if (aTarget == null) return;
 		MassShiftFailed m = aTarget.GetComponent<MassShiftFailed>();
 		if (m == null) return;
 		m.MassShiftFail();
+	}
+
+	//重さを移すのに失敗したときのエフェクトを生成する
+	//
+	void GenerateShiftFailedEffect(Vector3 aPosition, Vector3 aDirection) {
+		var g = Instantiate(mShiftFailedEffectPrefab, transform);
+		g.transform.position = aPosition;
+		g.transform.rotation = Quaternion.FromToRotation(Vector3.up, aDirection);
+	}
+
+	void GenerateShiftFailedEffect(LightBall aLightBall) {
+		GenerateShiftFailedEffect(aLightBall.transform.position, aLightBall.To - aLightBall.From);
 	}
 
 
