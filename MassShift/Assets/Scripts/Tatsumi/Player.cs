@@ -61,11 +61,11 @@ public class Player : MonoBehaviour {
 	}
 	[SerializeField]
 	bool isRotation = false;
-	bool IsRotation {
+	public bool IsRotation {
 		get {
 			return isRotation;
 		}
-		set {
+		private set {
 			prevIsRotation = isRotation;
 			isRotation = value;
 		}
@@ -272,9 +272,13 @@ public class Player : MonoBehaviour {
 	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
 
 	[SerializeField]
-	float cameraLockSpd = 1.0f;			// 待機時のカメラの方を向く速さ
+	float cameraLookSpd = 1.0f;			// 待機時のカメラの方を向く速さ
 	[SerializeField]
-	float cameraLockCancelSpd = 1.0f;	// 待機時のカメラの方を向く状態を解除する速さ
+	float cameraLookCancelSpd = 1.0f;	// 待機時のカメラの方を向く状態を解除する速さ
+	[SerializeField]
+	float cameraLookMaxRatio = 0.3f;   // 待機時のカメラの方を向く最大比率
+	[SerializeField]
+	float cameraLookBorderSpd = 0.1f;	// カメラの方を向くようになる最高速度
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -383,16 +387,21 @@ public class Player : MonoBehaviour {
 				}
 			}
 		}
+
+		// 待機時に少しカメラ方向を向く
+		LookCamera();
 	}
 
 	void Walk() {
 		// 歩行アニメーション
 		if ((walkStandbyVec != 0.0f) && CanWalk) {
 			if (!WaterStt.IsWaterSurface) {
-				if (!Lift.IsLifting) {
-					PlAnim.StartWalk();
-				} else {
-					PlAnim.StartHoldWalk();
+				if (Land.IsLanding || Land.IsExtrusionLanding) {
+					if (!Lift.IsLifting) {
+						PlAnim.StartWalk();
+					} else {
+						PlAnim.StartHoldWalk();
+					}
 				}
 				PlAnim.SetSpeed(Mathf.Abs(walkStandbyVec));
 			}
@@ -688,16 +697,15 @@ public class Player : MonoBehaviour {
 		WaterStt.BeginWaterStopIgnore();
 	}
 
-//	void LockCamera() {
-//		Vector3 angle = modelTransform.rotation.eulerAngles;
-//		// 移動がなければ少しカメラ方向を向く
-//		if (MoveMng.TotalMove.x == 0.0f) {
-//			angle.y += (cameraLockSpd * -RotVec.x);
-//		}
-//		// 移動があればキャラクター進行方向を向く
-//		else {
-//			angle.y -= (Mathf.Min(cameraLockSpd, Mathf.Abs(angle.y)) * RotVec.x);
-//		}
-//		modelTransform.rotation = Quaternion.Euler(angle);
-//	}
+	void LookCamera() {
+		// 接地状態で移動がなければ少しカメラ方向を向く
+		if ((Land.IsLanding || land.IsWaterFloatLanding || WaterStt.IsWaterSurface) &&
+			(Mathf.Abs(MoveMng.TotalMove.magnitude) <= cameraLookBorderSpd)) {
+			
+		}
+		// 移動があればキャラクター進行方向を向く
+		else {
+
+		}
+	}
 }

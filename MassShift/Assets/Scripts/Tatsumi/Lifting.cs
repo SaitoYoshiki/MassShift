@@ -171,6 +171,13 @@ public class Lifting : MonoBehaviour {
 			MoveMng.StopMoveVirticalAll();
 			MoveMng.StopMoveHorizontalAll();
 
+			// 持ち上げ中オブジェクトを動かさない
+			MoveManager liftMoveMng = LiftObj.GetComponent<MoveManager>();
+			if (liftMoveMng) {
+				liftMoveMng.StopMoveVirticalAll();
+				liftMoveMng.StopMoveHorizontalAll();
+			}
+
 			// 持つオブジェクトの補間位置が現在のオブジェクトより高ければ
 			bool liftMoveFlg = false;
 			if (MoveMng.GravityForce < 0.0f) {	// 接地方向が下
@@ -425,6 +432,13 @@ public class Lifting : MonoBehaviour {
 
 			// 状態の変更
 			St = LiftState.liftUp;
+
+			// 持ち上げ中オブジェクトを動かさない
+			MoveManager liftMoveMng = LiftObj.GetComponent<MoveManager>();
+			if (liftMoveMng) {
+				liftMoveMng.StopMoveVirticalAll();
+				liftMoveMng.StopMoveHorizontalAll();
+			}
 
 			return liftObj;
 		}

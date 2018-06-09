@@ -441,6 +441,11 @@ public class MoveManager : MonoBehaviour {
 						canExtrusion = false;
 					}
 
+//					// 相手がボタンなら無条件で押し出す
+//					if(nearHitinfo.collider.tag == "Button") {
+//						canExtrusion = true;
+//					}
+
 					bool stopFlg = false;   // 移動量を削除するフラグ
 					bool breakFlg = false;
 
