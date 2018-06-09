@@ -330,9 +330,10 @@ public class Player : MonoBehaviour {
 		ClimbJump();
 
 		// 上下回転
-		if ((Land.IsLandingChange || Land.IsWaterFloatLandingChange) ||   // 着地時の判定
+		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
 			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {   // 入/出水時の戻り回転
-				prevIsInWater = WaterStt.IsInWater;
+
+			prevIsInWater = WaterStt.IsInWater;
 
 			// 必要なら回転アニメーション
 			float nowRotVec = RotVec.y;
@@ -352,10 +353,10 @@ public class Player : MonoBehaviour {
 		}
 
 		// 着地アニメーション
-		if ((Land.IsLanding && Land.IsLandingChange) ||
-			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingChange)) {
-			Land.IsLandingChange = false;
-			Land.IsWaterFloatLandingChange = false;
+		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
+			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
+			Land.IsLandingTrueChange = false;
+			Land.IsWaterFloatLandingTrueChange = false;
 			if (!Lift.IsLifting) {
 				PlAnim.StartLand();
 			} else {
@@ -377,16 +378,16 @@ public class Player : MonoBehaviour {
 		}
 
 		// 落下アニメーション
-		if (!Land.IsLanding && Land.IsLandingChange) {
-			Land.IsLandingChange = false;
-			if (!isJump) {
-				if (!Lift.IsLifting) {
-					PlAnim.StartFall();
-				} else {
-					PlAnim.StartHoldFall();
-				}
-			}
-		}
+//		if ((!Land.IsLanding && Land.IsLandingTrueChange) && (!Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
+//			Land.IsLandingTrueChange = false;
+//			if (!isJump) {
+//				if (!Lift.IsLifting) {
+//					PlAnim.StartFall();
+//				} else {
+//					PlAnim.StartHoldFall();
+//				}
+//			}
+//		}
 
 		// 待機時に少しカメラ方向を向く
 		LookCamera();
@@ -506,10 +507,10 @@ public class Player : MonoBehaviour {
 
 		// 離地方向に移動
 		if (!WaterStt.IsInWater || WaterStt.IsWaterSurface) {
-			Debug.LogWarning("landJump");
+//			Debug.LogWarning("landJump");
 			MoveMng.AddMove(new Vector3(0.0f, (JumpHeight), 0.0f));
 		} else {
-			Debug.LogWarning("inWaterJump");
+//			Debug.LogWarning("inWaterJump");
 			MoveMng.AddMove(new Vector3(0.0f, (JumpHeightInWater), 0.0f));
 		}
 
@@ -615,7 +616,7 @@ public class Player : MonoBehaviour {
 					WeightManager liftWeightMng = Lift.LiftObj.GetComponent<WeightManager>();
 					if (liftWeightMng && (liftWeightMng.WeightLv == WeightManager.Weight.heavy)) {
 						// 強制的に持っているブロックを離す
-						Lift.LiftDownFailed();
+						Lift.LiftDownObject();
 						WeightMng.LiftWeightMng = null;
 					}
 				}
