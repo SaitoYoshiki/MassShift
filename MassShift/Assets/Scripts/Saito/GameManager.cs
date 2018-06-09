@@ -116,6 +116,12 @@ public class GameManager : MonoBehaviour {
 		//ゲームメインのループ
 		while (true) {
 
+			//カメラのズームアウトが終わってから、移す操作を出来るようになる
+			if(mCameraMove.IsMoveEnd) {
+				OnCanShiftOperation();
+				mCameraMove.IsMoveEnd = false;
+			}
+
 			//ポーズ中なら
 			if(mPause.pauseFlg) {
 				//mMassShift.CanShift = false;
@@ -171,18 +177,30 @@ public class GameManager : MonoBehaviour {
 		return true;	//ゴール可能
 	}
 
+	//重さを移せなくなり、プレイヤーも動かせなくなる操作
+	//
 	void OnCantOperation() {
-		mMassShift.CanShift = false;    //重さを移せない
+		mMassShift.CanShift = false;
+		mMassShift.mInvisibleCursor = true;
 		mPlayer.CanWalk = false;
 		mPlayer.CanJump = false;
 		mPlayer.CanRotation = false;
 		mPause.canPause = false;
 	}
+
+	//プレイヤーが動けるようになり、ポーズも出来るようになる操作
+	//
 	void OnCanOperation() {
-		mMassShift.CanShift = true;    //重さを移せる
 		mPlayer.CanWalk = true;
 		mPlayer.CanJump = true;
 		mPlayer.CanRotation = true;
 		mPause.canPause = true;
+	}
+
+	//重さを移せるようになる操作
+	//
+	void OnCanShiftOperation() {
+		mMassShift.CanShift = true;    //重さを移せる
+		mMassShift.mInvisibleCursor = false;
 	}
 }

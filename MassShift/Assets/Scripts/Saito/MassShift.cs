@@ -760,7 +760,12 @@ public class MassShift : MonoBehaviour
 			mMassShiftLine.SetActive(false);
 
 			//カーソルも消す
-			ChangeCursorState(CCursorState.cCanNotShift);
+			if(mInvisibleCursor) {
+				ChangeCursorState(CCursorState.cInvisible);
+			}
+			else {
+				ChangeCursorState(CCursorState.cCanNotShift);
+			}
 		}
 
 		//外部からCanShiftにtrueを入れられないと、この状態からは変化しない
@@ -846,6 +851,7 @@ public class MassShift : MonoBehaviour
 		cNormal,	//移せる。何も操作していない時
 		cShotLineThrough,	//選択時、射線が通っている
 		cShotLineNotThrough,	//選択時、射線が通っていない
+		cInvisible,	//カーソルが見えない
 	}
 
 	[SerializeField, EditOnPrefab]
@@ -1020,7 +1026,7 @@ public class MassShift : MonoBehaviour
 	float mShiftOnValue = 0.8f;
 
 	[SerializeField, Tooltip("カーソルを見えなくする")]
-	bool _Debug_mInvisibleCursor = false;
+	public bool mInvisibleCursor = false;
 
 
 	//ジョイスティックでカーソルを動かす
@@ -1127,13 +1133,6 @@ public class MassShift : MonoBehaviour
 		GameObject lNormal = mCursor.transform.Find("Model/Normal").gameObject;
 		GameObject lSelect = mCursor.transform.Find("Model/Select").gameObject;
 
-		if(_Debug_mInvisibleCursor) {
-			lNormal.SetActive(false);
-			lSelect.SetActive(false);
-			return;
-		}
-
-
 		if (aCursorState == CCursorState.cNormal) {
 			lNormal.SetActive(false);
 			lSelect.SetActive(true);
@@ -1153,6 +1152,10 @@ public class MassShift : MonoBehaviour
 			lNormal.SetActive(false);
 			lSelect.SetActive(true);
 			lSelect.GetComponentInChildren<Renderer>().material.SetColor("_Color", mCanNotSelectColor * mCanNotSelectColorPower);
+		}
+		else if (aCursorState == CCursorState.cInvisible) {
+			lNormal.SetActive(false);
+			lSelect.SetActive(false);
 		}
 	}
 	
