@@ -85,19 +85,6 @@ public class Pause : MonoBehaviour {
     public void PauseFunc() {
         pauseFlg = !pauseFlg;
 
-        // ポーズ
-        /*if (Time.timeScale != 0.0f) {
-            Time.timeScale = 0.0f;
-            pauseCanvas.SetActive(true);
-            SoundManager.SPlay(PauseStartSEPrefab);
-        }
-        // ポーズ解除
-        else {
-            Time.timeScale = 1.0f;
-            pauseCanvas.SetActive(false);
-            //SoundManager.SPlay(PauseEndSEPrefab);
-        }*/
-
         if (pauseFlg) {
             Time.timeScale = 0.0f;
             pauseCanvas.SetActive(true);

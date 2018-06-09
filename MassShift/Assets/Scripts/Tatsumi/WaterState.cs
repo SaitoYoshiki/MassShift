@@ -6,6 +6,17 @@ public class WaterState : MonoBehaviour {
 	const float DefaultWaterIgnoreTime = 0.1f;
 
 	[SerializeField]
+	bool canFloat = true;
+	public bool CanFloat {
+		get {
+			return canFloat;
+		}
+		set {
+			canFloat = value;
+		}
+	}
+
+	[SerializeField]
 	bool isInWater = false;
 	public bool IsInWater {
 		get {
@@ -146,8 +157,10 @@ public class WaterState : MonoBehaviour {
 		if (IsInWater) {
 			// 水中なら
 			if (!IsWaterSurface) {
-				// 水による浮上
-				MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f));
+				if (CanFloat) {
+					// 水による浮上
+					MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f));
+				}
 			}
 			// 水上なら
 			else {

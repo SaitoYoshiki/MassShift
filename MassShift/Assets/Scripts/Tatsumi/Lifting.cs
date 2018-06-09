@@ -129,6 +129,11 @@ public class Lifting : MonoBehaviour {
 	[SerializeField]
 	float liftingPosOffset = -1.25f;
 
+	[SerializeField]
+	bool canHeavyLift = true;   // 自身より重いモノでも持てるフラグ、現状(2080609)の仕様では常にtrue
+
+	WaterState liftWaterStt = null;
+
 	void Awake() {
 		if (autoLiftingColMask) liftingColMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		if (autoBoxMask) boxMask = LayerMask.GetMask(new string[] { "Box" });
@@ -171,13 +176,27 @@ public class Lifting : MonoBehaviour {
 			MoveMng.StopMoveVirticalAll();
 			MoveMng.StopMoveHorizontalAll();
 
+			// 持ち上げ中オブジェクトを動かさない
+			MoveManager liftMoveMng = LiftObj.GetComponent<MoveManager>();
+			if (liftMoveMng) {
+				liftMoveMng.StopMoveVirticalAll();
+				liftMoveMng.StopMoveHorizontalAll();
+			}
+			
 			// 持つオブジェクトの補間位置が現在のオブジェクトより高ければ
 			bool liftMoveFlg = false;
-			if (MoveMng.GravityForce < 0.0f) {	// 接地方向が下
+			float landVec = MoveMng.GravityForce;
+			liftWaterStt = LiftObj.GetComponent<WaterState>();
+			WeightManager liftWeightMng = LiftObj.GetComponent<WeightManager>();
+			// 水中で水に浮く重さなら上方向に接地
+			if (liftWaterStt && liftWeightMng && liftWaterStt.IsInWater && !liftWaterStt.IsWaterSurface && liftWeightMng.WeightLv <= WeightManager.Weight.light) {
+				landVec = 1.0f;
+			}
+			if (landVec < 0.0f) {	// 接地方向が下
 				if (PlAnim.GetBoxPosition().y > liftObj.transform.position.y) {
 					liftMoveFlg = true;
 				}
-			} else {							// 接地方向が上
+			} else {				// 接地方向が上
 				if (PlAnim.GetBoxPosition().y < liftObj.transform.position.y) {
 					liftMoveFlg = true;
 				}
@@ -227,7 +246,7 @@ public class Lifting : MonoBehaviour {
 			// オブジェクトの位置を同期
 			if (!MoveManager.MoveTo(PlAnim.GetBoxPosition(), liftObj.GetComponent<BoxCollider>(), liftingColMask)) {
 				Debug.Log("下ろし失敗");
-				LiftDownFailed();
+				LiftDownObject();
 
 				return;
 			}
@@ -267,18 +286,8 @@ public class Lifting : MonoBehaviour {
 			if (!MoveManager.MoveTo(PlAnim.GetBoxPosition(), liftObj.GetComponent<BoxCollider>(), liftingColMask)) {
 				Debug.Log("持ち上げ失敗に失敗");
 
-				// 対象をすり抜けオブジェクトに追加
-				MoveMng.AddThroughCollider(liftObj.GetComponent<Collider>());
-
-				// 同期できなければ強制的に離す
-				LiftEndObject(liftObj, false);
-
-				// 下ろし処理後状態に
-				St = LiftState.standby;
-				afterHoldInput = true;
-
-				// 待機アニメーションへの遷移
-				PlAnim.ExitCatchFailed();
+				// オブジェクトを離す
+				LiftDownObject();
 
 				return;
 			}
@@ -332,7 +341,8 @@ public class Lifting : MonoBehaviour {
 
 		case LiftState.lifting:
 			// オブジェクトの位置を同期
-			MoveManager.MoveTo(PlAnim.GetBoxPosition(), liftObj.GetComponent<BoxCollider>(), liftingColMask);
+			//			MoveManager.MoveTo(PlAnim.GetBoxPosition(), liftObj.GetComponent<BoxCollider>(), liftingColMask);
+			LiftObj.transform.position = PlAnim.GetBoxPosition();
 
 			// プレイヤーのモデルと同じ回転をオブジェクトに加える
 			LiftObj.transform.rotation = modelTransform.rotation;
@@ -358,8 +368,18 @@ public class Lifting : MonoBehaviour {
 			List<RaycastHit> hitInfos = new List<RaycastHit>();
 			//			hitInfos.AddRange(Physics.BoxCastAll(transform.position, liftUpCol.localScale * 0.5f, (liftUpCol.position - transform.position),
 			//				liftPoint.rotation, Vector3.Distance(transform.position, liftUpCol.position), boxMask));
-			hitInfos.AddRange(Physics.BoxCastAll(liftUpCol.transform.position, liftUpCol.localScale * 0.5f, (transform.position - liftUpCol.position),
-				liftPoint.rotation, float.Epsilon, boxMask));
+			hitInfos.AddRange(Physics.BoxCastAll(liftUpCol.transform.position, liftUpCol.localScale * 0.5f, (transform.position - liftUpCol.position), liftPoint.rotation, float.Epsilon, boxMask));
+
+			// 浮いているオブジェクトは持ち上げられない
+			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+				Landing hitInfoLand = hitInfos[idx].collider.GetComponent<Landing>();
+				WaterState hitInfoWaterStt = hitInfos[idx].collider.GetComponent<WaterState>();
+				if ((!hitInfoLand || !hitInfoWaterStt) || 
+					(!hitInfoLand.IsLanding && !hitInfoLand.IsWaterFloatLanding && !hitInfoWaterStt.IsWaterSurface)) {
+					hitInfos.RemoveAt(idx);
+				}
+			}
+
 			GameObject liftableObj = null;
 			float dis = float.MaxValue;
 //			Debug.LogWarning(hitInfos.Count);
@@ -373,8 +393,10 @@ public class Lifting : MonoBehaviour {
 
 			// 持ち上げれるオブジェクトがあれば
 			if (liftableObj != null) {
-				// 重さがプレイヤーより重ければ失敗フラグを立てる
-				heavyFailedFlg = (Pl.GetComponent<WeightManager>().WeightLv<liftableObj.GetComponent<WeightManager>().WeightLv);
+				if (!canHeavyLift) {
+					// 重さがプレイヤーより重ければ失敗フラグを立てる
+					heavyFailedFlg = (Pl.GetComponent<WeightManager>().WeightLv < liftableObj.GetComponent<WeightManager>().WeightLv);
+				}
 
 				// ジャンプ、重さ変更、振り向きを不可に
 				Pl.CanJump = false;
@@ -384,6 +406,11 @@ public class Lifting : MonoBehaviour {
 				// 移動量を削除
 				MoveMng.StopMoveVirticalAll();
 				MoveMng.StopMoveHorizontalAll();
+
+				WaterState liftWaterStt = liftableObj.GetComponent<WaterState>();
+				if (liftWaterStt) {
+					liftWaterStt.CanFloat = false;
+				}
 
 				// 持ち上げ開始
 				return LiftUp(liftableObj);
@@ -425,6 +452,13 @@ public class Lifting : MonoBehaviour {
 
 			// 状態の変更
 			St = LiftState.liftUp;
+
+			// 持ち上げ中オブジェクトを動かさない
+			MoveManager liftMoveMng = LiftObj.GetComponent<MoveManager>();
+			if (liftMoveMng) {
+				liftMoveMng.StopMoveVirticalAll();
+				liftMoveMng.StopMoveHorizontalAll();
+			}
 
 			return liftObj;
 		}
@@ -593,12 +627,16 @@ public class Lifting : MonoBehaviour {
 		return ret;
 	}
 
-	public void LiftDownFailed() {
+	public void LiftDownObject() {
 		// 対象をすり抜けオブジェクトに追加
 		MoveMng.AddThroughCollider(liftObj.GetComponent<Collider>());
 
 		// 強制的に離す
 		LiftEndObject(liftObj, false);
+
+		// 対象の水中浮上可能フラグを戻す
+		liftWaterStt.CanFloat = true;
+		liftWaterStt = null;
 
 		// 下ろし処理後状態に
 		St = LiftState.standby;
