@@ -290,13 +290,13 @@ public class MassShift : MonoBehaviour
 				if (mSource.GetComponent<ShareWeightBox>()) {
 					ChangeState(CSelectState.cMoveFromShare);   //共有ボックスから重さが集まる状態へ
 					ShowAllModelHilight(false, Color.white);
-					//GetComponent<HitStop>().StartHitStop();
+					GetComponent<HitStop>().StartHitStop();
 					return;
 				}
 				else {
 					ChangeState(CSelectState.cMoveSourceToDest);    //重さを移す状態へ
 					ShowAllModelHilight(false, Color.white);
-					//GetComponent<HitStop>().StartHitStop();
+					GetComponent<HitStop>().StartHitStop();
 					return;
 				}
 			}
@@ -534,8 +534,8 @@ public class MassShift : MonoBehaviour
 					return;
 				}
 				else {
-					//GetComponent<HitStop>().StartHitStop();
 					ChangeState(CSelectState.cSuccess); //成功
+					GetComponent<HitStop>().StartHitStop();
 					return;
 				}
 			}
@@ -1009,6 +1009,9 @@ public class MassShift : MonoBehaviour
 	[SerializeField, Tooltip("重さを移す操作が有効になる、トリガーの最低入力値"), EditOnPrefab]
 	float mShiftOnValue = 0.8f;
 
+	[SerializeField, Tooltip("カーソルを見えなくする")]
+	bool _Debug_mInvisibleCursor = false;
+
 
 	//ジョイスティックでカーソルを動かす
 	//
@@ -1094,6 +1097,13 @@ public class MassShift : MonoBehaviour
 
 		GameObject lNormal = mCursor.transform.Find("Model/Normal").gameObject;
 		GameObject lSelect = mCursor.transform.Find("Model/Select").gameObject;
+
+		if(_Debug_mInvisibleCursor) {
+			lNormal.SetActive(false);
+			lSelect.SetActive(false);
+			return;
+		}
+
 
 		if (aCursorState == CCursorState.cNormal) {
 			lNormal.SetActive(false);

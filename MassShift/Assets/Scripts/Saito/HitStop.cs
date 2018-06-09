@@ -23,6 +23,14 @@ public class HitStop : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+		//ポーズ中なら処理しない
+		Pause p = FindObjectOfType<Pause>();
+		if (p) {
+			if(p.pauseFlg == true) {
+				return;
+			}
+		}
+
 		if(mIsHitStop) {
 			mNowTime += Time.unscaledDeltaTime;
 			if (mNowTime > mTime) {
