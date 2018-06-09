@@ -138,6 +138,7 @@ public class MassShift : MonoBehaviour
 			mMassShiftLine.SetActive(false);
 
 			//モデルのハイライトを消す
+			ShowAllModelHilight(false, Color.white);
 			ShowModelHilight(mSelect, false, Color.white);
 			ShowModelHilight(mSource, false, Color.white);
 			ShowModelHilight(mDest, false, Color.white);
@@ -157,8 +158,30 @@ public class MassShift : MonoBehaviour
 		mBeforeSelect = mSelect;
 		mSelect = GetNearestObject(GetNearWeightObject());
 
+
 		//モデルのハイライトを更新
-		UpdateModelHilight();
+		if (mBeforeSelect != mSelect) {
+
+			if (mBeforeSelect != null) {
+				ShowModelHilight(mBeforeSelect, false, Color.white);
+			}
+
+			if (mSelect != null) {
+
+				bool lCanSelect = false;
+				if (CanShiftSource(mSelect)) {
+					lCanSelect = true;
+				}
+
+				if (lCanSelect) {
+					ShowModelHilight(mSelect, true, mCanSelectColor * mCanSelectColorPower);
+				}
+				else {
+					ShowModelHilight(mSelect, true, mCanNotSelectColor * mCanNotSelectColorPower);
+				}
+			}
+		}
+
 
 		//もし重さを移すボタンが押されたら
 		if (GetShiftButton()) {
@@ -185,6 +208,8 @@ public class MassShift : MonoBehaviour
 			mMassShiftLine.SetActive(true);
 
 			//移す元のハイライトを出す
+			ShowAllModelHilight(true, mSourceColor * mSourceColorPower);
+
 			ShowModelHilight(mSource, true, mSourceColor * mSourceColorPower);
 
 			//通常時ではないカーソルを表示
@@ -195,16 +220,53 @@ public class MassShift : MonoBehaviour
 		mBeforeSelect = mSelect;
 		mSelect = GetNearestObject(GetNearWeightObject(), mSource);
 
-		//モデルのハイライトを更新
-		UpdateModelHilight();
 
-		
+		//モデルのハイライトを更新
+		if (mBeforeSelect != mSelect) {
+
+			if (mBeforeSelect != null) {
+				ShowModelHilight(mBeforeSelect, true, mSourceColor * mSourceColorPower);
+			}
+
+			if (mSelect != null) {
+
+				bool lCanSelect = false;
+				if (CanShiftSourceToDest(mSource, mSelect)) {
+					lCanSelect = true;
+				}
+
+				if (lCanSelect) {
+					ShowModelHilight(mSelect, true, mCanSelectColor * mCanSelectColorPower);
+					ShowModelHilight(mSource, true, mCanSelectColor * mCanSelectColorPower);
+				}
+				else {
+					ShowModelHilight(mSelect, true, mCanNotSelectColor * mCanNotSelectColorPower);
+					ShowModelHilight(mSource, true, mCanNotSelectColor * mCanNotSelectColorPower);
+				}
+			}
+		}
+
+
 		//選択されているオブジェクトがあるなら
 		if (mSelect != null) {
-			UpdateMassShiftLine(mMassShiftLine, mSource, mSelect);	//移す元から選択先へ
+			bool lThrough = UpdateMassShiftLine(mMassShiftLine, mSource, mSelect);	//移す元から選択先へ
+			if(lThrough) {
+				ShowModelHilight(mSelect, true, mCanSelectColor * mCanSelectColorPower);
+				ShowModelHilight(mSource, true, mCanSelectColor * mCanSelectColorPower);
+			}
+			else {
+				ShowModelHilight(mSelect, true, mCanNotSelectColor * mCanNotSelectColorPower);
+				ShowModelHilight(mSource, true, mCanNotSelectColor * mCanNotSelectColorPower);
+			}
 		}
 		else {
-			UpdateMassShiftLine(mMassShiftLine, mSource, mCursor);	//移す元からカーソルへ
+			bool lThrough = UpdateMassShiftLine(mMassShiftLine, mSource, mCursor);  //移す元からカーソルへ
+			if (lThrough) {
+				ShowModelHilight(mSource, true, mCanSelectColor * mCanSelectColorPower);
+			}
+			else {
+				ShowModelHilight(mSource, true, mCanNotSelectColor * mCanNotSelectColorPower);
+			}
 		}
 
 
@@ -227,11 +289,13 @@ public class MassShift : MonoBehaviour
 				//共有ボックスなら
 				if (mSource.GetComponent<ShareWeightBox>()) {
 					ChangeState(CSelectState.cMoveFromShare);   //共有ボックスから重さが集まる状態へ
+					ShowAllModelHilight(false, Color.white);
 					//GetComponent<HitStop>().StartHitStop();
 					return;
 				}
 				else {
 					ChangeState(CSelectState.cMoveSourceToDest);    //重さを移す状態へ
+					ShowAllModelHilight(false, Color.white);
 					//GetComponent<HitStop>().StartHitStop();
 					return;
 				}
@@ -650,6 +714,7 @@ public class MassShift : MonoBehaviour
 			mInitState = false;
 
 			//ハイライトを全て消す
+			ShowAllModelHilight(false, Color.white);
 			ShowModelHilight(mSelect, false, Color.white);
 			ShowModelHilight(mSource, false, Color.white);
 			ShowModelHilight(mDest, false, Color.white);
@@ -676,6 +741,7 @@ public class MassShift : MonoBehaviour
 			mInitState = false;
 
 			//ハイライトを全て消す
+			ShowAllModelHilight(false, Color.white);
 			ShowModelHilight(mSelect, false, Color.white);
 			ShowModelHilight(mSource, false, Color.white);
 			ShowModelHilight(mDest, false, Color.white);
@@ -997,7 +1063,7 @@ public class MassShift : MonoBehaviour
 
 	//重さを移す表示線の更新
 	//
-	void UpdateMassShiftLine(GameObject aMassShiftLine, GameObject aFrom, GameObject aTo) {
+	bool UpdateMassShiftLine(GameObject aMassShiftLine, GameObject aFrom, GameObject aTo) {
 
 		MassShiftLine lMassShiftLine = aMassShiftLine.GetComponent<MassShiftLine>();
 
@@ -1012,12 +1078,14 @@ public class MassShift : MonoBehaviour
 			//線とカーソルを、射線が通っているときの色にする
 			lMassShiftLine.ChangeColor(mCanSelectColor * mCanSelectColorPower);
 			ChangeCursorState(CCursorState.cShotLineThrough);
-			lMassShiftLine.UpdatePosition();	//線を移動させる
+			lMassShiftLine.UpdatePosition();    //線を移動させる
+			return true;
 		}
 		else {
 			//通っていない色にする
 			lMassShiftLine.ChangeColor(mCanNotSelectColor * mCanNotSelectColorPower);
 			ChangeCursorState(CCursorState.cShotLineNotThrough);
+			return false;
 		}
 	}
 
@@ -1048,38 +1116,14 @@ public class MassShift : MonoBehaviour
 			lSelect.GetComponentInChildren<Renderer>().material.SetColor("_Color", mCanNotSelectColor * mCanNotSelectColorPower);
 		}
 	}
+	
 
-
-
-	//モデルのハイライトの更新
+	//そのモデルのハイライトを表示・非表示にしたり、色を変更する
 	//
-	void UpdateModelHilight() {
+	void ShowAllModelHilight(bool aIsShow, Color aColor) {
 
-		if (mBeforeSelect != mSelect) {
-
-			if (mBeforeSelect != null) {
-				ShowModelHilight(mBeforeSelect, false, Color.white);
-			}
-			if (mSelect != null) {
-				bool lCanSelect = false;
-				if (mState == CSelectState.cNormal) {
-					if (CanShiftSource(mSelect)) {
-						lCanSelect = true;
-					}
-				}
-				else {
-					if (CanShiftSourceToDest(mSource, mSelect)) {
-						lCanSelect = true;
-					}
-				}
-
-				if (lCanSelect) {
-					ShowModelHilight(mSelect, true, mCanSelectColor * mCanSelectColorPower);
-				}
-				else {
-					ShowModelHilight(mSelect, true, mCanNotSelectColor * mCanNotSelectColorPower);
-				}
-			}
+		foreach(var w in FindObjectsOfType<WeightManager>()) {
+			ShowModelHilight(w.gameObject, aIsShow, aColor);
 		}
 	}
 
