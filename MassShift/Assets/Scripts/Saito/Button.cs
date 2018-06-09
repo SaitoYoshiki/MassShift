@@ -13,6 +13,11 @@ public class Button : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		
+	}
+
+	private void FixedUpdate() {
+		UpdateIsPush();
 
 		UpdatePushRate();
 		MoveLedge();
@@ -20,18 +25,23 @@ public class Button : MonoBehaviour {
 		UpdateEffect();
 	}
 
-	private void FixedUpdate() {
-		UpdateIsPush();
-	}
-
 	//押されている割合を更新する
 	void UpdatePushRate() {
 
 		if (IsPush) {
-			mPushRate += 1.0f / mPushTakeTime * Time.deltaTime;
+			//mPushRate += 1.0f / mPushTakeTime * Time.deltaTime;
+			mPushingTime += Time.fixedDeltaTime;
+			if(mPushingTime >= 0.1f) {
+				mPushRate = 1.0f;   //いきなり最大まで押し込む
+			}
+			else {
+				mPushRate = 0.0f;
+			}
 		}
 		else {
-			mPushRate -= 1.0f / mReleaseTakeTime * Time.deltaTime;
+			//mPushRate -= 1.0f / mReleaseTakeTime * Time.deltaTime;
+			mPushRate = 0.0f;   //いきなり戻る
+			mPushingTime = 0.0f;
 		}
 
 		mPushRate = Mathf.Clamp01(mPushRate);
@@ -80,6 +90,12 @@ public class Button : MonoBehaviour {
 			case CDirection.cDown:
 				transform.rotation = Quaternion.Euler(0.0f, 0.0f, 180.0f);
 				break;
+			case CDirection.cLeft:
+				transform.rotation = Quaternion.Euler(0.0f, 0.0f, 90.0f);
+				break;
+			case CDirection.cRight:
+				transform.rotation = Quaternion.Euler(0.0f, 0.0f, 270.0f);
+				break;
 			case CDirection.cNone:
 				Debug.LogError("Button Direction Is None", this);
 				break;
@@ -103,6 +119,8 @@ public class Button : MonoBehaviour {
 		cNone,
 		cUp,
 		cDown,
+		cLeft,
+		cRight
 	}
 	[SerializeField, Tooltip("スイッチの方向")]
 	CDirection mDirection;
@@ -116,6 +134,7 @@ public class Button : MonoBehaviour {
 	[SerializeField, Tooltip("スイッチがオンになる時の音"), EditOnPrefab]
 	GameObject mPushSE;
 
+	float mPushingTime = 0.0f;	//押し続けられている時間
 
 	float mPushRate;    //現在押されている割合
 
@@ -141,17 +160,6 @@ public class Button : MonoBehaviour {
 			if(c.gameObject.layer == LayerMask.NameToLayer("Box") || c.gameObject.layer == LayerMask.NameToLayer("Player")) {
 				lIsPush = true;
 				break;
-			}
-		}
-
-		foreach(var lSide in mSideCheckCollider) {
-			Collider[] lSideHitColliders = Physics.OverlapBox(lSide.transform.position, lSide.transform.localScale / 2.0f, lSide.transform.rotation, lLayerMask);
-			foreach (var c in lSideHitColliders) {
-				if (c.gameObject.layer == LayerMask.NameToLayer("Box") || c.gameObject.layer == LayerMask.NameToLayer("Player")) {
-					lIsPush = true;
-					mPushRate = 1.0f;
-					break;
-				}
 			}
 		}
 
@@ -210,7 +218,4 @@ public class Button : MonoBehaviour {
 	[SerializeField, Tooltip("押されているオブジェクトを見つけるときに使うコライダー"), EditOnPrefab]
 	GameObject mWeightCheckCollider;
 
-	[SerializeField, Tooltip("左右で引っかかっているオブジェクトを見つけるときに使うコライダー"), EditOnPrefab]
-	List<GameObject> mSideCheckCollider;
-	
 }
