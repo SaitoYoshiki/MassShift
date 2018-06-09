@@ -34,7 +34,7 @@ public class LandImpactShake : MonoBehaviour {
 					ShakeCamera.ShakeAll(mShakeTime, mShakeMagnitude / 2.0f); //カメラを揺らす（抑えめ）
 				}
 				else {
-					ShakeCamera.ShakeAll(mShakeTime, mShakeMagnitude); //カメラを揺らす
+					ShakeCamera.ShakeAll(mShakeTime, mShakeMagnitude * 3.0f); //カメラを揺らす
 				}
 			}
 		}
