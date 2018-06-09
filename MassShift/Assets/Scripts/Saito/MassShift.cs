@@ -1009,6 +1009,9 @@ public class MassShift : MonoBehaviour
 	[SerializeField, Tooltip("重さを移す操作が有効になる、トリガーの最低入力値"), EditOnPrefab]
 	float mShiftOnValue = 0.8f;
 
+	[SerializeField, Tooltip("カーソルを見えなくする")]
+	bool _Debug_mInvisibleCursor = false;
+
 
 	//ジョイスティックでカーソルを動かす
 	//
@@ -1094,6 +1097,12 @@ public class MassShift : MonoBehaviour
 
 		GameObject lNormal = mCursor.transform.Find("Model/Normal").gameObject;
 		GameObject lSelect = mCursor.transform.Find("Model/Select").gameObject;
+
+		if(_Debug_mInvisibleCursor) {
+			lNormal.SetActive(false);
+			lSelect.SetActive(false);
+		}
+
 
 		if (aCursorState == CCursorState.cNormal) {
 			lNormal.SetActive(false);
