@@ -30,13 +30,24 @@ public class LandImpactShake : MonoBehaviour {
 		if(aWeight == WeightManager.Weight.heavy) {
 			//水中か、地上に着地したら
 			if(aEnviroment == LandImpact.CEnviroment.cWater || aEnviroment == LandImpact.CEnviroment.cGround) {
-				if(mShakeDisHeight >= aFallDistance) {
-					ShakeCamera.ShakeAll(mShakeTime, mShakeMagnitude / 2.0f); //カメラを揺らす（抑えめ）
+				if (mShakeCoroutine != null) {
+					StopCoroutine(mShakeCoroutine);
+				}
+				
+				if (mShakeDisHeight >= aFallDistance) {
+					mShakeCoroutine = StartCoroutine(Shake(mShakeTime, mShakeMagnitude / 2.0f, 0.25f));	//カメラを揺らす（弱い）
 				}
 				else {
-					ShakeCamera.ShakeAll(mShakeTime, mShakeMagnitude * 3.0f); //カメラを揺らす
+					mShakeCoroutine = StartCoroutine(Shake(mShakeTime, mShakeMagnitude * 3.0f, 0.25f)); //カメラを揺らす（強い）
 				}
 			}
 		}
+	}
+
+	Coroutine mShakeCoroutine;
+	IEnumerator Shake(float aShakeTime, float aShakeMagnitude, float aShakeDelay) {
+		//待機
+		yield return new WaitForSeconds(aShakeDelay);
+		ShakeCamera.ShakeAll(aShakeTime, aShakeMagnitude); //カメラを揺らす
 	}
 }

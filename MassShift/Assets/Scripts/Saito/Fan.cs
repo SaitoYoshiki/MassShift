@@ -96,6 +96,17 @@ public class Fan : MonoBehaviour {
 			}
 			//風が適用されるオブジェクト
 			lRes.Add(h.mGameObject);
+			{
+				//Pileにも適用
+				foreach(var t in h.mGameObject.GetComponent<PileWeight>().GetPileBoxList(GetDirectionVector(mDirection))) {
+					if(t.GetComponent<WeightManager>().WeightLv == WeightManager.Weight.heavy) {
+						break;
+					}
+					lRes.Add(t.gameObject);
+				}
+			}
+			mWindHitDistance = h.mHitDistance;
+			break;	//1つで風が適用されるオブジェクトは1つだけ
 		}
 
 		return lRes;
