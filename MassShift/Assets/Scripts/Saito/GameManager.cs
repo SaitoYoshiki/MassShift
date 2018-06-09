@@ -32,6 +32,12 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
+
+		//エリア番号とステージ番号を書き込む
+		Area.sNowAreaNumber = Area.GetAreaNumber();
+		Area.sNowStageNumber = Area.GetStageNumber();
+
+		//コンポーネントのキャッシュ
 		mMassShift = FindObjectOfType<MassShift>();
 		mPlayer = FindObjectOfType<Player>();
 		mGoal = FindObjectOfType<Goal>();
