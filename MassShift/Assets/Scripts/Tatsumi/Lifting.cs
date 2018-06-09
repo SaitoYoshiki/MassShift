@@ -525,6 +525,13 @@ public class Lifting : MonoBehaviour {
 		}
 		// 下ろし切ったのなら
 		else {
+			// 対象をすり抜けオブジェクトに追加
+			MoveMng.AddThroughCollider(liftObj.GetComponent<Collider>());
+
+			// 対象の水中浮上可能フラグを戻す
+			liftWaterStt.CanFloat = true;
+			liftWaterStt = null;
+
 			// 処理後状態に
 			St = LiftState.standby;
 			afterHoldInput = true;
@@ -631,12 +638,12 @@ public class Lifting : MonoBehaviour {
 		// 対象をすり抜けオブジェクトに追加
 		MoveMng.AddThroughCollider(liftObj.GetComponent<Collider>());
 
-		// 強制的に離す
-		LiftEndObject(liftObj, false);
-
 		// 対象の水中浮上可能フラグを戻す
 		liftWaterStt.CanFloat = true;
 		liftWaterStt = null;
+
+		// 離す
+		LiftEndObject(liftObj, false);
 
 		// 下ろし処理後状態に
 		St = LiftState.standby;
