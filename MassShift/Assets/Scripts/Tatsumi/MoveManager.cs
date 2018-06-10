@@ -648,6 +648,7 @@ public class MoveManager : MonoBehaviour {
 					}
 				}
 				dis -= ColMargin;
+				dis = Mathf.Max(dis, 0.0f);
 				//				Debug.LogError("dis:" + dis);
 
 				// x軸は押し出しを行わない
