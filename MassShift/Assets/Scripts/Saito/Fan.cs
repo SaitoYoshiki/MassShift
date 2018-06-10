@@ -21,6 +21,8 @@ public class Fan : MonoBehaviour {
 
 		//風のエフェクトを止めるコライダーの位置を更新
 		mWindStop.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 1.0f);
+
+		//風が止まった位置に出すエフェクトの、位置を更新
 		mWindStopEffect.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 0.5f);
 	}
 
@@ -28,7 +30,7 @@ public class Fan : MonoBehaviour {
 	void UpdateRotate() {
 		float lRotateDegree = Time.fixedDeltaTime * 360.0f * mRotateSpeed;
 		//mRotateFanModel.transform.localRotation *= Quaternion.Euler(0.0f, 0.0f, lRotateDegree);
-		mRotateFanModel.transform.localRotation *= Quaternion.Euler(lRotateDegree, 0.0f, 0.0f);
+		mRotateFanModel.transform.localRotation *= Quaternion.Euler(lRotateDegree, 0.0f, 0.0f);	//元のモデルが回転しているため、こういう訳の分からない回転に
 	}
 
 	//風に当たっているオブジェクトのリストを取得
@@ -44,8 +46,16 @@ public class Fan : MonoBehaviour {
 			WeightManager hitWeightMng = windHit.GetComponent<WeightManager>();
 			if (hitMoveMng && hitWeightMng &&
 				(hitWeightMng.WeightLv < WeightManager.Weight.heavy)) {
+
+				Vector3 lBeforePosition = hitMoveMng.transform.position;
+
 				// 左右移動を加える
-				if (MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, (BoxCollider)hitMoveMng.UseCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" }))) {
+				MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, (BoxCollider)hitMoveMng.UseCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" }));
+
+
+				//風で少しでも移動出来ていたら、オブジェクトの重力の動きを無くす
+				Vector3 lAfterPosition = hitMoveMng.transform.position;
+				if ((lAfterPosition.x - lBeforePosition.x) != 0.0f) {
 					// 上下の移動量を削除
 					hitMoveMng.StopMoveVirticalAll();
 
@@ -241,4 +251,5 @@ public class Fan : MonoBehaviour {
 	int mHitConditionCount = 3;
 
 	float mWindHitDistance = float.MaxValue;
+
 }
