@@ -22,6 +22,7 @@ public class Goal : MonoBehaviour {
 
 		TurnLamp();
 
+		mAllPlayerList = FindObjectsOfType<Player>().ToList();
 	}
 	
 	// Update is called once per frame
@@ -30,6 +31,8 @@ public class Goal : MonoBehaviour {
 		ModelAnimation();
 
 		UpdateLamp();
+	}
+	private void FixedUpdate() {
 		UpdateInPlayer();
 	}
 
@@ -117,9 +120,15 @@ public class Goal : MonoBehaviour {
 	//ボタンが全てオンかどうか
 	public bool IsAllButtonOn {
 		get {
-			if (mTotalButtonOn_Debug) return true;
-			if (ButtonOnCount() == ButtonCount()) {
-				return true;
+			//強制的に開くフラグがtrueなら
+			if (mOpenForce) return true;
+
+			//ボタンの数が0ではなくて
+			if (ButtonCount() != 0) {
+				//全てのボタンが点灯していたら
+				if (ButtonOnCount() == ButtonCount()) {
+					return true;
+				}
 			}
 			return false;
 		}
@@ -128,8 +137,7 @@ public class Goal : MonoBehaviour {
 
 	List<Player> GetInPlayer() {
 		var pl = new List<Player>();
-		foreach(var p in FindObjectsOfType<Player>())
-		{
+		foreach(var p in mAllPlayerList) {
 			if(IsCollisionComplete(mGoalTrigger.GetComponent<BoxCollider>(), p.GetComponent<Collider>())) {
 				pl.Add(p);
 			}
@@ -301,8 +309,10 @@ public class Goal : MonoBehaviour {
 	//[SerializeField]
 	List<Button> mButtonList;
 
-	[SerializeField]
-	bool mTotalButtonOn_Debug;
+	List<Player> mAllPlayerList;
+
+	[SerializeField, Tooltip("扉を強制的に開かせる")]
+	public bool mOpenForce = false;
 
 	bool mBeforeAllButtonOn = false;
 	int mBeforeButtonOnCount = 0;

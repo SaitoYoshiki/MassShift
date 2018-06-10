@@ -11,7 +11,10 @@ public class OnewayFloor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		UpdateInObject();
+
+		//必要になったときに計算することにした。実行順などで、不安定になったため。
+		//また、処理の重さも大して変わらない。もしかすると軽くなるかも
+		//UpdateInObject();
 	}
 
 
@@ -47,6 +50,9 @@ public class OnewayFloor : MonoBehaviour {
 
 	//その方向にすり抜けられるか
 	public bool IsThrough(Vector3 aVec, GameObject aGameObject) {
+
+		UpdateInObject();
+
 		//そのオブジェクトがすり抜け床にめり込んでいたら、自由に動ける
 		if (mInObjectList.Contains(aGameObject)) {
 			return true;
@@ -118,7 +124,7 @@ public class OnewayFloor : MonoBehaviour {
 				transform.rotation = Quaternion.identity;
 				break;
 			case CDirection.cDown:
-				transform.rotation = Quaternion.Euler(0.0f, 0.0f, 180.0f);
+				transform.rotation = new Quaternion(0.0f, 0.0f, 1.0f, 0.0f);	//EulerAngleだと微妙な誤差が出るので、直に入れる
 				break;
 		}
 	}

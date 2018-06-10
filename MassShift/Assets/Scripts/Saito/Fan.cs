@@ -7,7 +7,10 @@ public class Fan : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+		mWindStopEffect = Instantiate(mWindStopEffectPrefab, transform);
+
+		float lAngle = GetDirectionVector(mDirection).x < 0.0f ? 0.0f : 1.0f;
+		mWindStopEffect.transform.rotation = Quaternion.Euler(0.0f, lAngle * 180.0f, 0.0f);
 	}
 	
 	// Update is called once per frame
@@ -16,15 +19,18 @@ public class Fan : MonoBehaviour {
 		UpdateWindHitList();
 		ApplyWindMove();
 
-		//風のエフェクトを止める
-		mWindStop.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 0.5f);
+		//風のエフェクトを止めるコライダーの位置を更新
+		mWindStop.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 1.0f);
+
+		//風が止まった位置に出すエフェクトの、位置を更新
+		mWindStopEffect.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 0.5f);
 	}
 
 	//モデルの回転処理
 	void UpdateRotate() {
 		float lRotateDegree = Time.fixedDeltaTime * 360.0f * mRotateSpeed;
 		//mRotateFanModel.transform.localRotation *= Quaternion.Euler(0.0f, 0.0f, lRotateDegree);
-		mRotateFanModel.transform.localRotation *= Quaternion.Euler(lRotateDegree, 0.0f, 0.0f);
+		mRotateFanModel.transform.localRotation *= Quaternion.Euler(lRotateDegree, 0.0f, 0.0f);	//元のモデルが回転しているため、こういう訳の分からない回転に
 	}
 
 	//風に当たっているオブジェクトのリストを取得
@@ -40,8 +46,16 @@ public class Fan : MonoBehaviour {
 			WeightManager hitWeightMng = windHit.GetComponent<WeightManager>();
 			if (hitMoveMng && hitWeightMng &&
 				(hitWeightMng.WeightLv < WeightManager.Weight.heavy)) {
+
+				Vector3 lBeforePosition = hitMoveMng.transform.position;
+
 				// 左右移動を加える
-				if (MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, (BoxCollider)hitMoveMng.UseCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" }))) {
+				MoveManager.Move(GetDirectionVector(mDirection) * mWindMoveSpeed, (BoxCollider)hitMoveMng.UseCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" }));
+
+
+				//風で少しでも移動出来ていたら、オブジェクトの重力の動きを無くす
+				Vector3 lAfterPosition = hitMoveMng.transform.position;
+				if (Mathf.Approximately(lAfterPosition.x, lBeforePosition.x) == false) {
 					// 上下の移動量を削除
 					hitMoveMng.StopMoveVirticalAll();
 
@@ -57,7 +71,7 @@ public class Fan : MonoBehaviour {
 
 		var lBase = new List<HitData>();
 		foreach(var c in mHitColliderList) {
-			List<HitData> tHit = GetHitListEachCollider(c);
+			IEnumerable<HitData> tHit = GetHitListEachCollider(c);
 			MergeHitDataList(lBase, tHit);
 		}
 
@@ -112,13 +126,13 @@ public class Fan : MonoBehaviour {
 		return lRes;
 	}
 
-	List<HitData> GetHitListEachCollider(GameObject aCollider) {
+	IEnumerable<HitData> GetHitListEachCollider(GameObject aCollider) {
 		LayerMask l = LayerMask.GetMask(new string[] { "Player", "Box", "Stage" });
 		var rc = Physics.BoxCastAll(aCollider.transform.position, aCollider.transform.lossyScale / 2.0f, GetDirectionVector(mDirection), aCollider.transform.rotation, 100.0f, l);
-		return rc.Select(x => new HitData() { mGameObject = x.collider.gameObject, mHitTimes = 1, mHitDistance = x.distance }).ToList();
+		return rc.Select(x => new HitData() { mGameObject = x.collider.gameObject, mHitTimes = 1, mHitDistance = x.distance });
 	}
 
-	void MergeHitDataList(List<HitData> aBase, List<HitData> aAdd) {
+	void MergeHitDataList(List<HitData> aBase, IEnumerable<HitData> aAdd) {
 		foreach(var a in aAdd) {
 			bool lAlreadyExist = false;
 			foreach (var b in aBase) {
@@ -219,6 +233,11 @@ public class Fan : MonoBehaviour {
 	[SerializeField, EditOnPrefab, Tooltip("風のエフェクト")]
 	GameObject mWindEffect;
 
+	[SerializeField, EditOnPrefab, Tooltip("風が障害物に当たっているところのエフェクト")]
+	GameObject mWindStopEffectPrefab;
+
+	GameObject mWindStopEffect;
+
 	[SerializeField, EditOnPrefab, Tooltip("モデルを回転させる角度")]
 	float mModelRotate = 10.0f;
 
@@ -232,4 +251,5 @@ public class Fan : MonoBehaviour {
 	int mHitConditionCount = 3;
 
 	float mWindHitDistance = float.MaxValue;
+
 }

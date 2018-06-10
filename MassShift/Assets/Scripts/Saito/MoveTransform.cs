@@ -40,7 +40,7 @@ public class MoveTransform : MonoBehaviour {
 
 			transform.position = Vector3.Lerp(mStartPosition, mEndPosition, t);
 
-			if(IsMoveEnd()) {
+			if(IsMoveEnd) {
 				mIsMove = false;
 			}
 		}
@@ -51,8 +51,13 @@ public class MoveTransform : MonoBehaviour {
 		mDeltaTime = 0.0f;
 	}
 
-	public bool IsMoveEnd() {
-		return mDeltaTime >= mTakeTime;
+	public bool IsMoveEnd {
+		get {
+			return mDeltaTime >= mTakeTime;
+		}
+		set {
+			mDeltaTime = 0.0f;
+		}
 	}
 
 	public void MoveStartPoisition() {
