@@ -201,6 +201,10 @@ public class MoveManager : MonoBehaviour {
 	[SerializeField]
 	List<Collider> throughColList = new List<Collider>(); // 例外的なめり込みが発生しているコライダーリスト
 
+	//test
+	static int testCnt = 0;
+	static float testTime = 0.0f;
+
 	void Awake() {
 		if (autoMask) mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });
 	}
@@ -449,7 +453,7 @@ public class MoveManager : MonoBehaviour {
 					bool stopFlg = false;   // 移動量を削除するフラグ
 					bool breakFlg = false;
 
-	
+
 					// 押し出せない場合
 					if (!canExtrusion) {
 						// 直前まで移動
@@ -480,8 +484,18 @@ public class MoveManager : MonoBehaviour {
 
 						// 押し出しを行い、押し出し切れた場合
 						//if (Move(new Vector3(0.0f, (_move.y - dis), 0.0f), (BoxCollider)nearHitinfo.collider, _mask,
+
+						if(testTime != Time.time) {
+							testTime = Time.time;
+							testCnt = 0;
+						}
+						if(testCnt < 10) {
+							Debug.LogWarning(_moveCol.name + " " + hitMoveMng.name);
+							testCnt++;
+						}
+
 						if (Move(new Vector3(0.0f, moveVec.y * otherMoveDistance, 0.0f), (BoxCollider)nearHitinfo.collider, _mask,
-							false, (moveMng.extrusionForcible || _extrusionForcible), _ignoreColList)) {	// 押し出し優先情報を使用
+							false, (moveMng.extrusionForcible || _extrusionForcible), _ignoreColList)) {    // 押し出し優先情報を使用
 							// 自身は指定通り移動
 							Move(new Vector3(0.0f, _move.y, 0.0f), _moveCol, _mask, true, false, _ignoreColList);  // 押し出し不可移動
 						}
