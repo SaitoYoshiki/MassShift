@@ -1064,14 +1064,16 @@ public class MassShift : MonoBehaviour
 	//
 	Vector3 GetMassPosition(GameObject aGameObject) {
 
-		Transform lWeightParticle = aGameObject.transform.Find("WeightParticle");
-		if (lWeightParticle != null) {
-			return lWeightParticle.position;
+		//プレイヤー用
+		Transform lMassPosition = aGameObject.transform.Find("Offset/RotOffset/Rotation/ModelOffset/WeightPosition");
+		if (lMassPosition != null) {
+			return lMassPosition.position;
 		}
 
-		lWeightParticle = aGameObject.transform.Find("Rotation/WeightParticle");
-		if (lWeightParticle != null) {
-			return lWeightParticle.position;
+		//その他のボックス用
+		lMassPosition = aGameObject.transform.Find("WeightParticle");
+		if (lMassPosition != null) {
+			return lMassPosition.position;
 		}
 
 		return aGameObject.transform.position;
@@ -1144,7 +1146,7 @@ public class MassShift : MonoBehaviour
 	}
 
 	bool IsThrough(GameObject aFrom, GameObject aTo) {
-		return mLightBallTemplate.GetComponent<LightBall>().ThroughShotLine(aFrom.transform.position, aTo.transform.position, new GameObject[] { aFrom, aTo }.ToList());
+		return mLightBallTemplate.GetComponent<LightBall>().ThroughShotLine(GetMassPosition(aFrom), GetMassPosition(aTo), new GameObject[] { aFrom, aTo }.ToList());
 	}
 
 
