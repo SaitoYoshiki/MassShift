@@ -22,6 +22,9 @@ public class MassShift : MonoBehaviour
 
 		mLightBall = null;
 
+		mAllWeightModel = FindObjectsOfType<WeightManager>();
+		mPlayer = FindObjectOfType<Player>();
+
 		Cursor.visible = false;
 	}
 
@@ -56,13 +59,11 @@ public class MassShift : MonoBehaviour
 	}
 
 	void PlayerIsShift(bool aValue) {
-		var p = FindObjectOfType<Player>();
-		if (p == null) return;
+		if (mPlayer == null) return;
 		//p.IsShift = aValue;
 	}
 	bool PlayerCanShift() {
-		var p = FindObjectOfType<Player>();
-		if (p == null) return true;
+		if (mPlayer == null) return true;
 		return true;
 		//return p.CanShift;
 	}
@@ -1183,11 +1184,13 @@ public class MassShift : MonoBehaviour
 	//
 	void ShowAllModelHilight(bool aIsShow, Color aColor) {
 
-		foreach(var w in FindObjectsOfType<WeightManager>()) {
+		foreach(var w in mAllWeightModel) {
 			ShowModelHilight(w.gameObject, aIsShow, aColor);
 		}
 	}
+	WeightManager[] mAllWeightModel;
 
+	Player mPlayer;
 
 	//そのモデルのハイライトを表示・非表示にしたり、色を変更する
 	//

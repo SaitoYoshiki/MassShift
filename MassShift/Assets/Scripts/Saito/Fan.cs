@@ -61,7 +61,7 @@ public class Fan : MonoBehaviour {
 
 		var lBase = new List<HitData>();
 		foreach(var c in mHitColliderList) {
-			List<HitData> tHit = GetHitListEachCollider(c);
+			IEnumerable<HitData> tHit = GetHitListEachCollider(c);
 			MergeHitDataList(lBase, tHit);
 		}
 
@@ -116,13 +116,13 @@ public class Fan : MonoBehaviour {
 		return lRes;
 	}
 
-	List<HitData> GetHitListEachCollider(GameObject aCollider) {
+	IEnumerable<HitData> GetHitListEachCollider(GameObject aCollider) {
 		LayerMask l = LayerMask.GetMask(new string[] { "Player", "Box", "Stage" });
 		var rc = Physics.BoxCastAll(aCollider.transform.position, aCollider.transform.lossyScale / 2.0f, GetDirectionVector(mDirection), aCollider.transform.rotation, 100.0f, l);
-		return rc.Select(x => new HitData() { mGameObject = x.collider.gameObject, mHitTimes = 1, mHitDistance = x.distance }).ToList();
+		return rc.Select(x => new HitData() { mGameObject = x.collider.gameObject, mHitTimes = 1, mHitDistance = x.distance });
 	}
 
-	void MergeHitDataList(List<HitData> aBase, List<HitData> aAdd) {
+	void MergeHitDataList(List<HitData> aBase, IEnumerable<HitData> aAdd) {
 		foreach(var a in aAdd) {
 			bool lAlreadyExist = false;
 			foreach (var b in aBase) {
