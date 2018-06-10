@@ -159,6 +159,8 @@ public class Player : MonoBehaviour {
 	bool prevIsLanding = false;
 	[SerializeField]
 	bool prevIsWaterFloatLanding = false;
+	[SerializeField]
+	bool prevFallFlg = false;
 
 	WeightManager weightMng = null;
 	WeightManager WeightMng {
@@ -390,6 +392,16 @@ public class Player : MonoBehaviour {
 		}
 
 		// 落下アニメーション
+		bool fallFlg = (!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface);
+		if (fallFlg && !prevFallFlg) {
+			if (!Lift.IsLifting) {
+				PlAnim.StartFall();
+			} else {
+				PlAnim.StartHoldFall();
+			}
+		}
+		prevFallFlg = fallFlg;
+
 //		if ((!Land.IsLanding && Land.IsLandingTrueChange) && (!Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
 //			Land.IsLandingTrueChange = false;
 //			if (!isJump) {
