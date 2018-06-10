@@ -55,7 +55,7 @@ public class Fan : MonoBehaviour {
 
 				//風で少しでも移動出来ていたら、オブジェクトの重力の動きを無くす
 				Vector3 lAfterPosition = hitMoveMng.transform.position;
-				if ((lAfterPosition.x - lBeforePosition.x) != 0.0f) {
+				if (Mathf.Approximately(lAfterPosition.x, lBeforePosition.x) == false) {
 					// 上下の移動量を削除
 					hitMoveMng.StopMoveVirticalAll();
 
