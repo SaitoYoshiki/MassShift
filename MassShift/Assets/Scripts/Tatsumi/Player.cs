@@ -305,6 +305,22 @@ public class Player : MonoBehaviour {
 			return (HandSpringEndTime > Time.time);
 		}
 	}
+	[SerializeField]
+	List<float> handSpringJumpWeightLvHeight = new List<float>(3);    // ジャンプ天井回転力
+	float HandSpringJumpHeight {
+		get {
+			return handSpringJumpWeightLvHeight[(int)WeightMng.WeightLv];
+		}
+	}
+	[SerializeField]
+	List<float> handSpringJumpWeightLvHeightInWater = new List<float>(3); // 水中での天井回転ジャンプ力
+	float HandSpringJumpHeightInWater {
+		get {
+			return handSpringJumpWeightLvHeightInWater[(int)WeightMng.WeightLv];
+		}
+	}
+
+
 
 	[SerializeField]
 	float cameraLookRatio = 0.0f;			// カメラの方を向いている比率
@@ -367,7 +383,7 @@ public class Player : MonoBehaviour {
 		}
 		prevFallFlg = fallFlg;
 
-		// 持ち下ろしアニメーション中以外なら
+		// 持ち下ろしアニメーション中でなければ
 		if (!Lift.IsLiftStop) {
 			// 左右移動
 			Walk();
@@ -638,8 +654,14 @@ public class Player : MonoBehaviour {
 			IsRotation = true;
 			IsHandSpring = true;
 			return;
-		}else {
-			IsHandSpring = false;
+		} else {
+			// 回転待ち終了時
+			if (IsHandSpring) {
+				IsHandSpring = false;
+
+				// 離地方向に跳ねる
+				HandSpringJump();
+			}
 		}
 
 		//		// 持ち上げモーション中は処理しない
@@ -805,10 +827,30 @@ public class Player : MonoBehaviour {
 		cameraLookRatio = Mathf.Clamp(cameraLookRatio, 0.0f, cameraLookMaxRatio);
 
 		// モデルの向きを設定
-//		modelTransform.rotation = Quaternion.Slerp(Quaternion.identity, Quaternion.Euler(0.0f, 180.0f, 0.0f), cameraLookRatio);
-//		Debug.LogWarning(modelTransform.rotation.eulerAngles);
+		modelTransform.rotation = Quaternion.Slerp(Quaternion.LookRotation(transform.transform.right), Quaternion.LookRotation(Vector3.left), cameraLookRatio);
+		Debug.LogWarning(modelTransform.rotation.eulerAngles);
 
 		//test
 //		modelTransform.rotation = modelTransform.rotation * Quaternion.Euler(new Vector3(0.0f, 100.0f, 0.0f));
+	}
+
+	void HandSpringJump() {
+		// 前回までの上下方向の加速度を削除
+		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+
+		// 左右方向の移動量をジャンプ中速度まで下げる
+		MoveMng.PrevMove = new Vector3(Mathf.Sign(MoveMng.PrevMove.x) * Mathf.Clamp(MoveMng.PrevMove.x, -JumpSpd, JumpSpd), MoveMng.PrevMove.y, MoveMng.PrevMove.z);
+
+		// 離地方向に跳ねる
+		if (!WaterStt.IsInWater) {
+			MoveMng.AddMove(new Vector3(0.0f, (HandSpringJumpHeight) * -(RotVec.y * 2.0f - 1.0f), 0.0f));
+		} else {
+			MoveMng.AddMove(new Vector3(0.0f, (HandSpringJumpHeightInWater) * -(RotVec.y * 2.0f - 1.0f), 0.0f));
+		}
+
+		// 離地
+		Land.IsLanding = false;
+		WaterStt.IsWaterSurface = false;
+		WaterStt.BeginWaterStopIgnore();
 	}
 }
