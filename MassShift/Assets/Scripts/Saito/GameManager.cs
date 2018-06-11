@@ -92,6 +92,7 @@ public class GameManager : MonoBehaviour {
             }
             else {
                 cameraMove.fromTitle = false;
+                Debug.Log("fromTitle"+cameraMove.fromTitle);
                 yield return null;
             }
 		}
