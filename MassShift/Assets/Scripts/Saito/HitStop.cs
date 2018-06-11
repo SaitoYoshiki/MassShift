@@ -15,6 +15,16 @@ public class HitStop : MonoBehaviour {
 		mIsHitStop = false;
 	}
 
+	Pause _mPause = null;
+	Pause mPause {
+		get {
+			if(_mPause == null) {
+				_mPause = FindObjectOfType<Pause>();
+			}
+			return _mPause;
+		}
+	}
+
 	// Use this for initialization
 	void Start () {
 		
@@ -24,9 +34,8 @@ public class HitStop : MonoBehaviour {
 	void Update () {
 
 		//ポーズ中なら処理しない
-		Pause p = FindObjectOfType<Pause>();
-		if (p) {
-			if(p.pauseFlg == true) {
+		if (mPause) {
+			if(mPause.pauseFlg == true) {
 				return;
 			}
 		}
