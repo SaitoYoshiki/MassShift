@@ -10,9 +10,7 @@ public class DoorAnimManager : MonoBehaviour {
     string sceneName;       // 現在のシーン名
     int openDoorCount;      // 開き終わったドアの数
     int closeDoorCount;     // 閉まり終わったドアの数
-
     bool isDoorAnimating;   // ドアがアニメーションしているか
-
     bool isDoorOpenEnd;     // ドアの開き演出が終わったかどうか
     bool isDoorCloseEnd;    // ドアの閉まり演出が終わったかどうか
 
