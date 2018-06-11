@@ -27,7 +27,7 @@ public class LandImpactSound : MonoBehaviour {
 
 	}
 
-	void OnLand(WeightManager.Weight aWeight, LandImpact.CEnviroment aEnviroment) {
+	void OnLand(WeightManager.Weight aWeight, LandImpact.CEnviroment aEnviroment, float aFallDistance) {
 
 		//水面に落ちたなら
 		if(aEnviroment == LandImpact.CEnviroment.cWaterSurface) {
@@ -45,7 +45,7 @@ public class LandImpactSound : MonoBehaviour {
 			if (aWeight == WeightManager.Weight.heavy) {
 				SoundManager.SPlay(mLandImpactHeavySE);
 			}
-			else if (aWeight == WeightManager.Weight.light) {
+			else {
 				SoundManager.SPlay(mLandImpactLightSE);
 			}
 		}
@@ -55,7 +55,7 @@ public class LandImpactSound : MonoBehaviour {
 			if (aWeight == WeightManager.Weight.heavy) {
 				SoundManager.SPlay(mLandImpactHeavySE);
 			}
-			else if (aWeight == WeightManager.Weight.light) {
+			else {
 				SoundManager.SPlay(mLandImpactLightSE);
 			}
 		}

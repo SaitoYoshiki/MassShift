@@ -223,4 +223,8 @@ public class Area {
 	static int GetStageIndex(int aStageNumber) {
 		return aStageNumber - 1;
 	}
+
+
+	public static int sNowAreaNumber = -1;
+	public static int sNowStageNumber = -1;
 }

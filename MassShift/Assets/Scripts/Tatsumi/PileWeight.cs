@@ -124,6 +124,7 @@ public class PileWeight : MonoBehaviour {
 		// 全ての四辺コライダーについて指定の方向に存在するか判定して振り分ける
 		foreach (var sideCol in FourSideCol.colList) {
 			Vector3 vec = sideCol.transform.position - transform.position;
+			vec = vec.normalized;
 			if (Vector3.Dot(vec, _vec) > 0.75f) {
 				_forward.Add(sideCol);
 			} else {

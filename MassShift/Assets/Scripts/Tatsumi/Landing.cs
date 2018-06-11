@@ -30,21 +30,21 @@ public class Landing : MonoBehaviour {
 				// ジャンプによる通常の重力加速度停止を解除
 				MoveMng.GravityCustomTime = 0.0f;
 
-				// 有効になった瞬間
-				IsLandingChange = true;
+//				// 有効になった瞬間
+//				IsLandingTrueChange = true;
 			}
 		}
 	}
 
-	[SerializeField] bool isLandingChange = false;
-	public bool IsLandingChange {
-		get {
-			return isLandingChange;
-		}
-		set {
-			isLandingChange = value;
-		}
-	}
+//	[SerializeField] bool isLandingTrueChange = false;
+//	public bool IsLandingTrueChange {
+//		get {
+//			return isLandingTrueChange;
+//		}
+//		set {
+//			isLandingTrueChange = value;
+//		}
+//	}
 		
 	[SerializeField] bool isExtrusionLanding;
 	public bool IsExtrusionLanding {
@@ -69,19 +69,30 @@ public class Landing : MonoBehaviour {
 		get {
 			return isWaterFloatLanding;
 		}
-	}
-
-	[SerializeField]
-	bool isWaterFloatLandingChange = false;
-	public bool IsWaterFloatLandingChange {
-		get {
-			return isWaterFloatLandingChange;
-		}
 		set {
-			isWaterFloatLandingChange = value;
+			// 値に変更が無ければ処理しない
+			if (isWaterFloatLanding == value) return;
+
+			// 値の変更
+			isWaterFloatLanding = value;
+
+//			// 有効化になった瞬間
+//			if (value == true) {
+//				IsWaterFloatLandingTrueChange = true;
+//			}
 		}
 	}
 
+//	[SerializeField]
+//	bool isWaterFloatLandingTrueChange = false;
+//	public bool IsWaterFloatLandingTrueChange {
+//		get {
+//			return isWaterFloatLandingTrueChange;
+//		}
+//		set {
+//			isWaterFloatLandingTrueChange = value;
+//		}
+//	}
 
 	[SerializeField] List<Collider> landColList = new List<Collider>();				// 接地しているオブジェクト
 	[SerializeField] List<Collider> landExtrusionColList = new List<Collider>();	// 押し出しによって接地しているオブジェクト
@@ -175,7 +186,14 @@ public class Landing : MonoBehaviour {
 	public bool GetIsLanding(Vector3 _move) {
 		if (_move == Vector3.zero) return false;
 
-		float dot = Vector3.Dot((Vector3.up * WeightMng.WeightForce).normalized, _move.normalized);
+		// 接地方向
+		float landVec = WeightMng.WeightForce;
+		// 水中であり水に浮く重さなら
+		if (WaterStt && WeightMng && WaterStt.IsInWater && !WaterStt.IsWaterSurface && (WeightMng.WeightLv <= WeightManager.Weight.light)) {
+			landVec = 1.0f;
+		}
+
+		float dot = Vector3.Dot((Vector3.up * landVec).normalized, _move.normalized);
 //		Debug.LogError(landingCol.localPosition + " " + _move + " " + (dot < 0.0f));
 
 		// 指定方向の反対方向への接触
@@ -190,7 +208,7 @@ public class Landing : MonoBehaviour {
 
 		// 接地方向を求める
 		float landVec = -1.0f;
-		// 宙に浮かぶ重さ、又は水中の水面に浮かぶ重さなら
+		// 宙に浮かぶ重さ、又は水中での水面に浮かぶ重さなら
 		if ((WeightMng.WeightLv == WeightManager.Weight.flying) ||
 			(WaterStt.IsInWater && WeightMng.WeightLv <= WeightManager.Weight.light)) {
 			// 上方向に接地
@@ -211,7 +229,7 @@ public class Landing : MonoBehaviour {
 		}
 
 		// 接地側の判定オブジェクトを取得
-		if (MoveMng.GravityForce <= 0.0f) {
+		if (landVec <= 0.0f) {
 			landingCol = FourSideCol.BottomCol;
 		} else {
 			landingCol = FourSideCol.TopCol;
@@ -227,11 +245,19 @@ public class Landing : MonoBehaviour {
 			}
 		}
 
+		// 一致方向のすり抜け床の除外
+		for (int idx = landColList.Count - 1; idx >= 0; idx--) {
+			OnewayFloor oneway = landColList[idx].GetComponent<OnewayFloor>();
+			if (oneway && oneway.IsThrough(Vector3.up * MoveMng.PrevMove.y, gameObject)) {
+				landColList.RemoveAt(idx);
+			}
+		}
+
 		// 接地しているオブジェクトが存在しなければ離地
 		if (landColList.Count <= 0) {
 			IsLanding = false;
 			IsExtrusionLanding = false;
-			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));
+//			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));
 		}
 	}
 
@@ -276,8 +302,8 @@ public class Landing : MonoBehaviour {
 //	}
 
 	void UpdateWaterFloatLanding() {
-		bool prevIsWaterFloatLanding = isWaterFloatLanding;
-		isWaterFloatLanding = false;
+		bool prevIsWaterFloatLanding = IsWaterFloatLanding;
+		bool waterFloat = false;
 		// 水中で無く、水面に浮かぶ重さである場合
 		if (!WaterStt.IsInWater && (WeightMng.WeightLv == WeightManager.Weight.light)) {
 			// 水面に浮かぶオブジェクトの上に積まれていればtrue
@@ -287,16 +313,18 @@ public class Landing : MonoBehaviour {
 				// 水面に浮かぶオブジェクトが見つかればtrue
 				WaterState underPileWaterStt = underPileObj.GetComponent<WaterState>();
 				if (underPileWaterStt && underPileWaterStt.IsWaterSurface) {
-					isWaterFloatLanding = true;
+					waterFloat = true;
 					break;
 				}
 			}
 		}
 
-		// 値変化時
-		if (prevIsWaterFloatLanding != isWaterFloatLanding) {
-			IsWaterFloatLandingChange = true;
-		}
+		IsWaterFloatLanding = waterFloat;
+
+//		// 値変化時
+//		if (prevIsWaterFloatLanding != IsWaterFloatLanding) {
+//			IsWaterFloatLandingTrueChange = true;
+//		}
 
 //		Debug.LogWarning("UpdateWaterFloatLanding:" + IsWaterFloatLanding);
 	}

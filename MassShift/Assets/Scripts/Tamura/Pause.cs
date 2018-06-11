@@ -3,12 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-// βでの実装予定
-// ドアに入れるようになった段階でキャラ手前に上矢印などGUI or 光る感圧板などの3Dオブジェクト(常設)と、ドアに入る為のキー操作(チュートリアルのみ)を表示する
-// ドアに入ったときにキャラクターをドア奥に向かって歩かせ、縮小とフェードを同時にかけてそれが完了したらリザルト画面を出す
-
-// ゲームパッドでの操作に対応させる
-
 public class Pause : MonoBehaviour {
     [SerializeField]
     GameObject pauseCanvas;
@@ -37,18 +31,30 @@ public class Pause : MonoBehaviour {
     // ぼかし処理終了までの時間
     public float blurTime;
 
+    // ポーズ画面開き/閉じのアニメーション時間
+    public float animTime;
+    // アニメーション開始時のDeltaTime
+    float animStartTime;
+    // ポーズのアニメーション中かどうか
+    [SerializeField]
+    bool pauseAnimFlg = false;
+
+    GameObject pauseUI;
+
     // ポーズイベント
     public UnityEvent pauseEvent = new UnityEvent();
 
     void Start() {
         blur = Camera.main.GetComponent<Blur>();
+        pauseUI = pauseCanvas.transform.Find("PauseUI").gameObject;
+        pauseUI.transform.localScale = Vector3.zero;
     }
 
     void Update() {
         var deltaTime = Time.unscaledDeltaTime;
 
         // Escキーでポーズ / ポーズ解除
-        if (Input.GetKeyDown(KeyCode.Escape) && canPause) {
+        if (Input.GetKeyDown(KeyCode.Escape) && canPause && !pauseAnimFlg) {
             if (!optionFlg) {
                 PauseFunc();
             }
@@ -59,11 +65,9 @@ public class Pause : MonoBehaviour {
         }
 
         if (pauseFlg) {
-            //intencity += intencityMax * (deltaTime / blurTime);
             intencity += deltaTime / blurTime;
         }
         else {
-            //intencity -= intencityMax * (deltaTime / blurTime);
             intencity -= deltaTime / blurTime;
         }
 
@@ -72,13 +76,16 @@ public class Pause : MonoBehaviour {
 
         // intensityをintに変換
         blur.Resolution = (int)(intencity * 10);
+
+        if (pauseAnimFlg) {
+            PauseAnim();
+        }
     }
 
     public void PauseFunc() {
         pauseFlg = !pauseFlg;
 
-        // ポーズ
-        if (Time.timeScale != 0.0f) {
+        if (pauseFlg) {
             Time.timeScale = 0.0f;
             pauseCanvas.SetActive(true);
             SoundManager.SPlay(PauseStartSEPrefab);
@@ -90,8 +97,43 @@ public class Pause : MonoBehaviour {
             //SoundManager.SPlay(PauseEndSEPrefab);
         }
 
+        StartPauseAnim();
+
         // 登録された関数を実行
         pauseEvent.Invoke();
+    }
+
+    void StartPauseAnim() {
+        animStartTime = Time.unscaledTime;
+        pauseAnimFlg = true;
+    }
+
+    void PauseAnim() {
+        float nowAnimTime = Time.unscaledTime - animStartTime;
+        float animPer = Mathf.Clamp((nowAnimTime / animTime), 0.0f, 1.0f);
+
+        if (pauseFlg) {
+            if (pauseUI.transform.localScale.x < 1.0f) {
+                pauseUI.transform.localScale = Vector3.Lerp(new Vector3(0.0f, 0.1f, 1.0f), new Vector3(1.0f, 0.1f, 1.0f), animPer);
+                if (animPer >= 1.0f) {
+                    animStartTime = Time.unscaledTime;
+                }
+            }
+            else {
+                pauseUI.transform.localScale = Vector3.Lerp(new Vector3(1.0f, 0.1f, 1.0f), Vector3.one, animPer);
+                if (animPer >= 1.0f) {
+                    pauseAnimFlg = false;
+                }
+            }
+        }
+        else {
+            pauseUI.transform.localScale = Vector3.Lerp(new Vector3(1.0f, 1.0f, 1.0f), new Vector3(0.1f, 0.1f, 1.0f), animPer);
+            if (animPer >= 1.0f) {
+                pauseAnimFlg = false;
+                //Time.timeScale = 1.0f;
+                //pauseCanvas.SetActive(false);
+            }
+        }
     }
 
     public void OnOptionButtonDown() {
@@ -106,6 +148,8 @@ public class Pause : MonoBehaviour {
             // オプション画面を閉じる
             optionCanvas.SetActive(false);
             pauseCanvas.SetActive(true);
+
+            GetComponent<SetPlayerPrefs>().SaveOptionSetting();
         }
     }
 
@@ -114,6 +158,6 @@ public class Pause : MonoBehaviour {
         quitCanvas.SetActive(true);
 
         // exeの終了
-        //Application.Quit();
+        Application.Quit();
     }
 }

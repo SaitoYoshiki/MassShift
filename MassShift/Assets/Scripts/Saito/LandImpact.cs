@@ -13,11 +13,17 @@ public class LandImpact : MonoBehaviour {
 		cWater,	//水中
 	}
 
-	public delegate void OnLandEvent(WeightManager.Weight aWeight, CEnviroment aEnviroment);
+	public delegate void OnLandEvent(WeightManager.Weight aWeight, CEnviroment aEnviroment, float aFallDistance);
 	public event OnLandEvent OnLand;
 
 	[SerializeField, Tooltip("この距離以上を落下すると、落下演出が起きる"), EditOnPrefab]
-	float mImpactDistance = 1.0f;
+	float mImpactDistanceFlying = 1.0f;
+
+	[SerializeField, Tooltip("この距離以上を落下すると、落下演出が起きる"), EditOnPrefab]
+	float mImpactDistanceLight = 1.0f;
+
+	[SerializeField, Tooltip("この距離以上を落下すると、落下演出が起きる"), EditOnPrefab]
+	float mImpactDistanceHeavy = 1.0f;
 
 	Vector3 mBeforePosition;    //前回の位置を保存
 
@@ -53,6 +59,9 @@ public class LandImpact : MonoBehaviour {
 		}
 
 
+		float lFallDistance = Mathf.Abs(mHighestPosition.y - transform.position.y);
+
+
 		//接地判定
 		//
 		bool lLanding = IsLanding();
@@ -61,14 +70,14 @@ public class LandImpact : MonoBehaviour {
 		if (mBeforeLanding == false && lLanding == true) {
 
 			//一定距離以上落ちていたら
-			if (Mathf.Abs(mHighestPosition.y - transform.position.y) >= mImpactDistance) {
+			if (lFallDistance >= GetImpactDistance()) {
 
 				//水中なら
 				if (IsInWater()) {
-					OnLand(mWeightManager.WeightLv, CEnviroment.cWater);    //水中に落下
+					OnLand(mWeightManager.WeightLv, CEnviroment.cWater, lFallDistance);    //水中に落下
 				}
 				else {
-					OnLand(mWeightManager.WeightLv, CEnviroment.cGround);    //地上に落下
+					OnLand(mWeightManager.WeightLv, CEnviroment.cGround, lFallDistance);    //地上に落下
 				}
 				mHighestPosition = transform.position;	//最高地点を更新
 			}
@@ -84,13 +93,13 @@ public class LandImpact : MonoBehaviour {
 		if (mBeforeInWater == false && lInWater == true) {
 
 			//一定距離以上落ちていたら
-			if (Mathf.Abs(mHighestPosition.y - transform.position.y) >= mImpactDistance) {
-				OnLand(mWeightManager.WeightLv, CEnviroment.cWaterSurface);    //インパクトのイベントを呼び出す
+			if (lFallDistance >= GetImpactDistance()) {
+				OnLand(mWeightManager.WeightLv, CEnviroment.cWaterSurface, lFallDistance);    //インパクトのイベントを呼び出す
 				mHighestPosition = transform.position;  //最高地点を更新
 			}
 		}
 		mBeforeInWater = lInWater;
-
+		
 
 		//最高地点の更新
 		//
@@ -123,5 +132,17 @@ public class LandImpact : MonoBehaviour {
 	//水の中にいるかどうかを取得する
 	bool IsInWater() {
 		return mWaterState.IsInWater;
+	}
+
+	float GetImpactDistance() {
+		switch(mWeightManager.WeightLv) {
+			case WeightManager.Weight.flying:
+				return mImpactDistanceFlying;
+			case WeightManager.Weight.light:
+				return mImpactDistanceLight;
+			case WeightManager.Weight.heavy:
+				return mImpactDistanceHeavy;
+		}
+		return float.MaxValue;
 	}
 }

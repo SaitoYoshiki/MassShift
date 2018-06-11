@@ -40,7 +40,7 @@ public class LandImpactEffect : MonoBehaviour {
 
 	}
 
-	void OnLand(WeightManager.Weight aWeight, LandImpact.CEnviroment aEnviroment) {
+	void OnLand(WeightManager.Weight aWeight, LandImpact.CEnviroment aEnviroment, float aFallDistance) {
 
 		//水面に落下したなら
 		if(aEnviroment == LandImpact.CEnviroment.cWaterSurface) {

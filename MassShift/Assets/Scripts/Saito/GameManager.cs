@@ -27,8 +27,17 @@ public class GameManager : MonoBehaviour {
 	[SerializeField]
 	bool _Debug_ClearFlag = false;	//クリアしたことにするフラグ
 
+    [SerializeField]
+    Vector3 cameraStartPos;
+
 	// Use this for initialization
 	void Start() {
+
+		//エリア番号とステージ番号を書き込む
+		Area.sNowAreaNumber = Area.GetAreaNumber();
+		Area.sNowStageNumber = Area.GetStageNumber();
+
+		//コンポーネントのキャッシュ
 		mMassShift = FindObjectOfType<MassShift>();
 		mPlayer = FindObjectOfType<Player>();
 		mGoal = FindObjectOfType<Goal>();
@@ -41,12 +50,7 @@ public class GameManager : MonoBehaviour {
 		mPause.pauseEvent.Invoke();
 
         //ゲーム進行のコルーチンを開始
-        if (!cameraMove.fromTitle) {
-            StartCoroutine(GameMain());
-        }
-        else {
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
-        }
+        StartCoroutine(GameMain());
 	}
 
 	// Update is called once per frame
@@ -54,16 +58,11 @@ public class GameManager : MonoBehaviour {
 
 	}
 
-    void OnActiveSceneChanged(Scene i_preChangedScene, Scene i_postChangedScene) {
-        StartCoroutine(GameMain());
-    }
-
 	IEnumerator GameMain() {
 
 		float lTakeTime;
 
 		//ステージ開始時の演出
-		//
 
 		//カメラをズームされた位置に移動
 		mCameraMove.MoveStartPoisition();
@@ -86,9 +85,8 @@ public class GameManager : MonoBehaviour {
             }
             else {
                 cameraMove.fromTitle = false;
-                SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+                Debug.Log("fromTitle"+cameraMove.fromTitle);
                 yield return null;
-                //yield return new WaitForSeconds(1.0f);
             }
 		}
 
@@ -111,6 +109,12 @@ public class GameManager : MonoBehaviour {
 
 		//ゲームメインのループ
 		while (true) {
+
+			//カメラのズームアウトが終わってから、移す操作を出来るようになる
+			if(mCameraMove.IsMoveEnd) {
+				OnCanShiftOperation();
+				mCameraMove.IsMoveEnd = false;
+			}
 
 			//ポーズ中なら
 			if(mPause.pauseFlg) {
@@ -167,18 +171,30 @@ public class GameManager : MonoBehaviour {
 		return true;	//ゴール可能
 	}
 
+	//重さを移せなくなり、プレイヤーも動かせなくなる操作
+	//
 	void OnCantOperation() {
-		mMassShift.CanShift = false;    //重さを移せない
+		mMassShift.CanShift = false;
+		mMassShift.mInvisibleCursor = true;
 		mPlayer.CanWalk = false;
 		mPlayer.CanJump = false;
 		mPlayer.CanRotation = false;
 		mPause.canPause = false;
 	}
+
+	//プレイヤーが動けるようになり、ポーズも出来るようになる操作
+	//
 	void OnCanOperation() {
-		mMassShift.CanShift = true;    //重さを移せる
 		mPlayer.CanWalk = true;
 		mPlayer.CanJump = true;
 		mPlayer.CanRotation = true;
 		mPause.canPause = true;
+	}
+
+	//重さを移せるようになる操作
+	//
+	void OnCanShiftOperation() {
+		mMassShift.CanShift = true;    //重さを移せる
+		mMassShift.mInvisibleCursor = false;
 	}
 }

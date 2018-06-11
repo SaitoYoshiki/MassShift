@@ -22,6 +22,7 @@ public class Goal : MonoBehaviour {
 
 		TurnLamp();
 
+		mAllPlayerList = FindObjectsOfType<Player>().ToList();
 	}
 	
 	// Update is called once per frame
@@ -30,6 +31,8 @@ public class Goal : MonoBehaviour {
 		ModelAnimation();
 
 		UpdateLamp();
+	}
+	private void FixedUpdate() {
 		UpdateInPlayer();
 	}
 
@@ -117,9 +120,15 @@ public class Goal : MonoBehaviour {
 	//ボタンが全てオンかどうか
 	public bool IsAllButtonOn {
 		get {
-			if (mTotalButtonOn_Debug) return true;
-			if (ButtonOnCount() == ButtonCount()) {
-				return true;
+			//強制的に開くフラグがtrueなら
+			if (mOpenForce) return true;
+
+			//ボタンの数が0ではなくて
+			if (ButtonCount() != 0) {
+				//全てのボタンが点灯していたら
+				if (ButtonOnCount() == ButtonCount()) {
+					return true;
+				}
 			}
 			return false;
 		}
@@ -128,8 +137,7 @@ public class Goal : MonoBehaviour {
 
 	List<Player> GetInPlayer() {
 		var pl = new List<Player>();
-		foreach(var p in FindObjectsOfType<Player>())
-		{
+		foreach(var p in mAllPlayerList) {
 			if(IsCollisionComplete(mGoalTrigger.GetComponent<BoxCollider>(), p.GetComponent<Collider>())) {
 				pl.Add(p);
 			}
@@ -173,30 +181,34 @@ public class Goal : MonoBehaviour {
 	//コライダーが完全にエリアに入っているかどうか
 	static bool IsCollisionComplete(BoxCollider aArea, Collider aObject) {
 
-		Vector3 dir;
-		float dis;
-
-		bool res = Physics.ComputePenetration(aArea, aArea.bounds.center, aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+		//エリアに入っていなかったら、完全に入ることはない
+		bool res = Physics.OverlapBox(aArea.bounds.center, aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == false) return false;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.up), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+
+		//隣り合うエリアに入っていたら、完全には入っていない
+		//
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.up), aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == true) return false;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.down), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.down), aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == true) return false;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.right), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.right), aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == true) return false;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.left), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.left), aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == true) return false;
 
 		//ここから先はZ方向のチェックなので、とりあえずは必要ない
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.forward), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
-		//if (res == true) return false;
+		return true;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.back), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
-		//if (res == true) return false;
+
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.up), aArea.bounds.size / 2.0f).Contains(aObject);
+		if (res == true) return false;
+
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.up), aArea.bounds.size / 2.0f).Contains(aObject);
+		if (res == true) return false;
 
 		return true;
 	}
@@ -301,8 +313,10 @@ public class Goal : MonoBehaviour {
 	//[SerializeField]
 	List<Button> mButtonList;
 
-	[SerializeField]
-	bool mTotalButtonOn_Debug;
+	List<Player> mAllPlayerList;
+
+	[SerializeField, Tooltip("扉を強制的に開かせる")]
+	public bool mOpenForce = false;
 
 	bool mBeforeAllButtonOn = false;
 	int mBeforeButtonOnCount = 0;

@@ -17,13 +17,8 @@ public class ShakeCameraTest : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.T)) {
 			//Shake(mTime);
-			ShakeCamera.ShakeAll(mTime);
+			ShakeCamera.ShakeAll(mTime, 0.2f);
 		}
 	}
 
-	void Shake(float aTime) {
-		foreach (var s in FindObjectsOfType<ShakeCamera>()) {
-			s.Shake(aTime);
-		}
-	}
 }

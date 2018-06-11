@@ -5,8 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class cameraMove : MonoBehaviour {
 
-    private Vector3 cameraStartPoint = new Vector3(-41.0f, -0.0f, -15.0f);
-    private Vector3 cameraZoomPoint = new Vector3(-43.0f, -0.5f, -5.0f);
+    private Vector3 cameraStartPoint = new Vector3(-15.0f, -0.0f, -15.0f);
+    private Vector3 cameraZoomPoint = new Vector3(-17.0f, -0.5f, -5.0f);
     private Vector3 cameraEndPoint = new Vector3(0.0f, 1.0f, -50.0f);
 
     public float zoomInTime;
@@ -36,26 +36,40 @@ public class cameraMove : MonoBehaviour {
 
     bool goTutorialFlg = false;
 
-    bool isAdditiveLoad = false;
-    bool isAdditiveLoadEnd = false;
-
     AsyncOperation TutorialActive;
     AsyncOperation StageSelectActive;
 
     public static bool fromTitle = false;
 
+    Color startLightColor = new Color(0.0f, 0.0f, 0.0f);
+    Color endLightColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
+    float colorPer = 0.0f;
+
 	void Start () {
         this.transform.position = cameraStartPoint;
         st = GameObject.Find("StageChangeCanvas").GetComponent<StageTransition>();
+        st.gameObject.SetActive(false);
         cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
 
-        RenderSettings.ambientSkyColor = new Color(0.0f, 0.0f, 0.0f);
+        RenderSettings.ambientSkyColor = startLightColor;
 	}
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
+        SceneManager.SetActiveScene(scene);
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
 	
 	void Update () {
         CheckFirstZoom();
         CheckZoomIn();
-        CheckZoomOut();
+
+        if (colorPer > 0.0f && colorPer < 1.0f) {
+            colorPer += 0.01f;
+            RenderSettings.ambientSkyColor = Color.Lerp(startLightColor, endLightColor, colorPer);
+            if (colorPer >= 1.0f) {
+                //StageSelectActive.allowSceneActivation = true;
+            }
+        }
 	}
 
     void CheckFirstZoom() {
@@ -97,7 +111,7 @@ public class cameraMove : MonoBehaviour {
         }
     }
 
-    void CheckZoomOut() {
+    /*void CheckZoomOut() {
         // ズームアウト中でなくて
         if (!zoomOutFlg) {
             // 前フレームでもズームアウトしていなければ何もしない
@@ -109,7 +123,6 @@ public class cameraMove : MonoBehaviour {
                     }
                     else {
                         isAdditiveLoad = false;
-                        isAdditiveLoadEnd = true;
                         SceneManager.UnloadSceneAsync("Title");
                     }
                 }
@@ -120,7 +133,6 @@ public class cameraMove : MonoBehaviour {
                     }
                     else {
                         isAdditiveLoad = false;
-                        isAdditiveLoadEnd = true;
                         SceneManager.UnloadSceneAsync("Title");
                     }
                 }
@@ -136,26 +148,20 @@ public class cameraMove : MonoBehaviour {
             //st.CloseDoorParent();
             Zoom(zoomOutTime, ref zoomOutFlg, cameraZoomPoint, cameraEndPoint);
         }
-    }
+    }*/
 
     // タイトルでボタンが押されたらズームアウト
     public void OnButtonDown() {
-        Debug.Log("ズームアウト開始");
-        zoomOutFlg = true;
-        startZoomTime = Time.realtimeSinceStartup;
+        //Debug.Log("ズームアウト開始");
+        //zoomOutFlg = true;
+        //startZoomTime = Time.realtimeSinceStartup;
         title.SetActive(false);
         tutorial.SetActive(false);
         stageselect.SetActive(false);
 
-        RenderSettings.ambientSkyColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
+        RenderSettings.ambientSkyColor = endLightColor;
 
-        isAdditiveLoad = true;
         fromTitle = true;
-        Destroy(GameObject.Find("EventSystem"));
-        Destroy(GameObject.Find("Player_test"));
-        Destroy(GameObject.Find("Directional Light"));
-        Destroy(GameObject.Find("SoundManager"));
-        Camera.main.GetComponent<AudioListener>().enabled = false;
     }
 
     // ズームイン/アウト
@@ -176,16 +182,18 @@ public class cameraMove : MonoBehaviour {
     public void OnTutorialSelected() {
         cameraEndPoint = new Vector3(-36.0f, 3.0f, -35.0f);
         goTutorialFlg = true;
-
-        Debug.Log("Before");
-        TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Additive);
-        Debug.Log("After");
+        TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Single);
     }
 
     public void OnStageSelectSelected() {
         cameraEndPoint = new Vector3(-32.0f, 1.0f, -50.0f);
         goTutorialFlg = false;
-        StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Additive);
+
+        StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
+
+        colorPer = 0.01f;
+
+        //SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする

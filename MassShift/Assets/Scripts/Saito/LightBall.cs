@@ -37,6 +37,9 @@ public class LightBall : MonoBehaviour {
 
 	Vector3 mBeforePosition;
 
+	public Vector3 mHitPosition;	//光の弾が障害物に当たったときの場所
+	public Vector3 mHitDirection;	//光の弾が障害物に当たったときの向き
+
 
 	[SerializeField, EditOnPrefab]
 	GameObject mCollider;
@@ -44,6 +47,8 @@ public class LightBall : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	GameObject mModel;
 
+	[SerializeField]
+	List<GameObject> mStopEffectErase;
 
 	public void UpdatePoint() {
 		
@@ -96,20 +101,43 @@ public class LightBall : MonoBehaviour {
 		LayerMask l = LayerMask.GetMask(new string[] { "Box", "Stage" });
 		List<RaycastHit> rcs = Physics.SphereCastAll(aFrom, mCollider.transform.lossyScale.x / 2.0f, lDir, (aTo - aFrom).magnitude, l).ToList();
 
-		//一方向からすり抜ける床で、順方向を除外
-		for(int i = rcs.Count - 1; i >= 0; i--) {
-			OnewayFloor o = rcs[i].collider.GetComponent<OnewayFloor>();
-			if (o == null) continue;
 
-			//もし通り抜けられるなら、判定から除外
-			if(o.IsThrough(lDir)) {
+		//通り抜けられるオブジェクトを、判定から除外する
+		for (int i = rcs.Count - 1; i >= 0; i--) {
+
+			//一方向からすり抜ける床の判定
+			OnewayFloor o = rcs[i].collider.GetComponent<OnewayFloor>();
+			if (o != null) {
+				//もし通り抜けられるなら、判定から除外
+				if (o.IsThrough(lDir)) {
+					rcs.RemoveAt(i);
+					continue;
+				}
+			}
+
+			//ボタンは通り抜けるので、判定から除外
+			if (rcs[i].collider.CompareTag("Button")) {
 				rcs.RemoveAt(i);
+				continue;
 			}
 		}
 
-		foreach(var rc in rcs) {
-			if (aIgnoreList == null) return false;
+		//近い順にソートする
+		rcs = rcs.OrderBy(x => x.distance).ToList();
+
+		foreach (var rc in rcs) {
+			bool lHit = false;
+
+			if (aIgnoreList == null) {
+				lHit = true;
+			}
 			if (aIgnoreList.Contains(rc.collider.gameObject) == false) {
+				lHit = true;
+			}
+
+			if(lHit == true) {
+				mHitPosition = rc.point;
+				mHitDirection = aTo - aFrom;
 				return false;
 			}
 		}
@@ -128,6 +156,9 @@ public class LightBall : MonoBehaviour {
 		}
 	}
 
+
+	//エフェクトを再生する
+	//
 	public void PlayEffect() {
 		foreach(var p in mModel.GetComponentsInChildren<ParticleSystem>()) {
 			p.Play();
@@ -136,12 +167,23 @@ public class LightBall : MonoBehaviour {
 			p.enabled = true;
 		}
 	}
+
+	//エフェクトを停止する
+	//
 	public void StopEffect() {
+
+		//パーティクルの発生を停止する
 		foreach (var p in mModel.GetComponentsInChildren<ParticleSystem>()) {
 			p.Stop();
 		}
+		//モデルを見えなくする
 		foreach (var p in mModel.GetComponentsInChildren<MeshRenderer>()) {
 			p.enabled = false;
+		}
+
+		//長時間動くパーティクルがあり、点が残って変な見た目になるので消しておく
+		foreach (var p in mStopEffectErase) {
+			p.SetActive(false);
 		}
 	}
 }

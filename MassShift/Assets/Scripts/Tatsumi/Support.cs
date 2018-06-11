@@ -60,7 +60,7 @@ public class Support {
 		foreach (var ignoreCol in _ignoreColList) {
 			for (int idx = (hitInfoList.Count - 1); idx >= 0; idx--) {
 				if (hitInfoList[idx].collider == ignoreCol) {
-		//			hitInfoList.RemoveAt(idx);
+					hitInfoList.RemoveAt(idx);
 				}
 			}
 		}
