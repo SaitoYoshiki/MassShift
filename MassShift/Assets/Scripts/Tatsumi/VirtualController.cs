@@ -23,22 +23,31 @@ public class VirtualController : MonoBehaviour {
 			virtualCtrl = value;
 		}
 	}
-	
+
 	[SerializeField]
 	float[] virtualAxis = new float[(int)CtrlCode.Max];
-	static public float[] VirtualAxis {
+	float[] VirtualAxis {
 		get {
 			return VirtualCtrl.virtualAxis;
 		}
-		private set {
+		set {
 			VirtualCtrl.virtualAxis = value;
 		}
 	}
 
 	[SerializeField]
-	float[] retAxis = new float[(int)CtrlCode.Max];	// 最後にGetAxis()で返した値の配列
+	float[] virtualAxisHoldTime = new float[(int)CtrlCode.Max];
+
 	[SerializeField]
-	bool selfUpdateRetAxis = true;					// 自身のUpdate()でretAxisを更新するフラグ、falseであれば外部からの呼び出し時のみに更新される
+	bool[] onryVirtualAxis = new bool[(int)CtrlCode.Max];
+
+	[SerializeField]
+	float[] retAxis = new float[(int)CtrlCode.Max]; // 最後にGetAxis()で返した値の配列
+	[SerializeField]
+	bool selfUpdateRetAxis = true;                  // 自身のUpdate()でretAxisを更新するフラグ、falseであれば外部からの呼び出し時のみに更新される
+
+	[SerializeField]
+	float defaultHoldTime = 0.5f;
 
 	void Awake() {
 		if (VirtualCtrl) {
@@ -64,11 +73,20 @@ public class VirtualController : MonoBehaviour {
 	}
 
 	float GetControl(CtrlCode _ctrl) {
-		if (virtualAxis[(int)_ctrl] == 0.0f) {
+		if (virtualAxisHoldTime[(int)_ctrl] < Time.time) {
 			retAxis[(int)_ctrl] = Input.GetAxis(_ctrl.ToString());
 		} else {
 			retAxis[(int)_ctrl] = virtualAxis[(int)_ctrl];
 		}
 		return retAxis[(int)_ctrl];
+	}
+
+	public static void SetAxis(CtrlCode _ctrl, float _value = 1.0f, float _time = 0.0f) {
+		if (_time <= 0.0f) {
+			_time = VirtualCtrl.defaultHoldTime;
+		}
+
+		VirtualCtrl.VirtualAxis[(int)_ctrl] = _value;
+		VirtualCtrl.virtualAxisHoldTime[(int)_ctrl] = (Time.time + _time);
 	}
 }
