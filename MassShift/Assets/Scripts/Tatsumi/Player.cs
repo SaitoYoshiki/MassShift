@@ -278,6 +278,24 @@ public class Player : MonoBehaviour {
 	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
 
 	[SerializeField]
+	float handSpringWeitTime = 0.2f;
+	float handSpringWeitEndTime = 0.0f; 
+	float HandSpringEndTime {
+		get {
+			return handSpringWeitEndTime;
+		}
+		set {
+			handSpringWeitEndTime = value;
+		}
+	}
+	[SerializeField]
+	bool HandSpringWeitFlg {
+		get {
+			return (HandSpringEndTime > Time.time);
+		}
+	}
+
+	[SerializeField]
 	float cameraLookRatio = 0.0f;			// カメラの方を向いている比率
 	[SerializeField]
 	float cameraLookRatioSpd = 0.01f;		// 待機時のカメラの方を向く割合の変化量
@@ -374,7 +392,9 @@ public class Player : MonoBehaviour {
 
 			// 回転アニメーション
 			if (nowRotVec != landRotVec) {
+				PlAnim.StartHandSpring();
 				RotVec = new Vector3(RotVec.x, landRotVec, RotVec.z);
+				HandSpringEndTime = (Time.time + handSpringWeitTime);
 			}
 		}
 
@@ -469,17 +489,14 @@ public class Player : MonoBehaviour {
 	}
 	bool Jump() {
 		if (!useManualJump) {
-			Debug.LogWarning("false1");
 			return false;
 		}
 		// ジャンプ入力(トリガー)がなければ
 		if (!jumpStandbyFlg || prevJumpStandbyFlg) {
-			Debug.LogWarning("false2");
 			return false;
 		}
 		// ジャンプ可能でなければ
 		if (!canJump) {
-			Debug.LogWarning("false3");
 			return false;
 		}
 		// ステージに接地、又は水面で安定していなければ
@@ -502,7 +519,6 @@ public class Player : MonoBehaviour {
 			}
 			if ((pileObjs.Count == 0) || !stagePile) {
 				// ジャンプ不可
-				Debug.LogWarning("false4");
 				return false;
 			}
 		}
@@ -588,6 +604,12 @@ public class Player : MonoBehaviour {
 			return;
 		}
 
+		// 回転待ち
+		if (HandSpringEndTime > Time.time) {
+			IsRotation = true;
+			return;
+		}
+
 		//		// 持ち上げモーション中は処理しない
 		//		if ((Lift.St == Lifting.LiftState.invalid) ||
 		//			(Lift.St == Lifting.LiftState.standby)) {
@@ -641,6 +663,8 @@ public class Player : MonoBehaviour {
 		if (angle < correctionaAngle) {
 			// 向きを合わせる
 			rotTransform.rotation = Quaternion.Lerp(rotTransform.rotation, qt, 1);
+
+			// 回転終了
 			IsRotation = false;
 
 			// 自身が重さ0であり、重さ2のブロックを持ち上げている場合
