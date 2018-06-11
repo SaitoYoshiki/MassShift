@@ -22,20 +22,29 @@ public class StageSelectManager : MonoBehaviour {
 	Color mStagePlateOffColor;
 
 	StageTransition mTransition;
-
 	Pause mPause;
+	StageSelectScroll mStageSelectScroll;
 
     [SerializeField]
     MoveTransform mCameraMove;
 
-    [SerializeField]
-    Vector3 cameraStartPos;
+	[SerializeField]
+	GameObject mTopStaticWeightBox;
+
+	[SerializeField]
+	GameObject mBottomStaticWeightBox;
+
+	[SerializeField]
+	int mClearArea = 0;
+
+
 
 	// Use this for initialization
 	void Start() {
 
 		mPlayer = FindObjectOfType<Player>();
 		mTransition = FindObjectOfType<StageTransition>();
+		mStageSelectScroll = FindObjectOfType<StageSelectScroll>();
 
 		mPause = FindObjectOfType<Pause>();
 
@@ -66,14 +75,30 @@ public class StageSelectManager : MonoBehaviour {
 		//重さを移せないようにする
 		OnCanShiftOperation(false);
 
-
 		//プレートの色を変える
 		SetEnterColor(-1);
 
-        //カメラをズームされた位置に移動
-        mCameraMove.MoveStartPoisition();
-		
 
+		//ステージから来たなら、ズーム終了後のカメラ位置を変更
+		int lAreaNum = Area.sNowAreaNumber;
+		if (lAreaNum == 1 || lAreaNum == 2 || lAreaNum == 3) {
+			mCameraMove.mEndPosition = mStageSelectScroll.mAreaCameraPosition[lAreaNum - 1].transform.position;
+		}
+
+		//カメラの開始地点を決める
+		if(lAreaNum == 0 || cameraMove.fromTitle) {
+			//ステージセレクトの左端から始まる
+			mCameraMove.mStartPosition = new Vector3(-17.0f, -3.5f, 45.0f);
+		}
+		else {
+			//カメラの開始地点をプレイヤーにズームしたところからにする
+			mCameraMove.mStartPosition = GetPlayerZoomCameraPosition();
+		}
+		
+		//カメラをズームされた位置に移動
+		mCameraMove.MoveStartPoisition();
+		
+		
 		// タイトルシーンからの遷移でなければ
         if (!cameraMove.fromTitle) {
             //ステージ開始時の演出
@@ -177,14 +202,7 @@ public class StageSelectManager : MonoBehaviour {
 		if (aIndex == -1) return;
 		mGoal[aIndex].mOpenForce = aIsOpen;
 	}
-
-
-	//ドアが開く音を1つに制限する
-	void LimitPlayDoorSE() {
-		for(int i = 1; i < mGoal.Count; i++) {
-			mGoal[i].mPlayOpenSE = false;
-		}
-	}
+	
 
 	MassShift mMassShift {
 		get {
@@ -192,10 +210,25 @@ public class StageSelectManager : MonoBehaviour {
 		}
 	}
 
-	//重さを移せるようになる操作
+	//重さを移せるようになる
 	//
 	void OnCanShiftOperation(bool aCanShift) {
 		mMassShift.CanShift = aCanShift;    //重さを移せる
 		mMassShift.mInvisibleCursor = !aCanShift;
+	}
+
+
+	void CanMovePlayer(bool aCanMove) {
+		mPlayer.CanWalk = aCanMove;
+		mPlayer.CanJump = aCanMove;
+		mPlayer.CanRotation = aCanMove;
+	}
+
+	Vector3 GetPlayerZoomCameraPosition() {
+		Player p = FindObjectOfType<Player>();
+		Vector3 lPosition = p.transform.position;
+		lPosition.y -= 1.0f;
+		lPosition.z = 40.0f;
+		return lPosition;
 	}
 }

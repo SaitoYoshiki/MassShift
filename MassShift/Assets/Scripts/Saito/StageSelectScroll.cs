@@ -8,8 +8,7 @@ public class StageSelectScroll : MonoBehaviour {
 	[SerializeField]
 	List<GameObject> mAreaTriggers;
 
-	[SerializeField]
-	List<GameObject> mAreaCameraPosition;
+	public List<GameObject> mAreaCameraPosition;
 
 	[SerializeField]
 	GameObject mPlayer;
