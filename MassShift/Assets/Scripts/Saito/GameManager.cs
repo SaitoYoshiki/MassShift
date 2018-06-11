@@ -64,6 +64,8 @@ public class GameManager : MonoBehaviour {
 
 		//ステージ開始時の演出
 
+		mCameraMove.mStartPosition = GetPlayerZoomCameraPosition();
+
 		//カメラをズームされた位置に移動
 		mCameraMove.MoveStartPoisition();
 
@@ -196,5 +198,13 @@ public class GameManager : MonoBehaviour {
 	void OnCanShiftOperation() {
 		mMassShift.CanShift = true;    //重さを移せる
 		mMassShift.mInvisibleCursor = false;
+	}
+
+	Vector3 GetPlayerZoomCameraPosition() {
+		Player p = FindObjectOfType<Player>();
+		Vector3 lPosition = p.transform.position;
+		lPosition.y -= 1.0f;
+		lPosition.z = 40.0f;
+		return lPosition;
 	}
 }
