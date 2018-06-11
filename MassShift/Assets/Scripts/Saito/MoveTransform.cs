@@ -13,13 +13,30 @@ public class MoveTransform : MonoBehaviour {
 	bool mIsMove = false;
 
 	private void Awake() {
+        cameraMove.fromTitle = true;
 		mEndPosition = transform.position;
 
 		Player p = GetPlayer();
 
-		mStartPosition = p.transform.position;
-		mStartPosition.z = 40.0f;
-		mStartPosition.y -= 1.0f;
+        mStartPosition = p.transform.position;
+
+        // チュートリアル以外
+        if (Area.GetAreaNumber() != 0) {
+            mStartPosition.y -= 1.0f;
+            mStartPosition.z = 40.0f;
+        }
+        else {
+            // タイトルからの遷移なら
+            if (cameraMove.fromTitle) {
+                //mStartPosition = new Vector3(-17.0f, -4.5f, 45.0f);
+                mStartPosition.y += 10.0f;
+                mStartPosition.z = 50.0f;
+            }
+            // それ以外なら
+            else {
+                mStartPosition.z = 35.0f;
+            }
+        }
 	}
 
 	// Use this for initialization
