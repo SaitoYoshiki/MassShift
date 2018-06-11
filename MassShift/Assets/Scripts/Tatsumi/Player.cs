@@ -328,11 +328,11 @@ public class Player : MonoBehaviour {
 
 	void Update() {
 		// 左右移動入力
-//		walkStandbyVec = Input.GetAxis("Horizontal");
+		//		walkStandbyVec = Input.GetAxis("Horizontal");
 		walkStandbyVec = VirtualController.GetAxis(VirtualController.CtrlCode.Horizontal);
 
 		// ジャンプ入力
-//		jumpStandbyFlg |= (Input.GetAxis("Jump") != 0.0f);
+		//		jumpStandbyFlg |= (Input.GetAxis("Jump") != 0.0f);
 		jumpStandbyFlg |= (VirtualController.GetAxis(VirtualController.CtrlCode.Jump) != 0.0f);
 
 		// ジャンプ滞空時間
@@ -340,7 +340,7 @@ public class Player : MonoBehaviour {
 
 		// 持ち上げ/下げ
 		if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation) {
-//			if ((Input.GetAxis("Lift") != 0.0f)) {
+			//			if ((Input.GetAxis("Lift") != 0.0f)) {
 			if ((VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();
