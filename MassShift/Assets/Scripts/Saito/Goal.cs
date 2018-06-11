@@ -181,30 +181,34 @@ public class Goal : MonoBehaviour {
 	//コライダーが完全にエリアに入っているかどうか
 	static bool IsCollisionComplete(BoxCollider aArea, Collider aObject) {
 
-		Vector3 dir;
-		float dis;
-
-		bool res = Physics.ComputePenetration(aArea, aArea.bounds.center, aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+		//エリアに入っていなかったら、完全に入ることはない
+		bool res = Physics.OverlapBox(aArea.bounds.center, aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == false) return false;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.up), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+
+		//隣り合うエリアに入っていたら、完全には入っていない
+		//
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.up), aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == true) return false;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.down), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.down), aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == true) return false;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.right), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.right), aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == true) return false;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.left), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.left), aArea.bounds.size / 2.0f).Contains(aObject);
 		if (res == true) return false;
 
 		//ここから先はZ方向のチェックなので、とりあえずは必要ない
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.forward), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
-		//if (res == true) return false;
+		return true;
 
-		res = Physics.ComputePenetration(aArea, GetPosition(aArea, Vector3.back), aArea.transform.rotation, aObject, aObject.transform.position, aObject.transform.rotation, out dir, out dis);
-		//if (res == true) return false;
+
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.up), aArea.bounds.size / 2.0f).Contains(aObject);
+		if (res == true) return false;
+
+		res = Physics.OverlapBox(GetPosition(aArea, Vector3.up), aArea.bounds.size / 2.0f).Contains(aObject);
+		if (res == true) return false;
 
 		return true;
 	}
