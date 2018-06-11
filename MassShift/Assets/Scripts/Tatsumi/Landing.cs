@@ -30,21 +30,21 @@ public class Landing : MonoBehaviour {
 				// ジャンプによる通常の重力加速度停止を解除
 				MoveMng.GravityCustomTime = 0.0f;
 
-				// 有効になった瞬間
-				IsLandingTrueChange = true;
+//				// 有効になった瞬間
+//				IsLandingTrueChange = true;
 			}
 		}
 	}
 
-	[SerializeField] bool isLandingTrueChange = false;
-	public bool IsLandingTrueChange {
-		get {
-			return isLandingTrueChange;
-		}
-		set {
-			isLandingTrueChange = value;
-		}
-	}
+//	[SerializeField] bool isLandingTrueChange = false;
+//	public bool IsLandingTrueChange {
+//		get {
+//			return isLandingTrueChange;
+//		}
+//		set {
+//			isLandingTrueChange = value;
+//		}
+//	}
 		
 	[SerializeField] bool isExtrusionLanding;
 	public bool IsExtrusionLanding {
@@ -76,23 +76,23 @@ public class Landing : MonoBehaviour {
 			// 値の変更
 			isWaterFloatLanding = value;
 
-			// 有効化になった瞬間
-			if (value == true) {
-				IsWaterFloatLandingTrueChange = true;
-			}
+//			// 有効化になった瞬間
+//			if (value == true) {
+//				IsWaterFloatLandingTrueChange = true;
+//			}
 		}
 	}
 
-	[SerializeField]
-	bool isWaterFloatLandingTrueChange = false;
-	public bool IsWaterFloatLandingTrueChange {
-		get {
-			return isWaterFloatLandingTrueChange;
-		}
-		set {
-			isWaterFloatLandingTrueChange = value;
-		}
-	}
+//	[SerializeField]
+//	bool isWaterFloatLandingTrueChange = false;
+//	public bool IsWaterFloatLandingTrueChange {
+//		get {
+//			return isWaterFloatLandingTrueChange;
+//		}
+//		set {
+//			isWaterFloatLandingTrueChange = value;
+//		}
+//	}
 
 	[SerializeField] List<Collider> landColList = new List<Collider>();				// 接地しているオブジェクト
 	[SerializeField] List<Collider> landExtrusionColList = new List<Collider>();	// 押し出しによって接地しているオブジェクト

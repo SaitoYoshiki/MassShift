@@ -22,6 +22,9 @@ public class MassShift : MonoBehaviour
 
 		mLightBall = null;
 
+		mAllWeightModel = FindObjectsOfType<WeightManager>();
+		mPlayer = FindObjectOfType<Player>();
+
 		Cursor.visible = false;
 	}
 
@@ -56,13 +59,11 @@ public class MassShift : MonoBehaviour
 	}
 
 	void PlayerIsShift(bool aValue) {
-		var p = FindObjectOfType<Player>();
-		if (p == null) return;
+		if (mPlayer == null) return;
 		//p.IsShift = aValue;
 	}
 	bool PlayerCanShift() {
-		var p = FindObjectOfType<Player>();
-		if (p == null) return true;
+		if (mPlayer == null) return true;
 		return true;
 		//return p.CanShift;
 	}
@@ -1016,8 +1017,27 @@ public class MassShift : MonoBehaviour
 
 		float enter = 0.0f;
 		if (plane.Raycast(ray, out enter)) {
-			mCursor.transform.position = ray.GetPoint(enter);
+			Vector3 lPosition = ray.GetPoint(enter);
+			mCursor.transform.position = ClampCursorInScreen(lPosition);
 		}
+	}
+
+	//カーソルを画面内に収める
+	//
+	Vector3 ClampCursorInScreen(Vector3 aPosition) {
+
+		Vector3 lViewportPoint = Camera.main.WorldToViewportPoint(aPosition);
+
+		//Debug.Log("ViewportPoint:" + lViewportPoint);
+
+		const float cXOffset = 0.02f;
+		float cYOffset = cXOffset * Screen.width / Screen.height;
+
+		lViewportPoint.x = Mathf.Clamp(lViewportPoint.x , 0.0f + cXOffset, 1.0f - cXOffset);
+		lViewportPoint.y = Mathf.Clamp(lViewportPoint.y, 0.0f + cYOffset, 1.0f - cYOffset);
+
+		Vector3 lWorldPoint = Camera.main.ViewportToWorldPoint(lViewportPoint);
+		return lWorldPoint;
 	}
 
 
@@ -1063,14 +1083,16 @@ public class MassShift : MonoBehaviour
 	//
 	Vector3 GetMassPosition(GameObject aGameObject) {
 
-		Transform lWeightParticle = aGameObject.transform.Find("WeightParticle");
-		if (lWeightParticle != null) {
-			return lWeightParticle.position;
+		//プレイヤー用
+		Transform lMassPosition = aGameObject.transform.Find("Offset/RotOffset/Rotation/ModelOffset/WeightPosition");
+		if (lMassPosition != null) {
+			return lMassPosition.position;
 		}
 
-		lWeightParticle = aGameObject.transform.Find("Rotation/WeightParticle");
-		if (lWeightParticle != null) {
-			return lWeightParticle.position;
+		//その他のボックス用
+		lMassPosition = aGameObject.transform.Find("WeightParticle");
+		if (lMassPosition != null) {
+			return lMassPosition.position;
 		}
 
 		return aGameObject.transform.position;
@@ -1143,7 +1165,7 @@ public class MassShift : MonoBehaviour
 	}
 
 	bool IsThrough(GameObject aFrom, GameObject aTo) {
-		return mLightBallTemplate.GetComponent<LightBall>().ThroughShotLine(aFrom.transform.position, aTo.transform.position, new GameObject[] { aFrom, aTo }.ToList());
+		return mLightBallTemplate.GetComponent<LightBall>().ThroughShotLine(GetMassPosition(aFrom), GetMassPosition(aTo), new GameObject[] { aFrom, aTo }.ToList());
 	}
 
 
@@ -1183,11 +1205,13 @@ public class MassShift : MonoBehaviour
 	//
 	void ShowAllModelHilight(bool aIsShow, Color aColor) {
 
-		foreach(var w in FindObjectsOfType<WeightManager>()) {
+		foreach(var w in mAllWeightModel) {
 			ShowModelHilight(w.gameObject, aIsShow, aColor);
 		}
 	}
+	WeightManager[] mAllWeightModel;
 
+	Player mPlayer;
 
 	//そのモデルのハイライトを表示・非表示にしたり、色を変更する
 	//
