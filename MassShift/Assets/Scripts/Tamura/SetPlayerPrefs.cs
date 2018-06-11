@@ -46,11 +46,11 @@ public class SetPlayerPrefs : MonoBehaviour {
 
     void Update() {
         // オプションから抜けた時に設定が保存されるように
-        SaveOptionSetting();
+        //SaveOptionSetting();
     }
 
     // オプション画面を閉じる時に呼び出す
-	void SaveOptionSetting () {
+	public void SaveOptionSetting () {
         // 各種ボリュームとウィンドウサイズの登録
         PlayerPrefs.SetFloat(masterVolumeSettings, masterVolumeData);
         PlayerPrefs.SetFloat(bgmVolumeSettings, bgmVolumeData);

@@ -23,6 +23,8 @@ public class StageSelectManager : MonoBehaviour {
 
 	StageTransition mTransition;
 
+	Pause mPause;
+
     [SerializeField]
     MoveTransform mCameraMove;
 
@@ -34,6 +36,8 @@ public class StageSelectManager : MonoBehaviour {
 
 		mPlayer = FindObjectOfType<Player>();
 		mTransition = FindObjectOfType<StageTransition>();
+
+		mPause = FindObjectOfType<Pause>();
 
 		//ゲーム進行のコルーチンを開始
 		StartCoroutine(StageSelectMain());
@@ -47,6 +51,7 @@ public class StageSelectManager : MonoBehaviour {
 	private void FixedUpdate() {
 		//ゴール判定
 		//
+		mSelectStageNum = -1;
 		for (int i = 0; i < mGoal.Count; i++) {
 			if (CanEnter(mGoal[i])) {
 				mSelectStageNum = i;
@@ -70,7 +75,7 @@ public class StageSelectManager : MonoBehaviour {
         //カメラをズームされた位置に移動
         mCameraMove.MoveStartPoisition();
 
-		LimitPlayDoorSE();
+		//LimitPlayDoorSE();
 
 		// タイトルシーンからの遷移でなければ
         if (!cameraMove.fromTitle) {
@@ -92,25 +97,43 @@ public class StageSelectManager : MonoBehaviour {
 		SoundManager.SFade(t, 0.0f, 1.0f, 2.0f);
 
 		int lSelectStageNum = -1;
+		int lBeforeSelectStageNum = -1;
 
-        //カメラのズームアウトを始める
-        mCameraMove.MoveStart();
+		int lDecideSelectStageNum = -1;
+
+		//カメラのズームアウトを始める
+		mCameraMove.MoveStart();
 
 		//ゲームメインのループ
 		while (true) {
 
-			SetEnterColor(-1);
+			//ポーズ中なら
+			if (mPause.pauseFlg) {
+				Cursor.visible = true;
+			}
+			else {
+				Cursor.visible = false;
+			}
 
+
+			//現在いる場所のドアを開くのと、プレートを光らせるのの更新
+			lSelectStageNum = mSelectStageNum;
+			if(lSelectStageNum != lBeforeSelectStageNum) {
+				SetEnterColor(mSelectStageNum);
+				OpenDoor(lSelectStageNum, true);
+				OpenDoor(lBeforeSelectStageNum, false);
+			}
+			lBeforeSelectStageNum = lSelectStageNum;
+			
 			bool lIsEnter = Input.GetKeyDown(KeyCode.W);
 
 			//ゴール判定
 			//
 			if(mSelectStageNum != -1) {
-				SetEnterColor(mSelectStageNum);
 
 				//もし入る操作が行われているなら
 				if (lIsEnter) {
-					lSelectStageNum = mSelectStageNum;
+					lDecideSelectStageNum = mSelectStageNum;
 					break;
 				}
 			}
@@ -129,7 +152,7 @@ public class StageSelectManager : MonoBehaviour {
 		}
 
 		//ステージ遷移
-		UnityEngine.SceneManagement.SceneManager.LoadScene(Area.GetStageSceneName(1, lSelectStageNum + 1));
+		UnityEngine.SceneManagement.SceneManager.LoadScene(Area.GetStageSceneName((lDecideSelectStageNum / 5) + 1, (lSelectStageNum % 5) + 1));
 
 	}
 
@@ -146,6 +169,11 @@ public class StageSelectManager : MonoBehaviour {
 		if (aIndex == -1) return;
 		mText[aIndex].color = mStagePlateOnColor;
 	}
+	void OpenDoor(int aIndex, bool aIsOpen) {
+		if (aIndex == -1) return;
+		mGoal[aIndex].mOpenForce = aIsOpen;
+	}
+
 
 	//ドアが開く音を1つに制限する
 	void LimitPlayDoorSE() {

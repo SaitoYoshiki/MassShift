@@ -68,6 +68,9 @@ public class PlayerAnimation : MonoBehaviour {
 
 		cSwim,
 		cHoldSwim,
+
+		cHandSpring,
+		cHoldHandSpring,
 	}
 
 	[SerializeField]
@@ -182,6 +185,13 @@ public class PlayerAnimation : MonoBehaviour {
 				break;
 			case CState.cRelease:
 				UpdateRelease();
+				break;
+
+			case CState.cHandSpring:
+				UpdateHandSpring();
+				break;
+			case CState.cHoldHandSpring:
+				UpdateHoldHandSpring();
 				break;
 		}
 	}
@@ -544,6 +554,34 @@ public class PlayerAnimation : MonoBehaviour {
 		}
 	}
 
+
+	void InitHandSpring() {
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("HandSpring", 0.2f);
+		}
+	}
+
+	void UpdateHandSpring() {
+		if (mIsInit) {
+			InitHandSpring();
+			mIsInit = false;
+		}
+	}
+
+	void InitHoldHandSpring() {
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("HoldHandSpring", 0.2f);
+		}
+	}
+
+	void UpdateHoldHandSpring() {
+		if (mIsInit) {
+			InitHoldHandSpring();
+			mIsInit = false;
+		}
+	}
+
+
 	GameObject mBox;
 
 	public Vector3 GetBoxPosition() {
@@ -715,6 +753,14 @@ public class PlayerAnimation : MonoBehaviour {
 		ChangeState(CState.cHoldJumpLand);
 	}
 
+
+	public void StartHandSpring() {
+		ChangeState(CState.cHandSpring);
+	}
+
+	public void StartHoldHandSpring() {
+		ChangeState(CState.cHoldHandSpring);
+	}
 
 
 	public void StartRelease() {

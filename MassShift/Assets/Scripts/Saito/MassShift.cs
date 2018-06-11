@@ -22,6 +22,9 @@ public class MassShift : MonoBehaviour
 
 		mLightBall = null;
 
+		mAllWeightModel = FindObjectsOfType<WeightManager>();
+		mPlayer = FindObjectOfType<Player>();
+
 		Cursor.visible = false;
 	}
 
@@ -56,13 +59,11 @@ public class MassShift : MonoBehaviour
 	}
 
 	void PlayerIsShift(bool aValue) {
-		var p = FindObjectOfType<Player>();
-		if (p == null) return;
+		if (mPlayer == null) return;
 		//p.IsShift = aValue;
 	}
 	bool PlayerCanShift() {
-		var p = FindObjectOfType<Player>();
-		if (p == null) return true;
+		if (mPlayer == null) return true;
 		return true;
 		//return p.CanShift;
 	}
@@ -231,7 +232,7 @@ public class MassShift : MonoBehaviour
 			if (mSelect != null) {
 
 				bool lCanSelect = false;
-				if (CanShiftSourceToDest(mSource, mSelect)) {
+				if (CanShiftDest(mSelect) && CanShiftShare(mSource, mSelect)) {
 					lCanSelect = true;
 				}
 
@@ -249,19 +250,29 @@ public class MassShift : MonoBehaviour
 
 		//選択されているオブジェクトがあるなら
 		if (mSelect != null) {
-			bool lThrough = UpdateMassShiftLine(mMassShiftLine, mSource, mSelect);	//移す元から選択先へ
-			if(lThrough) {
-				ShowModelHilight(mSelect, true, mCanSelectColor * mCanSelectColorPower);
+			UpdateMassShiftLine(mMassShiftLine, mSource, mSelect);	//移す元から選択先へ
+
+			//移す元から移せるなら
+			if(CanShiftSource(mSource)) {
 				ShowModelHilight(mSource, true, mCanSelectColor * mCanSelectColorPower);
 			}
 			else {
-				ShowModelHilight(mSelect, true, mCanNotSelectColor * mCanNotSelectColorPower);
 				ShowModelHilight(mSource, true, mCanNotSelectColor * mCanNotSelectColorPower);
+			}
+
+			//移す先へ移せるなら
+			if(CanShiftDest(mSelect)) {
+				ShowModelHilight(mSelect, true, mCanSelectColor * mCanSelectColorPower);
+			}
+			else {
+				ShowModelHilight(mSelect, true, mCanNotSelectColor * mCanNotSelectColorPower);
 			}
 		}
 		else {
-			bool lThrough = UpdateMassShiftLine(mMassShiftLine, mSource, mCursor);  //移す元からカーソルへ
-			if (lThrough) {
+			UpdateMassShiftLine(mMassShiftLine, mSource, mCursor);  //移す元からカーソルへ
+
+			//移す元から移せるなら
+			if (CanShiftSource(mSource)) {
 				ShowModelHilight(mSource, true, mCanSelectColor * mCanSelectColorPower);
 			}
 			else {
@@ -518,6 +529,7 @@ public class MassShift : MonoBehaviour
 		//もし障害物に当たっていたら
 		if (lLightBall.IsHit) {
 			SoundManager.SPlay(mCancelShiftSE);
+			GenerateShiftFailedEffect(lLightBall.mHitPosition, lLightBall.mHitDirection);
 			ChangeState(CSelectState.cReturnToSource);
 			return;
 		}
@@ -526,7 +538,7 @@ public class MassShift : MonoBehaviour
 		if (lLightBall.IsReached) {
 			
 			//移せるなら
-			if (CanShiftSourceToDest(mSource, mDest)) {
+			if (CanShiftDest(mDest) && CanShiftShare(mSource, mDest)) {
 
 				//それが共有ボックスなら
 				if (mDest.GetComponent<ShareWeightBox>()) {
@@ -544,6 +556,7 @@ public class MassShift : MonoBehaviour
 				MassShiftFail(mDest);
 				ChangeState(CSelectState.cReturnToSource);  //移し元へ光の弾は帰っていく
 				SoundManager.SPlay(mCantShiftSE);
+				GenerateShiftFailedEffect(lLightBall);
 				return;
 			}
 		}
@@ -750,7 +763,12 @@ public class MassShift : MonoBehaviour
 			mMassShiftLine.SetActive(false);
 
 			//カーソルも消す
-			ChangeCursorState(CCursorState.cCanNotShift);
+			if(mInvisibleCursor) {
+				ChangeCursorState(CCursorState.cInvisible);
+			}
+			else {
+				ChangeCursorState(CCursorState.cCanNotShift);
+			}
 		}
 
 		//外部からCanShiftにtrueを入れられないと、この状態からは変化しない
@@ -836,6 +854,7 @@ public class MassShift : MonoBehaviour
 		cNormal,	//移せる。何も操作していない時
 		cShotLineThrough,	//選択時、射線が通っている
 		cShotLineNotThrough,	//選択時、射線が通っていない
+		cInvisible,	//カーソルが見えない
 	}
 
 	[SerializeField, EditOnPrefab]
@@ -856,8 +875,11 @@ public class MassShift : MonoBehaviour
 
 	GameObject mLightBallTemplate;	//ひな型としてインスタンス化しておく
 	GameObject mLightBall;	//重さを移すときに使う
-	List<GameObject> mLightBallShare = new List<GameObject>();	//共有ブロック間で移すときに使う
+	List<GameObject> mLightBallShare = new List<GameObject>();  //共有ブロック間で移すときに使う
 
+
+	[SerializeField, EditOnPrefab, Tooltip("重さを移すのに失敗したときのエフェクト")]
+	GameObject mShiftFailedEffectPrefab;
 
 	[SerializeField]
 	Color mCanSelectColor;
@@ -995,8 +1017,27 @@ public class MassShift : MonoBehaviour
 
 		float enter = 0.0f;
 		if (plane.Raycast(ray, out enter)) {
-			mCursor.transform.position = ray.GetPoint(enter);
+			Vector3 lPosition = ray.GetPoint(enter);
+			mCursor.transform.position = ClampCursorInScreen(lPosition);
 		}
+	}
+
+	//カーソルを画面内に収める
+	//
+	Vector3 ClampCursorInScreen(Vector3 aPosition) {
+
+		Vector3 lViewportPoint = Camera.main.WorldToViewportPoint(aPosition);
+
+		//Debug.Log("ViewportPoint:" + lViewportPoint);
+
+		const float cXOffset = 0.02f;
+		float cYOffset = cXOffset * Screen.width / Screen.height;
+
+		lViewportPoint.x = Mathf.Clamp(lViewportPoint.x , 0.0f + cXOffset, 1.0f - cXOffset);
+		lViewportPoint.y = Mathf.Clamp(lViewportPoint.y, 0.0f + cYOffset, 1.0f - cYOffset);
+
+		Vector3 lWorldPoint = Camera.main.ViewportToWorldPoint(lViewportPoint);
+		return lWorldPoint;
 	}
 
 
@@ -1010,7 +1051,7 @@ public class MassShift : MonoBehaviour
 	float mShiftOnValue = 0.8f;
 
 	[SerializeField, Tooltip("カーソルを見えなくする")]
-	bool _Debug_mInvisibleCursor = false;
+	public bool mInvisibleCursor = false;
 
 
 	//ジョイスティックでカーソルを動かす
@@ -1042,20 +1083,24 @@ public class MassShift : MonoBehaviour
 	//
 	Vector3 GetMassPosition(GameObject aGameObject) {
 
-		Transform lWeightParticle = aGameObject.transform.Find("WeightParticle");
-		if (lWeightParticle != null) {
-			return lWeightParticle.position;
+		//プレイヤー用
+		Transform lMassPosition = aGameObject.transform.Find("Offset/RotOffset/Rotation/ModelOffset/WeightPosition");
+		if (lMassPosition != null) {
+			return lMassPosition.position;
 		}
 
-		lWeightParticle = aGameObject.transform.Find("Rotation/WeightParticle");
-		if (lWeightParticle != null) {
-			return lWeightParticle.position;
+		//その他のボックス用
+		lMassPosition = aGameObject.transform.Find("WeightParticle");
+		if (lMassPosition != null) {
+			return lMassPosition.position;
 		}
 
 		return aGameObject.transform.position;
 	}
 
 
+	//各オブジェクトの、重さを移すのに失敗したときの動作を呼び出す
+	//
 	void MassShiftFail(GameObject aTarget) {
 		if (aTarget == null) return;
 		MassShiftFailed m = aTarget.GetComponent<MassShiftFailed>();
@@ -1063,10 +1108,22 @@ public class MassShift : MonoBehaviour
 		m.MassShiftFail();
 	}
 
+	//重さを移すのに失敗したときのエフェクトを生成する
+	//
+	void GenerateShiftFailedEffect(Vector3 aPosition, Vector3 aDirection) {
+		var g = Instantiate(mShiftFailedEffectPrefab, transform);
+		g.transform.position = aPosition;
+		g.transform.rotation = Quaternion.FromToRotation(Vector3.up, aDirection);
+	}
+
+	void GenerateShiftFailedEffect(LightBall aLightBall) {
+		GenerateShiftFailedEffect(aLightBall.transform.position, aLightBall.To - aLightBall.From);
+	}
+
 
 	//重さを移す表示線の更新
 	//
-	bool UpdateMassShiftLine(GameObject aMassShiftLine, GameObject aFrom, GameObject aTo) {
+	void UpdateMassShiftLine(GameObject aMassShiftLine, GameObject aFrom, GameObject aTo) {
 
 		MassShiftLine lMassShiftLine = aMassShiftLine.GetComponent<MassShiftLine>();
 
@@ -1076,20 +1133,39 @@ public class MassShift : MonoBehaviour
 		//重さを移す表示の線の、位置を更新
 		lMassShiftLine.SetLinePosition(lFromPosition, lToPosition);
 
-		//もし射線が通っているなら
-		if (mLightBallTemplate.GetComponent<LightBall>().ThroughShotLine(lFromPosition, lToPosition, new GameObject[] { mSource, mDest, mSelect }.ToList())) {
+		
+		//移せるかどうかの判別
+		//
+
+		//射線が通っているか
+		bool lIsThrough = IsThrough(aFrom, aTo);
+
+
+		//移し元から移せるか
+		bool lCanShiftSource = CanShiftSource(aFrom);
+
+		//移し先に移せるか
+		bool lCanShiftDest = CanShiftDest(aTo) || aTo.GetComponent<WeightManager>() == null;	//移し先がカーソルでもtrueになれるように、ここは必ずtrueにしておく
+
+		//移し元と移し先が共有ボックスでないか
+		bool lCanShiftShare = CanShiftShare(aFrom, aTo);
+
+		//移せるなら
+		if (lIsThrough && lCanShiftSource && lCanShiftDest && lCanShiftShare) {
 			//線とカーソルを、射線が通っているときの色にする
 			lMassShiftLine.ChangeColor(mCanSelectColor * mCanSelectColorPower);
 			ChangeCursorState(CCursorState.cShotLineThrough);
 			lMassShiftLine.UpdatePosition();    //線を移動させる
-			return true;
 		}
 		else {
 			//通っていない色にする
 			lMassShiftLine.ChangeColor(mCanNotSelectColor * mCanNotSelectColorPower);
 			ChangeCursorState(CCursorState.cShotLineNotThrough);
-			return false;
 		}
+	}
+
+	bool IsThrough(GameObject aFrom, GameObject aTo) {
+		return mLightBallTemplate.GetComponent<LightBall>().ThroughShotLine(GetMassPosition(aFrom), GetMassPosition(aTo), new GameObject[] { aFrom, aTo }.ToList());
 	}
 
 
@@ -1097,13 +1173,6 @@ public class MassShift : MonoBehaviour
 
 		GameObject lNormal = mCursor.transform.Find("Model/Normal").gameObject;
 		GameObject lSelect = mCursor.transform.Find("Model/Select").gameObject;
-
-		if(_Debug_mInvisibleCursor) {
-			lNormal.SetActive(false);
-			lSelect.SetActive(false);
-			return;
-		}
-
 
 		if (aCursorState == CCursorState.cNormal) {
 			lNormal.SetActive(false);
@@ -1125,6 +1194,10 @@ public class MassShift : MonoBehaviour
 			lSelect.SetActive(true);
 			lSelect.GetComponentInChildren<Renderer>().material.SetColor("_Color", mCanNotSelectColor * mCanNotSelectColorPower);
 		}
+		else if (aCursorState == CCursorState.cInvisible) {
+			lNormal.SetActive(false);
+			lSelect.SetActive(false);
+		}
 	}
 	
 
@@ -1132,11 +1205,13 @@ public class MassShift : MonoBehaviour
 	//
 	void ShowAllModelHilight(bool aIsShow, Color aColor) {
 
-		foreach(var w in FindObjectsOfType<WeightManager>()) {
+		foreach(var w in mAllWeightModel) {
 			ShowModelHilight(w.gameObject, aIsShow, aColor);
 		}
 	}
+	WeightManager[] mAllWeightModel;
 
+	Player mPlayer;
 
 	//そのモデルのハイライトを表示・非表示にしたり、色を変更する
 	//
@@ -1178,8 +1253,13 @@ public class MassShift : MonoBehaviour
 			return false;
 		}
 
+		WeightManager lWM = aSource.GetComponent<WeightManager>();
+		if(lWM == null) {
+			return false;
+		}
+
 		//重さが0なら移せない
-		if (aSource.GetComponent<WeightManager>().WeightLv == WeightManager.Weight.flying) {
+		if (lWM.WeightLv == WeightManager.Weight.flying) {
 			return false;
 		}
 
@@ -1188,9 +1268,31 @@ public class MassShift : MonoBehaviour
 
 	//その移し元から移し先へ、重さを移せるか
 	//
-	bool CanShiftSourceToDest(GameObject aSource, GameObject aDest) {
+	bool CanShiftDest(GameObject aDest) {
 
-		if(aSource == null) {
+		if (aDest == null) {
+			return false;
+		}
+
+		WeightManager lDestWM = aDest.GetComponent<WeightManager>();
+		if(lDestWM == null) {
+			return false;	//どちらかがWeightManagerを持たないなら移せない
+		}
+
+		//移し先のボックスの重さが2なら
+		if (lDestWM.WeightLv == WeightManager.Weight.heavy) {
+			return false;	//移せない
+		}
+
+		return true;
+	}
+
+
+	//共有ボックスの組み合わせかどうか
+	//
+	bool CanShiftShare(GameObject aSource, GameObject aDest) {
+
+		if (aSource == null) {
 			return false;
 		}
 		if (aDest == null) {
@@ -1204,13 +1306,8 @@ public class MassShift : MonoBehaviour
 		if (lSourceShare != null && lDestShare != null) {
 			//同じ共有グループなら
 			if (lSourceShare.IsShare(lDestShare)) {
-				return false;	//移せない
+				return false;   //移せない
 			}
-		}
-
-		//移し先のボックスの重さが2なら
-		if (aDest.GetComponent<WeightManager>().WeightLv == WeightManager.Weight.heavy) {
-			return false;	//移せない
 		}
 
 		return true;

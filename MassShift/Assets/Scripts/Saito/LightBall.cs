@@ -37,6 +37,9 @@ public class LightBall : MonoBehaviour {
 
 	Vector3 mBeforePosition;
 
+	public Vector3 mHitPosition;	//光の弾が障害物に当たったときの場所
+	public Vector3 mHitDirection;	//光の弾が障害物に当たったときの向き
+
 
 	[SerializeField, EditOnPrefab]
 	GameObject mCollider;
@@ -119,10 +122,22 @@ public class LightBall : MonoBehaviour {
 			}
 		}
 
+		//近い順にソートする
+		rcs = rcs.OrderBy(x => x.distance).ToList();
 
 		foreach (var rc in rcs) {
-			if (aIgnoreList == null) return false;
+			bool lHit = false;
+
+			if (aIgnoreList == null) {
+				lHit = true;
+			}
 			if (aIgnoreList.Contains(rc.collider.gameObject) == false) {
+				lHit = true;
+			}
+
+			if(lHit == true) {
+				mHitPosition = rc.point;
+				mHitDirection = aTo - aFrom;
 				return false;
 			}
 		}
@@ -141,6 +156,9 @@ public class LightBall : MonoBehaviour {
 		}
 	}
 
+
+	//エフェクトを再生する
+	//
 	public void PlayEffect() {
 		foreach(var p in mModel.GetComponentsInChildren<ParticleSystem>()) {
 			p.Play();
@@ -149,13 +167,21 @@ public class LightBall : MonoBehaviour {
 			p.enabled = true;
 		}
 	}
+
+	//エフェクトを停止する
+	//
 	public void StopEffect() {
+
+		//パーティクルの発生を停止する
 		foreach (var p in mModel.GetComponentsInChildren<ParticleSystem>()) {
 			p.Stop();
 		}
+		//モデルを見えなくする
 		foreach (var p in mModel.GetComponentsInChildren<MeshRenderer>()) {
 			p.enabled = false;
 		}
+
+		//長時間動くパーティクルがあり、点が残って変な見た目になるので消しておく
 		foreach (var p in mStopEffectErase) {
 			p.SetActive(false);
 		}
