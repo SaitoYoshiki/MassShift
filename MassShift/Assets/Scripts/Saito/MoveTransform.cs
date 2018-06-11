@@ -28,9 +28,10 @@ public class MoveTransform : MonoBehaviour {
         else {
             // タイトルからの遷移なら
             if (cameraMove.fromTitle) {
-                //mStartPosition = new Vector3(-17.0f, -4.5f, 45.0f);
-                mStartPosition.y += 10.0f;
-                mStartPosition.z = 50.0f;
+                mStartPosition = new Vector3(-17.0f, -1.5f, 45.0f);
+                //mStartPosition = new Vector3(-9.0f, -2.5f, 35.0f);
+                //mStartPosition.y += 10.0f;
+                //mStartPosition.z = 45.0f;
             }
             // それ以外なら
             else {
