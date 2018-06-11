@@ -29,6 +29,9 @@ public class StageSelectManager : MonoBehaviour {
     MoveTransform mCameraMove;
 
 	[SerializeField]
+	StageSelectEnterUI mEnterUI;
+
+	[SerializeField]
 	GameObject mTopStaticWeightBox;
 
 	[SerializeField]
@@ -182,6 +185,7 @@ public class StageSelectManager : MonoBehaviour {
 			}
 
 			mStageSelectScroll.mIsScroll = true;    //スクロールが行えるようになる
+			mStageSelectScroll.mCameraMoveSpeed = 10.0f;
 
 			//プレイヤーを自動で歩かせる
 			//
@@ -209,6 +213,7 @@ public class StageSelectManager : MonoBehaviour {
 		OnCanShiftOperation(true);  //重さを移せるようになる
 		mCameraMove.IsMoveEnd = false;
 		mStageSelectScroll.mIsScroll = true;    //スクロールが行えるようになる
+		mStageSelectScroll.mCameraMoveSpeed = 50.0f;
 		mPause.canPause = true; //ポーズが出来るようになる
 		CanMovePlayer(true);
 
@@ -231,6 +236,17 @@ public class StageSelectManager : MonoBehaviour {
 				SetEnterColor(mSelectStageNum);
 				OpenDoor(lSelectStageNum, true);
 				OpenDoor(lBeforeSelectStageNum, false);
+
+				if(lSelectStageNum != -1) {
+					Vector3 lUIPosition = mGoal[lSelectStageNum].transform.position;
+					lUIPosition += mGoal[lSelectStageNum].transform.rotation * Vector3.up * 5.0f;
+					mEnterUI.SetPosition(lUIPosition);
+					mEnterUI.SetRotation(mGoal[lSelectStageNum].transform.rotation);
+					mEnterUI.StartAnimation();
+				}
+				if(lBeforeSelectStageNum != -1) {
+					mEnterUI.StopAnimation();
+				}
 			}
 			lBeforeSelectStageNum = lSelectStageNum;
 			

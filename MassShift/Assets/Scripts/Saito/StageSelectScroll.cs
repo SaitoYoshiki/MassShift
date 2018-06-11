@@ -16,8 +16,8 @@ public class StageSelectScroll : MonoBehaviour {
 	[SerializeField]
 	GameObject mCamera;
 
-	[SerializeField]
-	float mCameraMoveSpeed = 10.0f;
+	[HideInInspector]
+	public float mCameraMoveSpeed = 10.0f;
 
 	[SerializeField]
 	GameObject mLeftWall;   //エリア1で、左側に戻れないようにする壁
