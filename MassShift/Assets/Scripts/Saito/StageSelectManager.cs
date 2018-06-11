@@ -63,13 +63,16 @@ public class StageSelectManager : MonoBehaviour {
 
 	IEnumerator StageSelectMain() {
 
+		//重さを移せないようにする
+		OnCanShiftOperation(false);
+
+
 		//プレートの色を変える
 		SetEnterColor(-1);
 
         //カメラをズームされた位置に移動
         mCameraMove.MoveStartPoisition();
-
-		//LimitPlayDoorSE();
+		
 
 		// タイトルシーンからの遷移でなければ
         if (!cameraMove.fromTitle) {
@@ -95,11 +98,18 @@ public class StageSelectManager : MonoBehaviour {
 
 		int lDecideSelectStageNum = -1;
 
+
 		//カメラのズームアウトを始める
 		mCameraMove.MoveStart();
 
 		//ゲームメインのループ
 		while (true) {
+
+			//カメラのズームアウトが終わってから、移す操作を出来るようになる
+			if (mCameraMove.IsMoveEnd) {
+				OnCanShiftOperation(true);
+				mCameraMove.IsMoveEnd = false;
+			}
 
 			//ポーズ中なら
 			if (mPause.pauseFlg) {
@@ -174,5 +184,18 @@ public class StageSelectManager : MonoBehaviour {
 		for(int i = 1; i < mGoal.Count; i++) {
 			mGoal[i].mPlayOpenSE = false;
 		}
+	}
+
+	MassShift mMassShift {
+		get {
+			return FindObjectOfType<MassShift>();
+		}
+	}
+
+	//重さを移せるようになる操作
+	//
+	void OnCanShiftOperation(bool aCanShift) {
+		mMassShift.CanShift = aCanShift;    //重さを移せる
+		mMassShift.mInvisibleCursor = !aCanShift;
 	}
 }
