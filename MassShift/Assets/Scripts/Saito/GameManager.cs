@@ -95,7 +95,11 @@ public class GameManager : MonoBehaviour {
 		//BGMを再生する
 		int lAreaNumber = Area.GetAreaNumber();
 		if(lAreaNumber != -1) {
-			SoundManager.SPlay(mAreaBGM[lAreaNumber]);
+			GameObject lBGMPrefab = mAreaBGM[lAreaNumber];
+
+			//BGMを流し始める
+			var t = SoundManager.SPlay(lBGMPrefab);
+			SoundManager.SFade(t, 0.0f, SoundManager.SVolume(lBGMPrefab), 2.0f);
 		}
 
 
