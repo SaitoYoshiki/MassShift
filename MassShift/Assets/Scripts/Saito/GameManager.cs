@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour {
 		mResult = FindObjectOfType<Result>();
 		mPause = FindObjectOfType<Pause>();
 
+		//ポーズ画面から来たら、ポーズを戻す
 		Time.timeScale = 1.0f;
 		mPause.pauseEvent.Invoke();
 
@@ -64,10 +65,17 @@ public class GameManager : MonoBehaviour {
 
 		//ステージ開始時の演出
 
-		mCameraMove.mStartPosition = GetPlayerZoomCameraPosition();
+		//タイトルから来ていないなら、プレイヤーに寄った位置からズームアウトを開始する
+		if(cameraMove.fromTitle == false) {
+			mCameraMove.mStartPosition = GetPlayerZoomCameraPosition();
+		}
+		//タイトルからなら
+		else {
+			//mCameraMove.mStartPosition = new Vector3(0.0f, 0.0f, 45.0f);
+		}
 
 		//カメラをズームされた位置に移動
-		mCameraMove.MoveStartPoisition();
+		mCameraMove.MoveStartPosition();
 
 		//if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
 		{

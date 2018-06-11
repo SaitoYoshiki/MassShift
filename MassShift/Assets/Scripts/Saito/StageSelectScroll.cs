@@ -22,6 +22,9 @@ public class StageSelectScroll : MonoBehaviour {
 	[SerializeField]
 	GameObject mLeftWall;   //エリア1で、左側に戻れないようにする壁
 
+	//スクロールするかどうか
+	public bool mIsScroll = false;
+
 	int mAreaIndex = -1;
 
 
@@ -32,6 +35,10 @@ public class StageSelectScroll : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+
+		if(mIsScroll == false) {
+			return;
+		}
 
 		//現在いるエリア位置を更新
 		if (GetHitAreaIndex() != -1) {

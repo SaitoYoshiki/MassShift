@@ -35,7 +35,7 @@ public class StageSelectManager : MonoBehaviour {
 	GameObject mBottomStaticWeightBox;
 
 	[SerializeField]
-	int mClearArea = 0;
+	int mClearArea = 2;
 
 
 
@@ -74,6 +74,7 @@ public class StageSelectManager : MonoBehaviour {
 
 		//重さを移せないようにする
 		OnCanShiftOperation(false);
+		mPause.canPause = false;
 
 		//プレートの色を変える
 		SetEnterColor(-1);
@@ -85,8 +86,43 @@ public class StageSelectManager : MonoBehaviour {
 			mCameraMove.mEndPosition = mStageSelectScroll.mAreaCameraPosition[lAreaNum - 1].transform.position;
 		}
 
+		//プレイヤーの位置を変更
+		if (lAreaNum == 1 || lAreaNum == 2 || lAreaNum == 3) {
+			Goal g = mGoal[(Area.sNowAreaNumber - 1) * 5 + (Area.sNowStageNumber - 1)];
+			Vector3 lNewPlayerPosition = g.transform.position;
+			lNewPlayerPosition += g.transform.rotation * Vector3.up * 1.0f;
+			lNewPlayerPosition.z = 0.0f;
+			mPlayer.transform.position = lNewPlayerPosition;
+		}
+
+		if(lAreaNum == 1) {
+			mPlayer.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.light;
+			mTopStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.flying;
+			mBottomStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.heavy;
+		}
+		if (lAreaNum == 2) {
+			mPlayer.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.flying;
+			mTopStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.light;
+			mBottomStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.heavy;
+		}
+		if (lAreaNum == 3) {
+			mPlayer.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.heavy;
+			mTopStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.flying;
+			mBottomStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.light;
+		}
+
+		//クリアしたエリアによって、ボックスを消して次のエリアに行けないようにする
+		if (mClearArea == 0) {
+			mTopStaticWeightBox.SetActive(false);
+			mBottomStaticWeightBox.SetActive(false);
+		}
+		if (mClearArea == 1) {
+			mBottomStaticWeightBox.SetActive(false);
+		}
+
+
 		//カメラの開始地点を決める
-		if(lAreaNum == 0 || cameraMove.fromTitle) {
+		if (lAreaNum == 0 || cameraMove.fromTitle) {
 			//ステージセレクトの左端から始まる
 			mCameraMove.mStartPosition = new Vector3(-17.0f, -3.5f, 45.0f);
 		}
@@ -96,8 +132,12 @@ public class StageSelectManager : MonoBehaviour {
 		}
 		
 		//カメラをズームされた位置に移動
-		mCameraMove.MoveStartPoisition();
-		
+		mCameraMove.MoveStartPosition();
+
+
+		//プレイヤーを移動不可にする
+		CanMovePlayer(false);
+
 		
 		// タイトルシーンからの遷移でなければ
         if (!cameraMove.fromTitle) {
@@ -111,7 +151,7 @@ public class StageSelectManager : MonoBehaviour {
             }
         }
         else {
-            cameraMove.fromTitle = false;
+            //cameraMove.fromTitle = false;
         }
 
 		//BGMを流し始める
@@ -127,15 +167,55 @@ public class StageSelectManager : MonoBehaviour {
 		//カメラのズームアウトを始める
 		mCameraMove.MoveStart();
 
-		//ゲームメインのループ
-		while (true) {
 
-			//カメラのズームアウトが終わってから、移す操作を出来るようになる
-			if (mCameraMove.IsMoveEnd) {
-				OnCanShiftOperation(true);
-				mCameraMove.IsMoveEnd = false;
+		//左端から始まるなら
+		if(lAreaNum == 0 || cameraMove.fromTitle) {
+
+			cameraMove.fromTitle = false;
+
+			while (true) {
+				//カメラのズームアウトが終わるまで待機
+				if (mCameraMove.IsMoveEnd) {
+					break;
+				}
+				yield return null;
 			}
 
+			mStageSelectScroll.mIsScroll = true;    //スクロールが行えるようになる
+
+			//プレイヤーを自動で歩かせる
+			//
+			CanMovePlayer(true);    //プレイヤーは動けるようにするが、ユーザーの入力は受け付けない
+			var v = mPlayer.GetComponent<VirtualController>();
+			//v.selfUpdateRetAxis = false;
+			float cWalkTime = 1.0f;
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 1.0f, cWalkTime);
+			VirtualController.SetAxis(VirtualController.CtrlCode.Jump, 0.0f, cWalkTime);
+			VirtualController.SetAxis(VirtualController.CtrlCode.Lift, 0.0f, cWalkTime);
+			VirtualController.SetAxis(VirtualController.CtrlCode.Vertical, 0.0f, cWalkTime);
+
+			yield return new WaitForSeconds(cWalkTime);
+		}
+		else {
+			while(true) {
+				//カメラのズームアウトが終わってから、移す操作を出来るようになる
+				if (mCameraMove.IsMoveEnd) {
+					break;
+				}
+				yield return null;
+			}
+		}
+
+		OnCanShiftOperation(true);  //重さを移せるようになる
+		mCameraMove.IsMoveEnd = false;
+		mStageSelectScroll.mIsScroll = true;    //スクロールが行えるようになる
+		mPause.canPause = true; //ポーズが出来るようになる
+		CanMovePlayer(true);
+
+
+		//ゲームメインのループ
+		while (true) {
+			
 			//ポーズ中なら
 			if (mPause.pauseFlg) {
 				Cursor.visible = true;
