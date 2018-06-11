@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Audio;
 
 public class SetPlayerPrefs : MonoBehaviour {
     // オプションデータキー
@@ -11,9 +12,9 @@ public class SetPlayerPrefs : MonoBehaviour {
     private static string windowSettings = "windowSet";
 
     // オプション設定値
-    float   masterVolumeData;
-    float   bgmVolumeData;
-    float   seVolumeData;
+    public float   masterVolumeData;
+    public float   bgmVolumeData;
+    public float   seVolumeData;
     int     windowSizeData;
 
     // 解像度1920x1080
@@ -37,10 +38,11 @@ public class SetPlayerPrefs : MonoBehaviour {
     void Start() {
         // 設定を読み込めなければ初期設定を行う
         if (!LoadOptionSetting()) {
-            masterVolumeData = 1.0f;
-            bgmVolumeData = 1.0f;
-            seVolumeData = 1.0f;
+            masterVolumeData = 0.5f;
+            bgmVolumeData = 0.5f;
+            seVolumeData = 0.5f;
             windowSizeData = 0;
+            GetComponent<SetAudioSetting>().InitAudio();
         }
     }
 
@@ -66,7 +68,7 @@ public class SetPlayerPrefs : MonoBehaviour {
         // 設定データが保存されていたらオプション設定に適応
         // マスター
         if (PlayerPrefs.HasKey(masterVolumeSettings)) {
-            masterVolumeData = PlayerPrefs.GetFloat(masterVolumeSettings, -1.0f);
+            masterVolumeData = PlayerPrefs.GetFloat(masterVolumeSettings, 0.5f);
         }
         else {
             return false;
@@ -74,7 +76,7 @@ public class SetPlayerPrefs : MonoBehaviour {
 
         // BGM
         if (PlayerPrefs.HasKey(bgmVolumeSettings)) {
-            bgmVolumeData = PlayerPrefs.GetFloat(bgmVolumeSettings, -1.0f);
+            bgmVolumeData = PlayerPrefs.GetFloat(bgmVolumeSettings, 0.5f);
         }
         else {
             return false;
@@ -82,11 +84,13 @@ public class SetPlayerPrefs : MonoBehaviour {
 
         // SE
         if (PlayerPrefs.HasKey(seVolumeSettings)) {
-            seVolumeData = PlayerPrefs.GetFloat(seVolumeSettings, -1.0f);
+            seVolumeData = PlayerPrefs.GetFloat(seVolumeSettings, 0.5f);
         }
         else {
             return false;
         }
+
+        GetComponent<SetAudioSetting>().LoadAudio(masterVolumeData, bgmVolumeData, seVolumeData);
 
         // ウィンドウサイズ
         if (PlayerPrefs.HasKey(windowSettings)) {
