@@ -30,16 +30,23 @@ public class LandImpactShake : MonoBehaviour {
 		if(aWeight == WeightManager.Weight.heavy) {
 			//水中か、地上に着地したら
 			if(aEnviroment == LandImpact.CEnviroment.cWater || aEnviroment == LandImpact.CEnviroment.cGround) {
+
+				//既にコルーチンが走っているなら、止める
 				if (mShakeCoroutine != null) {
 					StopCoroutine(mShakeCoroutine);
 				}
 				
+				//落下した高さが一定以下なら
 				if (mShakeDisHeight >= aFallDistance) {
 					mShakeCoroutine = StartCoroutine(Shake(mShakeTime, mShakeMagnitude / 2.0f, 0.25f));	//カメラを揺らす（弱い）
 				}
 				else {
 					mShakeCoroutine = StartCoroutine(Shake(mShakeTime, mShakeMagnitude * 3.0f, 0.25f)); //カメラを揺らす（強い）
 				}
+
+				//プレイヤーなら、移動不可にする
+				SetPlayerCanMove(false);
+				
 			}
 		}
 	}
@@ -49,5 +56,20 @@ public class LandImpactShake : MonoBehaviour {
 		//待機
 		yield return new WaitForSeconds(aShakeDelay);
 		ShakeCamera.ShakeAll(aShakeTime, aShakeMagnitude); //カメラを揺らす
+
+		//プレイヤーを移動可能にするまで待機
+		yield return new WaitForSeconds(aShakeTime);
+
+		SetPlayerCanMove(true);
+	}
+
+	void SetPlayerCanMove(bool aCan) {
+
+		var lPlayer = GetComponent<Player>();
+		if (lPlayer == null) return;
+
+		lPlayer.CanWalk = aCan;
+		lPlayer.CanJump = aCan;
+		lPlayer.CanRotation = aCan;
 	}
 }

@@ -227,7 +227,7 @@ public class Fan : MonoBehaviour {
 	[SerializeField, EditOnPrefab, Tooltip("モデル")]
 	GameObject mFanModel;
 
-	[SerializeField, EditOnPrefab, Tooltip("回転するファンのモデル")]
+	[SerializeField, Tooltip("回転するファンのモデル")]
 	GameObject mRotateFanModel;
 
 	[SerializeField, EditOnPrefab, Tooltip("風のエフェクト")]

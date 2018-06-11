@@ -17,32 +17,37 @@ public class MoveTransform : MonoBehaviour {
 
 		Player p = GetPlayer();
 
-        mStartPosition = p.transform.position;
+        //mStartPosition = p.transform.position;
 
         // チュートリアル以外
-        if (Area.GetAreaNumber() >= 0) {
-            mStartPosition.y -= 1.0f;
+        if (Area.GetAreaNumber() > 0) {
+			mStartPosition = p.transform.position;
+			mStartPosition.y -= 1.0f;
             mStartPosition.z = 40.0f;
         }
         // チュートリアル
         else if (Area.GetAreaNumber() == 0) {
             // タイトルからの遷移なら
             if (cameraMove.fromTitle) {
-                mStartPosition = new Vector3(-17.0f, -1.5f, 45.0f);
+                //mStartPosition = new Vector3(-17.0f, -1.5f, 45.0f);
+				//インスペクターの値をそのまま使う
             }
             // それ以外なら
             else {
-                mStartPosition.z = 35.0f;
+				mStartPosition = p.transform.position;
+				mStartPosition.z = 35.0f;
             }
         }
         // ステージセレクト
         else {
             // タイトルからの遷移なら
             if (cameraMove.fromTitle) {
-                mStartPosition = new Vector3(-17.0f, -1.5f, 45.0f);
+                //mStartPosition = new Vector3(-17.0f, -1.5f, 45.0f);
+				//インスペクターの値をそのまま使う
             }
             else {
-                mStartPosition.y -= 1.0f;
+				mStartPosition = p.transform.position;
+				mStartPosition.y -= 1.0f;
                 mStartPosition.z = 40.0f;
             }
         }
