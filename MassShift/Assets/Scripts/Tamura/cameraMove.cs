@@ -52,14 +52,10 @@ public class cameraMove : MonoBehaviour {
         cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
 
         RenderSettings.ambientSkyColor = startLightColor;
-
-        //StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
-        //StageSelectActive.allowSceneActivation = false;
 	}
 
     void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
         SceneManager.SetActiveScene(scene);
-        SceneManager.UnloadSceneAsync("Title");
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 	
@@ -71,12 +67,7 @@ public class cameraMove : MonoBehaviour {
             colorPer += 0.01f;
             RenderSettings.ambientSkyColor = Color.Lerp(startLightColor, endLightColor, colorPer);
             if (colorPer >= 1.0f) {
-                GameObject.Find("SoundManager").SetActive(false);
-                GameObject.Find("Directional Light").SetActive(false);
-                GameObject.Find("Main Camera").SetActive(false);
-                GameObject.Find("EventSystem").SetActive(false);
-
-                StageSelectActive.allowSceneActivation = true;
+                //StageSelectActive.allowSceneActivation = true;
             }
         }
 	}
@@ -198,12 +189,11 @@ public class cameraMove : MonoBehaviour {
         cameraEndPoint = new Vector3(-32.0f, 1.0f, -50.0f);
         goTutorialFlg = false;
 
-        StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Additive);
-        StageSelectActive.allowSceneActivation = false;
+        StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
 
         colorPer = 0.01f;
 
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        //SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする

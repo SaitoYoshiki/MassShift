@@ -66,12 +66,6 @@ public class StageSelectManager : MonoBehaviour {
 		//プレートの色を変える
 		SetEnterColor(-1);
 
-        // タイトルシーンからの遷移であれば
-        if (cameraMove.fromTitle) {
-            // カメラの初期位置を変更
-            mCameraMove.mStartPosition = cameraStartPos;
-        }
-
         //カメラをズームされた位置に移動
         mCameraMove.MoveStartPoisition();
 

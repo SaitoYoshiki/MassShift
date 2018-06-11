@@ -77,6 +77,17 @@ public class Player : MonoBehaviour {
 		}
 	}
 	bool prevIsRotation = false;
+
+	[SerializeField]
+	bool isHandSpring = false;
+	bool IsHandSpring {
+		get {
+			return isHandSpring;
+		}
+		set {
+			isHandSpring = value;
+		}
+	}
 		
 	[SerializeField]
 	bool useManualJump = true;      // ボタン入力での通常ジャンプを使用する
@@ -304,7 +315,12 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	float cameraLookMaxRatio = 0.3f;		// 待機時のカメラの方を向く最大比率
 	[SerializeField]
-	float cameraLookBorderSpd = 0.1f;		// カメラの方を向くようになる移動速度
+	float cameraLookBorderSpd = 0.1f;       // カメラの方を向くようになる移動速度
+
+	[SerializeField]
+	float walkAnimRatio = 0.5f;		// 歩きアニメーションの再生速度倍率
+	[SerializeField]
+	float walkAnimMinSpd = 0.3f;	// 歩きアニメーションの最低再生速度
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -312,17 +328,20 @@ public class Player : MonoBehaviour {
 
 	void Update() {
 		// 左右移動入力
-		walkStandbyVec = Input.GetAxis("Horizontal");
+//		walkStandbyVec = Input.GetAxis("Horizontal");
+		walkStandbyVec = VirtualController.GetAxis(VirtualController.CtrlCode.Horizontal);
 
 		// ジャンプ入力
-		jumpStandbyFlg |= (Input.GetAxis("Jump") != 0.0f);
+//		jumpStandbyFlg |= (Input.GetAxis("Jump") != 0.0f);
+		jumpStandbyFlg |= (VirtualController.GetAxis(VirtualController.CtrlCode.Jump) != 0.0f);
 
 		// ジャンプ滞空時間
 		remainJumpTime = (!Land.IsLanding ? remainJumpTime + Time.deltaTime : 0.0f);
 
 		// 持ち上げ/下げ
 		if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation) {
-			if ((Input.GetAxis("Lift") != 0.0f)) {
+//			if ((Input.GetAxis("Lift") != 0.0f)) {
+			if ((VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();
 
@@ -375,7 +394,7 @@ public class Player : MonoBehaviour {
 
 		// 着地時、または入/出水時の戻り回転時
 		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
-		if (landTrueChangeFlg || ((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {   // 入/出水時の戻り回転
+		if (landTrueChangeFlg || ((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {
 
 			prevIsInWater = WaterStt.IsInWater;
 
@@ -395,6 +414,7 @@ public class Player : MonoBehaviour {
 				PlAnim.StartHandSpring();
 				RotVec = new Vector3(RotVec.x, landRotVec, RotVec.z);
 				HandSpringEndTime = (Time.time + handSpringWeitTime);
+				IsHandSpring = true;
 			}
 		}
 
@@ -417,9 +437,9 @@ public class Player : MonoBehaviour {
 
 			if (WaterStt.IsWaterSurface) {
 				if (!Lift.IsLifting) {
-					PlAnim.StartLand();
+//					PlAnim.StartLand();
 				} else {
-					PlAnim.StartHoldLand();
+//					PlAnim.StartHoldLand();
 				}
 			}
 		}
@@ -450,7 +470,8 @@ public class Player : MonoBehaviour {
 						PlAnim.StartHoldWalk();
 					}
 				}
-				PlAnim.SetSpeed(Mathf.Abs(walkStandbyVec));
+				float walkAnimSpd = Mathf.Max((Mathf.Abs(MoveMng.PrevMove.x) * walkAnimRatio), walkAnimMinSpd);
+				PlAnim.SetSpeed(walkAnimSpd);
 			}
 			// 泳ぎアニメーション
 			else {
@@ -463,10 +484,18 @@ public class Player : MonoBehaviour {
 		}
 		// 待機アニメーション
 		else {
-			if (!Lift.IsLifting) {
-				PlAnim.StartStandBy();
+			if (!WaterStt.IsWaterSurface) {
+				if (!Lift.IsLifting) {
+					PlAnim.StartStandBy();
+				} else {
+					PlAnim.StartHoldStandBy();
+				}
 			} else {
-				PlAnim.StartHoldStandBy();
+				if (!Lift.IsLifting) {
+					PlAnim.StartWaterStandBy();
+				} else {
+					PlAnim.StartHoldWaterStandBy();
+				}
 			}
 		}
 
@@ -607,7 +636,10 @@ public class Player : MonoBehaviour {
 		// 回転待ち
 		if (HandSpringEndTime > Time.time) {
 			IsRotation = true;
+			IsHandSpring = true;
 			return;
+		}else {
+			IsHandSpring = false;
 		}
 
 		//		// 持ち上げモーション中は処理しない
@@ -700,7 +732,8 @@ public class Player : MonoBehaviour {
 		if (!useAutoClimbJump) return;
 
 		// 持ち上げ中や持ち上げ入力があれば処理しない
-		if (Lift.IsLifting || (Input.GetAxis("Lift") != 0.0f)) return;
+		//		if (Lift.IsLifting || (Input.GetAxis("Lift") != 0.0f)) return;
+		if (Lift.IsLifting || (VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f)) return;
 
 		// ジャンプ可能でなければ処理しない
 		if (!canJump) return;

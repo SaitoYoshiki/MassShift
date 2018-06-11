@@ -43,9 +43,9 @@ public class PlayerAnimation : MonoBehaviour {
 
 	Animator mAnimator;
 
-	public bool mIsHover = false;	//浮いているかどうか
+	public bool mIsHover = false;   //浮いているかどうか
 
-	enum CState {
+	public enum CState {
 
 		cStandBy,
 		cWalk,
@@ -93,7 +93,7 @@ public class PlayerAnimation : MonoBehaviour {
 	float mSpeed = 0.0f;
 	Vector3 mBeforePosition;
 	
-	void ChangeState(CState aNextState) {
+	public void ChangeState(CState aNextState) {
 		mBeforeState = mState;
 		mState = aNextState;
 		mIsInit = true;
@@ -671,19 +671,19 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 
 	public void StartWaterStandBy() {
-		if (!StartLandCheck()) return;
+//		if (!StartLandCheck()) return;
 		ChangeState(CState.cWaterStandBy);
 	}
 	public void StartHoldWaterStandBy() {
-		if (!StartHoldLandCheck()) return;
+//		if (!StartHoldLandCheck()) return;
 		ChangeState(CState.cHoldWaterStandBy);
 	}
 	public void StartSwim() {
-		if (!StartLandCheck()) return;
+//		if (!StartLandCheck()) return;
 		ChangeState(CState.cSwim);
 	}
 	public void StartHoldSwim() {
-		if (!StartHoldLandCheck()) return;
+//		if (!StartHoldLandCheck()) return;
 		ChangeState(CState.cHoldSwim);
 	}
 

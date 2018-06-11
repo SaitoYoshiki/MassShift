@@ -35,7 +35,7 @@ public class Lifting : MonoBehaviour {
 	//[SerializeField] float colCenterPoint = 0.75f;		// 本体当たり判定の中心位置
 	//[SerializeField] float stdLiftingColPoint = 1.0f;	// 接地方向が通常時の持ち上げ中の本体当たり判定の位置
 	//[SerializeField] float revLiftingColPoint = 0.0f;	// 接地方向が逆の時の持ち上げ中の本体当たり判定の位置
-	[SerializeField] float liftObjMaxDisX = 0.9f;       // 持ち上げ時にx軸距離がこれ以上離れないように補正
+	//[SerializeField] float liftObjMaxDisX = 0.9f;       // 持ち上げ時にx軸距離がこれ以上離れないように補正
 	[SerializeField] bool afterHoldInput = false;		// 持ち上げ/下ろし後にそのまま入力を続けている
 	[SerializeField] LiftState st;	
 	public LiftState St {
@@ -715,11 +715,13 @@ public class Lifting : MonoBehaviour {
 	Vector3 GetLiftUpBoxPoint() {
 		if (LiftObj == null) return Vector3.zero;
 
-		// x軸が離れすぎていれば近づける
 		Vector3 ret = PlAnim.GetBoxPosition();
+
+		// x軸が離れようとした場合は離さない
+		float defDis = (LiftObj.transform.position.x - Pl.transform.position.x);
 		float dis = (ret.x - Pl.transform.position.x);
-		if (Mathf.Abs(dis) > liftObjMaxDisX) {
-			ret = new Vector3(Pl.transform.position.x + liftObjMaxDisX * Mathf.Sign(dis), ret.y, ret.z);
+		if (Mathf.Abs(dis) > Mathf.Abs(defDis)) {
+			ret = new Vector3((Pl.transform.position.x + defDis), ret.y, ret.z);
 		}
 		return ret;
 	}
