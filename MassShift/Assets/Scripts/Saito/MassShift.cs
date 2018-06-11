@@ -1017,8 +1017,27 @@ public class MassShift : MonoBehaviour
 
 		float enter = 0.0f;
 		if (plane.Raycast(ray, out enter)) {
-			mCursor.transform.position = ray.GetPoint(enter);
+			Vector3 lPosition = ray.GetPoint(enter);
+			mCursor.transform.position = ClampCursorInScreen(lPosition);
 		}
+	}
+
+	//カーソルを画面内に収める
+	//
+	Vector3 ClampCursorInScreen(Vector3 aPosition) {
+
+		Vector3 lViewportPoint = Camera.main.WorldToViewportPoint(aPosition);
+
+		//Debug.Log("ViewportPoint:" + lViewportPoint);
+
+		const float cXOffset = 0.02f;
+		float cYOffset = cXOffset * Screen.width / Screen.height;
+
+		lViewportPoint.x = Mathf.Clamp(lViewportPoint.x , 0.0f + cXOffset, 1.0f - cXOffset);
+		lViewportPoint.y = Mathf.Clamp(lViewportPoint.y, 0.0f + cYOffset, 1.0f - cYOffset);
+
+		Vector3 lWorldPoint = Camera.main.ViewportToWorldPoint(lViewportPoint);
+		return lWorldPoint;
 	}
 
 
