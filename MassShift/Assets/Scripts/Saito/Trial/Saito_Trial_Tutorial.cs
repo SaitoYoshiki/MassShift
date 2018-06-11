@@ -22,7 +22,6 @@ public class Saito_Trial_Tutorial : MonoBehaviour {
 	[SerializeField]
 	float mFadeTime = 0.2f;
 
-
 	// Use this for initialization
 	void Start () {
 		/*foreach(var i in mImage) {
@@ -50,10 +49,22 @@ public class Saito_Trial_Tutorial : MonoBehaviour {
 
         for (int i = 0; i < imgSet.Count; i++) {
             float lFadeDelta = -1.0f / mFadeTime * Time.fixedDeltaTime;
+
             if (mTargetIndex == i) {
                 lFadeDelta *= -1.0f;
+                if (!imgSet[i].isMonitorON) {
+                    imgSet[i].isMonitorON = true;
+                    imgSet[i].StartAnimation();
+                }
+            }
+            else {
+                if (imgSet[i].isMonitorON) {
+                    imgSet[i].isMonitorON = false;
+                    imgSet[i].StartAnimation();
+                }
             }
             SetFade(imgSet[i].tutorialLight, GetFade(imgSet[i].tutorialLight) + lFadeDelta);
+            imgSet[i].MonitorAnimation();
         }
 	}
 
@@ -62,6 +73,7 @@ public class Saito_Trial_Tutorial : MonoBehaviour {
 		c.a = Mathf.Clamp01(aFade);
 		aImage.color = c;
 	}
+
 	float GetFade(UnityEngine.UI.Image aImage) {
 		return aImage.color.a;
 	}
