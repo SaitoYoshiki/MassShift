@@ -148,6 +148,8 @@ public class Pause : MonoBehaviour {
             // オプション画面を閉じる
             optionCanvas.SetActive(false);
             pauseCanvas.SetActive(true);
+
+            GetComponent<SetPlayerPrefs>().SaveOptionSetting();
         }
     }
 

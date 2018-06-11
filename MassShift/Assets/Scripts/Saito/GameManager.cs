@@ -63,13 +63,6 @@ public class GameManager : MonoBehaviour {
 		float lTakeTime;
 
 		//ステージ開始時の演出
-		//
-
-        // タイトルシーンからの遷移であれば
-        if (cameraMove.fromTitle) {
-            // カメラの初期位置を変更
-            mCameraMove.mStartPosition = cameraStartPos;
-        }
 
 		//カメラをズームされた位置に移動
 		mCameraMove.MoveStartPoisition();
@@ -92,6 +85,7 @@ public class GameManager : MonoBehaviour {
             }
             else {
                 cameraMove.fromTitle = false;
+                Debug.Log("fromTitle"+cameraMove.fromTitle);
                 yield return null;
             }
 		}

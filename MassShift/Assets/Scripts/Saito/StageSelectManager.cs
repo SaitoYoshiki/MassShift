@@ -23,6 +23,8 @@ public class StageSelectManager : MonoBehaviour {
 
 	StageTransition mTransition;
 
+	Pause mPause;
+
     [SerializeField]
     MoveTransform mCameraMove;
 
@@ -34,6 +36,8 @@ public class StageSelectManager : MonoBehaviour {
 
 		mPlayer = FindObjectOfType<Player>();
 		mTransition = FindObjectOfType<StageTransition>();
+
+		mPause = FindObjectOfType<Pause>();
 
 		//ゲーム進行のコルーチンを開始
 		StartCoroutine(StageSelectMain());
@@ -61,12 +65,6 @@ public class StageSelectManager : MonoBehaviour {
 
 		//プレートの色を変える
 		SetEnterColor(-1);
-
-        // タイトルシーンからの遷移であれば
-        if (cameraMove.fromTitle) {
-            // カメラの初期位置を変更
-            mCameraMove.mStartPosition = cameraStartPos;
-        }
 
         //カメラをズームされた位置に移動
         mCameraMove.MoveStartPoisition();
@@ -102,6 +100,15 @@ public class StageSelectManager : MonoBehaviour {
 
 		//ゲームメインのループ
 		while (true) {
+
+			//ポーズ中なら
+			if (mPause.pauseFlg) {
+				Cursor.visible = true;
+			}
+			else {
+				Cursor.visible = false;
+			}
+
 
 			//現在いる場所のドアを開くのと、プレートを光らせるのの更新
 			lSelectStageNum = mSelectStageNum;

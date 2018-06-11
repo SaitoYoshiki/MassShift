@@ -30,6 +30,10 @@ public class WeightParticle : MonoBehaviour {
 		mLightParticle = Instantiate(mLightParticlePrefab, mParticleParent.transform);
 		mHeavyParticle = Instantiate(mHeavyParticlePrefab, mParticleParent.transform);
 
+		StopParticle(mFlyingParticle);
+		StopParticle(mLightParticle);
+		StopParticle(mHeavyParticle);
+
 		GetComponent<WeightEffect>().OnWeightChange += ChangeParticle;
 	}
 	

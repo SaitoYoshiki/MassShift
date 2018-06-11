@@ -36,12 +36,14 @@ public class cameraMove : MonoBehaviour {
 
     bool goTutorialFlg = false;
 
-    //bool isAdditiveLoad = false;
-
     AsyncOperation TutorialActive;
     AsyncOperation StageSelectActive;
 
     public static bool fromTitle = false;
+
+    Color startLightColor = new Color(0.0f, 0.0f, 0.0f);
+    Color endLightColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
+    float colorPer = 0.0f;
 
 	void Start () {
         this.transform.position = cameraStartPoint;
@@ -49,16 +51,25 @@ public class cameraMove : MonoBehaviour {
         st.gameObject.SetActive(false);
         cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
 
-        RenderSettings.ambientSkyColor = new Color(0.0f, 0.0f, 0.0f);
-
-        //StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
-        //StageSelectActive.allowSceneActivation = false;
+        RenderSettings.ambientSkyColor = startLightColor;
 	}
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
+        SceneManager.SetActiveScene(scene);
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
 	
 	void Update () {
         CheckFirstZoom();
         CheckZoomIn();
-        //CheckZoomOut();
+
+        if (colorPer > 0.0f && colorPer < 1.0f) {
+            colorPer += 0.01f;
+            RenderSettings.ambientSkyColor = Color.Lerp(startLightColor, endLightColor, colorPer);
+            if (colorPer >= 1.0f) {
+                //StageSelectActive.allowSceneActivation = true;
+            }
+        }
 	}
 
     void CheckFirstZoom() {
@@ -148,9 +159,8 @@ public class cameraMove : MonoBehaviour {
         tutorial.SetActive(false);
         stageselect.SetActive(false);
 
-        RenderSettings.ambientSkyColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
+        RenderSettings.ambientSkyColor = endLightColor;
 
-        //isAdditiveLoad = true;
         fromTitle = true;
     }
 
@@ -181,7 +191,9 @@ public class cameraMove : MonoBehaviour {
 
         StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
 
-        //StageSelectActive.allowSceneActivation = true;
+        colorPer = 0.01f;
+
+        //SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする

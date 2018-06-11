@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class ScreenShot : MonoBehaviour {
 
-	//このスクリプトがキー入力を受け取って、自身でスクリーンショットを撮れるか
-	public bool mCanSelf = true;
+	[SerializeField, Tooltip("スクリーンショットのファイル名につけるバージョンの文字列")]
+	string mVersion = "";
+
+	[SerializeField, Tooltip("このスクリプトがキー入力を受け取って、自身でスクリーンショットを撮れるか")]
+	bool mCanSelf = true;
 
 	// Update is called once per frame
 	void Update() {
@@ -33,7 +36,7 @@ public class ScreenShot : MonoBehaviour {
 
 		//ファイル名の作成
 		string lNowDate = string.Format("{0:00}{1:00}-{2:00}{3:00}-{4:00}{5:00}", System.DateTime.Now.Month, System.DateTime.Now.Day, System.DateTime.Now.Hour, System.DateTime.Now.Minute, System.DateTime.Now.Second, System.DateTime.Now.Millisecond / 10);
-		string lFileName = string.Format("{0}/MassShift_{1}.png", GetScreenShotPath(), lNowDate);
+		string lFileName = string.Format("{0}/MassShift_{1}_{2}.png", GetScreenShotPath(), lNowDate, mVersion);
 
 		//スクリーンショットの作成と保存
 		//CaptureScreenShotAlpha(lFileName);	//Aも保存できる版。原因は分からないが、エディターだとうまく保存できない
