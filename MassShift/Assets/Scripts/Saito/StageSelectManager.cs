@@ -53,6 +53,8 @@ public class StageSelectManager : MonoBehaviour {
 
 		mPause = FindObjectOfType<Pause>();
 
+		Time.timeScale = 1.0f;
+		mPause.pauseEvent.Invoke();
 
 		//ゲーム進行のコルーチンを開始
 		//

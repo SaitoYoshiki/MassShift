@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StageClearManager : MonoBehaviour {
+public class StageClearManager {
 
 	//起動時に、セーブされたデータをロードする
 	//
