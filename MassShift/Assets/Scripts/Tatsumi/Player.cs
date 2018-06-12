@@ -427,7 +427,11 @@ public class Player : MonoBehaviour {
 
 			// 回転アニメーション
 			if (nowRotVec != landRotVec) {
-				PlAnim.StartHandSpring();
+				if (!Lift.IsLifting) {
+					PlAnim.StartHandSpring();
+				} else {
+					PlAnim.StartHoldHandSpring();
+				}
 				RotVec = new Vector3(RotVec.x, landRotVec, RotVec.z);
 				HandSpringEndTime = (Time.time + handSpringWeitTime);
 				IsHandSpring = true;
@@ -651,7 +655,7 @@ public class Player : MonoBehaviour {
 		if (!CanRotation) {
 			IsRotation = false;
 			return;
-		}
+		}	
 
 		// 回転待ち
 		if (IsHandSpringWeit) {
