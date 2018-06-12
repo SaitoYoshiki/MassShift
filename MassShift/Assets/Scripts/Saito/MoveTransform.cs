@@ -55,7 +55,7 @@ public class MoveTransform : MonoBehaviour {
 		}
 	}
 
-	public void MoveStartPoisition() {
+	public void MoveStartPosition() {
 		transform.position = mStartPosition;
 	}
 

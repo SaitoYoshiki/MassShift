@@ -48,7 +48,7 @@ public class ChangeScene : MonoBehaviour {
 
     void Update() {
         if (!changeSceneFlg) {
-            if (!st.GetCloseEnd() || !st.GetOpenEnd()) {
+            if (!st.GetCloseEnd() /*|| !st.GetOpenEnd()*/) {
                 return;
             }
             else {
@@ -137,7 +137,6 @@ public class ChangeScene : MonoBehaviour {
         // ポーズを解除してシーン変更フラグを立てる
         pauseFlg = false;
         changeSceneMode = CHANGE_SCENE_MODE.NEXT;
-        changeSceneFlg = true;
 
         // リザルト画面を消す
         if (result.IsResultCanvasActive()) {

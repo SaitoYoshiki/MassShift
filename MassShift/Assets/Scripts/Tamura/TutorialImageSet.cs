@@ -42,10 +42,19 @@ public class TutorialImageSet : MonoBehaviour {
             }
         }
         else {
-            // 縮み
-            tutorialVideo.transform.localScale = Vector3.Lerp(new Vector3(1.0f, 1.0f, 1.0f), new Vector3(0.0f, 0.0f, 1.0f), animPer);
-            if (animPer >= 1.0f) {
-                monitorAnimFlg = false;
+            // 縦縮み
+            if (tutorialVideo.transform.localScale.y > 0.1f) {
+                tutorialVideo.transform.localScale = Vector3.Lerp(Vector3.one, new Vector3(1.0f, 0.1f, 1.0f), animPer);
+                if (animPer >= 1.0f) {
+                    animStartTime = Time.fixedUnscaledTime;
+                }
+            }
+            // 横縮み
+            else {
+                tutorialVideo.transform.localScale = Vector3.Lerp(new Vector3(1.0f, 0.1f, 1.0f), new Vector3(0.0f, 0.0f, 1.0f), animPer);
+                if (animPer >= 1.0f) {
+                    monitorAnimFlg = false;
+                }
             }
         }
     }
