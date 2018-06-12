@@ -34,8 +34,8 @@ public class GameManager : MonoBehaviour {
 	void Start() {
 
 		//エリア番号とステージ番号を書き込む
-		Area.sNowAreaNumber = Area.GetAreaNumber();
-		Area.sNowStageNumber = Area.GetStageNumber();
+		Area.sBeforeAreaNumber = Area.GetAreaNumber();
+		Area.sBeforeStageNumber = Area.GetStageNumber();
 
 		//コンポーネントのキャッシュ
 		mMassShift = FindObjectOfType<MassShift>();

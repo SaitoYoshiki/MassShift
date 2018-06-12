@@ -225,6 +225,6 @@ public class Area {
 	}
 
 
-	public static int sNowAreaNumber = -1;
-	public static int sNowStageNumber = -1;
+	public static int sBeforeAreaNumber = 1;
+	public static int sBeforeStageNumber = 1;
 }

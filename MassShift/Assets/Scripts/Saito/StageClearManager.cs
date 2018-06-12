@@ -53,14 +53,15 @@ public class StageClearManager : MonoBehaviour {
 		//
 
 		//Listのリサイズ
-		mStageClearData = new List<List<StageClearData>>(Area.GetAreaCount());
-		for(int i = 0; i < Area.GetAreaCount(); i++) {
-			mStageClearData[i] = new List<StageClearData>(Area.GetStageCount(i));
+		mStageClearData = new List<List<StageClearData>>(Area.GetAreaCount() + 1);
+		
+		for(int i = 0; i < Area.GetAreaCount() + 1; i++) {
+			mStageClearData.Add(new List<StageClearData>(Area.GetStageCount(i)));
 
 			for(int j = 0; j < Area.GetStageCount(i); j++) {
 				var lStageClearData = new StageClearData();
 				lStageClearData.mIsClear = false;
-				mStageClearData[i][j] = lStageClearData;
+				mStageClearData[i].Add(lStageClearData);
 			}
 		}
 
