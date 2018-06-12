@@ -762,13 +762,7 @@ public class MassShift : MonoBehaviour
 			//移す表示の線を消す
 			mMassShiftLine.SetActive(false);
 
-			//カーソルも消す
-			if(mInvisibleCursor) {
-				ChangeCursorState(CCursorState.cInvisible);
-			}
-			else {
-				ChangeCursorState(CCursorState.cCanNotShift);
-			}
+			ChangeCursorState(CCursorState.cCanNotShift);
 		}
 
 		//外部からCanShiftにtrueを入れられないと、この状態からは変化しない
@@ -1050,8 +1044,21 @@ public class MassShift : MonoBehaviour
 	[SerializeField, Tooltip("重さを移す操作が有効になる、トリガーの最低入力値"), EditOnPrefab]
 	float mShiftOnValue = 0.8f;
 
-	[SerializeField, Tooltip("カーソルを見えなくする")]
-	public bool mInvisibleCursor = false;
+
+	bool _mInvisibleCursor = false;
+
+	//カーソルを見えなくする
+	public bool mInvisibleCursor {
+		get {
+			return _mInvisibleCursor || _Debug_mInvisibleCursor;
+		}
+		set {
+			_mInvisibleCursor = value;
+		}
+	}
+
+	[SerializeField, Tooltip("カーソルを見えなくする（デバッグ）")]
+	bool _Debug_mInvisibleCursor = false;
 
 
 	//ジョイスティックでカーソルを動かす
@@ -1173,6 +1180,10 @@ public class MassShift : MonoBehaviour
 
 		GameObject lNormal = mCursor.transform.Find("Model/Normal").gameObject;
 		GameObject lSelect = mCursor.transform.Find("Model/Select").gameObject;
+
+		if(mInvisibleCursor) {
+			aCursorState = CCursorState.cInvisible;
+		}
 
 		if (aCursorState == CCursorState.cNormal) {
 			lNormal.SetActive(false);

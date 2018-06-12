@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MoveTransform : MonoBehaviour {
 	public Vector3 mStartPosition;
-	Vector3 mEndPosition;
+	public Vector3 mEndPosition;
 
 	[SerializeField, Tooltip("移動にかける時間")]
 	float mTakeTime;
@@ -14,43 +14,7 @@ public class MoveTransform : MonoBehaviour {
 
 	private void Awake() {
 		mEndPosition = transform.position;
-
-		Player p = GetPlayer();
-
-        //mStartPosition = p.transform.position;
-
-        // チュートリアル以外
-        if (Area.GetAreaNumber() > 0) {
-			mStartPosition = p.transform.position;
-			mStartPosition.y -= 1.0f;
-            mStartPosition.z = 40.0f;
-        }
-        // チュートリアル
-        else if (Area.GetAreaNumber() == 0) {
-            // タイトルからの遷移なら
-            if (cameraMove.fromTitle) {
-                //mStartPosition = new Vector3(-17.0f, -1.5f, 45.0f);
-				//インスペクターの値をそのまま使う
-            }
-            // それ以外なら
-            else {
-				mStartPosition = p.transform.position;
-				mStartPosition.z = 35.0f;
-            }
-        }
-        // ステージセレクト
-        else {
-            // タイトルからの遷移なら
-            if (cameraMove.fromTitle) {
-                //mStartPosition = new Vector3(-17.0f, -1.5f, 45.0f);
-				//インスペクターの値をそのまま使う
-            }
-            else {
-				mStartPosition = p.transform.position;
-				mStartPosition.y -= 1.0f;
-                mStartPosition.z = 40.0f;
-            }
-        }
+		
 	}
 
 	// Use this for initialization
@@ -91,7 +55,7 @@ public class MoveTransform : MonoBehaviour {
 		}
 	}
 
-	public void MoveStartPoisition() {
+	public void MoveStartPosition() {
 		transform.position = mStartPosition;
 	}
 

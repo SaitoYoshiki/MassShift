@@ -8,6 +8,6 @@ public class TitleBGMManager : MonoBehaviour {
 
     void Start() {
         GameObject tBgm = SoundManager.SPlay(TitleBGMPrefab);
-        SoundManager.SFade(tBgm, 0.0f, 1.0f, 1.0f, false);
+        SoundManager.SFade(tBgm, 0.0f, SoundManager.SVolume(TitleBGMPrefab), 1.0f, false);
     }
 }

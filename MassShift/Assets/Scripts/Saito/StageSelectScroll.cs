@@ -8,8 +8,7 @@ public class StageSelectScroll : MonoBehaviour {
 	[SerializeField]
 	List<GameObject> mAreaTriggers;
 
-	[SerializeField]
-	List<GameObject> mAreaCameraPosition;
+	public List<GameObject> mAreaCameraPosition;
 
 	[SerializeField]
 	GameObject mPlayer;
@@ -17,11 +16,14 @@ public class StageSelectScroll : MonoBehaviour {
 	[SerializeField]
 	GameObject mCamera;
 
-	[SerializeField]
-	float mCameraMoveSpeed = 10.0f;
+	[HideInInspector]
+	public float mCameraMoveSpeed = 10.0f;
 
 	[SerializeField]
 	GameObject mLeftWall;   //エリア1で、左側に戻れないようにする壁
+
+	//スクロールするかどうか
+	public bool mIsScroll = false;
 
 	int mAreaIndex = -1;
 
@@ -33,6 +35,10 @@ public class StageSelectScroll : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+
+		if(mIsScroll == false) {
+			return;
+		}
 
 		//現在いるエリア位置を更新
 		if (GetHitAreaIndex() != -1) {

@@ -89,6 +89,10 @@ public class Pause : MonoBehaviour {
             Time.timeScale = 0.0f;
             pauseCanvas.SetActive(true);
             SoundManager.SPlay(PauseStartSEPrefab);
+
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "StageSelect") {
+
+            }
         }
         // ポーズ解除
         else {
