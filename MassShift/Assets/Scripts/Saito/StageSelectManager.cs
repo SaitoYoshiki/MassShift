@@ -40,6 +40,9 @@ public class StageSelectManager : MonoBehaviour {
 	[SerializeField]
 	int mClearArea = 2;
 
+	int mSelectStageNum = -1;
+	float mSelectTime = 0.0f;   //選び続けている秒数
+	bool mSelectInit = false;
 
 
 	// Use this for initialization
@@ -71,7 +74,6 @@ public class StageSelectManager : MonoBehaviour {
 			}
 		}
 	}
-	int mSelectStageNum = -1;
 
 	IEnumerator StageSelectMain() {
 
@@ -98,6 +100,8 @@ public class StageSelectManager : MonoBehaviour {
 			mPlayer.transform.position = lNewPlayerPosition;
 		}
 
+
+		//戻ってきたエリアによって、プレイヤーとボックスの重さを調整
 		if(lAreaNum == 1) {
 			mPlayer.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.light;
 			mTopStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.flying;
@@ -127,7 +131,7 @@ public class StageSelectManager : MonoBehaviour {
 		//カメラの開始地点を決める
 		if (lAreaNum == 0 || cameraMove.fromTitle) {
 			//ステージセレクトの左端から始まる
-			mCameraMove.mStartPosition = new Vector3(-17.0f, -3.5f, 45.0f);
+			mCameraMove.mStartPosition = new Vector3(-19.5f, -3.5f, 45.0f);
 		}
 		else {
 			//カメラの開始地点をプレイヤーにズームしたところからにする
@@ -192,8 +196,8 @@ public class StageSelectManager : MonoBehaviour {
 			CanMovePlayer(true);    //プレイヤーは動けるようにするが、ユーザーの入力は受け付けない
 			var v = mPlayer.GetComponent<VirtualController>();
 			//v.selfUpdateRetAxis = false;
-			float cWalkTime = 1.0f;
-			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 1.0f, cWalkTime);
+			float cWalkTime = 3.0f;	//プレイヤーを自動で歩かせる秒数
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.5f, cWalkTime);
 			VirtualController.SetAxis(VirtualController.CtrlCode.Jump, 0.0f, cWalkTime);
 			VirtualController.SetAxis(VirtualController.CtrlCode.Lift, 0.0f, cWalkTime);
 			VirtualController.SetAxis(VirtualController.CtrlCode.Vertical, 0.0f, cWalkTime);
@@ -236,20 +240,31 @@ public class StageSelectManager : MonoBehaviour {
 				SetEnterColor(mSelectStageNum);
 				OpenDoor(lSelectStageNum, true);
 				OpenDoor(lBeforeSelectStageNum, false);
+				
+				if(lBeforeSelectStageNum != -1) {
+					mEnterUI.StopAnimation();
+				}
 
-				if(lSelectStageNum != -1) {
+				mSelectInit = false;
+				mSelectTime = 0.0f;
+			}
+			lBeforeSelectStageNum = lSelectStageNum;
+
+			//入る為のキー操作のUI表示
+			mSelectTime += Time.deltaTime;
+			if(mSelectTime >= 1.0f && !mSelectInit) {
+				mSelectInit = true;
+
+				if (lSelectStageNum != -1) {
 					Vector3 lUIPosition = mGoal[lSelectStageNum].transform.position;
 					lUIPosition += mGoal[lSelectStageNum].transform.rotation * Vector3.up * 5.0f;
 					mEnterUI.SetPosition(lUIPosition);
 					mEnterUI.SetRotation(mGoal[lSelectStageNum].transform.rotation);
 					mEnterUI.StartAnimation();
 				}
-				if(lBeforeSelectStageNum != -1) {
-					mEnterUI.StopAnimation();
-				}
 			}
-			lBeforeSelectStageNum = lSelectStageNum;
-			
+
+
 			bool lIsEnter = Input.GetKeyDown(KeyCode.W);
 
 			//ゴール判定

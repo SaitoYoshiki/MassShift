@@ -42,6 +42,11 @@ public class StageSelectEnterUI : MonoBehaviour {
 	public void StopAnimation() {
 		//透明度のアニメーションの設定
 		mAnimator.SetFloat("Fade", -1.0f);
-		mAnimator.Play("Fade", 1, 1.0f);
+
+		float lNowFadeTime = Mathf.Clamp01(mAnimator.GetCurrentAnimatorStateInfo(1).normalizedTime);
+		if (mAnimator.GetCurrentAnimatorStateInfo(1).IsName("Empty")) {
+			lNowFadeTime = 0.0f;
+		}
+		mAnimator.Play("Fade", 1, lNowFadeTime);
 	}
 }
