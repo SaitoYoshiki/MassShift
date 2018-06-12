@@ -32,6 +32,9 @@ public class StageSelectManager : MonoBehaviour {
 	StageSelectEnterUI mEnterUI;
 
 	[SerializeField]
+	GoalBlackCurtain mGoalBlack;
+
+	[SerializeField]
 	GameObject mTopStaticWeightBox;
 
 	[SerializeField]
@@ -62,7 +65,7 @@ public class StageSelectManager : MonoBehaviour {
 		cameraMove.fromTitle = false;
 
 		//タイトル用の演出のコルーチン
-		if (Area.GetAreaNumber() == 0 || mFromTitle) {
+		if (Area.sBeforeAreaNumber == 0 || mFromTitle) {
 			StartCoroutine(StageSelectMain_FromTitle());
 		}
 		//ステージからの演出のコルーチン
@@ -112,6 +115,20 @@ public class StageSelectManager : MonoBehaviour {
 		mPlayer.transform.position = lNewPlayerPosition;
 
 
+		//カメラの開始地点をプレイヤーにズームしたところからにする
+		mCameraMove.mStartPosition = GetPlayerZoomCameraPosition();
+
+
+		//逆向きの天井なら
+		if (Area.sBeforeAreaNumber == 2) {
+			//プレイヤーのデフォルト位置を逆向きに
+			mPlayer.GetComponent<Player>().InitRotation();
+		}
+
+		//カメラを見ていないようにする
+		mPlayer.GetComponent<Player>().CameraLookRatio = 0.0f;
+
+
 		//戻ってきたエリアによって、プレイヤーとボックスの重さを調整
 		if (Area.sBeforeAreaNumber == 1) {
 			mPlayer.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.light;
@@ -139,10 +156,6 @@ public class StageSelectManager : MonoBehaviour {
 			mBottomStaticWeightBox.SetActive(false);
 		}
 
-
-		//カメラの開始地点をプレイヤーにズームしたところからにする
-		mCameraMove.mStartPosition = GetPlayerZoomCameraPosition();
-
 		//カメラをズームされた位置に移動
 		mCameraMove.MoveStartPosition();
 
@@ -150,6 +163,8 @@ public class StageSelectManager : MonoBehaviour {
 		//プレイヤーを移動不可にする
 		CanMovePlayer(false);
 
+		OnPlayerEffect(true);   //プレイヤーの更新を切る
+		mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f);    //少し奥に移動
 
 		//ステージ開始時の演出
 		mTransition.OpenDoorParent();
@@ -159,6 +174,53 @@ public class StageSelectManager : MonoBehaviour {
 			if (mTransition.GetOpenEnd()) break;
 			yield return null;
 		}
+
+
+		//
+		//プレイヤーがドアから出てくる演出
+		//
+
+		g.mOpenForce = true;    //ドアを開く
+
+		mGoalBlack.transform.position = g.transform.position;
+		mGoalBlack.transform.rotation = g.transform.rotation;
+
+		mPlayer.transform.rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f); //回転させる
+		
+		//歩きアニメーションの再生
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
+
+		//zが0.0fになるまで移動させる。同時に、黒い板を透明にしていく
+		mGoalBlack.StartFade(1.0f, 0.0f, 0.0f, 2.0f);
+		
+		while(true) {
+			mPlayer.transform.position += new Vector3(0.0f, 0.0f, -3.0f / 2.0f * Time.deltaTime);
+			if(mPlayer.transform.position.z <= 0.0f) {
+				Vector3 lPos = mPlayer.transform.position;
+				lPos.z = 0.0f;
+				mPlayer.transform.position = lPos;
+				break;
+			}
+
+			yield return null;
+		}
+
+		//プレイヤーの回転を元に戻す
+		float lAngle = 90.0f;
+		while (true) {
+			lAngle -= 90.0f / 0.5f * Time.deltaTime;
+
+			mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
+			if (lAngle <= 0.0f) {
+				mPlayer.transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+				break;
+			}
+
+			yield return null;
+		}
+
+		OnPlayerEffect(false);   //プレイヤーの更新を戻す
 
 
 		//BGMを流し始める
@@ -177,6 +239,8 @@ public class StageSelectManager : MonoBehaviour {
 			}
 			yield return null;
 		}
+
+		g.mOpenForce = false;    //ドアを強制的に開かなくする
 
 		//ステージセレクトメインの開始
 		//
@@ -356,6 +420,90 @@ public class StageSelectManager : MonoBehaviour {
 			yield return null;  //ゲームメインを続ける
 		}
 
+
+		//UIを消す
+		mEnterUI.gameObject.SetActive(false);
+
+
+		//重さを移せないようにする
+		OnCanShiftOperation(false);
+		mPause.canPause = false;
+
+		//ズーム終了後のカメラ位置を変更
+		mCameraMove.mEndPosition = GetPlayerZoomCameraPosition();
+
+
+		//カメラの開始地点を現在のカメラ位置にする
+		mCameraMove.mStartPosition = mCameraMove.transform.position;
+
+
+		//プレイヤーを移動不可にする
+		CanMovePlayer(false);
+
+		//カメラを見ていないようにする
+		mPlayer.GetComponent<Player>().CameraLookRatio = 0.0f;
+
+		OnPlayerEffect(true);   //プレイヤーの更新を切る
+
+
+		mStageSelectScroll.mIsScroll = false;
+		mCameraMove.MoveStart();
+
+		//カメラのズームイン終了まで待つ
+		while (true) {
+			if (mCameraMove.IsMoveEnd) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//
+		//プレイヤーがドアに入っていく演出
+		//
+
+		Goal g = mGoal[lDecideSelectStageNum];
+		g.mOpenForce = true;    //ドアを強制的に開く
+
+		mGoalBlack.transform.position = g.transform.position;	//黒い背景をゴールのところに移動させる
+		mGoalBlack.transform.rotation = g.transform.rotation;
+		
+		//歩きアニメーションの再生
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
+
+
+		
+
+		//プレイヤーを回転させていく
+		float lAngle = 0.0f;
+		while (true) {
+			lAngle -= 90.0f / 0.5f * Time.deltaTime;
+
+			mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
+			if (lAngle <= -90.0f) {
+				mPlayer.transform.rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
+				break;
+			}
+
+			yield return null;
+		}
+
+		//プレイヤーを歩かせる
+		//
+
+		mGoalBlack.StartFade(0.0f, 1.0f, 0.0f, 2.0f);
+		
+		while (true) {
+			mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f / 2.0f * Time.deltaTime);
+			if (mPlayer.transform.position.z >= 3.0f) {
+				break;
+			}
+
+			yield return null;
+		}
+
+
 		//ステージ終了時の演出
 		mTransition.CloseDoorParent();
 
@@ -366,7 +514,7 @@ public class StageSelectManager : MonoBehaviour {
 		}
 
 		//ステージ遷移
-		UnityEngine.SceneManagement.SceneManager.LoadScene(Area.GetStageSceneName((lDecideSelectStageNum / 5) + 1, (lSelectStageNum % 5) + 1));
+		UnityEngine.SceneManagement.SceneManager.LoadScene(Area.GetStageSceneName((lDecideSelectStageNum / 5) + 1, (lDecideSelectStageNum % 5) + 1));
 
 	}
 
@@ -409,6 +557,12 @@ public class StageSelectManager : MonoBehaviour {
 		mPlayer.CanWalk = aCanMove;
 		mPlayer.CanJump = aCanMove;
 		//mPlayer.CanRotation = aCanMove;
+	}
+
+	//プレイヤーの演出用
+	void OnPlayerEffect(bool aIsEffect) {
+		mPlayer.GetComponent<MoveManager>().enabled = !aIsEffect;
+		mPlayer.GetComponent<Player>().enabled = !aIsEffect;
 	}
 
 	Vector3 GetPlayerZoomCameraPosition() {
