@@ -210,10 +210,9 @@ public class MoveManager : MonoBehaviour {
 	List<Collider> throughColList = new List<Collider>(); // 例外的なめり込みが発生しているコライダーリスト
 
 	void Awake() {
-		if (autoMask) mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });
+		if (autoMask) mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });		
 	}
 
-	// Use this for initialization
 	void Start() {
 		if (UseCol == null) {
 			UseCol = GetComponent<BoxCollider>();
@@ -226,7 +225,6 @@ public class MoveManager : MonoBehaviour {
 		}
 	}
 
-	// Update is called once per frame
 	void FixedUpdate() {
 		// 重力加速度
 		if (useGravity/* && !Land.IsLanding*/) {
