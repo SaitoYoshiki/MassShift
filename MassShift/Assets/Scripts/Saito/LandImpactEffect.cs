@@ -20,14 +20,19 @@ public class LandImpactEffect : MonoBehaviour {
 	[SerializeField, Tooltip("重さ1で水に落ちた時のエフェクト"), EditOnPrefab]
 	GameObject mLandImpactWaterLightPrefab;
 
-	[SerializeField, Tooltip("上に発生するエフェクトの発生位置のオフセット"), EditOnPrefab]
-	Vector3 mUpEffectOffset;
 
-	[SerializeField, Tooltip("水のエフェクトの発生位置のオフセット"), EditOnPrefab]
-	Vector3 mWaterEffectOffset;
+	[SerializeField, Tooltip("上に発生するエフェクトの発生位置")]
+	GameObject mUpEffectTransform;
 
-	[SerializeField, Tooltip("下に発生するエフェクトの発生位置のオフセット"), EditOnPrefab]
-	Vector3 mDownEffectOffset;
+	[SerializeField, Tooltip("通常の向きの時、水のエフェクトの発生位置")]
+	GameObject mNormalWaterEffectTransform;
+
+	[SerializeField, Tooltip("プレイヤーの反転時、水のエフェクトの発生位置")]
+	GameObject mReverseWaterEffectTransform;
+
+	[SerializeField, Tooltip("下に発生するエフェクトの発生位置")]
+	GameObject mDownEffectTransform;
+
 
 
 	// Use this for initialization
@@ -45,30 +50,28 @@ public class LandImpactEffect : MonoBehaviour {
 		//水面に落下したなら
 		if(aEnviroment == LandImpact.CEnviroment.cWaterSurface) {
 			if (aWeight == WeightManager.Weight.heavy) {
-				var g = Instantiate(mLandImpactWaterHeavyPrefab, transform);
-				g.transform.localPosition = mWaterEffectOffset;
-				g.transform.parent = null;	//オブジェクトに追従しない
+				var g = Instantiate(mLandImpactWaterHeavyPrefab); //オブジェクトに追従しない
+				g.transform.position = mNormalWaterEffectTransform.transform.position;
 			}
 			if (aWeight == WeightManager.Weight.light) {
-				var g = Instantiate(mLandImpactWaterLightPrefab, transform);
-				g.transform.localPosition = mWaterEffectOffset;
-				g.transform.parent = null;  //オブジェクトに追従しない
+				var g = Instantiate(mLandImpactWaterLightPrefab);
+				g.transform.position = mNormalWaterEffectTransform.transform.position;
 			}
 		}
 
 		//地上に落下したなら
 		else if (aEnviroment == LandImpact.CEnviroment.cGround) {
 			if (aWeight == WeightManager.Weight.heavy) {
-				var g = Instantiate(mLandImpactGroundHeavyPrefab, transform);
-				g.transform.localPosition = mDownEffectOffset;
+				var g = Instantiate(mLandImpactGroundHeavyPrefab);
+				g.transform.position = mDownEffectTransform.transform.position;
 			}
 			if (aWeight == WeightManager.Weight.light) {
-				var g =Instantiate(mLandImpactGroundLightPrefab, transform);
-				g.transform.localPosition = mDownEffectOffset;
+				var g =Instantiate(mLandImpactGroundLightPrefab);
+				g.transform.position = mDownEffectTransform.transform.position;
 			}
 			if (aWeight == WeightManager.Weight.flying) {
-				var g = Instantiate(mLandImpactGroundFlyingPrefab, transform);
-				g.transform.localPosition = mUpEffectOffset;
+				var g = Instantiate(mLandImpactGroundFlyingPrefab);
+				g.transform.position = mUpEffectTransform.transform.position;
 			}
 		}
 		
