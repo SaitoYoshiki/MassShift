@@ -31,7 +31,6 @@ public class StageSelectManager : MonoBehaviour {
 	[SerializeField]
 	StageSelectEnterUI mEnterUI;
 
-	[SerializeField]
 	GoalBlackCurtain mGoalBlack;
 
 	[SerializeField]
@@ -39,6 +38,44 @@ public class StageSelectManager : MonoBehaviour {
 
 	[SerializeField]
 	GameObject mBottomStaticWeightBox;
+
+
+	[SerializeField]
+	float mToStageBeforeRotateTime = 0.0f;
+
+	[SerializeField]
+	float mToStageRotateTime = 0.5f;
+
+	[SerializeField]
+	float mToStageBeforeWalkingTime = 0.5f;
+
+	[SerializeField]
+	float mToStageWalkingTime = 1.0f;
+
+	[SerializeField]
+	float mToStageAfterWalkingTime = 0.5f;
+
+
+	[SerializeField]
+	float mFromStageBeforeWalkingTime = 0.0f;
+
+	[SerializeField]
+	float mFromStageWalkingTime = 1.0f;
+
+	[SerializeField]
+	float mFromStageBeforeRotateTime = 0.5f;
+
+	[SerializeField]
+	float mFromStageRotateTime = 0.5f;
+
+	[SerializeField]
+	float mFromStageAfterRotateTime = 0.5f;
+
+
+
+
+
+
 
 	int mSelectStageNum = -1;
 	float mSelectTime = 0.0f;   //選び続けている秒数
@@ -55,6 +92,8 @@ public class StageSelectManager : MonoBehaviour {
 		mStageSelectScroll = FindObjectOfType<StageSelectScroll>();
 
 		mPause = FindObjectOfType<Pause>();
+
+		mGoalBlack = FindObjectOfType<GoalBlackCurtain>();
 
 		Time.timeScale = 1.0f;
 		mPause.pauseEvent.Invoke();
@@ -180,10 +219,13 @@ public class StageSelectManager : MonoBehaviour {
 		//プレイヤーがドアから出てくる演出
 		//
 
-		g.mOpenForce = true;    //ドアを開く
+		yield return new WaitForSeconds(mFromStageBeforeWalkingTime);
+
+		g.mOpenForce = true;    //ドアを強制的に開く
 
 		mGoalBlack.transform.position = g.transform.position;
 		mGoalBlack.transform.rotation = g.transform.rotation;
+
 
 		mPlayer.transform.rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f); //回転させる
 		
@@ -195,7 +237,7 @@ public class StageSelectManager : MonoBehaviour {
 		mGoalBlack.StartFade(1.0f, 0.0f, 0.0f, 2.0f);
 		
 		while(true) {
-			mPlayer.transform.position += new Vector3(0.0f, 0.0f, -3.0f / 2.0f * Time.deltaTime);
+			mPlayer.transform.position += new Vector3(0.0f, 0.0f, -3.0f / mFromStageWalkingTime * Time.deltaTime);
 			if(mPlayer.transform.position.z <= 0.0f) {
 				Vector3 lPos = mPlayer.transform.position;
 				lPos.z = 0.0f;
@@ -206,10 +248,12 @@ public class StageSelectManager : MonoBehaviour {
 			yield return null;
 		}
 
+		yield return new WaitForSeconds(mFromStageBeforeRotateTime);
+
 		//プレイヤーの回転を元に戻す
 		float lAngle = 90.0f;
 		while (true) {
-			lAngle -= 90.0f / 0.5f * Time.deltaTime;
+			lAngle -= 90.0f / mFromStageRotateTime * Time.deltaTime;
 
 			mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
 			if (lAngle <= 0.0f) {
@@ -222,6 +266,7 @@ public class StageSelectManager : MonoBehaviour {
 
 		OnPlayerEffect(false);   //プレイヤーの更新を戻す
 
+		yield return new WaitForSeconds(mFromStageAfterRotateTime);
 
 		//BGMを流し始める
 		var t = SoundManager.SPlay(mStageSelectBGMPrefab);
@@ -445,6 +490,8 @@ public class StageSelectManager : MonoBehaviour {
 
 		OnPlayerEffect(true);   //プレイヤーの更新を切る
 
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
+
 
 		mStageSelectScroll.mIsScroll = false;
 		mCameraMove.MoveStart();
@@ -462,6 +509,8 @@ public class StageSelectManager : MonoBehaviour {
 		//プレイヤーがドアに入っていく演出
 		//
 
+		yield return new WaitForSeconds(mToStageBeforeRotateTime);
+
 		Goal g = mGoal[lDecideSelectStageNum];
 		g.mOpenForce = true;    //ドアを強制的に開く
 
@@ -473,29 +522,48 @@ public class StageSelectManager : MonoBehaviour {
 		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
 
 
-		
-
 		//プレイヤーを回転させていく
-		float lAngle = 0.0f;
-		while (true) {
-			lAngle -= 90.0f / 0.5f * Time.deltaTime;
+		//
 
-			mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
-			if (lAngle <= -90.0f) {
-				mPlayer.transform.rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
-				break;
+		bool lIsRight = mPlayer.RotVec.x > 0.0f;
+		
+		if(lIsRight) {
+			float lAngle = 0.0f;
+			while (true) {
+				lAngle -= 90.0f / mToStageRotateTime * Time.deltaTime;
+				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
+				if (lAngle <= -90.0f) {
+					mPlayer.transform.rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
+					break;
+				}
+
+				yield return null;
 			}
-
-			yield return null;
 		}
+		else {
+			float lAngle = 0.0f;
+			while (true) {
+				lAngle += 90.0f / mToStageRotateTime * Time.deltaTime;
+				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
+				if (lAngle >= 90.0f) {
+					mPlayer.transform.rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f);
+					break;
+				}
+
+				yield return null;
+			}
+		}
+
+
+		yield return new WaitForSeconds(mToStageBeforeWalkingTime);
 
 		//プレイヤーを歩かせる
 		//
 
-		mGoalBlack.StartFade(0.0f, 1.0f, 0.0f, 2.0f);
+		mGoalBlack.StartFade(0.0f, 1.0f, 0.0f, mToStageWalkingTime);
 		
 		while (true) {
-			mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f / 2.0f * Time.deltaTime);
+			mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f / mToStageWalkingTime * Time.deltaTime);
 			if (mPlayer.transform.position.z >= 3.0f) {
 				break;
 			}
@@ -503,6 +571,7 @@ public class StageSelectManager : MonoBehaviour {
 			yield return null;
 		}
 
+		yield return new WaitForSeconds(mToStageAfterWalkingTime);
 
 		//ステージ終了時の演出
 		mTransition.CloseDoorParent();
