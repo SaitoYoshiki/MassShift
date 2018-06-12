@@ -7,6 +7,8 @@ public class Pause : MonoBehaviour {
     [SerializeField]
     GameObject pauseCanvas;
     [SerializeField]
+    GameObject pauseCanvas_SS;
+    [SerializeField]
     GameObject optionCanvas;
     [SerializeField]
     GameObject quitCanvas;
@@ -87,17 +89,27 @@ public class Pause : MonoBehaviour {
 
         if (pauseFlg) {
             Time.timeScale = 0.0f;
-            pauseCanvas.SetActive(true);
-            SoundManager.SPlay(PauseStartSEPrefab);
-
-            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "StageSelect") {
-
+            
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+                pauseCanvas_SS.SetActive(true);
             }
+            else {
+                pauseCanvas.SetActive(true);
+            }
+
+            SoundManager.SPlay(PauseStartSEPrefab);
         }
         // ポーズ解除
         else {
             Time.timeScale = 1.0f;
-            pauseCanvas.SetActive(false);
+
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+                pauseCanvas_SS.SetActive(false);
+            }
+            else {
+                pauseCanvas.SetActive(false);
+            }
+
             //SoundManager.SPlay(PauseEndSEPrefab);
         }
 
