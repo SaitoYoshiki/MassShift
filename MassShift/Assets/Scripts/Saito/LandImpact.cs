@@ -53,11 +53,11 @@ public class LandImpact : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 
-		//ポーズ中なら処理しない
-		if(Time.deltaTime == 0.0f) {
-			return;
+		//移動量が大きすぎる場合は、ワープ扱いをして落下距離をリセット
+		if((mBeforePosition - transform.position).magnitude >= 2.0f) {
+			mHighestPosition = transform.position;
+			mBeforePosition = transform.position;
 		}
-
 
 		float lFallDistance = Mathf.Abs(mHighestPosition.y - transform.position.y);
 
