@@ -4,6 +4,14 @@ using UnityEngine;
 
 public class Landing : MonoBehaviour {
 	[SerializeField] Transform landingCol = null;    // 接地判定用オブジェクト
+	public Transform LandingCol {
+		get {
+			return landingCol;
+		}
+		set {
+			landingCol = value;
+		}
+	}
 
 	[SerializeField] bool isLanding = false;
 	public bool IsLanding {
@@ -230,13 +238,13 @@ public class Landing : MonoBehaviour {
 
 		// 接地側の判定オブジェクトを取得
 		if (landVec <= 0.0f) {
-			landingCol = FourSideCol.BottomCol;
+			LandingCol = FourSideCol.BottomCol;
 		} else {
-			landingCol = FourSideCol.TopCol;
+			LandingCol = FourSideCol.TopCol;
 		}
 
 		// 離地判定
-		landColList.AddRange(Physics.OverlapBox(landingCol.position, landingCol.localScale * 0.5f, landingCol.rotation, mask));
+		landColList.AddRange(Physics.OverlapBox(LandingCol.position, LandingCol.localScale * 0.5f, LandingCol.rotation, mask));
 
 		// 自身は接地対象から除く
 		for (int idx = landColList.Count - 1; idx >= 0; idx--) {
@@ -257,7 +265,7 @@ public class Landing : MonoBehaviour {
 		if (landColList.Count <= 0) {
 			IsLanding = false;
 			IsExtrusionLanding = false;
-//			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));
+			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));
 		}
 	}
 
