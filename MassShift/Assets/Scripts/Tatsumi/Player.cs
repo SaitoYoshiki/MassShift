@@ -255,6 +255,8 @@ public class Player : MonoBehaviour {
 	Transform colRotTransform = null;
 	[SerializeField]
 	Transform modelTransform = null;
+	[SerializeField]
+	Transform cameraLookTransform = null;
 
 	[SerializeField]
 	Vector3 rotVec = new Vector3(1.0f, 0.0f, 0.0f); // 左右向きと非接地面
@@ -320,18 +322,16 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-
-
 	[SerializeField]
-	float cameraLookRatio = 0.0f;			// カメラの方を向いている比率
+	float cameraLookRatio = 1.0f;			// カメラの方を向いている比率
 	[SerializeField]
-	float cameraLookRatioSpd = 0.01f;		// 待機時のカメラの方を向く割合の変化量
+	float cameraLookRatioSpd = 0.05f;		// 待機時のカメラの方を向く割合の変化量
 	[SerializeField]
-	float cameraLookCancelRatioSpd = 0.01f;	// 待機時のカメラの方を向く状態を解除する速さ
+	float cameraLookCancelRatioSpd = 0.05f;	// 待機時のカメラの方を向く状態を解除する速さ
 	[SerializeField]
-	float cameraLookMaxRatio = 0.3f;		// 待機時のカメラの方を向く最大比率
+	float cameraLookMaxAngle = 35.0f;		// 待機時のカメラの方を向く最大角度
 	[SerializeField]
-	float cameraLookBorderSpd = 0.1f;       // カメラの方を向くようになる移動速度
+	float cameraLookBorderSpd = 0.1f;		// カメラの方を向くようになる移動速度
 
 	[SerializeField]
 	float walkAnimRatio = 0.5f;		// 歩きアニメーションの再生速度倍率
@@ -813,25 +813,29 @@ public class Player : MonoBehaviour {
 		WaterStt.BeginWaterStopIgnore();
 	}
 
-
 	void LookCamera() {
-		// 接地状態で移動がなければ少しカメラ方向を向く
+		// 接地状態で待機状態なら少しカメラ方向を向く
 		if ((Land.IsLanding || land.IsWaterFloatLanding || WaterStt.IsWaterSurface) &&
+			!(!Lift.IsLifting && Lift.LiftObj) &&	// 持ち上げ/下ろしの最中ならfalse
 			(Mathf.Abs(MoveMng.TotalMove.magnitude) <= cameraLookBorderSpd)) {
-			cameraLookRatio += cameraLookRatioSpd;
+			cameraLookRatio += (cameraLookRatioSpd * RotVec.x);
 		}
 		// 移動があればキャラクター進行方向を向く
 		else {
-			cameraLookRatio -= cameraLookCancelRatioSpd;
+			float defSign = Mathf.Sign(cameraLookRatio);
+			cameraLookRatio -= (cameraLookCancelRatioSpd * Mathf.Sign(cameraLookRatio));
+			if (defSign != Mathf.Sign(cameraLookRatio)) {
+				cameraLookRatio = 0.0f;
+			}
 		}
-		cameraLookRatio = Mathf.Clamp(cameraLookRatio, 0.0f, cameraLookMaxRatio);
+		cameraLookRatio = Mathf.Clamp(cameraLookRatio, -1.0f, 1.0f);
 
 		// モデルの向きを設定
-		modelTransform.rotation = Quaternion.Slerp(Quaternion.LookRotation(transform.transform.right), Quaternion.LookRotation(Vector3.left), cameraLookRatio);
-		Debug.LogWarning(modelTransform.rotation.eulerAngles);
+		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(modelTransform.rotation.eulerAngles.x, (cameraLookMaxAngle * cameraLookRatio), modelTransform.rotation.eulerAngles.z));
+//		Debug.LogWarning(modelTransform.rotation.eulerAngles + " " + modelTransform.name);
 
 		//test
-//		modelTransform.rotation = modelTransform.rotation * Quaternion.Euler(new Vector3(0.0f, 100.0f, 0.0f));
+		//		modelTransform.rotation = modelTransform.rotation * Quaternion.Euler(new Vector3(0.0f, 100.0f, 0.0f));
 	}
 
 	void HandSpringJump() {

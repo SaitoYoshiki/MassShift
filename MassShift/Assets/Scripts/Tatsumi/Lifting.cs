@@ -24,6 +24,7 @@ public class Lifting : MonoBehaviour {
 			liftObj = value;
 		}
 	}
+
 	MoveManager LiftObjMoveMng {
 		get {
 			return LiftObj.GetComponent<MoveManager>();
@@ -112,6 +113,8 @@ public class Lifting : MonoBehaviour {
 	Transform rotationTransform = null;
 	[SerializeField]
 	Transform modelTransform = null;
+	[SerializeField]
+	Transform cameraLookTransform = null;
 	[SerializeField]
 	Transform fourSideTransform = null;
 
@@ -248,6 +251,9 @@ public class Lifting : MonoBehaviour {
 
 					return;
 				}
+
+				// プレイヤーのモデルと同じ回転をオブジェクトに加える
+				LiftObj.transform.rotation = cameraLookTransform.rotation;
 			}
 
 			// 持ち上げ完了時
@@ -287,6 +293,9 @@ public class Lifting : MonoBehaviour {
 
 				return;
 			}
+
+			// プレイヤーのモデルと同じ回転をオブジェクトに加える
+			LiftObj.transform.rotation = cameraLookTransform.rotation;
 
 			// 下ろし完了時
 			if (PlAnim.CompleteRelease()) {
@@ -335,6 +344,9 @@ public class Lifting : MonoBehaviour {
 
 				return;
 			}
+
+			// プレイヤーのモデルと同じ回転をオブジェクトに加える
+			LiftObj.transform.rotation = cameraLookTransform.rotation;
 
 			// 移動不可
 			MoveMng.StopMoveVirticalAll();
@@ -388,7 +400,7 @@ public class Lifting : MonoBehaviour {
 			LiftObj.transform.position = PlAnim.GetBoxPosition();
 
 			// プレイヤーのモデルと同じ回転をオブジェクトに加える
-			LiftObj.transform.rotation = modelTransform.rotation;
+			LiftObj.transform.rotation = cameraLookTransform.rotation;
 
 			break;
 
@@ -524,17 +536,17 @@ public class Lifting : MonoBehaviour {
 		// 状態の変更
 		St = LiftState.liftDown;
 
-		// プレイヤーのモデルに同期していた回転を消去
-		LiftObj.transform.rotation = Quaternion.identity;
-
 		return LiftObj;
 	}
 
 	void LiftUpEnd() {
 		Debug.Log("LiftUpEnd");
 
-//		// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
-//		LiftObjMoveMng.ExtrusionForcible = false;
+		//		// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
+		//		LiftObjMoveMng.ExtrusionForcible = false;
+
+		// プレイヤーのモデルに同期していた回転を消去
+		LiftObj.transform.rotation = Quaternion.identity;
 
 		// 持ち上げ中オブジェクトの判定と挙動を無効化
 		LiftObj.GetComponent<BoxCollider>().enabled = false;
