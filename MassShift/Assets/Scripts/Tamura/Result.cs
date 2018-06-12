@@ -7,6 +7,10 @@ public class Result : MonoBehaviour {
     [SerializeField]
     GameObject ResultCanvas;
 
+    // エリア内の全ステージクリア時のリザルト画面
+    [SerializeField]
+    GameObject ResultCanvas_AC;
+
     [SerializeField]
     GameObject ClearJingleSEPrefab;
 
@@ -36,10 +40,14 @@ public class Result : MonoBehaviour {
                     // リザルト画面を表示
                     ResultCanvas.SetActive(true);
 
-                    // クリアしたのが最終ステージならば
-                    if (!Area.ExistNextStage(Area.GetAreaNumber(), Area.GetStageNumber())) {
-                        // 「次のステージへ」ボタンを出さない
-                        ResultCanvas.transform.Find("NextStage").gameObject.SetActive(false);
+                    // クリアしたのが各エリアの最終ステージならば
+                    if (!Area.ExistNextStageSameArea(Area.GetAreaNumber(), Area.GetStageNumber())) {
+                        // リザルト画面を表示
+                        ResultCanvas_AC.SetActive(true);
+                    }
+                    else {
+                        // リザルト画面を表示
+                        ResultCanvas.SetActive(true);
                     }
                 }
             }
