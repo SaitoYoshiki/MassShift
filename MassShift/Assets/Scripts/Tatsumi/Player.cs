@@ -302,7 +302,7 @@ public class Player : MonoBehaviour {
 		}
 	}
 	[SerializeField]
-	bool HandSpringWeitFlg {
+	bool IsHandSpringWeit {
 		get {
 			return (HandSpringEndTime > Time.time);
 		}
@@ -355,7 +355,7 @@ public class Player : MonoBehaviour {
 		remainJumpTime = (!Land.IsLanding ? remainJumpTime + Time.deltaTime : 0.0f);
 
 		// 持ち上げ/下げ
-		if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation) {
+		if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation && !IsHandSpringWeit) {
 			//			if ((Input.GetAxis("Lift") != 0.0f)) {
 			if ((VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f)) {
 				//if (!liftTrg) {
@@ -383,8 +383,8 @@ public class Player : MonoBehaviour {
 		}
 		prevFallFlg = fallFlg;
 
-		// 持ち下ろしアニメーション中でなければ
-		if (!Lift.IsLiftStop) {
+		// 持ち下ろしアニメーション中、天井回転待ち中でなければ
+		if (!Lift.IsLiftStop && !IsHandSpringWeit) {
 			// 左右移動
 			Walk();
 		}
@@ -536,6 +536,10 @@ public class Player : MonoBehaviour {
 		if (!useManualJump) {
 			return false;
 		}
+		if (IsHandSpringWeit) {
+			return false;
+		}
+
 		// ジャンプ入力(トリガー)がなければ
 		if (!jumpStandbyFlg || prevJumpStandbyFlg) {
 			return false;
@@ -650,7 +654,7 @@ public class Player : MonoBehaviour {
 		}
 
 		// 回転待ち
-		if (HandSpringEndTime > Time.time) {
+		if (IsHandSpringWeit) {
 			IsRotation = true;
 			IsHandSpring = true;
 			return;
@@ -818,7 +822,7 @@ public class Player : MonoBehaviour {
 		if ((Land.IsLanding || land.IsWaterFloatLanding || WaterStt.IsWaterSurface) &&
 			!(!Lift.IsLifting && Lift.LiftObj) &&	// 持ち上げ/下ろしの最中ならfalse
 			(Mathf.Abs(MoveMng.TotalMove.magnitude) <= cameraLookBorderSpd)) {
-			cameraLookRatio += (cameraLookRatioSpd * RotVec.x);
+			cameraLookRatio += (cameraLookRatioSpd * RotVec.x * -(RotVec.y * 2 - 1));
 		}
 		// 移動があればキャラクター進行方向を向く
 		else {
@@ -831,7 +835,7 @@ public class Player : MonoBehaviour {
 		cameraLookRatio = Mathf.Clamp(cameraLookRatio, -1.0f, 1.0f);
 
 		// モデルの向きを設定
-		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(modelTransform.rotation.eulerAngles.x, (cameraLookMaxAngle * cameraLookRatio), modelTransform.rotation.eulerAngles.z));
+		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * cameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
 //		Debug.LogWarning(modelTransform.rotation.eulerAngles + " " + modelTransform.name);
 
 		//test
