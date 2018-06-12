@@ -23,7 +23,11 @@ public class StageSelectEnterUI : MonoBehaviour {
 	public void SetPosition(Vector3 aWorldPosition) {
 		RectTransform r = GetComponent<RectTransform>();
 
-		r.anchoredPosition = RectTransformUtility.WorldToScreenPoint(Camera.main, aWorldPosition);
+		Vector2 lPoint = RectTransformUtility.WorldToScreenPoint(Camera.main, aWorldPosition);
+		lPoint.x *= 1920.0f/ Camera.main.pixelWidth;
+		lPoint.y *= 1080.0f / Camera.main.pixelHeight;
+
+		r.anchoredPosition = lPoint;
 	}
 
 	public void SetRotation(Quaternion aRotation) {
