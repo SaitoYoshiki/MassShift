@@ -32,8 +32,7 @@ public class LandImpactEffect : MonoBehaviour {
 
 	[SerializeField, Tooltip("下に発生するエフェクトの発生位置")]
 	GameObject mDownEffectTransform;
-
-
+	
 
 	// Use this for initialization
 	void Awake() {
