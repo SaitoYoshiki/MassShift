@@ -15,8 +15,27 @@ public class GameManager : MonoBehaviour {
 	[SerializeField]
 	MoveTransform mCameraMove;
 
+	[SerializeField]
+	GoalBlackCurtain mGoalBlack;
+
 	[SerializeField, EditOnPrefab, Tooltip("重さを移してから何秒間はゴールできないか")]
 	float mCanGoalTimeFromShift = 1.0f;
+
+
+	[SerializeField]
+	float mGoalBeforeRotateTime = 0.0f;
+
+	[SerializeField]
+	float mGoalRotateTime = 0.5f;
+
+	[SerializeField]
+	float mGoalBeforeWalkingTime = 0.5f;
+
+	[SerializeField]
+	float mGoalWalkingTime = 1.0f;
+
+	[SerializeField]
+	float mGoalAfterWalkingTime = 0.5f;
 
 	StageTransition mTransition;
 
@@ -45,6 +64,8 @@ public class GameManager : MonoBehaviour {
 		mTransition = FindObjectOfType<StageTransition>();
 		mResult = FindObjectOfType<Result>();
 		mPause = FindObjectOfType<Pause>();
+
+		mGoalBlack = FindObjectOfType<GoalBlackCurtain>();
 
 		//ポーズ画面から来たら、ポーズを戻す
 		Time.timeScale = 1.0f;
@@ -80,10 +101,12 @@ public class GameManager : MonoBehaviour {
 		//if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
 		{
 			//プレイヤーを操作不可に
-			OnCantOperation();
+			CanMovePlayer(false);
+			OnCanShiftOperation(false);
+			mPause.canPause = false;
 
-            // タイトルシーンからの遷移でなければ
-            if (!cameraMove.fromTitle) {
+			// タイトルシーンからの遷移でなければ
+			if (!cameraMove.fromTitle) {
                 //ステージ開始時の演出
                 mTransition.OpenDoorParent();
 
@@ -115,7 +138,8 @@ public class GameManager : MonoBehaviour {
 		//
 
 		//プレイヤーが操作可能になる
-		OnCanOperation();
+		CanMovePlayer(true);
+		mPause.canPause = true;
 
 		//カメラのズームアウトを始める
 		mCameraMove.MoveStart();
@@ -126,7 +150,7 @@ public class GameManager : MonoBehaviour {
 
 			//カメラのズームアウトが終わってから、移す操作を出来るようになる
 			if(mCameraMove.IsMoveEnd) {
-				OnCanShiftOperation();
+				OnCanShiftOperation(true);
 				mCameraMove.IsMoveEnd = false;
 			}
 
@@ -154,7 +178,118 @@ public class GameManager : MonoBehaviour {
 		//
 
 		//Playerを操作不可にする
-		OnCantOperation();
+		CanMovePlayer(false);
+
+
+		//重さを移せないようにする
+		OnCanShiftOperation(false);
+		mPause.canPause = false;
+
+		//ズーム終了後のカメラ位置を変更
+		mCameraMove.mEndPosition = GetPlayerZoomCameraPosition();
+
+
+		//カメラの開始地点を現在のカメラ位置にする
+		mCameraMove.mStartPosition = mCameraMove.transform.position;
+
+
+		//プレイヤーを移動不可にする
+		CanMovePlayer(false);
+
+		//カメラを見ていないようにする
+		mPlayer.GetComponent<Player>().CameraLookRatio = 0.0f;
+
+		OnPlayerEffect(true);   //プレイヤーの更新を切る
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
+
+		mCameraMove.MoveStart();
+
+		//カメラのズームイン終了まで待つ
+		while (true) {
+			if (mCameraMove.IsMoveEnd) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//
+		//プレイヤーがドアに入っていく演出
+		//
+
+		yield return new WaitForSeconds(mGoalBeforeRotateTime);
+
+		mGoal.mOpenForce = true;    //ドアを強制的に開く
+
+		mGoalBlack.transform.position = mGoal.transform.position;   //黒い背景をゴールのところに移動させる
+		mGoalBlack.transform.rotation = mGoal.transform.rotation;
+
+		//歩きアニメーションの再生
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
+
+
+		//プレイヤーを回転させていく
+		bool lIsRight = mPlayer.RotVec.x > 0.0f;
+
+		if (lIsRight) {
+			float lAngle = 0.0f;
+			while (true) {
+				lAngle -= 90.0f / mGoalRotateTime * Time.deltaTime;
+				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
+				if (lAngle <= -90.0f) {
+					mPlayer.transform.rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
+					break;
+				}
+
+				yield return null;
+			}
+		}
+		else {
+			float lAngle = 0.0f;
+			while (true) {
+				lAngle += 90.0f / mGoalRotateTime * Time.deltaTime;
+				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
+				if (lAngle >= 90.0f) {
+					mPlayer.transform.rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f);
+					break;
+				}
+
+				yield return null;
+			}
+		}
+
+		yield return new WaitForSeconds(mGoalBeforeWalkingTime);
+
+		//プレイヤーを歩かせる
+		//
+
+		mGoalBlack.StartFade(0.0f, 1.0f, 0.0f, mGoalWalkingTime);
+
+		while (true) {
+			mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f / mGoalWalkingTime * Time.deltaTime);
+			if (mPlayer.transform.position.z >= 3.0f) {
+				break;
+			}
+
+			yield return null;
+		}
+
+		yield return new WaitForSeconds(mGoalAfterWalkingTime);
+
+		//ステージ終了時の演出
+		mTransition.CloseDoorParent();
+
+		//演出が終了するまで待機
+		while (true) {
+			if (mTransition.GetCloseEnd()) break;
+			yield return null;
+		}
+
+
+
+
+
 
 		Cursor.visible = true;
 		mResult.canGoal = true;
@@ -185,31 +320,23 @@ public class GameManager : MonoBehaviour {
 		return true;	//ゴール可能
 	}
 
-	//重さを移せなくなり、プレイヤーも動かせなくなる操作
+	//重さを移せるようになる
 	//
-	void OnCantOperation() {
-		mMassShift.CanShift = false;
-		mMassShift.mInvisibleCursor = true;
-		mPlayer.CanWalk = false;
-		mPlayer.CanJump = false;
-		mPlayer.CanRotation = false;
-		mPause.canPause = false;
+	void OnCanShiftOperation(bool aCanShift) {
+		mMassShift.CanShift = aCanShift;    //重さを移せる
+		mMassShift.mInvisibleCursor = !aCanShift;
 	}
 
-	//プレイヤーが動けるようになり、ポーズも出来るようになる操作
-	//
-	void OnCanOperation() {
-		mPlayer.CanWalk = true;
-		mPlayer.CanJump = true;
-		mPlayer.CanRotation = true;
-		mPause.canPause = true;
+
+	void CanMovePlayer(bool aCanMove) {
+		mPlayer.CanWalk = aCanMove;
+		mPlayer.CanJump = aCanMove;
 	}
 
-	//重さを移せるようになる操作
-	//
-	void OnCanShiftOperation() {
-		mMassShift.CanShift = true;    //重さを移せる
-		mMassShift.mInvisibleCursor = false;
+	//プレイヤーの演出用
+	void OnPlayerEffect(bool aIsEffect) {
+		mPlayer.GetComponent<MoveManager>().enabled = !aIsEffect;
+		mPlayer.GetComponent<Player>().enabled = !aIsEffect;
 	}
 
 	Vector3 GetPlayerZoomCameraPosition() {
