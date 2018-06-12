@@ -265,6 +265,7 @@ public class Player : MonoBehaviour {
 			return rotVec;
 		}
 		set {
+			Debug.Log("RotVec = " + value);
 			rotVec = value;
 		}
 	}
@@ -324,6 +325,14 @@ public class Player : MonoBehaviour {
 
 	[SerializeField]
 	float cameraLookRatio = 1.0f;			// カメラの方を向いている比率
+	public float CameraLookRatio {
+		get {
+			return cameraLookRatio;
+		}
+		set {
+			cameraLookRatio = value;
+		}
+	}
 	[SerializeField]
 	float cameraLookRatioSpd = 0.05f;		// 待機時のカメラの方を向く割合の変化量
 	[SerializeField]
@@ -340,6 +349,10 @@ public class Player : MonoBehaviour {
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
+	}
+
+	void Start() {
+		InitRotation();
 	}
 
 	void Update() {
@@ -826,24 +839,21 @@ public class Player : MonoBehaviour {
 		if ((Land.IsLanding || land.IsWaterFloatLanding || WaterStt.IsWaterSurface) &&
 			!(!Lift.IsLifting && Lift.LiftObj) &&	// 持ち上げ/下ろしの最中ならfalse
 			(Mathf.Abs(MoveMng.TotalMove.magnitude) <= cameraLookBorderSpd)) {
-			cameraLookRatio += (cameraLookRatioSpd * RotVec.x * -(RotVec.y * 2 - 1));
+			CameraLookRatio += (cameraLookRatioSpd * RotVec.x * -(RotVec.y * 2 - 1));
 		}
 		// 移動があればキャラクター進行方向を向く
 		else {
-			float defSign = Mathf.Sign(cameraLookRatio);
-			cameraLookRatio -= (cameraLookCancelRatioSpd * Mathf.Sign(cameraLookRatio));
-			if (defSign != Mathf.Sign(cameraLookRatio)) {
-				cameraLookRatio = 0.0f;
+			float defSign = Mathf.Sign(CameraLookRatio);
+			CameraLookRatio -= (cameraLookCancelRatioSpd * Mathf.Sign(CameraLookRatio));
+			if (defSign != Mathf.Sign(CameraLookRatio)) {
+				CameraLookRatio = 0.0f;
 			}
 		}
-		cameraLookRatio = Mathf.Clamp(cameraLookRatio, -1.0f, 1.0f);
+		CameraLookRatio = Mathf.Clamp(CameraLookRatio, -1.0f, 1.0f);
 
 		// モデルの向きを設定
-		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * cameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
+		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * CameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
 //		Debug.LogWarning(modelTransform.rotation.eulerAngles + " " + modelTransform.name);
-
-		//test
-		//		modelTransform.rotation = modelTransform.rotation * Quaternion.Euler(new Vector3(0.0f, 100.0f, 0.0f));
 	}
 
 	void HandSpringJump() {
@@ -864,5 +874,33 @@ public class Player : MonoBehaviour {
 		Land.IsLanding = false;
 		WaterStt.IsWaterSurface = false;
 		WaterStt.BeginWaterStopIgnore();
+	}
+
+	public void InitRotation() {
+		Debug.Log("InitRotation");
+
+		// 重さを設定
+		WeightMng.WeightLv = WeightManager.Weight.flying;
+
+		// 接地方向の回転を設定
+		RotVec = new Vector3(RotVec.x, 1.0f, RotVec.z);
+
+		// 着地状態
+		Land.IsLanding = true;
+
+		// 位置を補正
+		transform.position += (Vector3.up * 0.495f); 
+
+		// 姿勢を更新
+		rotTransform.rotation = Quaternion.Euler(RotVec.y * 180.0f, -90.0f + RotVec.x * 90.0f, 0.0f);
+
+		// 離地判定コライダーを設定
+		Land.LandingCol = GetComponent<FourSideCollider>().TopCol;
+
+		// カメラの反対を向いているので反転
+		CameraLookRatio *= -1;
+
+		// 前回更新で少し上に移動していた事にする
+		MoveMng.PrevMove = Vector3.up * float.Epsilon;
 	}
 }
