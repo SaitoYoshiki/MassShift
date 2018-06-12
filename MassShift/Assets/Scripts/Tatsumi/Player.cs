@@ -351,10 +351,6 @@ public class Player : MonoBehaviour {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 	}
 
-	void Start() {
-		InitRotation();
-	}
-
 	void Update() {
 		// 左右移動入力
 		//		walkStandbyVec = Input.GetAxis("Horizontal");
