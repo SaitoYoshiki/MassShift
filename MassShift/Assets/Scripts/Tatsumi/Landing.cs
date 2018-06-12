@@ -265,7 +265,7 @@ public class Landing : MonoBehaviour {
 		if (landColList.Count <= 0) {
 			IsLanding = false;
 			IsExtrusionLanding = false;
-//			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));
+			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));
 		}
 	}
 

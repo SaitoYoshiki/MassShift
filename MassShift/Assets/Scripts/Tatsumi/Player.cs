@@ -265,7 +265,6 @@ public class Player : MonoBehaviour {
 			return rotVec;
 		}
 		set {
-			Debug.Log("RotVec = " + value);
 			rotVec = value;
 		}
 	}
@@ -460,15 +459,16 @@ public class Player : MonoBehaviour {
 			}
 		}
 
-		// 着水アニメーション
+		// 出水時アニメーション
 		if (WaterStt.IsWaterSurfaceChange) {
 			WaterStt.IsWaterSurfaceChange = false;
-
-			if (WaterStt.IsWaterSurface) {
+			// 着水解除時
+			if (!WaterStt.IsWaterSurface) {
+				// 落下アニメーションに遷移
 				if (!Lift.IsLifting) {
-//					PlAnim.StartLand();
+					PlAnim.StartFall();
 				} else {
-//					PlAnim.StartHoldLand();
+					PlAnim.StartHoldFall();
 				}
 			}
 		}
