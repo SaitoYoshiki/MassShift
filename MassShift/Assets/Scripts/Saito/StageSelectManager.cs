@@ -260,8 +260,8 @@ public class StageSelectManager : MonoBehaviour {
 		CanMovePlayer(true);    //プレイヤーは動けるようにするが、ユーザーの入力は受け付けない
 		var v = mPlayer.GetComponent<VirtualController>();
 
-		float cWalkTime = 3.0f; //プレイヤーを自動で歩かせる秒数
-		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.5f, cWalkTime);
+		float cWalkTime = 1.5f; //プレイヤーを自動で歩かせる秒数
+		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 1.0f, cWalkTime);
 		VirtualController.SetAxis(VirtualController.CtrlCode.Jump, 0.0f, cWalkTime);
 		VirtualController.SetAxis(VirtualController.CtrlCode.Lift, 0.0f, cWalkTime);
 		VirtualController.SetAxis(VirtualController.CtrlCode.Vertical, 0.0f, cWalkTime);
@@ -408,7 +408,7 @@ public class StageSelectManager : MonoBehaviour {
 	void CanMovePlayer(bool aCanMove) {
 		mPlayer.CanWalk = aCanMove;
 		mPlayer.CanJump = aCanMove;
-		mPlayer.CanRotation = aCanMove;
+		//mPlayer.CanRotation = aCanMove;
 	}
 
 	Vector3 GetPlayerZoomCameraPosition() {
