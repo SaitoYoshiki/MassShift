@@ -70,8 +70,8 @@ public class LandImpactEffect : MonoBehaviour {
 				g.transform.position = DownEffectPosition();
 			}
 			if (aWeight == WeightManager.Weight.flying) {
-				var g = Instantiate(mLandImpactGroundFlyingPrefab);
-				g.transform.position = UpEffectPosition();
+				//var g = Instantiate(mLandImpactGroundFlyingPrefab);
+				//g.transform.position = UpEffectPosition();
 			}
 		}
 		

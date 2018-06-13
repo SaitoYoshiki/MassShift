@@ -45,7 +45,7 @@ public class LandImpactSound : MonoBehaviour {
 			if (aWeight == WeightManager.Weight.heavy) {
 				SoundManager.SPlay(mLandImpactHeavySE);
 			}
-			else {
+			else if (aWeight == WeightManager.Weight.light) {
 				SoundManager.SPlay(mLandImpactLightSE);
 			}
 		}
