@@ -26,6 +26,7 @@ public class MassShift : MonoBehaviour
 
 		mAllWeightModel = FindObjectsOfType<WeightManager>();
 		mPlayer = FindObjectOfType<Player>();
+		mStageShiftUI = FindObjectOfType<StageShiftUI>();
 
 		Cursor.visible = false;
 	}
@@ -149,6 +150,10 @@ public class MassShift : MonoBehaviour
 			//通常時のカーソルを表示
 			ChangeCursorState(CCursorState.cNormal);
 
+			//重さを移せるかのUIを消す
+			mStageShiftUI.GetSourceUI().NotShow();
+			mStageShiftUI.GetDestUI().NotShow();
+
 			mSource = null;
 			mDest = null;
 			mSelect = null;
@@ -246,6 +251,19 @@ public class MassShift : MonoBehaviour
 			}
 
 
+			//ソースの重さを移せるかのUIを更新
+			if (CanShiftSource(mSource)) {
+				if (MoveAfterLight(mSource) > 0.0f) {
+					mStageShiftUI.GetSourceUI().ShowUp();
+				}
+				else {
+					mStageShiftUI.GetSourceUI().ShowDown();
+				}
+			}
+			else {
+				mStageShiftUI.GetSourceUI().ShowFail();
+			}
+
 
 			//通常時ではないカーソルを表示
 			ChangeCursorState(CCursorState.cShotLineThrough);
@@ -268,6 +286,18 @@ public class MassShift : MonoBehaviour
 				bool lCanSelect = false;
 				if (CanShiftDest(mSelect) && CanShiftShare(mSource, mSelect)) {
 					lCanSelect = true;
+				}
+
+				if(CanShiftDest(mSelect)) {
+					if (MoveAfterHeavy(mSelect) > 0.0f) {
+						mStageShiftUI.GetDestUI().ShowUp();
+					}
+					else {
+						mStageShiftUI.GetDestUI().ShowDown();
+					}
+				}
+				else {
+					mStageShiftUI.GetDestUI().ShowFail();
 				}
 
 				if (lCanSelect) {
@@ -339,6 +369,15 @@ public class MassShift : MonoBehaviour
 			}
 		}
 
+		//重さを移せるかなどのUIの位置を更新
+		//
+		if (mSource != null) {
+			mStageShiftUI.GetSourceUI().SetPosition(mSource.transform.position);
+		}
+		if (mSelect != null) {
+			mStageShiftUI.GetDestUI().SetPosition(mSelect.transform.position);
+		}
+
 
 		//移す操作がされないと
 		if (!GetShiftButton()) {
@@ -401,7 +440,11 @@ public class MassShift : MonoBehaviour
 			//選択先のハイライトを消し、移し先のハイライトを表示
 			ShowModelHilight(mSelect, false, Color.white);
 			ShowModelHilight(mDest, true, mDestColor * mDestColorPower);
-			
+
+			//重さを移せるかのUIを消す
+			mStageShiftUI.GetSourceUI().NotShow();
+			mStageShiftUI.GetDestUI().NotShow();
+
 
 			//共有ボックスの処理
 			//
@@ -567,6 +610,9 @@ public class MassShift : MonoBehaviour
 			ShowModelHilight(mSelect, false, Color.white);
 			ShowModelHilight(mDest, true, mDestColor * mDestColorPower);
 
+			//重さを移せるかのUIを消す
+			mStageShiftUI.GetSourceUI().NotShow();
+			mStageShiftUI.GetDestUI().NotShow();
 
 			//光の弾の生成と、設定
 			//
@@ -806,6 +852,11 @@ public class MassShift : MonoBehaviour
 			SetActiveShareLine(mMassShiftShareLineFromDest, false);
 			SetActiveShareLine(mMassShiftShareLineToSource, false);
 
+			//重さを移せるかのUIを消す
+			mStageShiftUI.GetSourceUI().NotShow();
+			mStageShiftUI.GetDestUI().NotShow();
+
+
 			ChangeCursorState(CCursorState.cCanNotShift);
 		}
 
@@ -910,6 +961,8 @@ public class MassShift : MonoBehaviour
 			return mFromLastShiftTime;
 		}
 	}
+
+	StageShiftUI mStageShiftUI;
 
 
 	//
@@ -1494,6 +1547,15 @@ public class MassShift : MonoBehaviour
 		return aObject.GetComponent<ShareWeightBox>() != null;
 	}
 
+
+	//重くなった後どちらに行くか
+	float MoveAfterHeavy(GameObject aObject) {
+		return -1.0f;
+	}
+	//軽くなった後どちらに行くか
+	float MoveAfterLight(GameObject aObject) {
+		return 1.0f;
+	}
 
 
 	#region SE List
