@@ -72,11 +72,7 @@ public class StageSelectManager : MonoBehaviour {
 	float mFromStageAfterRotateTime = 0.5f;
 
 
-
-
-
-
-
+	
 	int mSelectStageNum = -1;
 	float mSelectTime = 0.0f;   //選び続けている秒数
 	bool mSelectInit = false;
