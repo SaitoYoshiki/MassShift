@@ -277,6 +277,7 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	float jumpStartOneTimeLimitSpd = 1.0f;
 
+	#region 自動ジャンプ
 	[SerializeField]
 	List<Transform> ClimbJumpWeightLvCollider = new List<Transform>(3);   // 自動ジャンプ当たり判定
 	[SerializeField]
@@ -289,6 +290,7 @@ public class Player : MonoBehaviour {
 	List<float> ClimbJumpWeightLvHeight = new List<float>(3);
 	[SerializeField]
 	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
+	#endregion
 
 	[SerializeField]
 	float handSpringWeitTime = 0.2f;
@@ -419,8 +421,8 @@ public class Player : MonoBehaviour {
 		// 着地時、または入/出水時の戻り回転時
 		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
 		if (landTrueChangeFlg || ((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {
-
-			prevIsInWater = WaterStt.IsInWater;
+			// 入/出水時の戻り回転なら天井回転アニメーションは行わない
+			bool notHandSpring = (WaterStt.IsInWater != prevIsInWater);
 
 			// 必要なら回転アニメーション
 			float nowRotVec = RotVec.y;
@@ -433,18 +435,22 @@ public class Player : MonoBehaviour {
 				}
 			}
 
-			// 回転アニメーション
 			if (nowRotVec != landRotVec) {
-				if (!Lift.IsLifting) {
-					PlAnim.StartHandSpring();
-				} else {
-					PlAnim.StartHoldHandSpring();
-				}
 				RotVec = new Vector3(RotVec.x, landRotVec, RotVec.z);
-				HandSpringEndTime = (Time.time + handSpringWeitTime);
-				IsHandSpring = true;
+
+				if (!notHandSpring) {
+					// 天井回転アニメーション
+					if (!Lift.IsLifting) {
+						PlAnim.StartHandSpring();
+					} else {
+						PlAnim.StartHoldHandSpring();
+					}
+					HandSpringEndTime = (Time.time + handSpringWeitTime);
+					IsHandSpring = true;
+				}
 			}
 		}
+		prevIsInWater = WaterStt.IsInWater;
 
 		// 着地アニメーション
 		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
@@ -643,8 +649,8 @@ public class Player : MonoBehaviour {
 		return true;
 	}
 	void WalkDown() {
-		// 進行方向側への左右入力があれば
-		if ((walkStandbyVec != 0.0f) && (Mathf.Sign(MoveMng.PrevMove.x) == Mathf.Sign(walkStandbyVec))) return;
+		// 進行方向側への左右入力があるか、接地した際の天井回転待ち状態なら
+		if (((walkStandbyVec != 0.0f) && (Mathf.Sign(MoveMng.PrevMove.x) == Mathf.Sign(walkStandbyVec))) && !IsHandSpringWeit) return;
 
 		// 接地中、または水上での安定状態、安定状態オブジェクトへの接地であれば
 		if (Land.IsLanding || WaterStt.IsWaterSurface || Land.IsWaterFloatLanding) {

@@ -286,6 +286,8 @@ public class Lifting : MonoBehaviour {
 			break;
 
 		case LiftState.liftDown:
+			Debug.LogWarning(St.ToString() + " " + PlAnim.GetBoxPosition());
+
 			// 移動不可
 			MoveMng.StopMoveVirticalAll();
 			MoveMng.StopMoveHorizontalAll();
@@ -572,7 +574,7 @@ public class Lifting : MonoBehaviour {
 		Pl.CanRotation = true;
 	}
 
-	public void LiftDownEnd() {
+	public void LiftDownEnd() {	// 持っているオブジェクトを強制的に下ろす使い方もできる
 		Debug.Log("LiftDownEnd");
 
 		// プレイヤーのモデルに同期していた回転を消去
