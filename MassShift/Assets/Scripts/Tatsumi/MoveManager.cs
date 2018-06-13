@@ -409,6 +409,7 @@ public class MoveManager : MonoBehaviour {
 					WeightManager moveWeightMng = _moveCol.GetComponent<WeightManager>();
 					WeightManager hitWeightMng = nearHitinfo.collider.GetComponent<WeightManager>();
 					MoveManager hitMoveMng = nearHitinfo.collider.GetComponent<MoveManager>();
+					Landing hitLanding = nearHitinfo.collider.GetComponent<Landing>();
 
 					// 水中で上のオブジェクトを押し上げている場合
 					WaterState moveWaterStt = _moveCol.GetComponent<WaterState>();
@@ -435,11 +436,11 @@ public class MoveManager : MonoBehaviour {
 
 					// 自身が衝突相手を押し出せるか
 					bool canExtrusion =
-						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) &&        // 判定に必要なコンポーネントが揃っている
-						(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&    // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
-						((moveWeightMng.WeightLv > hitWeightMng.WeightLv) ||        // 自身の重さレベルが相手の重さレベルより重い、又は
-						(waterFloatExtrusion) ||									// 水中で上のオブジェクトを押し上げている、または
-						(moveMng.ExtrusionForcible || _extrusionForcible));         // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
+						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding) &&			// 判定に必要なコンポーネントが揃っている
+						(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&						// 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
+						(((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) ||	// 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
+						(waterFloatExtrusion) ||														// 水中で上のオブジェクトを押し上げている、又は
+						(moveMng.ExtrusionForcible || _extrusionForcible));								// 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
 
 					// 相手側の自身に対するすり抜け指定があれば
 					if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughColList.Contains(_moveCol)) {
@@ -472,6 +473,8 @@ public class MoveManager : MonoBehaviour {
 					}
 					// 押し出せる場合
 					else {
+//						Debug.LogWarning(_moveCol.name + " 押し出し>" + hitMoveMng.name);
+
 						if (hitMoveMng && moveMng) {
 							// 押し出し相手の上下移動量を削除
 							hitMoveMng.StopMoveVirtical(MoveType.prevMove);
@@ -512,7 +515,9 @@ public class MoveManager : MonoBehaviour {
 						WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
 						if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
 							(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface) || (hitLand.IsWaterFloatLanding)) {
-							land.IsLanding = land.GetIsLanding(Vector3.up * moveVec.y);
+							if (land.GetIsLanding(Vector3.up * moveVec.y)) {
+								land.IsLanding = true;
+							}
 							land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
 						}
 					}

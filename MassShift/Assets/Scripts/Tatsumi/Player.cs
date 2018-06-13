@@ -505,7 +505,8 @@ public class Player : MonoBehaviour {
 						PlAnim.StartHoldWalk();
 					}
 				}
-				float walkAnimSpd = Mathf.Max((Mathf.Abs(MoveMng.PrevMove.x) * walkAnimRatio), walkAnimMinSpd);
+				//float walkAnimSpd = Mathf.Max((Mathf.Abs(MoveMng.PrevMove.x) * walkAnimRatio), walkAnimMinSpd);
+				float walkAnimSpd = Mathf.Max((walkStandbyVec * walkAnimRatio), walkAnimMinSpd);
 				PlAnim.SetSpeed(walkAnimSpd);
 			}
 			// 泳ぎアニメーション
