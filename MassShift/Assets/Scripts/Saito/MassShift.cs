@@ -279,6 +279,7 @@ public class MassShift : MonoBehaviour
 
 			if (mBeforeSelect != null) {
 				ShowModelHilight(mBeforeSelect, true, mSourceColor * mSourceColorPower);
+				mStageShiftUI.GetDestUI().NotShow();
 			}
 
 			if (mSelect != null) {
