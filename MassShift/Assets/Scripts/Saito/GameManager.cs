@@ -331,6 +331,7 @@ public class GameManager : MonoBehaviour {
 	void CanMovePlayer(bool aCanMove) {
 		mPlayer.CanWalk = aCanMove;
 		mPlayer.CanJump = aCanMove;
+		mPlayer.CanRotation = aCanMove;
 	}
 
 	//プレイヤーの演出用
