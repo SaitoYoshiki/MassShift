@@ -79,7 +79,7 @@ public class cameraMove : MonoBehaviour {
         }
         // ズームされていない初期状態なら
         else {
-            if (Input.anyKeyDown) {
+            if (Input.GetMouseButtonDown(0)) {
                 // 「InputAnyKey」の表示を消す
                 text.SetActive(false);
                 firstZoom = true;
