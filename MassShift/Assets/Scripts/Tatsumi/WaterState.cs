@@ -144,6 +144,16 @@ public class WaterState : MonoBehaviour {
 	[SerializeField]
 	BoxCollider waterCol = null;
 
+	Landing land = null;
+	Landing Land {
+		get {
+			if (!land) {
+				land = GetComponent<Landing>();
+			}
+			return land;
+		}
+	}
+
 	void Start() {
 		if (!waterCol) {
 			waterCol = GetComponent<BoxCollider>();
@@ -158,8 +168,11 @@ public class WaterState : MonoBehaviour {
 			// 水中なら
 			if (!IsWaterSurface) {
 				if (CanFloat) {
-					// 水による浮上
-					MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f));
+					// 押し付けられていない場合
+					if (!(Land && Land.IsExtrusionLanding)) {
+						// 水による浮上
+						MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f));
+					}
 				}
 			}
 			// 水上なら

@@ -225,7 +225,7 @@ public class GameManager : MonoBehaviour {
 		mGoalBlack.transform.rotation = mGoal.transform.rotation;
 
 		//歩きアニメーションの再生
-		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(0.3f);
 		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
 
 
@@ -263,6 +263,8 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーを歩かせる
 		//
+
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
 
 		mGoalBlack.StartFade(0.0f, 1.0f, 0.0f, mGoalWalkingTime);
 
@@ -331,6 +333,7 @@ public class GameManager : MonoBehaviour {
 	void CanMovePlayer(bool aCanMove) {
 		mPlayer.CanWalk = aCanMove;
 		mPlayer.CanJump = aCanMove;
+		mPlayer.CanRotation = aCanMove;
 	}
 
 	//プレイヤーの演出用

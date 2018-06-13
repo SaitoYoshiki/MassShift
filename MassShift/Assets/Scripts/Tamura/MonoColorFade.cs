@@ -38,16 +38,12 @@ public class MonoColorFade : MyFade {
             return;
         }
 
-        Debug.Log("Fade Start",this);
-
         isFading = true;
-        Debug.Log("文字フェード開始");
     }
 
     // フェードイン/アウト
     IEnumerator MonoFade() {
         if (!isFadeEnd) {
-            Debug.Log("Fade In");
             // フェードイン処理
             fadeColor.a += 1.0f * (Time.deltaTime / fadeTime);
             fadeObject.GetComponent<Text>().color = fadeColor;
@@ -59,14 +55,12 @@ public class MonoColorFade : MyFade {
             yield return null;
         }
         else {
-            Debug.Log("Fade Out");
             // フェードアウト処理
             fadeColor.a -= 1.0f * (Time.deltaTime / fadeTime);
             fadeObject.GetComponent<Text>().color = fadeColor;
             if (fadeColor.a <= 0.0f) {
                 fadeColor.a = 0.0f;
                 isFading = false;
-                Debug.Log("Fade End");
             }
 
             yield return null;

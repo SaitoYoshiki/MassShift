@@ -41,9 +41,9 @@ public class cameraMove : MonoBehaviour {
 
     public static bool fromTitle = false;
 
-    Color startLightColor = new Color(0.0f, 0.0f, 0.0f);
-    Color endLightColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
-    float colorPer = 0.0f;
+    //Color startLightColor = new Color(0.0f, 0.0f, 0.0f);
+    //Color endLightColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
+    //float colorPer = 0.0f;
 
 	void Start () {
         this.transform.position = cameraStartPoint;
@@ -51,7 +51,7 @@ public class cameraMove : MonoBehaviour {
         st.gameObject.SetActive(false);
         cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
 
-        RenderSettings.ambientSkyColor = startLightColor;
+        //RenderSettings.ambientSkyColor = startLightColor;
 	}
 
     void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
@@ -63,13 +63,13 @@ public class cameraMove : MonoBehaviour {
         CheckFirstZoom();
         CheckZoomIn();
 
-        if (colorPer > 0.0f && colorPer < 1.0f) {
+        /*if (colorPer > 0.0f && colorPer < 1.0f) {
             colorPer += 0.01f;
             RenderSettings.ambientSkyColor = Color.Lerp(startLightColor, endLightColor, colorPer);
             if (colorPer >= 1.0f) {
                 //StageSelectActive.allowSceneActivation = true;
             }
-        }
+        }*/
 	}
 
     void CheckFirstZoom() {
@@ -79,7 +79,7 @@ public class cameraMove : MonoBehaviour {
         }
         // ズームされていない初期状態なら
         else {
-            if (Input.anyKeyDown) {
+            if (Input.GetMouseButtonDown(0)) {
                 // 「InputAnyKey」の表示を消す
                 text.SetActive(false);
                 firstZoom = true;
@@ -159,7 +159,7 @@ public class cameraMove : MonoBehaviour {
         tutorial.SetActive(false);
         stageselect.SetActive(false);
 
-        RenderSettings.ambientSkyColor = endLightColor;
+        //RenderSettings.ambientSkyColor = endLightColor;
 
         fromTitle = true;
     }
@@ -191,7 +191,7 @@ public class cameraMove : MonoBehaviour {
 
         StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
 
-        colorPer = 0.01f;
+        //colorPer = 0.01f;
 
         //SceneManager.sceneLoaded += OnSceneLoaded;
     }

@@ -511,7 +511,7 @@ public class MoveManager : MonoBehaviour {
 						Landing hitLand = nearHitinfo.collider.GetComponent<Landing>(); // nullならステージ
 						WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
 						if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
-							(hitWaterStt && hitWaterStt.IsWaterSurface) || (hitLand.IsWaterFloatLanding)) {
+							(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface) || (hitLand.IsWaterFloatLanding)) {
 							land.IsLanding = land.GetIsLanding(Vector3.up * moveVec.y);
 							land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
 						}

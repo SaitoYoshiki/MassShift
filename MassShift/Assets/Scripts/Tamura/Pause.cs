@@ -156,14 +156,26 @@ public class Pause : MonoBehaviour {
         optionFlg = !optionFlg;
 
         if (optionFlg) {
-            // ポーズ画面を閉じてオプション画面を開く
-            pauseCanvas.SetActive(false);
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+                // ポーズ画面を閉じてオプション画面を開く
+                pauseCanvas_SS.SetActive(false);
+            }
+            else {
+                pauseCanvas.SetActive(false);
+            }
+
             optionCanvas.SetActive(true);
         }
         else {
             // オプション画面を閉じる
             optionCanvas.SetActive(false);
-            pauseCanvas.SetActive(true);
+
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+                pauseCanvas_SS.SetActive(true);
+            }
+            else {
+                pauseCanvas.SetActive(false);
+            }
 
             GetComponent<SetPlayerPrefs>().SaveOptionSetting();
         }

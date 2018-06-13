@@ -76,4 +76,23 @@ public class WeightParticle : MonoBehaviour {
 			p.enabled = false;
 		}
 	}
+
+	[SerializeField]
+	GameObject mHilightModel;
+
+	public GameObject HilightModel {
+		get {
+			return mHilightModel;
+		}
+	}
+
+
+	[SerializeField]
+	GameObject mWeightPosition;
+
+	public GameObject WeightPosition {
+		get {
+			return mWeightPosition;
+		}
+	}
 }

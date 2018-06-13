@@ -72,11 +72,7 @@ public class StageSelectManager : MonoBehaviour {
 	float mFromStageAfterRotateTime = 0.5f;
 
 
-
-
-
-
-
+	
 	int mSelectStageNum = -1;
 	float mSelectTime = 0.0f;   //選び続けている秒数
 	bool mSelectInit = false;
@@ -251,6 +247,9 @@ public class StageSelectManager : MonoBehaviour {
 		yield return new WaitForSeconds(mFromStageBeforeRotateTime);
 
 		//プレイヤーの回転を元に戻す
+
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(0.3f);
+
 		float lAngle = 90.0f;
 		while (true) {
 			lAngle -= 90.0f / mFromStageRotateTime * Time.deltaTime;
@@ -518,7 +517,7 @@ public class StageSelectManager : MonoBehaviour {
 		mGoalBlack.transform.rotation = g.transform.rotation;
 		
 		//歩きアニメーションの再生
-		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(0.3f);
 		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
 
 
@@ -557,8 +556,11 @@ public class StageSelectManager : MonoBehaviour {
 
 		yield return new WaitForSeconds(mToStageBeforeWalkingTime);
 
+
 		//プレイヤーを歩かせる
 		//
+
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
 
 		mGoalBlack.StartFade(0.0f, 1.0f, 0.0f, mToStageWalkingTime);
 		
@@ -625,7 +627,7 @@ public class StageSelectManager : MonoBehaviour {
 	void CanMovePlayer(bool aCanMove) {
 		mPlayer.CanWalk = aCanMove;
 		mPlayer.CanJump = aCanMove;
-		//mPlayer.CanRotation = aCanMove;
+		mPlayer.CanRotation = aCanMove;
 	}
 
 	//プレイヤーの演出用
