@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MonoColorFade : MyFade {
+public class LoopFade : MyFade {
     public GameObject fadeObject;
 
     public float fadeTime;
@@ -19,7 +19,6 @@ public class MonoColorFade : MyFade {
 
         fadeColor.a = 0.0f;
         fadeObject.GetComponent<Text>().color = fadeColor;
-        fadeObject.GetComponent<Text>().text = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
         FadeStart();
     }
@@ -27,7 +26,7 @@ public class MonoColorFade : MyFade {
     void Update() {
         if (isFading) {
             // 単色フェードのコルーチンを開始
-            StartCoroutine(MonoFade());
+            StartCoroutine(Fade());
         }
     }
 
@@ -39,10 +38,11 @@ public class MonoColorFade : MyFade {
         }
 
         isFading = true;
+        isFadeEnd = false;
     }
 
     // フェードイン/アウト
-    IEnumerator MonoFade() {
+    IEnumerator Fade() {
         if (!isFadeEnd) {
             // フェードイン処理
             fadeColor.a += 1.0f * (Time.deltaTime / fadeTime);
@@ -61,6 +61,7 @@ public class MonoColorFade : MyFade {
             if (fadeColor.a <= 0.0f) {
                 fadeColor.a = 0.0f;
                 isFading = false;
+                FadeStart();
             }
 
             yield return null;

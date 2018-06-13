@@ -42,11 +42,11 @@ public class Result : MonoBehaviour {
 
                     // クリアしたのが各エリアの最終ステージならば
                     if (!Area.ExistNextStageSameArea(Area.GetAreaNumber(), Area.GetStageNumber())) {
-                        // リザルト画面を表示
+                        // エリアクリア時のリザルト画面を表示
                         ResultCanvas_AC.SetActive(true);
                     }
                     else {
-                        // リザルト画面を表示
+                        // ステージクリア時のリザルト画面を表示
                         ResultCanvas.SetActive(true);
                     }
                 }
