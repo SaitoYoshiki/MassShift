@@ -23,7 +23,7 @@ public class Lifting : MonoBehaviour {
 		set {
 			liftObj = value;
 			if (liftObj) {
-				liftObjModel = liftObj.transform.Find("Model");
+				liftObjModel = liftObj.transform.Find("Model").Find("Rotation");
 			} else {
 				liftObjModel = null;
 			}
