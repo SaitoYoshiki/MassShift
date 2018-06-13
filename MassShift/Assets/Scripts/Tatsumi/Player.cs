@@ -277,6 +277,7 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	float jumpStartOneTimeLimitSpd = 1.0f;
 
+	#region 自動ジャンプ
 	[SerializeField]
 	List<Transform> ClimbJumpWeightLvCollider = new List<Transform>(3);   // 自動ジャンプ当たり判定
 	[SerializeField]
@@ -289,6 +290,7 @@ public class Player : MonoBehaviour {
 	List<float> ClimbJumpWeightLvHeight = new List<float>(3);
 	[SerializeField]
 	List<float> ClimbJumpWeightLvHeightInWater = new List<float>(3);
+	#endregion
 
 	[SerializeField]
 	float handSpringWeitTime = 0.2f;
@@ -421,9 +423,6 @@ public class Player : MonoBehaviour {
 		if (landTrueChangeFlg || ((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {
 			// 入/出水時の戻り回転なら天井回転アニメーションは行わない
 			bool notHandSpring = (WaterStt.IsInWater != prevIsInWater);
-			if (notHandSpring) {
-				prevIsInWater = WaterStt.IsInWater;
-			};
 
 			// 必要なら回転アニメーション
 			float nowRotVec = RotVec.y;
@@ -451,6 +450,7 @@ public class Player : MonoBehaviour {
 				}
 			}
 		}
+		prevIsInWater = WaterStt.IsInWater;
 
 		// 着地アニメーション
 		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
