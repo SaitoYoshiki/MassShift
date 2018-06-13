@@ -42,10 +42,9 @@ public class MassShiftLine : MonoBehaviour {
 	//表示の線の色を変える
 	//
 	public void ChangeColor(Color aColor) {
-		for (int i = mModelParent.transform.childCount - 1; i >= 0; i--) {
-			foreach (var r in mModelParent.transform.GetChild(i).GetComponentsInChildren<Renderer>()) {
-				r.material.SetColor("_EmissionColor", aColor);
-			}
+		foreach (var r in mModelPrefab.GetComponentsInChildren<Renderer>()) {
+			r.sharedMaterial.SetColor("_EmissionColor", aColor);
+			break;  //最初の一つだけでいいので
 		}
 	}
 
