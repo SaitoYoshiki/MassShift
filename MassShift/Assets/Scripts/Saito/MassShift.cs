@@ -13,6 +13,8 @@ public class MassShift : MonoBehaviour
 		mMassShiftLine = Instantiate(mMassShiftLinePrefab, transform);
 		mMassShiftLine.name = "MassShiftLine";
 
+		ResizeShareLine();
+
 		mCursor = Instantiate(mCursorPrefab, transform);
 		mCursor.name = "Cursor";
 
@@ -184,6 +186,27 @@ public class MassShift : MonoBehaviour
 		}
 
 
+		//共有ボックス同士の線の更新
+		//
+
+		if(mBeforeSelect != mSelect) {
+			//選択されなくなったらアクティブでなくす
+			if (IsShareWeightBox(mBeforeSelect)) {
+				SetActiveShareLine(mMassShiftShareLineToSource, false);
+			}
+
+			//選択されていたらアクティブに
+			if (IsShareWeightBox(mSelect)) {
+				SetActiveShareLine(mMassShiftShareLineToSource, true);
+			}
+		}
+
+		//もし共有ボックスが選択されていたらアクティブに
+		if (IsShareWeightBox(mSelect)) {
+			UpdateShareLine(mSelect, mMassShiftShareLineToSource, true);
+		}
+
+
 		//もし重さを移すボタンが押されたら
 		if (GetShiftButton()) {
 
@@ -212,6 +235,17 @@ public class MassShift : MonoBehaviour
 			ShowAllModelHilight(true, mSourceColor * mSourceColorPower);
 
 			ShowModelHilight(mSource, true, mSourceColor * mSourceColorPower);
+
+
+			//共有ボックス間の線を表示するか
+			if (IsShareWeightBox(mSource)) {
+				SetActiveShareLine(mMassShiftShareLineToSource, true);
+			}
+			else {
+				SetActiveShareLine(mMassShiftShareLineToSource, false);
+			}
+
+
 
 			//通常時ではないカーソルを表示
 			ChangeCursorState(CCursorState.cShotLineThrough);
@@ -246,6 +280,31 @@ public class MassShift : MonoBehaviour
 				}
 			}
 		}
+
+
+		//共有ボックス間の線の更新
+		//
+
+		if (mBeforeSelect != mSelect) {
+			//選択されなくなったらアクティブでなくす
+			if (IsShareWeightBox(mBeforeSelect)) {
+				SetActiveShareLine(mMassShiftShareLineFromDest, false);
+			}
+
+			//選択されていたらアクティブに
+			if (IsShareWeightBox(mSelect)) {
+				SetActiveShareLine(mMassShiftShareLineFromDest, true);
+			}
+		}
+
+		//もし共有ボックスが選択されていたら更新する
+		if (IsShareWeightBox(mSelect)) {
+			UpdateShareLine(mSelect, mMassShiftShareLineFromDest, false);
+		}
+		if (IsShareWeightBox(mSource)) {
+			UpdateShareLine(mSource, mMassShiftShareLineToSource, true);
+		}
+
 
 
 		//選択されているオブジェクトがあるなら
@@ -335,10 +394,14 @@ public class MassShift : MonoBehaviour
 			//移す線を非表示に
 			mMassShiftLine.SetActive(false);
 
+			//共有ボックス間の線を非表示に
+			SetActiveShareLine(mMassShiftShareLineFromDest, false);
+			SetActiveShareLine(mMassShiftShareLineToSource, false);
+
 			//選択先のハイライトを消し、移し先のハイライトを表示
 			ShowModelHilight(mSelect, false, Color.white);
 			ShowModelHilight(mDest, true, mDestColor * mDestColorPower);
-
+			
 
 			//共有ボックスの処理
 			//
@@ -495,6 +558,10 @@ public class MassShift : MonoBehaviour
 
 			//移すのに表示する線を消す
 			mMassShiftLine.SetActive(false);
+
+			//共有ボックス間の線を非表示に
+			SetActiveShareLine(mMassShiftShareLineFromDest, false);
+			SetActiveShareLine(mMassShiftShareLineToSource, false);
 
 			//選択先のハイライトを消し、移し先のハイライトを表示
 			ShowModelHilight(mSelect, false, Color.white);
@@ -735,6 +802,10 @@ public class MassShift : MonoBehaviour
 			//移す表示の線を消す
 			mMassShiftLine.SetActive(false);
 
+			//共有ボックス間の線を非表示に
+			SetActiveShareLine(mMassShiftShareLineFromDest, false);
+			SetActiveShareLine(mMassShiftShareLineToSource, false);
+
 			ChangeCursorState(CCursorState.cCanNotShift);
 		}
 
@@ -855,6 +926,17 @@ public class MassShift : MonoBehaviour
 	GameObject mMassShiftLinePrefab;
 
 	GameObject mMassShiftLine;
+
+
+	[SerializeField, EditOnPrefab]
+	GameObject mMassShiftShareLinePrefab;
+
+	List<GameObject> mMassShiftShareLineToSource;   //移す元の共有ボックスからその他へ
+	List<GameObject> mMassShiftShareLineFromDest;   //移す先の共有ボックスからその他へ
+
+	[SerializeField]
+	GameObject mMassShiftShareLineParent;
+
 
 	[SerializeField, EditOnPrefab]
 	GameObject mCursorPrefab;
@@ -1152,7 +1234,7 @@ public class MassShift : MonoBehaviour
 		bool lCanShiftSource = CanShiftSource(aFrom);
 
 		//移し先に移せるか
-		bool lCanShiftDest = CanShiftDest(aTo) || aTo.GetComponent<WeightManager>() == null;	//移し先がカーソルでもtrueになれるように、ここは必ずtrueにしておく
+		bool lCanShiftDest = CanShiftDest(aTo) || aTo.GetComponent<WeightManager>() == null;	//移し先がカーソルならtrueになるように
 
 		//移し元と移し先が共有ボックスでないか
 		bool lCanShiftShare = CanShiftShare(aFrom, aTo);
@@ -1331,6 +1413,85 @@ public class MassShift : MonoBehaviour
 			return 2;
 		}
 		return 1;
+	}
+
+
+
+	//共有同士で引く線の数を変更する
+	//
+	void ResizeShareLine() {
+
+		//既に作成されているインスタンスを削除
+		for(int i = mMassShiftShareLineParent.transform.childCount - 1; i >= 0; i--) {
+			Destroy(mMassShiftShareLineParent.transform.GetChild(i).gameObject);
+		}
+		
+		//リストのクリア
+		mMassShiftShareLineToSource = new List<GameObject>();
+		mMassShiftShareLineFromDest = new List<GameObject>();
+
+		var lShare = FindObjectsOfType<ShareWeightBox>();
+		ResizeShareLine(mMassShiftShareLineToSource, lShare.Length - 1);
+		ResizeShareLine(mMassShiftShareLineFromDest, lShare.Length - 1);
+	}
+	void ResizeShareLine(List<GameObject> aList, int aCount) {
+
+		for (int i = 0; i < aCount; i++) {
+			GameObject g = Instantiate(mMassShiftShareLinePrefab, mMassShiftShareLineParent.transform);
+			aList.Add(g);
+		}
+
+		SetColorShareLine(aList, Color.cyan * 1.2f);
+		SetActiveShareLine(aList, false);
+	}
+
+	//共有同士で引く線のアクティブを変える
+	//
+	void SetActiveShareLine(List<GameObject> aShareLineList, bool aIsActive) {
+		for (int i = 0; i < aShareLineList.Count; i++) {
+			aShareLineList[i].SetActive(aIsActive);
+		}
+	}
+
+	//共有同士で引く線の色を変える
+	//
+	void SetColorShareLine(List<GameObject> aShareLineList, Color aColor) {
+		for (int i = 0; i < aShareLineList.Count; i++) {
+			aShareLineList[i].GetComponent<MassShiftLine>().ChangeColor(aColor);
+		}
+	}
+
+	//共有同士で引く線を更新する
+	//
+	void UpdateShareLine(GameObject aShareWeightBox, List<GameObject> aShareLineList, bool aToSource) {
+		ShareWeightBox s = aShareWeightBox.GetComponent<ShareWeightBox>();
+
+		var lShareList = s.GetShareAllListExceptOwn();
+		for (int i = 0; i < lShareList.Count; i++) {
+			MassShiftLine lLine = aShareLineList[i].GetComponent<MassShiftLine>();
+
+			//線の始めと終わりを求める
+			Vector3 lLineStart = lShareList[i].transform.position;
+			Vector3 lLineEnd = s.transform.position;
+
+			//もし移し元に行く線ではないなら
+			//移し先からの線なので、線の始めと終わりを入れ替える
+			if(aToSource == false) {
+				Vector3 t = lLineEnd;
+				lLineEnd = lLineStart;
+				lLineStart = t;
+			}
+
+			lLine.SetLinePosition(lLineStart, lLineEnd);
+			lLine.UpdatePosition();
+		}
+	}
+
+	//共有ボックスかどうか
+	//
+	bool IsShareWeightBox(GameObject aObject) {
+		if (aObject == null) return false;
+		return aObject.GetComponent<ShareWeightBox>() != null;
 	}
 
 
