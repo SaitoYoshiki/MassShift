@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Result : MonoBehaviour {
+    // 通常時のリザルト画面
     [SerializeField]
     GameObject ResultCanvas;
 
@@ -17,7 +18,9 @@ public class Result : MonoBehaviour {
     // ゴールしたかどうか、GameManager側から変更
     public bool canGoal;
 
-    bool flg = false;
+    public float animTime;
+    float animStartTime;
+    bool resultAnimFlg;
 
 	void Update () {
         // ゴールしていないなら何もしない
@@ -42,21 +45,18 @@ public class Result : MonoBehaviour {
 
                     // クリアしたのが各エリアの最終ステージならば
                     if (!Area.ExistNextStageSameArea(Area.GetAreaNumber(), Area.GetStageNumber())) {
-                        // リザルト画面を表示
+                        // エリアクリア時のリザルト画面を表示
                         ResultCanvas_AC.SetActive(true);
                     }
                     else {
-                        // リザルト画面を表示
+                        // ステージクリア時のリザルト画面を表示
                         ResultCanvas.SetActive(true);
                     }
                 }
             }
             // チュートリアルなら
             else {
-                if (!flg) {
-                    GetComponent<ChangeScene>().OnNextButtonDown();
-                    flg = true;
-                }
+                GetComponent<ChangeScene>().OnNextButtonDown();
             }
         }
 	}

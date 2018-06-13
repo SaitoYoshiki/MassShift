@@ -37,7 +37,6 @@ public class ChangeScene : MonoBehaviour {
         if (titleScene == null) {
             Debug.LogError("タイトルシーンが指定されていません");
         }
-        Debug.Log(titleScene);
 
         if (stageSelectScene == null) {
             Debug.LogError("ステージセレクトシーンが指定されていません");

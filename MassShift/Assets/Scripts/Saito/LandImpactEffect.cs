@@ -50,29 +50,83 @@ public class LandImpactEffect : MonoBehaviour {
 		if(aEnviroment == LandImpact.CEnviroment.cWaterSurface) {
 			if (aWeight == WeightManager.Weight.heavy) {
 				var g = Instantiate(mLandImpactWaterHeavyPrefab); //オブジェクトに追従しない
-				g.transform.position = mNormalWaterEffectTransform.transform.position;
+				g.transform.position = WaterEffectPosition();
 			}
 			if (aWeight == WeightManager.Weight.light) {
 				var g = Instantiate(mLandImpactWaterLightPrefab);
-				g.transform.position = mNormalWaterEffectTransform.transform.position;
+				g.transform.position = WaterEffectPosition();
 			}
 		}
 
 		//地上に落下したなら
 		else if (aEnviroment == LandImpact.CEnviroment.cGround) {
+
 			if (aWeight == WeightManager.Weight.heavy) {
 				var g = Instantiate(mLandImpactGroundHeavyPrefab);
-				g.transform.position = mDownEffectTransform.transform.position;
+				g.transform.position = DownEffectPosition();
 			}
 			if (aWeight == WeightManager.Weight.light) {
 				var g =Instantiate(mLandImpactGroundLightPrefab);
-				g.transform.position = mDownEffectTransform.transform.position;
+				g.transform.position = DownEffectPosition();
 			}
 			if (aWeight == WeightManager.Weight.flying) {
-				var g = Instantiate(mLandImpactGroundFlyingPrefab);
-				g.transform.position = mUpEffectTransform.transform.position;
+				//var g = Instantiate(mLandImpactGroundFlyingPrefab);
+				//g.transform.position = UpEffectPosition();
 			}
 		}
 		
+	}
+
+
+	Vector3 UpEffectPosition() {
+
+		var p = GetComponent<Player>();
+		if(p == null) {
+			return mUpEffectTransform.transform.position;
+		}
+
+		if(IsUpRotation(p)) {
+			return mUpEffectTransform.transform.position;
+		}
+		else {
+			return mDownEffectTransform.transform.position;
+		}
+	}
+
+	Vector3 DownEffectPosition() {
+
+		var p = GetComponent<Player>();
+		if (p == null) {
+			return mDownEffectTransform.transform.position;
+		}
+
+		if (IsUpRotation(p)) {
+			return mDownEffectTransform.transform.position;
+		}
+		else {
+			return mUpEffectTransform.transform.position;
+		}
+	}
+
+
+	Vector3 WaterEffectPosition() {
+
+		var p = GetComponent<Player>();
+		if (p == null) {
+			return mNormalWaterEffectTransform.transform.position;
+		}
+
+		if (IsUpRotation(p)) {
+			return mNormalWaterEffectTransform.transform.position;
+		}
+		else {
+			return mReverseWaterEffectTransform.transform.position;
+		}
+	}
+
+
+	//プレイヤーが上向きかどうか
+	bool IsUpRotation(Player aPlayer) {
+		return aPlayer.RotVec.y <= 0.5f;
 	}
 }
