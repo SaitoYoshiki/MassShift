@@ -1225,18 +1225,10 @@ public class MassShift : MonoBehaviour
 	//
 	Vector3 GetMassPosition(GameObject aGameObject) {
 
-		//プレイヤー用
-		Transform lMassPosition = aGameObject.transform.Find("Offset/RotOffset/Rotation/ModelOffset/WeightPosition");
-		if (lMassPosition != null) {
-			return lMassPosition.position;
+		WeightParticle lWeightParticle = aGameObject.GetComponent<WeightParticle>();
+		if(lWeightParticle != null) {
+			return lWeightParticle.WeightPosition.transform.position;
 		}
-
-		//その他のボックス用
-		lMassPosition = aGameObject.transform.Find("WeightParticle");
-		if (lMassPosition != null) {
-			return lMassPosition.position;
-		}
-
 		return aGameObject.transform.position;
 	}
 
@@ -1365,10 +1357,13 @@ public class MassShift : MonoBehaviour
 
 		if (aModel == null) return;
 
-		Transform lFrame = aModel.transform.Find("Model/Hilight");
-		if (lFrame == null) {
-			lFrame = aModel.transform.Find("Offset/RotOffset/Rotation/ModelOffset/Model/CameraLook/Hilight");   //プレイヤー用
-			if (lFrame == null) return;
+		Transform lFrame;
+		WeightParticle lWeightParticle = aModel.GetComponent<WeightParticle>();
+		if (lWeightParticle != null) {
+			lFrame = lWeightParticle.HilightModel.transform;
+		}
+		else {
+			return;
 		}
 
 		if (aIsShow == false) {
