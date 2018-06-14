@@ -1559,11 +1559,24 @@ public class MassShift : MonoBehaviour
 
 	//重くなった後どちらに行くか
 	float MoveAfterHeavy(GameObject aObject) {
-		return -1.0f;
+
+		var lMoveMng = aObject.GetComponent<MoveManager>();
+
+		//固定ボックスなら
+		if (lMoveMng == null) {
+			return 0.0f;
+		}
+		return lMoveMng.GetFallVec(aObject.GetComponent<WeightManager>().WeightLv + 1);
 	}
 	//軽くなった後どちらに行くか
 	float MoveAfterLight(GameObject aObject) {
-		return 1.0f;
+		var lMoveMng = aObject.GetComponent<MoveManager>();
+
+		//固定ボックスなら
+		if (lMoveMng == null) {
+			return 0.0f;
+		}
+		return lMoveMng.GetFallVec(aObject.GetComponent<WeightManager>().WeightLv - 1);
 	}
 
 
