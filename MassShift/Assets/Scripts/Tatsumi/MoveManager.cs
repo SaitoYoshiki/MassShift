@@ -209,13 +209,14 @@ public class MoveManager : MonoBehaviour {
 	[SerializeField]
 	List<Collider> throughColList = new List<Collider>(); // 例外的なめり込みが発生しているコライダーリスト
 
-	public float FallVec {
+	[SerializeField]
+	bool canMoveByWind = true;
+	public bool CanMoveByWind {
 		get {
-			float ret = WeightMng.WeightForce;
-			if (WaterStt && WaterStt.IsInWater && !WaterStt.IsWaterSurface && (WeightMng.WeightLv == WeightManager.Weight.light)) {
-				ret = -1.0f;
-			}
-			return ret;
+			return canMoveByWind;
+		}
+		set {
+			canMoveByWind = value;
 		}
 	}
 
@@ -1175,5 +1176,16 @@ public class MoveManager : MonoBehaviour {
 		if (_throughCol && !throughColList.Contains(_throughCol)) {
 			throughColList.Add(_throughCol);
 		}
+	}
+
+	public float GetFallVec() {
+		return (GetFallVec(WeightMng.WeightLv));
+	}
+	public float GetFallVec(WeightManager.Weight _weightLv) {
+		float ret = WeightMng.WeightForce;
+		if (WaterStt && WaterStt.IsInWater && !WaterStt.IsWaterSurface && (_weightLv == WeightManager.Weight.light)) {
+			ret = 1.0f;
+		}
+		return ret;
 	}
 }

@@ -89,13 +89,13 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	[SerializeField]
-	bool isLiftMove = false;
-	public bool IsLiftMove {
-		get {
-			return (Lift && Lift.IsLifting && Lift.St == Lifting.LiftState.lifting);
-		}
-	}
+//	[SerializeField]
+//	bool isLiftMove = false;
+//	public bool IsLiftMove {
+//		get {
+//			return (Lift && Lift.IsLifting && Lift.St == Lifting.LiftState.lifting);
+//		}
+//	}
 
 	[SerializeField]
 	bool isMoveByWind = false;
