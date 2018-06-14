@@ -543,6 +543,12 @@ public class StageSelectManager : MonoBehaviour {
 		if(lIsRight) {
 			float lAngle = 0.0f;
 			while (true) {
+
+				//プレイヤーのモデルの回転を、ゆっくり元に戻す
+				mPlayer.CameraLookRatio = Mathf.Clamp01(mPlayer.CameraLookRatio - 1.0f / mToStageRotateTime * Time.deltaTime);
+				mPlayer.LookCamera();
+
+				//プレイヤーを回転させる
 				lAngle -= 90.0f / mToStageRotateTime * Time.deltaTime;
 				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
 				if (lAngle <= -90.0f) {
@@ -556,6 +562,12 @@ public class StageSelectManager : MonoBehaviour {
 		else {
 			float lAngle = 0.0f;
 			while (true) {
+
+				//プレイヤーのモデルの回転を、ゆっくり元に戻す
+				mPlayer.CameraLookRatio = Mathf.Clamp01(mPlayer.CameraLookRatio - 1.0f / mToStageRotateTime * Time.deltaTime);
+				mPlayer.LookCamera();
+
+				//プレイヤーを回転させる
 				lAngle += 90.0f / mToStageRotateTime * Time.deltaTime;
 				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
 				if (lAngle >= 90.0f) {

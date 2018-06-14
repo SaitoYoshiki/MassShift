@@ -257,8 +257,11 @@ public class MassShift : MonoBehaviour
 				if (MoveAfterLight(mSource) > 0.0f) {
 					SourceStageShift.ShowUp();
 				}
-				else {
+				else if (MoveAfterLight(mSource) < 0.0f) {
 					SourceStageShift.ShowDown();
+				}
+				else {
+					SourceStageShift.NotShow();
 				}
 			}
 			else {
@@ -294,8 +297,11 @@ public class MassShift : MonoBehaviour
 					if (MoveAfterHeavy(mSelect) > 0.0f) {
 						DestStageShift.ShowUp();
 					}
-					else {
+					else if (MoveAfterHeavy(mSelect) < 0.0f) {
 						DestStageShift.ShowDown();
+					}
+					else {
+						DestStageShift.NotShow();
 					}
 				}
 				else {
@@ -1562,20 +1568,34 @@ public class MassShift : MonoBehaviour
 
 		var lMoveMng = aObject.GetComponent<MoveManager>();
 
-		//固定ボックスなら
-		if (lMoveMng == null) {
-			return 0.0f;
+		//動く床なら
+		if (aObject.CompareTag("MoveFloor")) {
+			return -1.0f;    //絶対に下に行く
 		}
-		return lMoveMng.GetFallVec(aObject.GetComponent<WeightManager>().WeightLv + 1);
-	}
-	//軽くなった後どちらに行くか
-	float MoveAfterLight(GameObject aObject) {
-		var lMoveMng = aObject.GetComponent<MoveManager>();
 
 		//固定ボックスなら
 		if (lMoveMng == null) {
 			return 0.0f;
 		}
+
+		return lMoveMng.GetFallVec(aObject.GetComponent<WeightManager>().WeightLv + 1);
+	}
+	//軽くなった後どちらに行くか
+	float MoveAfterLight(GameObject aObject) {
+		
+		var lMoveMng = aObject.GetComponent<MoveManager>();
+
+		//動く床なら
+		if(aObject.CompareTag("MoveFloor")) {
+			return 1.0f;	//絶対に上に行く
+		}
+
+		//固定ボックスなら
+		if (lMoveMng == null) {
+			return 0.0f;
+		}
+
+		//それ以外なら、自身の動く方向へ行く
 		return lMoveMng.GetFallVec(aObject.GetComponent<WeightManager>().WeightLv - 1);
 	}
 

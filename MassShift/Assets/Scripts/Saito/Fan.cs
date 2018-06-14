@@ -35,7 +35,16 @@ public class Fan : MonoBehaviour {
 
 	//風に当たっているオブジェクトのリストを取得
 	void UpdateWindHitList() {
+		mBeforeWindHitList = mWindHitList;
 		mWindHitList = GetWindHitList();
+
+		//前のフレームで当たっていたが今のフレームで当たっていないなら
+		foreach(var g in mBeforeWindHitList) {
+			if(!mWindHitList.Contains(g)) {
+				//風に飛ばされているフラグをfalseにする
+				SetPlayerWindMove(g, false);
+			}
+		}
 	}
 
 	//風に当たっているオブジェクトを動かす
@@ -61,11 +70,26 @@ public class Fan : MonoBehaviour {
 
 					// 左右の移動量を削除
 					hitMoveMng.StopMoveHorizontalAll();
+
+					//風に飛ばされているフラグをtrueにする
+					SetPlayerWindMove(windHit, true);
+				}
+				else {
+					//風に飛ばされているフラグをfalseにする
+					SetPlayerWindMove(windHit, false);
 				}
 			}
 		}
 
 	}
+
+	void SetPlayerWindMove(GameObject aObject, bool aIsMove) {
+		var p = aObject.GetComponent<Player>();
+		if (p == null) return;  //プレイヤーでないなら処理しない
+
+		p.IsMoveByWind = aIsMove;
+	}
+
 
 	List<GameObject> GetWindHitList() {
 
@@ -94,7 +118,6 @@ public class Fan : MonoBehaviour {
 			//静的な箱なら、障害物扱いで風を止める
 			if (h.mGameObject.GetComponent<MoveManager>() == null) {
 				mWindHitDistance = h.mHitDistance;
-				Debug.Log("StaticBox", this);
 				break;
 			}
 
@@ -108,11 +131,21 @@ public class Fan : MonoBehaviour {
 				mWindHitDistance = h.mHitDistance;
 				break;
 			}
+
+			//風で動かせないフラグが立っていたら、風を止める
+			MoveManager lMoveMng = h.mGameObject.GetComponent<MoveManager>();
+			if (lMoveMng && lMoveMng.CanMoveByWind == false) {
+				mWindHitDistance = h.mHitDistance;
+				break;
+			}
+
 			//風が適用されるオブジェクト
 			lRes.Add(h.mGameObject);
 			{
-				//Pileにも適用
+				//風下にある、隣接するオブジェクトにも風を適用
 				foreach(var t in h.mGameObject.GetComponent<PileWeight>().GetPileBoxList(GetDirectionVector(mDirection))) {
+
+					//重さが2ならそこで止める
 					if(t.GetComponent<WeightManager>().WeightLv == WeightManager.Weight.heavy) {
 						break;
 					}
@@ -212,7 +245,10 @@ public class Fan : MonoBehaviour {
 #endif
 
 	[SerializeField,Disable]
-	List<GameObject> mWindHitList;	//風にヒットしたオブジェクト
+	List<GameObject> mWindHitList;  //風にヒットしたオブジェクト
+
+	[SerializeField, Disable]
+	List<GameObject> mBeforeWindHitList;  //以前に風にヒットしたオブジェクト
 
 
 	[SerializeField, Tooltip("風が吹く方向")]
