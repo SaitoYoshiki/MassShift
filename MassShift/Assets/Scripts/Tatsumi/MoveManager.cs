@@ -471,7 +471,7 @@ public class MoveManager : MonoBehaviour {
 						(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&				// 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
 						(!moveLanding || !moveLanding.IsLanding) &&								// 自身がLandingコンポーネントを持っていないか、着地していない(すり抜け床に着地しているオブジェクトの下方向への押し出しを無くす)
 //						(!((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitLanding.IsLanding))) &&	// 自身が浮かぶ重さの場合、相手が接地していない(すり抜け床の上に着地しているオブジェクトに対する押し出しを無くす)
-						(((moveWeightMng.WeightLv > hitWeightMng.WeightLv)/* && !hitLanding.IsLanding*/) ||	// 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
+						(((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) ||	// 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
 						(waterFloatExtrusion) ||												// 水中で上のオブジェクトを押し上げている、又は
 						(moveMng.ExtrusionForcible || _extrusionForcible));						// 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
 
