@@ -98,7 +98,10 @@ public class LightBall : MonoBehaviour {
 			lDir = Vector3.up;
 		}
 
-		LayerMask l = LayerMask.GetMask(new string[] { "Box", "Stage" });
+		//LayerMask l = LayerMask.GetMask(new string[] { "Box", "Stage" });
+		
+		//Stageだけが、重さを移すのを遮る
+		LayerMask l = LayerMask.GetMask(new string[] { "Stage" });
 		List<RaycastHit> rcs = Physics.SphereCastAll(aFrom, mCollider.transform.lossyScale.x / 2.0f, lDir, (aTo - aFrom).magnitude, l).ToList();
 
 

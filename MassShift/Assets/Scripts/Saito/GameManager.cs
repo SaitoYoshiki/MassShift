@@ -98,39 +98,39 @@ public class GameManager : MonoBehaviour {
 		//カメラをズームされた位置に移動
 		mCameraMove.MoveStartPosition();
 
-		//if(Area.GetAreaNumber() == 0 || Area.GetAreaNumber() == 1) {
-		{
-			//プレイヤーを操作不可に
-			CanMovePlayer(false);
-			OnCanShiftOperation(false);
-			mPause.canPause = false;
 
-			// タイトルシーンからの遷移でなければ
-			if (!cameraMove.fromTitle) {
-                //ステージ開始時の演出
-                mTransition.OpenDoorParent();
+		//プレイヤーを操作不可に
+		CanMovePlayer(false);
+		OnCanShiftOperation(false);
+		mPause.canPause = false;
 
-                //演出が終了するまで待機
-                while (true) {
-                    if (mTransition.GetOpenEnd()) break;
-                    yield return null;
-                }
-            }
-            else {
-                cameraMove.fromTitle = false;
-                Debug.Log("fromTitle"+cameraMove.fromTitle);
-                yield return null;
-            }
-		}
 
 		//BGMを再生する
 		int lAreaNumber = Area.GetAreaNumber();
-		if(lAreaNumber != -1) {
+		if (lAreaNumber != -1) {
 			GameObject lBGMPrefab = mAreaBGM[lAreaNumber];
 
 			//BGMを流し始める
 			var t = SoundManager.SPlay(lBGMPrefab);
 			SoundManager.SFade(t, 0.0f, SoundManager.SVolume(lBGMPrefab), 2.0f);
+		}
+
+
+		// タイトルシーンからの遷移でなければ
+		if (!cameraMove.fromTitle) {
+			//ステージ開始時の演出
+			mTransition.OpenDoorParent();
+
+			//演出が終了するまで待機
+			while (true) {
+				if (mTransition.GetOpenEnd()) break;
+				yield return null;
+			}
+		}
+		else {
+			cameraMove.fromTitle = false;
+			Debug.Log("fromTitle" + cameraMove.fromTitle);
+			yield return null;
 		}
 
 
@@ -230,11 +230,19 @@ public class GameManager : MonoBehaviour {
 
 
 		//プレイヤーを回転させていく
+		//
 		bool lIsRight = mPlayer.RotVec.x > 0.0f;
 
+		//右を向いているなら
 		if (lIsRight) {
 			float lAngle = 0.0f;
 			while (true) {
+
+				//プレイヤーのモデルの回転を、ゆっくり元に戻す
+				mPlayer.CameraLookRatio = Mathf.Clamp01(mPlayer.CameraLookRatio - 1.0f / mGoalRotateTime * Time.deltaTime);
+				mPlayer.LookCamera();
+
+				//プレイヤーを回転させる
 				lAngle -= 90.0f / mGoalRotateTime * Time.deltaTime;
 				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
 				if (lAngle <= -90.0f) {
@@ -248,6 +256,12 @@ public class GameManager : MonoBehaviour {
 		else {
 			float lAngle = 0.0f;
 			while (true) {
+
+				//プレイヤーのモデルの回転を、ゆっくり元に戻す
+				mPlayer.CameraLookRatio = Mathf.Clamp01(mPlayer.CameraLookRatio - 1.0f / mGoalRotateTime * Time.deltaTime);
+				mPlayer.LookCamera();
+
+				//プレイヤーを回転させる
 				lAngle += 90.0f / mGoalRotateTime * Time.deltaTime;
 				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
 				if (lAngle >= 90.0f) {
@@ -300,8 +314,13 @@ public class GameManager : MonoBehaviour {
 			return false;	//ゴールできない
 		}
 
+		//プレイヤーが回転中なら
+		if (mPlayer.GetComponent<Player>().IsRotation) {
+			return false;   //ゴールできない
+		}
+
 		//重さを移した後1秒以内なら
-		if(mMassShift.FromLastShiftTime <= mCanGoalTimeFromShift) {
+		if (mMassShift.FromLastShiftTime <= mCanGoalTimeFromShift) {
 			return false;	//ゴールできない
 		}
 

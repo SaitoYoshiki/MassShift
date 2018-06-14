@@ -62,13 +62,15 @@ public class StageShiftLineInstance : MonoBehaviour {
 	public void SetPosition(Vector3 aWorldPosition) {
 
 		Vector3 lStart = aWorldPosition;
-		Vector3 lEnd = lStart + Vector3.up * 2.0f;
+		Vector3 lDelta = Vector3.up * 2.0f;
+		Vector3 lEnd;
 
-		//下に行くなら、線の開始位置と終了位置を入れ替える
-		if(mIsUp == false) {
-			Vector3 t = lStart;
-			lStart = lEnd;
-			lEnd = t;
+		//終了地点を決める
+		if(mIsUp) {
+			lEnd = lStart + lDelta;
+		}
+		else {
+			lEnd = lStart - lDelta;
 		}
 
 		mLine.GetComponent<MassShiftLine>().SetLinePosition(lStart, lEnd);
