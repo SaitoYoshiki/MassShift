@@ -88,6 +88,25 @@ public class Player : MonoBehaviour {
 			isHandSpring = value;
 		}
 	}
+
+	[SerializeField]
+	bool isLiftMove = false;
+	public bool IsLiftMove {
+		get {
+			return (Lift && Lift.IsLifting && Lift.St == Lifting.LiftState.lifting);
+		}
+	}
+
+	[SerializeField]
+	bool isMoveByWind = false;
+	bool IsMoveByWind {
+		get {
+			return isMoveByWind;
+		}
+		set {
+			isMoveByWind = value;
+		}
+	}
 		
 	[SerializeField]
 	bool useManualJump = true;      // ボタン入力での通常ジャンプを使用する
@@ -349,14 +368,15 @@ public class Player : MonoBehaviour {
 	float walkAnimMinSpd = 0.3f;    // 歩きアニメーションの最低再生速度
 
 	[SerializeField]
-	GameObject SwimSE;
+	GameObject swimSE;
 	[SerializeField]
 	GameObject jumpSE;
 	[SerializeField]
-	float swimEDeray = 0.2f;
+	GameObject handSpringJumpSE;
 	[SerializeField]
 	float jumpSEDeray = 0.2f;
-
+	[SerializeField]
+	float handSpringJumpSEDeray = 0.2f;
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -894,6 +914,9 @@ public class Player : MonoBehaviour {
 		Land.IsLanding = false;
 		WaterStt.IsWaterSurface = false;
 		WaterStt.BeginWaterStopIgnore();
+
+		// サウンド再生
+		SoundManager.SPlay(handSpringJumpSE, handSpringJumpSEDeray);
 	}
 
 	public void InitRotation() {
