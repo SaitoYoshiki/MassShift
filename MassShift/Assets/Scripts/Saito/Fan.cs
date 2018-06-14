@@ -7,10 +7,9 @@ public class Fan : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		mWindStopEffect = Instantiate(mWindStopEffectPrefab, transform);
-
-		float lAngle = GetDirectionVector(mDirection).x < 0.0f ? 0.0f : 1.0f;
-		mWindStopEffect.transform.rotation = Quaternion.Euler(0.0f, lAngle * 180.0f, 0.0f);
+		mWindStopEffect = Instantiate(mWindStopEffectPrefab, mWindEffect.transform);
+		
+		mWindStopEffect.transform.localRotation = Quaternion.identity;
 	}
 	
 	// Update is called once per frame
@@ -23,7 +22,15 @@ public class Fan : MonoBehaviour {
 		mWindStop.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 0.5f + mWindStop.transform.lossyScale.x / 2.0f);
 
 		//風が止まった位置に出すエフェクトの、位置を更新
-		mWindStopEffect.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 0.5f);
+		mWindStopEffect.transform.localPosition = Vector3.left * (mWindHitDistance + 0.5f);
+
+		//風がステージに当たっているなら
+		if(mIsWindHitStage) {
+			mWindStopEffect.transform.localRotation = Quaternion.identity;
+		}
+		else {
+			mWindStopEffect.transform.localRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
+		}
 	}
 
 	//モデルの回転処理
@@ -93,6 +100,8 @@ public class Fan : MonoBehaviour {
 
 	List<GameObject> GetWindHitList() {
 
+		mIsWindHitStage = false;
+
 		var lBase = new List<HitData>();
 		foreach(var c in mHitColliderList) {
 			IEnumerable<HitData> tHit = GetHitListEachCollider(c);
@@ -113,6 +122,7 @@ public class Fan : MonoBehaviour {
 			//ステージなら、障害物扱いなので風を止める
 			if (h.mGameObject.layer == LayerMask.NameToLayer("Stage")) {
 				mWindHitDistance = h.mHitDistance;
+				mIsWindHitStage = true;
 				break;
 			}
 			//静的な箱なら、障害物扱いで風を止める
@@ -288,4 +298,5 @@ public class Fan : MonoBehaviour {
 
 	float mWindHitDistance = float.MaxValue;
 
+	bool mIsWindHitStage;
 }

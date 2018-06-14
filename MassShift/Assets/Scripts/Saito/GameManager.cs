@@ -293,6 +293,9 @@ public class GameManager : MonoBehaviour {
 
 		yield return new WaitForSeconds(mGoalAfterWalkingTime);
 
+		//歩くのをやめる
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
+
 		Cursor.visible = true;
 		mResult.canGoal = true;
 	}
