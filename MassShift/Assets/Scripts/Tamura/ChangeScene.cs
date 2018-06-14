@@ -143,8 +143,17 @@ public class ChangeScene : MonoBehaviour {
             result.canGoal = false;
         }
 
-        // ドア閉め演出
-        st.CloseDoorParent();
+        // チュートリアル以外なら
+        if (Area.GetAreaNumber() != 0) {
+            // ドア閉め演出
+            st.CloseDoorParent();
+        }
+        // チュートリアルなら
+        else {
+            // 演出せず次のステージへ
+            changeSceneFlg = true;
+        }
+        
     }
 
     public void OnRetryButtonDown() {

@@ -448,7 +448,7 @@ public class StageSelectManager : MonoBehaviour {
 			//入る為のキー操作のUI表示
 			//
 			mSelectTime += Time.deltaTime;
-			if (mSelectTime >= 1.0f && !mSelectInit) {
+			if (mSelectTime >= 0.4f && !mSelectInit) {
 				mSelectInit = true;
 
 				if (lSelectStageNum != -1) {
@@ -507,6 +507,10 @@ public class StageSelectManager : MonoBehaviour {
 
 
 		mStageSelectScroll.mIsScroll = false;
+
+
+		//ステージセレクトでは、ズームインしない仕様にした
+		/*
 		mCameraMove.MoveStart();
 
 		//カメラのズームイン終了まで待つ
@@ -516,6 +520,7 @@ public class StageSelectManager : MonoBehaviour {
 			}
 			yield return null;
 		}
+		*/
 
 
 		//
@@ -600,6 +605,11 @@ public class StageSelectManager : MonoBehaviour {
 		}
 
 		yield return new WaitForSeconds(mToStageAfterWalkingTime);
+
+
+		//歩くのをやめる
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
+
 
 		//ステージ終了時の演出
 		mTransition.CloseDoorParent();
