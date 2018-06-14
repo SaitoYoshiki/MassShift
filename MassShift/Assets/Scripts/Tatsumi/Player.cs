@@ -430,6 +430,10 @@ public class Player : MonoBehaviour {
 	float jumpSEDeray = 0.2f;
 	[SerializeField]
 	float handSpringJumpSEDeray = 0.2f;
+	[SerializeField]
+	float lightLandAnimSpd = 3.0f;
+	[SerializeField]
+	float heavyLandAnimSpd = 1.0f;
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -537,12 +541,17 @@ public class Player : MonoBehaviour {
 		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
 		//			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
 		if (landTrueChangeFlg) {
-//			Land.IsLandingTrueChange = false;
-//			Land.IsWaterFloatLandingTrueChange = false;
+			//			Land.IsLandingTrueChange = false;
+			//			Land.IsWaterFloatLandingTrueChange = false;
 			if (!Lift.IsLifting) {
 				PlAnim.StartLand();
 			} else {
 				PlAnim.StartHoldLand();
+			}
+			if (WeightMng.WeightLv <= WeightManager.Weight.light) {
+				PlAnim.SetLandSpeed(lightLandAnimSpd);
+			} else {
+				PlAnim.SetLandSpeed(heavyLandAnimSpd);
 			}
 		}
 
