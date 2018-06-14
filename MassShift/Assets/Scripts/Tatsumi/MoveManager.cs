@@ -59,8 +59,9 @@ public class MoveManager : MonoBehaviour {
 			customWeightLvMaxSpd = value;
 		}
 	}
-	[SerializeField] List<float> defaultWeightLvMaxSpd = new List<float>(); // 標準の重さ毎の最高速度
-	[SerializeField] float? oneTimeMaxSpd = null;                           // 一度の更新に限り最高速度を制限する制限速度
+	[SerializeField] List<float> defaultWeightLvMaxSpd = new List<float>();	// 標準の重さ毎の最高速度
+	[SerializeField] List<Vector3> weightLvAxisMaxSpd = null;				// 標準の重さ毎の各軸の最高速度
+	[SerializeField] float? oneTimeMaxSpd = null;							// 一度の更新に限り最高速度を制限する制限速度
 	public float? OneTimeMaxSpd {
 		set {
 			//			Debug.Log("oneTimeMaxSpd:" + oneTimeMaxSpd);
@@ -301,6 +302,14 @@ public class MoveManager : MonoBehaviour {
 		// 最高速度制限
 		move = move.normalized * Mathf.Min(move.magnitude, CurMaxSpd);
 		OneTimeMaxSpd = null;
+
+		// 各軸の最高速度制限
+		if ((weightLvAxisMaxSpd != null) && (weightLvAxisMaxSpd.Count > (int)WeightMng.WeightLv)) {
+			move = new Vector3(
+				(Mathf.Min(weightLvAxisMaxSpd[(int)WeightMng.WeightLv].x, Mathf.Abs(move.x)) * Mathf.Sign(move.x)),
+				(Mathf.Min(weightLvAxisMaxSpd[(int)WeightMng.WeightLv].y, Mathf.Abs(move.y)) * Mathf.Sign(move.y)),
+				(Mathf.Min(weightLvAxisMaxSpd[(int)WeightMng.WeightLv].z, Mathf.Abs(move.z)) * Mathf.Sign(move.z)));
+		}
 
 		if (!extrusionIgnore && Pile) {
 			// 上に積まれている自身より重い重さオブジェクトの方が速ければそれに合わせる
