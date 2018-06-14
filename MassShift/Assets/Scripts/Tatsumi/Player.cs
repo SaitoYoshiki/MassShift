@@ -121,11 +121,11 @@ public class Player : MonoBehaviour {
 	bool prevIsWaterSurfaceStandby = false;
 	[SerializeField]
 	bool isWaterSurfaceSwiming = false;
-	bool IsWaterSurfaceSwiming {
+	public bool IsWaterSurfaceSwiming {
 		get {
 			return isWaterSurfaceSwiming;
 		}
-		set {
+		private set {
 			isWaterSurfaceSwiming = value;
 		}
 	}
