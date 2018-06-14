@@ -508,7 +508,8 @@ public class StageSelectManager : MonoBehaviour {
 
 		mStageSelectScroll.mIsScroll = false;
 
-		//ズームインしない仕様にした
+
+		//ステージセレクトでは、ズームインしない仕様にした
 		/*
 		mCameraMove.MoveStart();
 
