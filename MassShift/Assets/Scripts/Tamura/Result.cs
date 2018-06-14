@@ -53,6 +53,9 @@ public class Result : MonoBehaviour {
                         ResultAnim();
                     }
                     else {
+                        if (alpha == 0.0f) {
+                            SoundManager.SPlay(ClearJingleSEPrefab);
+                        }
                         alpha += 0.05f;
                         clearImage.GetComponent<UnityEngine.UI.Image>().color = new Color(1.0f, 1.0f, 1.0f, alpha);
                         bgLightImage.GetComponent<UnityEngine.UI.Image>().color = new Color(1.0f, 1.0f, 1.0f, alpha);
