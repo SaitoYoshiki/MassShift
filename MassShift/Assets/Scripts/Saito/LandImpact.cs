@@ -90,7 +90,9 @@ public class LandImpact : MonoBehaviour {
 		bool lInWater = IsInWater();
 
 		//水の中に入った瞬間で
-		if (mBeforeInWater == false && lInWater == true) {
+		//if (mBeforeInWater == false && lInWater == true) {
+		//水の中に入った瞬間、または出た瞬間で
+		if (mBeforeInWater != lInWater) {
 
 			//一定距離以上落ちていたら
 			if (lFallDistance >= GetImpactDistance()) {
@@ -105,7 +107,7 @@ public class LandImpact : MonoBehaviour {
 		//
 
 		//下向きに落ちるなら
-		if(mMoveManager.GravityForce < 0.0f) {
+		if(mMoveManager.GetFallVec() < 0.0f) {
 			//上向きに進んでいたら
 			if (transform.position.y >= mBeforePosition.y) {
 				mHighestPosition = transform.position;  //最高地点を更新
