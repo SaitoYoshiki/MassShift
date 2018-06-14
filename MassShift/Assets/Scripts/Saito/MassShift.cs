@@ -26,7 +26,8 @@ public class MassShift : MonoBehaviour
 
 		mAllWeightModel = FindObjectsOfType<WeightManager>();
 		mPlayer = FindObjectOfType<Player>();
-		mStageShiftUI = FindObjectOfType<StageShiftUI>();
+		//mStageShiftUI = FindObjectOfType<StageShiftUI>();
+		mStageShiftLine = FindObjectOfType<StageShiftLine>();
 
 		Cursor.visible = false;
 	}
@@ -151,8 +152,8 @@ public class MassShift : MonoBehaviour
 			ChangeCursorState(CCursorState.cNormal);
 
 			//重さを移せるかのUIを消す
-			mStageShiftUI.GetSourceUI().NotShow();
-			mStageShiftUI.GetDestUI().NotShow();
+			SourceStageShift.NotShow();
+			DestStageShift.NotShow();
 
 			mSource = null;
 			mDest = null;
@@ -254,14 +255,17 @@ public class MassShift : MonoBehaviour
 			//ソースの重さを移せるかのUIを更新
 			if (CanShiftSource(mSource)) {
 				if (MoveAfterLight(mSource) > 0.0f) {
-					mStageShiftUI.GetSourceUI().ShowUp();
+					SourceStageShift.ShowUp();
+				}
+				else if (MoveAfterLight(mSource) < 0.0f) {
+					SourceStageShift.ShowDown();
 				}
 				else {
-					mStageShiftUI.GetSourceUI().ShowDown();
+					SourceStageShift.NotShow();
 				}
 			}
 			else {
-				mStageShiftUI.GetSourceUI().ShowFail();
+				SourceStageShift.ShowFail();
 			}
 
 
@@ -279,7 +283,7 @@ public class MassShift : MonoBehaviour
 
 			if (mBeforeSelect != null) {
 				ShowModelHilight(mBeforeSelect, true, mSourceColor * mSourceColorPower);
-				mStageShiftUI.GetDestUI().NotShow();
+				DestStageShift.NotShow();
 			}
 
 			if (mSelect != null) {
@@ -291,14 +295,17 @@ public class MassShift : MonoBehaviour
 
 				if(CanShiftDest(mSelect)) {
 					if (MoveAfterHeavy(mSelect) > 0.0f) {
-						mStageShiftUI.GetDestUI().ShowUp();
+						DestStageShift.ShowUp();
+					}
+					else if (MoveAfterHeavy(mSelect) < 0.0f) {
+						DestStageShift.ShowDown();
 					}
 					else {
-						mStageShiftUI.GetDestUI().ShowDown();
+						DestStageShift.NotShow();
 					}
 				}
 				else {
-					mStageShiftUI.GetDestUI().ShowFail();
+					DestStageShift.ShowFail();
 				}
 
 				if (lCanSelect) {
@@ -373,10 +380,10 @@ public class MassShift : MonoBehaviour
 		//重さを移せるかなどのUIの位置を更新
 		//
 		if (mSource != null) {
-			mStageShiftUI.GetSourceUI().SetPosition(mSource.transform.position);
+			SourceStageShift.SetPosition(mSource.transform.position);
 		}
 		if (mSelect != null) {
-			mStageShiftUI.GetDestUI().SetPosition(mSelect.transform.position);
+			DestStageShift.SetPosition(mSelect.transform.position);
 		}
 
 
@@ -443,8 +450,8 @@ public class MassShift : MonoBehaviour
 			ShowModelHilight(mDest, true, mDestColor * mDestColorPower);
 
 			//重さを移せるかのUIを消す
-			mStageShiftUI.GetSourceUI().NotShow();
-			mStageShiftUI.GetDestUI().NotShow();
+			SourceStageShift.NotShow();
+			DestStageShift.NotShow();
 
 
 			//共有ボックスの処理
@@ -612,8 +619,8 @@ public class MassShift : MonoBehaviour
 			ShowModelHilight(mDest, true, mDestColor * mDestColorPower);
 
 			//重さを移せるかのUIを消す
-			mStageShiftUI.GetSourceUI().NotShow();
-			mStageShiftUI.GetDestUI().NotShow();
+			SourceStageShift.NotShow();
+			DestStageShift.NotShow();
 
 			//光の弾の生成と、設定
 			//
@@ -854,8 +861,8 @@ public class MassShift : MonoBehaviour
 			SetActiveShareLine(mMassShiftShareLineToSource, false);
 
 			//重さを移せるかのUIを消す
-			mStageShiftUI.GetSourceUI().NotShow();
-			mStageShiftUI.GetDestUI().NotShow();
+			SourceStageShift.NotShow();
+			DestStageShift.NotShow();
 
 
 			ChangeCursorState(CCursorState.cCanNotShift);
@@ -963,7 +970,19 @@ public class MassShift : MonoBehaviour
 		}
 	}
 
-	StageShiftUI mStageShiftUI;
+	//StageShiftUI mStageShiftUI;
+	StageShiftLine mStageShiftLine;
+
+	StageShiftLineInstance SourceStageShift {
+		get {
+			return mStageShiftLine.GetComponent<StageShiftLine>().GetSource();
+		}
+	}
+	StageShiftLineInstance DestStageShift {
+		get {
+			return mStageShiftLine.GetComponent<StageShiftLine>().GetDest();
+		}
+	}
 
 
 	//
@@ -1546,11 +1565,38 @@ public class MassShift : MonoBehaviour
 
 	//重くなった後どちらに行くか
 	float MoveAfterHeavy(GameObject aObject) {
-		return -1.0f;
+
+		var lMoveMng = aObject.GetComponent<MoveManager>();
+
+		//動く床なら
+		if (aObject.CompareTag("MoveFloor")) {
+			return -1.0f;    //絶対に下に行く
+		}
+
+		//固定ボックスなら
+		if (lMoveMng == null) {
+			return 0.0f;
+		}
+
+		return lMoveMng.GetFallVec(aObject.GetComponent<WeightManager>().WeightLv + 1);
 	}
 	//軽くなった後どちらに行くか
 	float MoveAfterLight(GameObject aObject) {
-		return 1.0f;
+		
+		var lMoveMng = aObject.GetComponent<MoveManager>();
+
+		//動く床なら
+		if(aObject.CompareTag("MoveFloor")) {
+			return 1.0f;	//絶対に上に行く
+		}
+
+		//固定ボックスなら
+		if (lMoveMng == null) {
+			return 0.0f;
+		}
+
+		//それ以外なら、自身の動く方向へ行く
+		return lMoveMng.GetFallVec(aObject.GetComponent<WeightManager>().WeightLv - 1);
 	}
 
 

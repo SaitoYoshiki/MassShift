@@ -48,7 +48,13 @@ public class Pause : MonoBehaviour {
 
     void Start() {
         blur = Camera.main.GetComponent<Blur>();
-        pauseUI = pauseCanvas.transform.Find("PauseUI").gameObject;
+
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+            pauseUI = pauseCanvas_SS.transform.Find("PauseUI").gameObject;
+        }
+        else {
+            pauseUI = pauseCanvas.transform.Find("PauseUI").gameObject;
+        }
         pauseUI.transform.localScale = Vector3.zero;
     }
 
@@ -87,6 +93,8 @@ public class Pause : MonoBehaviour {
     public void PauseFunc() {
         pauseFlg = !pauseFlg;
 
+        StartPauseAnim();
+
         if (pauseFlg) {
             Time.timeScale = 0.0f;
             
@@ -101,19 +109,19 @@ public class Pause : MonoBehaviour {
         }
         // ポーズ解除
         else {
-            Time.timeScale = 1.0f;
+            if (!pauseAnimFlg) {
+                Time.timeScale = 1.0f;
 
-            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
-                pauseCanvas_SS.SetActive(false);
-            }
-            else {
-                pauseCanvas.SetActive(false);
+                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+                    pauseCanvas_SS.SetActive(false);
+                }
+                else {
+                    pauseCanvas.SetActive(false);
+                }
             }
 
             //SoundManager.SPlay(PauseEndSEPrefab);
         }
-
-        StartPauseAnim();
 
         // 登録された関数を実行
         pauseEvent.Invoke();
@@ -143,11 +151,21 @@ public class Pause : MonoBehaviour {
             }
         }
         else {
-            pauseUI.transform.localScale = Vector3.Lerp(new Vector3(1.0f, 1.0f, 1.0f), new Vector3(0.1f, 0.1f, 1.0f), animPer);
-            if (animPer >= 1.0f) {
-                pauseAnimFlg = false;
-                //Time.timeScale = 1.0f;
-                //pauseCanvas.SetActive(false);
+            // 縦縮み
+            if (pauseUI.transform.localScale.y > 0.1f) {
+                pauseUI.transform.localScale = Vector3.Lerp(Vector3.one, new Vector3(1.0f, 0.1f, 1.0f), animPer);
+                if (animPer >= 1.0f) {
+                    animStartTime = Time.fixedUnscaledTime;
+                }
+            }
+            // 横縮み
+            else {
+                pauseUI.transform.localScale = Vector3.Lerp(new Vector3(1.0f, 0.1f, 1.0f), new Vector3(0.0f, 0.0f, 1.0f), animPer);
+                if (animPer >= 1.0f) {
+                    pauseAnimFlg = false;
+                    //Time.timeScale = 1.0f;
+                    //pauseCanvas.SetActive(false);
+                }
             }
         }
     }

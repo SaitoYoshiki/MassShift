@@ -31,9 +31,9 @@ public class MoveManager : MonoBehaviour {
 			prevMove = value;
 		}
 	}
-	[SerializeField] bool useGravity = true;		// 重力加速度適用フラグ
-	[SerializeField] bool useAirResistance = true;	// 空気抵抗適用フラグ
-	[SerializeField] float gravityForce = -9.8f;	// 重力加速度
+	[SerializeField] bool useGravity = true;        // 重力加速度適用フラグ
+	[SerializeField] bool useAirResistance = true;  // 空気抵抗適用フラグ
+	[SerializeField] float gravityForce = -9.8f;    // 重力加速度
 	public float GravityForce {
 		set {
 			gravityForce = value;
@@ -46,8 +46,8 @@ public class MoveManager : MonoBehaviour {
 		}
 	}
 
-	[SerializeField] float airResistance = 0.025f;				// 空気抵抗
-	[SerializeField] List<float> customWeightLvMaxSpd = null;	// 標準時以外の重さ毎の最高速度、nullならdefaultWeightLvMaxSpdが代わりに適用される
+	[SerializeField] float airResistance = 0.025f;              // 空気抵抗
+	[SerializeField] List<float> customWeightLvMaxSpd = null;   // 標準時以外の重さ毎の最高速度、nullならdefaultWeightLvMaxSpdが代わりに適用される
 	public List<float> CustomWeightLvMaxSpd {
 		get {
 			return customWeightLvMaxSpd;
@@ -58,12 +58,13 @@ public class MoveManager : MonoBehaviour {
 			}
 			customWeightLvMaxSpd = value;
 		}
-	} 
+	}
 	[SerializeField] List<float> defaultWeightLvMaxSpd = new List<float>();	// 標準の重さ毎の最高速度
+	[SerializeField] List<Vector3> weightLvAxisMaxSpd = null;				// 標準の重さ毎の各軸の最高速度
 	[SerializeField] float? oneTimeMaxSpd = null;							// 一度の更新に限り最高速度を制限する制限速度
 	public float? OneTimeMaxSpd {
 		set {
-//			Debug.Log("oneTimeMaxSpd:" + oneTimeMaxSpd);
+			//			Debug.Log("oneTimeMaxSpd:" + oneTimeMaxSpd);
 			oneTimeMaxSpd = value;
 		}
 	}
@@ -91,7 +92,7 @@ public class MoveManager : MonoBehaviour {
 			return float.MaxValue;
 		}
 	}
-	[SerializeField] Collider useCol = null;			// 当たり判定を行うコライダー
+	[SerializeField] Collider useCol = null;            // 当たり判定を行うコライダー
 	public Collider UseCol {
 		get {
 			return useCol;
@@ -101,7 +102,7 @@ public class MoveManager : MonoBehaviour {
 		}
 	}
 
-	[SerializeField] float gravityCustomTime = 0.0f;	// 通常の重力加速度を一時停止する時間
+	[SerializeField] float gravityCustomTime = 0.0f;    // 通常の重力加速度を一時停止する時間
 	public float GravityCustomTime {
 		get {
 			return gravityCustomTime;
@@ -138,8 +139,8 @@ public class MoveManager : MonoBehaviour {
 		}
 	}
 
-	[SerializeField] bool extrusionIgnore = false;		// 他のオブジェクトに押し出されないフラグ
-	[SerializeField] bool extrusionForcible = false;	// 他のオブジェクトに押し出しを強制するフラグ
+	[SerializeField] bool extrusionIgnore = false;      // 他のオブジェクトに押し出されないフラグ
+	[SerializeField] bool extrusionForcible = false;    // 他のオブジェクトに押し出しを強制するフラグ
 	public bool ExtrusionForcible {
 		get {
 			return extrusionForcible;
@@ -208,6 +209,27 @@ public class MoveManager : MonoBehaviour {
 	bool nestingThroughFlg = false; // 例外的なめり込みが発生した際にそのコライダーをすり抜けるフラグ
 	[SerializeField]
 	List<Collider> throughColList = new List<Collider>(); // 例外的なめり込みが発生しているコライダーリスト
+
+	[SerializeField]
+	bool canMoveByWind = true;
+	public bool CanMoveByWind {
+		get {
+			return canMoveByWind;
+		}
+		set {
+			canMoveByWind = value;
+		}
+	}
+
+	WaterState waterStt = null;
+	WaterState WaterStt {
+		get {
+			if (!waterStt) {
+				waterStt = GetComponent<WaterState>();
+			}
+			return waterStt;
+		}
+	}
 
 	void Awake() {
 		if (autoMask) mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });		
@@ -280,6 +302,14 @@ public class MoveManager : MonoBehaviour {
 		// 最高速度制限
 		move = move.normalized * Mathf.Min(move.magnitude, CurMaxSpd);
 		OneTimeMaxSpd = null;
+
+		// 各軸の最高速度制限
+		if ((weightLvAxisMaxSpd != null) && (weightLvAxisMaxSpd.Count > (int)WeightMng.WeightLv)) {
+			move = new Vector3(
+				(Mathf.Min(weightLvAxisMaxSpd[(int)WeightMng.WeightLv].x, Mathf.Abs(move.x)) * Mathf.Sign(move.x)),
+				(Mathf.Min(weightLvAxisMaxSpd[(int)WeightMng.WeightLv].y, Mathf.Abs(move.y)) * Mathf.Sign(move.y)),
+				(Mathf.Min(weightLvAxisMaxSpd[(int)WeightMng.WeightLv].z, Mathf.Abs(move.z)) * Mathf.Sign(move.z)));
+		}
 
 		if (!extrusionIgnore && Pile) {
 			// 上に積まれている自身より重い重さオブジェクトの方が速ければそれに合わせる
@@ -409,6 +439,7 @@ public class MoveManager : MonoBehaviour {
 					WeightManager moveWeightMng = _moveCol.GetComponent<WeightManager>();
 					WeightManager hitWeightMng = nearHitinfo.collider.GetComponent<WeightManager>();
 					MoveManager hitMoveMng = nearHitinfo.collider.GetComponent<MoveManager>();
+					Landing hitLanding = nearHitinfo.collider.GetComponent<Landing>();
 
 					// 水中で上のオブジェクトを押し上げている場合
 					WaterState moveWaterStt = _moveCol.GetComponent<WaterState>();
@@ -435,11 +466,11 @@ public class MoveManager : MonoBehaviour {
 
 					// 自身が衝突相手を押し出せるか
 					bool canExtrusion =
-						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) &&        // 判定に必要なコンポーネントが揃っている
-						(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&    // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
-						((moveWeightMng.WeightLv > hitWeightMng.WeightLv) ||        // 自身の重さレベルが相手の重さレベルより重い、又は
-						(waterFloatExtrusion) ||									// 水中で上のオブジェクトを押し上げている、または
-						(moveMng.ExtrusionForcible || _extrusionForcible));         // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
+						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding) &&			// 判定に必要なコンポーネントが揃っている
+						(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&						// 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
+						(((moveWeightMng.WeightLv > hitWeightMng.WeightLv)/* && !hitLanding.IsLanding*/) ||	// 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
+						(waterFloatExtrusion) ||														// 水中で上のオブジェクトを押し上げている、又は
+						(moveMng.ExtrusionForcible || _extrusionForcible));								// 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
 
 					// 相手側の自身に対するすり抜け指定があれば
 					if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughColList.Contains(_moveCol)) {
@@ -472,6 +503,8 @@ public class MoveManager : MonoBehaviour {
 					}
 					// 押し出せる場合
 					else {
+//						Debug.LogWarning(_moveCol.name + " 押し出し>" + hitMoveMng.name);
+
 						if (hitMoveMng && moveMng) {
 							// 押し出し相手の上下移動量を削除
 							hitMoveMng.StopMoveVirtical(MoveType.prevMove);
@@ -486,7 +519,8 @@ public class MoveManager : MonoBehaviour {
 						// 押し出しを行い、押し出し切れた場合
 						//if (Move(new Vector3(0.0f, (_move.y - dis), 0.0f), (BoxCollider)nearHitinfo.collider, _mask,
 
-						if (Move(new Vector3(0.0f, moveVec.y * otherMoveDistance, 0.0f), (BoxCollider)nearHitinfo.collider, _mask,
+						Vector3 resMove;
+						if (Move(new Vector3(0.0f, moveVec.y * otherMoveDistance, 0.0f), (BoxCollider)nearHitinfo.collider, _mask, out resMove,
 							false, (moveMng.ExtrusionForcible || _extrusionForcible), _ignoreColList)) {    // 押し出し優先情報を使用
 							// 自身は指定通り移動
 							Move(new Vector3(0.0f, _move.y, 0.0f), _moveCol, _mask, true, false, _ignoreColList);  // 押し出し不可移動
@@ -494,7 +528,7 @@ public class MoveManager : MonoBehaviour {
 						// 押し出しきれない場合
 						else {
 							// 自身も直前まで移動
-							Move(new Vector3(0.0f, dis, 0.0f), _moveCol, _mask, true, false, _ignoreColList);  // 押し出し不可移動
+							Move(new Vector3(0.0f, dis - resMove.x, 0.0f), _moveCol, _mask, true, false, _ignoreColList);  // 押し出し不可移動
 
 							// 指定位置まで移動できない
 							ret = false;
@@ -512,7 +546,9 @@ public class MoveManager : MonoBehaviour {
 						WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
 						if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
 							(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface) || (hitLand.IsWaterFloatLanding)) {
-							land.IsLanding = land.GetIsLanding(Vector3.up * moveVec.y);
+							if (land.GetIsLanding(Vector3.up * moveVec.y)) {
+								land.IsLanding = true;
+							}
 							land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
 						}
 					}
@@ -1149,5 +1185,17 @@ public class MoveManager : MonoBehaviour {
 		if (_throughCol && !throughColList.Contains(_throughCol)) {
 			throughColList.Add(_throughCol);
 		}
+	}
+
+	// 自分自身の重さで返す、PileWeightは考慮しない
+	public float GetFallVec() {
+		return (GetFallVec(WeightMng.WeightLv));
+	}
+	public float GetFallVec(WeightManager.Weight _weightLv) {
+		float ret = Mathf.Sign(WeightMng.WeightLvGravityForce[(int)_weightLv]);
+		if (WaterStt && WaterStt.IsInWater && !WaterStt.IsWaterSurface && (_weightLv == WeightManager.Weight.light)) {
+			ret = 1.0f;
+		}
+		return ret;
 	}
 }

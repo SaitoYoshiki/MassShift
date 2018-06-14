@@ -7,7 +7,7 @@ public class MoveTransform : MonoBehaviour {
 	public Vector3 mEndPosition;
 
 	[SerializeField, Tooltip("移動にかける時間")]
-	float mTakeTime;
+	public float mTakeTime;
 
 	float mDeltaTime = 0.0f;
 	bool mIsMove = false;
@@ -58,13 +58,5 @@ public class MoveTransform : MonoBehaviour {
 	public void MoveStartPosition() {
 		transform.position = mStartPosition;
 	}
-
-	Player GetPlayer() {
-		foreach(var p in FindObjectsOfType<Player>()) {
-			if(p.gameObject.activeSelf == true) {
-				return p;
-			}
-		}
-		return null;
-	}
+	
 }

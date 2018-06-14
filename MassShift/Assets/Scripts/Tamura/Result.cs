@@ -12,6 +12,10 @@ public class Result : MonoBehaviour {
     [SerializeField]
     GameObject ResultCanvas_AC;
 
+    GameObject ResultUI;
+    GameObject clearImage;
+    GameObject bgLightImage;
+
     [SerializeField]
     GameObject ClearJingleSEPrefab;
 
@@ -21,6 +25,18 @@ public class Result : MonoBehaviour {
     public float animTime;
     float animStartTime;
     bool resultAnimFlg;
+
+    float alpha = 0.0f;
+
+    void Start() {
+        if (!Area.ExistNextStageSameArea(Area.GetAreaNumber(), Area.GetStageNumber())) {
+            ResultCanvas = ResultCanvas_AC;
+        }
+
+        ResultUI = ResultCanvas.transform.Find("ResultUI").gameObject;
+        clearImage = ResultUI.transform.Find("GameClear/ClearText").gameObject;
+        bgLightImage = ResultUI.transform.Find("BG_light").gameObject;
+    }
 
 	void Update () {
         // ゴールしていないなら何もしない
@@ -33,6 +49,14 @@ public class Result : MonoBehaviour {
             if (Area.GetAreaNumber() != 0) {
                 // リザルト画面が表示されているなら何もしない
                 if (IsResultCanvasActive()) {
+                    if (resultAnimFlg) {
+                        ResultAnim();
+                    }
+                    else {
+                        alpha += 0.05f;
+                        clearImage.GetComponent<UnityEngine.UI.Image>().color = new Color(1.0f, 1.0f, 1.0f, alpha);
+                        bgLightImage.GetComponent<UnityEngine.UI.Image>().color = new Color(1.0f, 1.0f, 1.0f, alpha);
+                    }
                     return;
                 }
                 // リザルト画面が表示されていなければ
@@ -40,18 +64,9 @@ public class Result : MonoBehaviour {
                     // ポーズ機能を無効に
                     GetComponent<Pause>().enabled = false;
 
-                    // リザルト画面を表示
+                    // ステージクリア時のリザルト画面を表示
                     ResultCanvas.SetActive(true);
-
-                    // クリアしたのが各エリアの最終ステージならば
-                    if (!Area.ExistNextStageSameArea(Area.GetAreaNumber(), Area.GetStageNumber())) {
-                        // エリアクリア時のリザルト画面を表示
-                        ResultCanvas_AC.SetActive(true);
-                    }
-                    else {
-                        // ステージクリア時のリザルト画面を表示
-                        ResultCanvas.SetActive(true);
-                    }
+                    StartResultAnim();
                 }
             }
             // チュートリアルなら
@@ -67,5 +82,35 @@ public class Result : MonoBehaviour {
 
     public void SetResultCanvasActive(bool _active) {
         ResultCanvas.SetActive(_active);
+    }
+
+    void StartResultAnim() {
+        animStartTime = Time.fixedTime;
+        resultAnimFlg = true;
+    }
+
+    void ResultAnim() {
+        float nowAnimTime = Time.fixedTime - animStartTime;
+        float animPer = Mathf.Clamp((nowAnimTime / animTime), 0.0f, 1.0f);
+
+        /*if (animPer <= 0.7f) {
+            animPer = animPer / 0.7f;
+            animPer = animPer * animPer;
+            ResultUI.GetComponent<RectTransform>().localPosition = Vector3.Lerp(new Vector3(0.0f, 1000.0f, 0.0f), new Vector3(0.0f, -100.0f, 0.0f), animPer);
+        }
+        else {
+            animPer = (animPer - 0.7f) / 0.3f;
+            animPer = animPer * animPer;
+            ResultUI.GetComponent<RectTransform>().localPosition = Vector3.Lerp(new Vector3(0.0f, -100.0f, 0.0f), Vector3.zero, animPer);
+            if (animPer >= 1.0f) {
+                resultAnimFlg = false;
+            }
+        }*/
+
+        animPer = animPer * animPer;
+        ResultUI.GetComponent<RectTransform>().localPosition = Vector3.Lerp(new Vector3(0.0f, 1000.0f, 0.0f), Vector3.zero, animPer);
+        if (animPer >= 1.0f) {
+            resultAnimFlg = false;
+        }
     }
 }

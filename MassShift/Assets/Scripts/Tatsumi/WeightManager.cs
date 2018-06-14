@@ -33,6 +33,11 @@ public class WeightManager : MonoBehaviour {
 	}
 
 	[SerializeField] float[] weightLvGravityForce = new float[3];
+	public float[] WeightLvGravityForce {
+		get {
+			return weightLvGravityForce;
+		}
+	}
 
 	public float WeightForce {
 		get {

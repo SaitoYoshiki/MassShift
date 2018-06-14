@@ -26,7 +26,13 @@ public class MassShiftLine : MonoBehaviour {
 
 	float mOffset = 0.0f;  //矢印を配置するオフセット
 
+	Material mSharedMaterial;
 
+	private void Awake() {
+		GameObject lDummy = Instantiate(mModelPrefab, transform);
+		mSharedMaterial = lDummy.GetComponentInChildren<Renderer>().material;
+		lDummy.SetActive(false);
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -42,10 +48,7 @@ public class MassShiftLine : MonoBehaviour {
 	//表示の線の色を変える
 	//
 	public void ChangeColor(Color aColor) {
-		foreach (var r in mModelPrefab.GetComponentsInChildren<Renderer>()) {
-			r.sharedMaterial.SetColor("_EmissionColor", aColor);
-			break;  //最初の一つだけでいいので
-		}
+		mSharedMaterial.SetColor("_EmissionColor", aColor);
 	}
 
 	//表示の線の矢印を移動させる
@@ -97,7 +100,10 @@ public class MassShiftLine : MonoBehaviour {
 		else {
 			//必要な分を増やす
 			for (int i = mModelParent.transform.childCount; i < lModelNum; i++) {
-				Instantiate(mModelPrefab, mModelParent.transform);
+				GameObject g = Instantiate(mModelPrefab, mModelParent.transform);
+				foreach(var r in g.GetComponentsInChildren<Renderer>()) {
+					r.sharedMaterial = mSharedMaterial;
+				}
 			}
 		}
 

@@ -88,6 +88,25 @@ public class Player : MonoBehaviour {
 			isHandSpring = value;
 		}
 	}
+
+//	[SerializeField]
+//	bool isLiftMove = false;
+//	public bool IsLiftMove {
+//		get {
+//			return (Lift && Lift.IsLifting && Lift.St == Lifting.LiftState.lifting);
+//		}
+//	}
+
+	[SerializeField]
+	bool isMoveByWind = false;
+	public bool IsMoveByWind {
+		get {
+			return isMoveByWind;
+		}
+		set {
+			isMoveByWind = value;
+		}
+	}
 		
 	[SerializeField]
 	bool useManualJump = true;      // ボタン入力での通常ジャンプを使用する
@@ -346,7 +365,18 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	float walkAnimRatio = 0.5f;		// 歩きアニメーションの再生速度倍率
 	[SerializeField]
-	float walkAnimMinSpd = 0.3f;	// 歩きアニメーションの最低再生速度
+	float walkAnimMinSpd = 0.3f;    // 歩きアニメーションの最低再生速度
+
+	[SerializeField]
+	GameObject swimSE;
+	[SerializeField]
+	GameObject jumpSE;
+	[SerializeField]
+	GameObject handSpringJumpSE;
+	[SerializeField]
+	float jumpSEDeray = 0.2f;
+	[SerializeField]
+	float handSpringJumpSEDeray = 0.2f;
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -438,6 +468,7 @@ public class Player : MonoBehaviour {
 			if (nowRotVec != landRotVec) {
 				RotVec = new Vector3(RotVec.x, landRotVec, RotVec.z);
 
+
 				if (!notHandSpring) {
 					// 天井回転アニメーション
 					if (!Lift.IsLifting) {
@@ -479,18 +510,19 @@ public class Player : MonoBehaviour {
 			}
 		}
 
-//		if ((!Land.IsLanding && Land.IsLandingTrueChange) && (!Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
-//			Land.IsLandingTrueChange = false;
-//			if (!isJump) {
-//				if (!Lift.IsLifting) {
-//					PlAnim.StartFall();
-//				} else {
-//					PlAnim.StartHoldFall();
-//				}
-//			}
-//		}
+		//		if ((!Land.IsLanding && Land.IsLandingTrueChange) && (!Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
+		//			Land.IsLandingTrueChange = false;
+		//			if (!isJump) {
+		//				if (!Lift.IsLifting) {
+		//					PlAnim.StartFall();
+		//				} else {
+		//					PlAnim.StartHoldFall();
+		//				}
+		//			}
+		//		}
 
 		// 待機時に少しカメラ方向を向く
+		UpdateLookCamera();
 		LookCamera();
 	}
 
@@ -505,7 +537,8 @@ public class Player : MonoBehaviour {
 						PlAnim.StartHoldWalk();
 					}
 				}
-				float walkAnimSpd = Mathf.Max((Mathf.Abs(MoveMng.PrevMove.x) * walkAnimRatio), walkAnimMinSpd);
+				//float walkAnimSpd = Mathf.Max((Mathf.Abs(MoveMng.PrevMove.x) * walkAnimRatio), walkAnimMinSpd);
+				float walkAnimSpd = Mathf.Max((walkStandbyVec * walkAnimRatio), walkAnimMinSpd);
 				PlAnim.SetSpeed(walkAnimSpd);
 			}
 			// 泳ぎアニメーション
@@ -645,6 +678,9 @@ public class Player : MonoBehaviour {
 
 		// 次回ジャンプ可能時間を設定
 		//		jumpLimitTime = Time.time + jumpTime * 0.5f;	// ジャンプしてからジャンプ滞空時間の半分の時間まではジャンプ不可
+
+		// サウンド再生
+		SoundManager.SPlay(jumpSE, jumpSEDeray);
 
 		return true;
 	}
@@ -836,7 +872,7 @@ public class Player : MonoBehaviour {
 		WaterStt.BeginWaterStopIgnore();
 	}
 
-	void LookCamera() {
+	void UpdateLookCamera() {
 		// 接地状態で待機状態なら少しカメラ方向を向く
 		if ((Land.IsLanding || land.IsWaterFloatLanding || WaterStt.IsWaterSurface) &&
 			!(!Lift.IsLifting && Lift.LiftObj) &&	// 持ち上げ/下ろしの最中ならfalse
@@ -852,11 +888,13 @@ public class Player : MonoBehaviour {
 			}
 		}
 		CameraLookRatio = Mathf.Clamp(CameraLookRatio, -1.0f, 1.0f);
-
+	}
+	public void LookCamera() {
 		// モデルの向きを設定
 		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * CameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
-//		Debug.LogWarning(modelTransform.rotation.eulerAngles + " " + modelTransform.name);
+		//		Debug.LogWarning(modelTransform.rotation.eulerAngles + " " + modelTransform.name);
 	}
+
 
 	void HandSpringJump() {
 		// 前回までの上下方向の加速度を削除
@@ -876,6 +914,9 @@ public class Player : MonoBehaviour {
 		Land.IsLanding = false;
 		WaterStt.IsWaterSurface = false;
 		WaterStt.BeginWaterStopIgnore();
+
+		// サウンド再生
+		SoundManager.SPlay(handSpringJumpSE, handSpringJumpSEDeray);
 	}
 
 	public void InitRotation() {

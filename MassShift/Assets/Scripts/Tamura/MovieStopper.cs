@@ -12,13 +12,22 @@ public class MovieStopper : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         pause = FindObjectOfType<Pause>();
-        foreach (var i in vp) {
-
-        }
+        pause.pauseEvent.AddListener(PauseVideo);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+
 	}
+
+    void PauseVideo() {
+        foreach (VideoPlayer video in vp) {
+            if (pause.pauseFlg) {
+                video.Pause();
+            }
+            else {
+                video.Play();
+            }
+        }
+    }
 }

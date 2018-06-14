@@ -262,7 +262,7 @@ public class Landing : MonoBehaviour {
 		}
 
 		// 接地しているオブジェクトが存在しなければ離地
-		if (landColList.Count <= 0) {
+		if (landColList.Count == 0) {
 			IsLanding = false;
 			IsExtrusionLanding = false;
 			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));

@@ -98,7 +98,10 @@ public class LightBall : MonoBehaviour {
 			lDir = Vector3.up;
 		}
 
-		LayerMask l = LayerMask.GetMask(new string[] { "Box", "Stage" });
+		//LayerMask l = LayerMask.GetMask(new string[] { "Box", "Stage" });
+		
+		//Stageだけが、重さを移すのを遮る
+		LayerMask l = LayerMask.GetMask(new string[] { "Stage" });
 		List<RaycastHit> rcs = Physics.SphereCastAll(aFrom, mCollider.transform.lossyScale.x / 2.0f, lDir, (aTo - aFrom).magnitude, l).ToList();
 
 
@@ -117,6 +120,12 @@ public class LightBall : MonoBehaviour {
 
 			//ボタンは通り抜けるので、判定から除外
 			if (rcs[i].collider.CompareTag("Button")) {
+				rcs.RemoveAt(i);
+				continue;
+			}
+
+			//ファンは通り抜けるので、判定から除外
+			if (rcs[i].collider.CompareTag("Fan")) {
 				rcs.RemoveAt(i);
 				continue;
 			}
@@ -186,4 +195,5 @@ public class LightBall : MonoBehaviour {
 			p.SetActive(false);
 		}
 	}
+
 }
