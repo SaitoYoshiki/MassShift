@@ -99,7 +99,7 @@ public class Player : MonoBehaviour {
 
 	[SerializeField]
 	bool isMoveByWind = false;
-	bool IsMoveByWind {
+	public bool IsMoveByWind {
 		get {
 			return isMoveByWind;
 		}

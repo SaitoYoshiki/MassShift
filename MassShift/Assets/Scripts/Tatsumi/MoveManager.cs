@@ -1178,11 +1178,12 @@ public class MoveManager : MonoBehaviour {
 		}
 	}
 
+	// 自分自身の重さで返す、PileWeightは考慮しない
 	public float GetFallVec() {
 		return (GetFallVec(WeightMng.WeightLv));
 	}
 	public float GetFallVec(WeightManager.Weight _weightLv) {
-		float ret = WeightMng.WeightForce;
+		float ret = Mathf.Sign(WeightMng.WeightLvGravityForce[(int)_weightLv]);
 		if (WaterStt && WaterStt.IsInWater && !WaterStt.IsWaterSurface && (_weightLv == WeightManager.Weight.light)) {
 			ret = 1.0f;
 		}
