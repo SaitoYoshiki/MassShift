@@ -538,6 +538,10 @@ public class Lifting : MonoBehaviour {
 			//			// 持ち上げ中オブジェクトの強制押し出しフラグを一時的に有効化
 			//			LiftObjMoveMng.ExtrusionForcible = true;
 
+			// プレイヤーと持ち上げオブジェクトを風で動かされないように変更
+			MoveMng.CanMoveByWind = false;
+			LiftObjMoveMng.CanMoveByWind = false;
+
 			// サウンド再生
 			SoundManager.SPlay(liftSE, liftUpSoundDeray);
 
@@ -596,6 +600,10 @@ public class Lifting : MonoBehaviour {
 		// 持ち上げ中オブジェクトの判定と挙動を有効化
 		LiftObj.GetComponent<BoxCollider>().enabled = true;
 		LiftObj.GetComponent<MoveManager>().enabled = true;
+
+		// プレイヤーと持ち上げオブジェクトを風で動かせるように変更
+		MoveMng.CanMoveByWind = true;
+		LiftObjMoveMng.CanMoveByWind = true;
 
 		#region
 		//		// 通常時のプレイヤー当たり判定を無効化/有効化
