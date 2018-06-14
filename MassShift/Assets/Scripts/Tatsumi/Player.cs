@@ -107,7 +107,60 @@ public class Player : MonoBehaviour {
 			isMoveByWind = value;
 		}
 	}
-		
+
+	[SerializeField]
+	bool isWaterSurfaceStandby = false;
+	bool IsWaterSurfaceStandby {
+		get {
+			return isWaterSurfaceStandby;
+		}
+		set {
+			isWaterSurfaceStandby = value;
+		}
+	}
+	bool prevIsWaterSurfaceStandby = false;
+	[SerializeField]
+	bool isWaterSurfaceSwiming = false;
+	public bool IsWaterSurfaceSwiming {
+		get {
+			return isWaterSurfaceSwiming;
+		}
+		private set {
+			isWaterSurfaceSwiming = value;
+		}
+	}
+	bool prevIsWaterSurfaceSwiming = false;
+
+	GameObject swimSoundInstance = null;
+	GameObject SwimSoundInstance {
+		get {
+			if (!swimSoundInstance) {
+				swimSoundInstance = SoundManager.SPlay(swimSE);
+			}
+			return swimSoundInstance;
+		}
+	}
+	AudioSource swimAudioSource = null;
+	AudioSource SwimAudioSource {
+		get {
+			if (!swimAudioSource) {
+				swimAudioSource = SwimSoundInstance.GetComponent<AudioSource>();
+				SwimAudioSource.volume = 0.0f;
+			}
+			return swimAudioSource;
+		}
+	}
+	[SerializeField]
+	float swimSoundNowVol = 0.0f;
+	[SerializeField]
+	float swimSoundMinVol = 0.0f;
+	[SerializeField]
+	float swimSoundMaxVol = 0.5f;
+	[SerializeField]
+	float swimSoundVolUpSpd = 0.05f;
+	[SerializeField]
+	float swimSoundVolDownSpd = 0.05f;
+
 	[SerializeField]
 	bool useManualJump = true;      // ボタン入力での通常ジャンプを使用する
 	[SerializeField]
@@ -423,11 +476,8 @@ public class Player : MonoBehaviour {
 		}
 		prevFallFlg = fallFlg;
 
-		// 持ち下ろしアニメーション中、天井回転待ち中でなければ
-		if (!Lift.IsLiftStop && !IsHandSpringWeit) {
-			// 左右移動
-			Walk();
-		}
+		// 左右移動
+		Walk();
 
 		// ジャンプ
 		bool isJump = Jump();
@@ -524,9 +574,25 @@ public class Player : MonoBehaviour {
 		// 待機時に少しカメラ方向を向く
 		UpdateLookCamera();
 		LookCamera();
+
+		// 泳ぎサウンドの音量を変更
+		if (IsWaterSurfaceSwiming) {
+			SwimAudioSource.volume += swimSoundVolUpSpd;
+		} else {
+			SwimAudioSource.volume -= swimSoundVolDownSpd;
+		}
+		SwimAudioSource.volume = Mathf.Clamp(SwimAudioSource.volume, swimSoundMinVol, swimSoundMaxVol);
 	}
 
 	void Walk() {
+		prevIsWaterSurfaceStandby = IsWaterSurfaceStandby;
+		prevIsWaterSurfaceSwiming = IsWaterSurfaceSwiming;
+		IsWaterSurfaceStandby = false;
+		IsWaterSurfaceSwiming = false;
+
+		// 持ち下ろしアニメーション中、または天井回転待ち中であれば処理しない
+		if (Lift.IsLiftStop || IsHandSpringWeit) return;
+
 		// 歩行アニメーション
 		if ((walkStandbyVec != 0.0f) && CanWalk) {
 			if (!WaterStt.IsWaterSurface) {
@@ -537,21 +603,24 @@ public class Player : MonoBehaviour {
 						PlAnim.StartHoldWalk();
 					}
 				}
-				//float walkAnimSpd = Mathf.Max((Mathf.Abs(MoveMng.PrevMove.x) * walkAnimRatio), walkAnimMinSpd);
-				float walkAnimSpd = Mathf.Max((walkStandbyVec * walkAnimRatio), walkAnimMinSpd);
+				float walkAnimSpd = Mathf.Max((Mathf.Abs(MoveMng.PrevMove.x) * walkAnimRatio), walkAnimMinSpd);
+				//float walkAnimSpd = (walkStandbyVec * walkAnimRatio);
 				PlAnim.SetSpeed(walkAnimSpd);
 			}
 			// 泳ぎアニメーション
 			else {
-				if (!Lift.IsLifting) {
-					PlAnim.StartSwim();
-				} else {
-					PlAnim.StartHoldSwim();
+				IsWaterSurfaceSwiming = true;
+				if (IsWaterSurfaceSwiming && !prevIsWaterSurfaceSwiming) {
+					if (!Lift.IsLifting) {
+						PlAnim.StartSwim();
+					} else {
+						PlAnim.StartHoldSwim();
+					}
 				}
 			}
 		}
-		// 待機アニメーション
-		else {
+	// 待機アニメーション
+	else {
 			if (!WaterStt.IsWaterSurface) {
 				if (!Lift.IsLifting) {
 					PlAnim.StartStandBy();
@@ -559,10 +628,13 @@ public class Player : MonoBehaviour {
 					PlAnim.StartHoldStandBy();
 				}
 			} else {
-				if (!Lift.IsLifting) {
-					PlAnim.StartWaterStandBy();
-				} else {
-					PlAnim.StartHoldWaterStandBy();
+				IsWaterSurfaceStandby = true;
+				if (IsWaterSurfaceStandby && !prevIsWaterSurfaceStandby) {
+					if (!Lift.IsLifting) {
+						PlAnim.StartWaterStandBy();
+					} else {
+						PlAnim.StartHoldWaterStandBy();
+					}
 				}
 			}
 		}

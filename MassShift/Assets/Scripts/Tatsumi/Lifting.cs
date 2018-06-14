@@ -563,6 +563,10 @@ public class Lifting : MonoBehaviour {
 		// 状態の変更
 		St = LiftState.liftDown;
 
+		// プレイヤーと持ち上げオブジェクトを風で動かされないように変更
+		MoveMng.CanMoveByWind = false;
+		LiftObjMoveMng.CanMoveByWind = false;
+
 		// サウンド再生
 		SoundManager.SPlay(liftSE, liftDownSoundDeray);
 
@@ -578,6 +582,10 @@ public class Lifting : MonoBehaviour {
 		// 持ち上げ中オブジェクトの判定と挙動を無効化
 		LiftObj.GetComponent<BoxCollider>().enabled = false;
 		LiftObj.GetComponent<MoveManager>().enabled = false;
+
+		// プレイヤーと持ち上げオブジェクトを風で動かせるように変更
+		MoveMng.CanMoveByWind = true;
+		LiftObjMoveMng.CanMoveByWind = true;
 
 		// プレイヤー当たり判定の設定
 		SwitchLiftCollider(true);
