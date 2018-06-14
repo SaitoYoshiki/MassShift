@@ -23,7 +23,7 @@ public class Lifting : MonoBehaviour {
 		set {
 			liftObj = value;
 			if (liftObj) {
-				liftObjModel = liftObj.transform.Find("Model");
+				liftObjModel = liftObj.transform.Find("Model").Find("Rotation");
 			} else {
 				liftObjModel = null;
 			}
@@ -158,6 +158,13 @@ public class Lifting : MonoBehaviour {
 	[SerializeField]
 	WaterState liftWaterStt = null;
 
+	[SerializeField]
+	GameObject liftSE;
+	[SerializeField]
+	float liftUpSoundDeray = 0.2f;
+	[SerializeField]
+	float liftDownSoundDeray = 0.2f;
+
 	WeightManager weightMng = null;
 	WeightManager WeightMng {
 		get {
@@ -286,7 +293,7 @@ public class Lifting : MonoBehaviour {
 			break;
 
 		case LiftState.liftDown:
-			Debug.LogWarning(St.ToString() + " " + PlAnim.GetBoxPosition());
+//			Debug.LogWarning(St.ToString() + " " + PlAnim.GetBoxPosition());
 
 			// 移動不可
 			MoveMng.StopMoveVirticalAll();
@@ -528,8 +535,11 @@ public class Lifting : MonoBehaviour {
 				liftMoveMng.StopMoveHorizontalAll();
 			}
 
-//			// 持ち上げ中オブジェクトの強制押し出しフラグを一時的に有効化
-//			LiftObjMoveMng.ExtrusionForcible = true;
+			//			// 持ち上げ中オブジェクトの強制押し出しフラグを一時的に有効化
+			//			LiftObjMoveMng.ExtrusionForcible = true;
+
+			// サウンド再生
+			SoundManager.SPlay(liftSE, liftUpSoundDeray);
 
 			return LiftObj;
 		}
@@ -548,6 +558,9 @@ public class Lifting : MonoBehaviour {
 
 		// 状態の変更
 		St = LiftState.liftDown;
+
+		// サウンド再生
+		SoundManager.SPlay(liftSE, liftDownSoundDeray);
 
 		return LiftObj;
 	}

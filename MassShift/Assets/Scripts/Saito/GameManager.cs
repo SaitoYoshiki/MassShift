@@ -279,20 +279,6 @@ public class GameManager : MonoBehaviour {
 
 		yield return new WaitForSeconds(mGoalAfterWalkingTime);
 
-		//ステージ終了時の演出
-		mTransition.CloseDoorParent();
-
-		//演出が終了するまで待機
-		while (true) {
-			if (mTransition.GetCloseEnd()) break;
-			yield return null;
-		}
-
-
-
-
-
-
 		Cursor.visible = true;
 		mResult.canGoal = true;
 	}

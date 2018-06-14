@@ -120,6 +120,12 @@ public class LightBall : MonoBehaviour {
 				rcs.RemoveAt(i);
 				continue;
 			}
+
+			//ファンは通り抜けるので、判定から除外
+			if (rcs[i].collider.CompareTag("Fan")) {
+				rcs.RemoveAt(i);
+				continue;
+			}
 		}
 
 		//近い順にソートする
@@ -186,4 +192,5 @@ public class LightBall : MonoBehaviour {
 			p.SetActive(false);
 		}
 	}
+
 }
