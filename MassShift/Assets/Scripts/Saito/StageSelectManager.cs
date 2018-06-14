@@ -359,24 +359,38 @@ public class StageSelectManager : MonoBehaviour {
 			yield return null;
 		}
 
-		mStageSelectScroll.mIsScroll = true;    //スクロールが行えるようになる
-		mStageSelectScroll.mCameraMoveSpeed = 10.0f;
-
+		mStageSelectScroll.mIsScroll = false;    //スクロールが行えるようになる
 
 		//プレイヤーを自動で歩かせる
 		//
 		CanMovePlayer(true);    //プレイヤーは動けるようにするが、ユーザーの入力は受け付けない
 		var v = mPlayer.GetComponent<VirtualController>();
 
-		float cWalkTime = 1.5f; //プレイヤーを自動で歩かせる秒数
+		float cWalkTime = 1.1f; //プレイヤーを自動で歩かせる秒数
 		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 1.0f, cWalkTime);
 		VirtualController.SetAxis(VirtualController.CtrlCode.Jump, 0.0f, cWalkTime);
 		VirtualController.SetAxis(VirtualController.CtrlCode.Lift, 0.0f, cWalkTime);
 		VirtualController.SetAxis(VirtualController.CtrlCode.Vertical, 0.0f, cWalkTime);
 
-		//歩かせている間待機
-		yield return new WaitForSeconds(cWalkTime);
 
+		float lBeforeCameraMoveTime = mCameraMove.mTakeTime;
+
+		mCameraMove.mStartPosition = mCameraMove.transform.position;
+		mCameraMove.mEndPosition = mStageSelectScroll.mAreaCameraPosition[0].transform.position;
+
+		const float cCameraMoveTime = 1.0f;
+		mCameraMove.mTakeTime = cCameraMoveTime;
+
+		yield return new WaitForSeconds(cWalkTime - cCameraMoveTime);
+
+		mCameraMove.MoveStart();
+
+		//歩かせている間待機
+		yield return new WaitForSeconds(cCameraMoveTime);
+
+
+		//カメラの移動にかける時間を戻す
+		mCameraMove.mTakeTime = lBeforeCameraMoveTime;
 
 		//メインのコルーチンの開始
 		//
