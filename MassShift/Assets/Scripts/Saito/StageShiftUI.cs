@@ -22,10 +22,10 @@ public class StageShiftUI : MonoBehaviour {
 		
 	}
 
-	public StageShiftUIInstance GetSourceUI() {
+	public StageShiftUIInstance GetSource() {
 		return mSourceUI.GetComponent<StageShiftUIInstance>();
 	}
-	public StageShiftUIInstance GetDestUI() {
+	public StageShiftUIInstance GetDest() {
 		return mDestUI.GetComponent<StageShiftUIInstance>();
 	}
 }
