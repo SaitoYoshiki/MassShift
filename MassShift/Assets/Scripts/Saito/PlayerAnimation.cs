@@ -660,6 +660,11 @@ public class PlayerAnimation : MonoBehaviour {
 	public void SetSpeed(float aSpeed) {
 		mSpeed = aSpeed * 1.5f;
 	}
+	public void SetLandSpeed(float aSpeed) {
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).SetFloat("LandSpeed", aSpeed);
+		}
+	}
 
 	public void StartStandBy() {
 		if (mState != CState.cWalk) return;	//歩き状態からしか外からは呼び出せない
