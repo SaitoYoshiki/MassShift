@@ -116,8 +116,8 @@ public class GameManager : MonoBehaviour {
 		}
 
 
-		// タイトルシーンからの遷移でなければ
-		if (!cameraMove.fromTitle) {
+		// タイトルシーンからの遷移かチュートリアルでなければ
+        if (!cameraMove.fromTitle && Area.GetAreaNumber() != 0) {
 			//ステージ開始時の演出
 			mTransition.OpenDoorParent();
 
@@ -292,6 +292,9 @@ public class GameManager : MonoBehaviour {
 		}
 
 		yield return new WaitForSeconds(mGoalAfterWalkingTime);
+
+		//歩くのをやめる
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
 
 		Cursor.visible = true;
 		mResult.canGoal = true;
