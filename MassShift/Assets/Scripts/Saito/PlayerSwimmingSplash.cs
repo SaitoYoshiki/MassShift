@@ -38,7 +38,7 @@ public class PlayerSwimmingSplash : MonoBehaviour {
 		Vector3 lPosition = mFollowTransform.transform.position;
 		lPosition.z = 0.0f;
 		mSwimmingSplash.transform.position = lPosition;
-		mSwimmingSplash.transform.rotation = Quaternion.Euler(0.0f, 0.0f, -90.0f) * mFollowTransform.transform.rotation;
+		mSwimmingSplash.transform.rotation = mFollowTransform.transform.rotation;
 	}
 
 	bool IsPlayerSwimming() {
