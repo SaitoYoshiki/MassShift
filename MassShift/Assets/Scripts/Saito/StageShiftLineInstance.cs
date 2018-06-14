@@ -5,12 +5,27 @@ using UnityEngine;
 public class StageShiftLineInstance : MonoBehaviour {
 
 	[SerializeField]
+	Color mUpColor;
+
+	[SerializeField]
+	float mUpColorPower;
+
+	[SerializeField]
+	Color mDownColor;
+
+	[SerializeField]
+	float mDownColorPower;
+
+
+	[SerializeField]
 	GameObject mLinePrefab;
 	
 	GameObject mLine;
 
 	[SerializeField]
 	GameObject mFail;
+
+	bool mIsUp = false;
 
 	// Use this for initialization
 	void Awake() {
@@ -26,13 +41,15 @@ public class StageShiftLineInstance : MonoBehaviour {
 	public void ShowDown() {
 		mFail.SetActive(false);
 		mLine.SetActive(true);
+		mIsUp = false;
 	}
 	public void ShowUp() {
 		mFail.SetActive(false);
 		mLine.SetActive(true);
+		mIsUp = true;
 	}
 	public void ShowFail() {
-		mLine.SetActive(true);
+		mLine.SetActive(false);
 		mFail.SetActive(true);
 	}
 
@@ -45,10 +62,26 @@ public class StageShiftLineInstance : MonoBehaviour {
 	public void SetPosition(Vector3 aWorldPosition) {
 
 		Vector3 lStart = aWorldPosition;
-		Vector3 lEnd = lStart + Vector3.up * 1.5f;
+		Vector3 lEnd = lStart + Vector3.up * 2.0f;
+
+		//下に行くなら、線の開始位置と終了位置を入れ替える
+		if(mIsUp == false) {
+			Vector3 t = lStart;
+			lStart = lEnd;
+			lEnd = t;
+		}
 
 		mLine.GetComponent<MassShiftLine>().SetLinePosition(lStart, lEnd);
+		
 
-		mFail.transform.position = lStart + Vector3.up * 1.0f;
+		Color lColor = mUpColor * mUpColorPower;
+		if (mIsUp == false) {
+			lColor = mDownColor * mDownColorPower;
+		}
+
+		mLine.GetComponent<MassShiftLine>().ChangeColor(lColor);
+
+
+		mFail.transform.position = aWorldPosition + Vector3.up * 1.0f;
 	}
 }
