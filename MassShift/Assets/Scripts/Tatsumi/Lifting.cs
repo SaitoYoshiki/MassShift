@@ -495,6 +495,9 @@ public class Lifting : MonoBehaviour {
 			break;
 
 		case LiftState.lifting:
+			// 重さ変更中は処理しない
+			if (Pl.IsShift) return null;
+
 			// ジャンプ、重さ変更、振り向きを不可に
 			Pl.CanJump = false;
 			Pl.CanShift = false;
@@ -597,6 +600,9 @@ public class Lifting : MonoBehaviour {
 		// プレイヤーのジャンプ、振り向きを可能に
 		Pl.CanJump = true;
 		Pl.CanRotation = true;
+
+		// プレイヤーの重さ移しを可能に
+		Pl.CanShift = true;
 	}
 
 	public void LiftDownEnd() {	// 持っているオブジェクトを強制的に下ろす使い方もできる
