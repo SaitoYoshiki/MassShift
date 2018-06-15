@@ -436,6 +436,8 @@ public class Player : MonoBehaviour {
 	float heavyLandAnimSpd = 1.0f;
 	[SerializeField]
 	bool isHeavyReleaseRotate = false;
+	[SerializeField]
+	bool liftInputFlg = false;
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -453,10 +455,15 @@ public class Player : MonoBehaviour {
 		// ジャンプ滞空時間
 		remainJumpTime = (!Land.IsLanding ? remainJumpTime + Time.deltaTime : 0.0f);
 
+		// 持ち上げ/下げ入力
+		liftInputFlg = (VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f);
+	}
+
+	void FixedUpdate() {
 		// 持ち上げ/下げ
 		if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation && !IsHandSpringWeit) {
 			//			if ((Input.GetAxis("Lift") != 0.0f)) {
-			if ((VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f)) {
+			if (liftInputFlg) {
 				//if (!liftTrg) {
 				Lift.Lift();
 
@@ -466,9 +473,7 @@ public class Player : MonoBehaviour {
 				//	liftTrg = false;
 			}
 		}
-	}
 
-	void FixedUpdate() {
 		// 落下アニメーション
 		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (MoveMng.PrevMove.y < 0.0f));
 		if (fallFlg && !prevFallFlg) {
