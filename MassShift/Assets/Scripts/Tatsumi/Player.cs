@@ -456,14 +456,17 @@ public class Player : MonoBehaviour {
 		remainJumpTime = (!Land.IsLanding ? remainJumpTime + Time.deltaTime : 0.0f);
 
 		// 持ち上げ/下げ入力
-		liftInputFlg = (VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f);
+		if (VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f) {
+			liftInputFlg = true;
+		}
 	}
 
 	void FixedUpdate() {
 		// 持ち上げ/下げ
-		if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation && !IsHandSpringWeit) {
-			//			if ((Input.GetAxis("Lift") != 0.0f)) {
-			if (liftInputFlg) {
+		if (liftInputFlg) {
+			liftInputFlg = false;
+			if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation && !IsHandSpringWeit) {
+				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();
 
