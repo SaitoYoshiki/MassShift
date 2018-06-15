@@ -212,6 +212,19 @@ public class Area {
 	}
 
 
+	//そのシーンがステージ中か
+	//
+	public static bool IsInStage() {
+
+		int lAreaNum = GetAreaNumber();
+		if (0 <= lAreaNum && lAreaNum <= GetAreaCount()) {
+			return true;
+		}
+
+		return false;
+	}
+
+
 	//１・２・３のエリア番号を、配列のインデックスに対応させる
 	//
 	static int GetAreaIndex(int aAreaNumber) {

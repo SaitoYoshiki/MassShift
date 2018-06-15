@@ -23,6 +23,14 @@ public class Goal : MonoBehaviour {
 		TurnLamp();
 
 		mAllPlayerList = FindObjectsOfType<Player>().ToList();
+
+		//ステージ中なら
+		if(Area.IsInStage()) {
+			Utility.ChangeMaterialColor(mModel, mInsideMaterial, "_EmissionColor", Color.white);
+		}
+		else {
+			Utility.ChangeMaterialColor(mModel, mInsideMaterial, "_EmissionColor", Color.black);
+		}
 	}
 	
 	// Update is called once per frame
@@ -382,4 +390,7 @@ public class Goal : MonoBehaviour {
 
 	[SerializeField, EditOnPrefab, Tooltip("オフの時のライトのエミッションの強さ")]
 	float mLampOffEmissionPower = 1.0f;
+
+	[SerializeField, EditOnPrefab, Tooltip("扉の内側のマテリアル")]
+	Material mInsideMaterial;
 }
