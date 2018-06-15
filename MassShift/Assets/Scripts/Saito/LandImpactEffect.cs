@@ -127,6 +127,6 @@ public class LandImpactEffect : MonoBehaviour {
 
 	//プレイヤーが上向きかどうか
 	bool IsUpRotation(Player aPlayer) {
-		return aPlayer.RotVec.y <= 0.5f;
+		return mUpEffectTransform.transform.position.y >= mDownEffectTransform.transform.position.y;
 	}
 }
