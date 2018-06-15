@@ -15,7 +15,8 @@ public class VirtualController : MonoBehaviour {
 	static VirtualController VirtualCtrl {
 		get {
 			if (!virtualCtrl) {
-				virtualCtrl = new VirtualController();
+				GameObject ctrlObj = new GameObject();
+				virtualCtrl = ctrlObj.AddComponent<VirtualController>();
 			}
 			return virtualCtrl;
 		}
@@ -50,7 +51,7 @@ public class VirtualController : MonoBehaviour {
 	float defaultHoldTime = 0.5f;
 
 	void Awake() {
-		if (VirtualCtrl) {
+		if (virtualCtrl) {
 			Debug.LogError("複数のVirtualControllerが生成されました。\n" +
 				VirtualCtrl.name + ", " + name);
 			enabled = false;

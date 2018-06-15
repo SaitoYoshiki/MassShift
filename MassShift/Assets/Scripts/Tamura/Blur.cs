@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 [RequireComponent(typeof(Camera))]
-[ExecuteInEditMode]
+//[ExecuteInEditMode]
 public class Blur : MonoBehaviour {
     Material material;
 

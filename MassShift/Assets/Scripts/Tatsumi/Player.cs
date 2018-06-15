@@ -436,6 +436,8 @@ public class Player : MonoBehaviour {
 	float heavyLandAnimSpd = 1.0f;
 	[SerializeField]
 	bool isHeavyReleaseRotate = false;
+	[SerializeField]
+	bool liftInputFlg = false;
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -453,10 +455,18 @@ public class Player : MonoBehaviour {
 		// ジャンプ滞空時間
 		remainJumpTime = (!Land.IsLanding ? remainJumpTime + Time.deltaTime : 0.0f);
 
+		// 持ち上げ/下げ入力
+		if (VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f) {
+			liftInputFlg = true;
+		}
+	}
+
+	void FixedUpdate() {
 		// 持ち上げ/下げ
-		if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation && !IsHandSpringWeit) {
-			//			if ((Input.GetAxis("Lift") != 0.0f)) {
-			if ((VirtualController.GetAxis(VirtualController.CtrlCode.Lift) != 0.0f)) {
+		if (liftInputFlg) {
+			liftInputFlg = false;
+			if ((Land.IsLanding || WaterStt.IsWaterSurface) /*&& !IsRotation*/ && !IsHandSpringWeit) {
+				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();
 
@@ -466,9 +476,7 @@ public class Player : MonoBehaviour {
 				//	liftTrg = false;
 			}
 		}
-	}
 
-	void FixedUpdate() {
 		// 落下アニメーション
 		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (MoveMng.PrevMove.y < 0.0f));
 		if (fallFlg && !prevFallFlg) {
@@ -722,6 +730,11 @@ public class Player : MonoBehaviour {
 			PlAnim.StartHoldJump();
 		}
 
+		if (!WaterStt.IsWaterSurface) {
+			// サウンド再生
+			SoundManager.SPlay(jumpSE, jumpSEDeray);
+		}
+
 		// 前回までの上下方向の加速度を削除
 		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 
@@ -764,9 +777,6 @@ public class Player : MonoBehaviour {
 
 		// 次回ジャンプ可能時間を設定
 		//		jumpLimitTime = Time.time + jumpTime * 0.5f;	// ジャンプしてからジャンプ滞空時間の半分の時間まではジャンプ不可
-
-		// サウンド再生
-		SoundManager.SPlay(jumpSE, jumpSEDeray);
 
 		return true;
 	}
