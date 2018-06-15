@@ -465,7 +465,7 @@ public class Player : MonoBehaviour {
 		// 持ち上げ/下げ
 		if (liftInputFlg) {
 			liftInputFlg = false;
-			if ((Land.IsLanding || WaterStt.IsWaterSurface) && !IsRotation && !IsHandSpringWeit) {
+			if ((Land.IsLanding || WaterStt.IsWaterSurface) /*&& !IsRotation*/ && !IsHandSpringWeit) {
 				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();
@@ -730,6 +730,11 @@ public class Player : MonoBehaviour {
 			PlAnim.StartHoldJump();
 		}
 
+		if (!WaterStt.IsWaterSurface) {
+			// サウンド再生
+			SoundManager.SPlay(jumpSE, jumpSEDeray);
+		}
+
 		// 前回までの上下方向の加速度を削除
 		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 
@@ -772,9 +777,6 @@ public class Player : MonoBehaviour {
 
 		// 次回ジャンプ可能時間を設定
 		//		jumpLimitTime = Time.time + jumpTime * 0.5f;	// ジャンプしてからジャンプ滞空時間の半分の時間まではジャンプ不可
-
-		// サウンド再生
-		SoundManager.SPlay(jumpSE, jumpSEDeray);
 
 		return true;
 	}
