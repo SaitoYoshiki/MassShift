@@ -110,14 +110,14 @@ public class Pause : MonoBehaviour {
         // ポーズ解除
         else {
             if (!pauseAnimFlg) {
-                Time.timeScale = 1.0f;
+                /*Time.timeScale = 1.0f;
 
                 if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
                     pauseCanvas_SS.SetActive(false);
                 }
                 else {
                     pauseCanvas.SetActive(false);
-                }
+                }*/
             }
 
             //SoundManager.SPlay(PauseEndSEPrefab);
@@ -163,8 +163,15 @@ public class Pause : MonoBehaviour {
                 pauseUI.transform.localScale = Vector3.Lerp(new Vector3(1.0f, 0.1f, 1.0f), new Vector3(0.0f, 0.0f, 1.0f), animPer);
                 if (animPer >= 1.0f) {
                     pauseAnimFlg = false;
-                    //Time.timeScale = 1.0f;
-                    //pauseCanvas.SetActive(false);
+
+                    Time.timeScale = 1.0f;
+
+                    if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+                        pauseCanvas_SS.SetActive(false);
+                    }
+                    else {
+                        pauseCanvas.SetActive(false);
+                    }
                 }
             }
         }
@@ -192,7 +199,7 @@ public class Pause : MonoBehaviour {
                 pauseCanvas_SS.SetActive(true);
             }
             else {
-                pauseCanvas.SetActive(false);
+                pauseCanvas.SetActive(true);
             }
 
             GetComponent<SetPlayerPrefs>().SaveOptionSetting();
