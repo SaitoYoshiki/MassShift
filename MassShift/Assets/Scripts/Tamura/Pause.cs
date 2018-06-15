@@ -202,7 +202,9 @@ public class Pause : MonoBehaviour {
     public void OnGameExitButtonDown() {
         // 本当に終了してもええかウィンドウを出す
         quitCanvas.SetActive(true);
+    }
 
+    public void Exit() {
         // exeの終了
         Application.Quit();
     }
