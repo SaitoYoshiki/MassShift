@@ -46,6 +46,8 @@ public class cameraMove : MonoBehaviour {
     //float colorPer = 0.0f;
 
 	void Start () {
+        Time.timeScale = 1.0f;
+
         this.transform.position = cameraStartPoint;
         st = GameObject.Find("StageChangeCanvas").GetComponent<StageTransition>();
         st.gameObject.SetActive(false);
