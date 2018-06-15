@@ -138,10 +138,10 @@ public class ChangeScene : MonoBehaviour {
         changeSceneMode = CHANGE_SCENE_MODE.NEXT;
 
         // リザルト画面を消す
-        if (result.IsResultCanvasActive()) {
+        /*if (result.IsResultCanvasActive()) {
             result.SetResultCanvasActive(false);
             result.canGoal = false;
-        }
+        }*/
 
         // チュートリアル以外なら
         if (Area.GetAreaNumber() != 0) {
@@ -163,10 +163,10 @@ public class ChangeScene : MonoBehaviour {
         changeSceneFlg = true;
 
         // リザルト画面を消す
-        if (result.IsResultCanvasActive()) {
+        /*if (result.IsResultCanvasActive()) {
             result.SetResultCanvasActive(false);
             result.canGoal = false;
-        }
+        }*/
     }
 
     public void OnTutorialButtonDown() {
@@ -182,10 +182,10 @@ public class ChangeScene : MonoBehaviour {
         changeSceneMode = CHANGE_SCENE_MODE.STAGESELECT;
 
         // リザルト画面を消す
-        if (result.IsResultCanvasActive()) {
+        /*if (result.IsResultCanvasActive()) {
             result.SetResultCanvasActive(false);
             result.canGoal = false;
-        }
+        }*/
 
         if (SceneManager.GetActiveScene().name == "Title") {
             changeSceneFlg = true;
