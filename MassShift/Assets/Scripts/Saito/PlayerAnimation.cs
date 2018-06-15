@@ -41,6 +41,8 @@ public class PlayerAnimation : MonoBehaviour {
 	[SerializeField]
 	float mReleaseEndTime = 1.0f;
 
+	float mBeforeStandByLoopTime = 1.0f;
+
 	Animator mAnimator;
 
 	public bool mIsHover = false;   //浮いているかどうか
@@ -783,6 +785,25 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 	public void ExitRelease() {
 		ChangeState(CState.cStandBy);
+	}
+
+
+	//立ち止まるアニメーションで、ループの切れ目かどうか
+	public bool IsStandByAnimationFinish() {
+		if (!mAnimator.GetCurrentAnimatorStateInfo(0).IsName("StandBy")) return false;
+
+
+		bool lRes = false;
+		float lTime = mAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+		float lLoopTime = lTime % 1.0f;
+
+		if (lTime >= 1.0f && lLoopTime > 0.9f) {
+			if(mBeforeStandByLoopTime <= 0.9f) {
+				lRes = true;
+			}
+		}
+		mBeforeStandByLoopTime = lLoopTime;
+		return lRes;
 	}
 }
 
