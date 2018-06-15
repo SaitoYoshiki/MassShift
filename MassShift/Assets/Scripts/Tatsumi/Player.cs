@@ -430,6 +430,12 @@ public class Player : MonoBehaviour {
 	float jumpSEDeray = 0.2f;
 	[SerializeField]
 	float handSpringJumpSEDeray = 0.2f;
+	[SerializeField]
+	float lightLandAnimSpd = 3.0f;
+	[SerializeField]
+	float heavyLandAnimSpd = 1.0f;
+	[SerializeField]
+	bool isHeavyReleaseRotate = false;
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -537,12 +543,17 @@ public class Player : MonoBehaviour {
 		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
 		//			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
 		if (landTrueChangeFlg) {
-//			Land.IsLandingTrueChange = false;
-//			Land.IsWaterFloatLandingTrueChange = false;
+			//			Land.IsLandingTrueChange = false;
+			//			Land.IsWaterFloatLandingTrueChange = false;
 			if (!Lift.IsLifting) {
 				PlAnim.StartLand();
 			} else {
 				PlAnim.StartHoldLand();
+			}
+			if (WeightMng.WeightLv <= WeightManager.Weight.light) {
+				PlAnim.SetLandSpeed(lightLandAnimSpd);
+			} else {
+				PlAnim.SetLandSpeed(heavyLandAnimSpd);
 			}
 		}
 
@@ -592,6 +603,9 @@ public class Player : MonoBehaviour {
 
 		// 持ち下ろしアニメーション中、または天井回転待ち中であれば処理しない
 		if (Lift.IsLiftStop || IsHandSpringWeit) return;
+
+		// 重さ0のプレイヤーが重さ2の持ち上げオブジェクトを離す時の回転中も処理しない
+		if (isHeavyReleaseRotate) return;
 
 		// 歩行アニメーション
 		if ((walkStandbyVec != 0.0f) && CanWalk) {
@@ -829,16 +843,21 @@ public class Player : MonoBehaviour {
 //		}
 
 
-//		// 自身が重さ0であり、重さ2のブロックを持ち上げている場合
-//		if (WeightMng.WeightLv == WeightManager.Weight.flying) {
-//			if (Lift && Lift.LiftObj) {
-//				WeightManager liftWeightMng = Lift.LiftObj.GetComponent<WeightManager>();
-//				if (liftWeightMng && (liftWeightMng.WeightLv == WeightManager.Weight.heavy)) {
-//					// 接地変更を指定
-//					RotVec.y = 0.0f;
-//				}
-//			}
-//		}
+		// 自身が重さ0であり、重さ2のブロックを持ち上げている場合
+		if (WeightMng.WeightLv == WeightManager.Weight.flying) {
+			if (Lift && Lift.LiftObj) {
+				WeightManager liftWeightMng = Lift.LiftObj.GetComponent<WeightManager>();
+				if (liftWeightMng && (liftWeightMng.WeightLv == WeightManager.Weight.heavy)) {
+					if (!isHeavyReleaseRotate) {
+						// 接地変更を指定
+						RotVec = new Vector3(RotVec.x, 1.0f, RotVec.z);
+
+						isHeavyReleaseRotate = true;
+						MoveMng.StopMoveHorizontal(MoveManager.MoveType.prevMove);
+					}
+				}
+			}
+		}
 
 		// 結果の姿勢を求める
 		Quaternion qt = Quaternion.Euler(RotVec.y * 180.0f, -90.0f + RotVec.x * 90.0f, 0.0f);
@@ -851,6 +870,8 @@ public class Player : MonoBehaviour {
 
 			// 回転終了
 			IsRotation = false;
+
+			isHeavyReleaseRotate = false;
 
 			// 自身が重さ0であり、重さ2のブロックを持ち上げている場合
 			if (WeightMng.WeightLv == WeightManager.Weight.flying) {
