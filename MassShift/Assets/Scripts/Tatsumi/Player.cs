@@ -642,7 +642,7 @@ public class Player : MonoBehaviour {
 		// 歩行アニメーション
 		if ((walkStandbyVec != 0.0f) && CanWalk) {
 			if (!WaterStt.IsWaterSurface) {
-				if (Land.IsLanding || Land.IsExtrusionLanding) {
+				if (Land.IsLanding || Land.IsExtrusionLanding || Land.IsWaterFloatLanding) {
 					if (!Lift.IsLifting) {
 						PlAnim.StartWalk();
 					} else {

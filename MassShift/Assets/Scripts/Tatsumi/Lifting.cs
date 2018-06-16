@@ -165,6 +165,8 @@ public class Lifting : MonoBehaviour {
 	[SerializeField]
 	float liftDownSoundDeray = 0.2f;
 
+	bool isPosUp = false;
+
 	WeightManager weightMng = null;
 	WeightManager WeightMng {
 		get {
@@ -725,8 +727,9 @@ public class Lifting : MonoBehaviour {
 			modelTransform.localPosition = new Vector3(modelTransform.localPosition.x, upModelPos, modelTransform.localPosition.z);
 
 //			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
-			if (Pl.RotVec.y == 1.0f) {
+			if (Pl.RotVec.y == 1.0f && !isPosUp) {
 				transform.position += new Vector3(0.0f, liftingPosOffset, 0.0f);
+				isPosUp = true;
 			}
 		} else {
 			offsetTransform.localPosition = new Vector3(offsetTransform.localPosition.x, downOffsetPos, offsetTransform.localPosition.z);
@@ -734,8 +737,9 @@ public class Lifting : MonoBehaviour {
 			modelTransform.localPosition = new Vector3(modelTransform.localPosition.x, downModelPos, modelTransform.localPosition.z);
 
 //			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
-			if (Pl.RotVec.y == 1.0f) {
+			if (Pl.RotVec.y == 1.0f && isPosUp) {
 				transform.position -= new Vector3(0.0f, liftingPosOffset, 0.0f);
+				isPosUp = false;
 			}
 		}
 
