@@ -40,7 +40,7 @@ public class WaterState : MonoBehaviour {
 				SetWaterMaxSpeed(weightLvExitWaterMoveMax, null);
 
 				// 水面状態を解除
-				IsWaterSurface = false;
+//				IsWaterSurface = false;
 			}
 		}
 	}
@@ -60,9 +60,9 @@ public class WaterState : MonoBehaviour {
 				// trueへの変化時
 				if (value) {
 					// 高さを補正
-					bool flg = false;
+					//bool flg = false;
 					//if (flg = MoveManager.MoveTo(new Vector3(transform.position.x, ((inWaterCol.bounds.center.y + inWaterCol.bounds.size.y * 0.5f + 0.5f) - 0.5f), transform.position.z), waterCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fance" }), false, true)) {
-						transform.position = new Vector3(transform.position.x, ((inWaterCol.bounds.center.y + inWaterCol.bounds.size.y * 0.5f + 0.5f) - 0.5f) + 0.5f, transform.position.z);
+						transform.position = new Vector3(transform.position.x, ((inWaterCol.bounds.center.y + inWaterCol.bounds.size.y * 0.5f + 0.5f) - 0.5f) + 0.499f, transform.position.z);
 					//}
 					//Debug.LogError("水上補正 " + name + " " + transform.position.y + " " + flg);
 
@@ -187,31 +187,30 @@ public class WaterState : MonoBehaviour {
 			IsInWater = false;
 		}
 
-		// 水中/水上の挙動
-		if (IsInWater) {
-			// 水中なら
-			if (!IsWaterSurface) {
-				if (CanFloat) {
-					// 押し付けられていない場合
-					if (!(Land && Land.IsExtrusionLanding)) {
-						// 水による浮上
-						MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f));
-					}
+		// 水中なら
+		if (isInWater && !IsWaterSurface) {
+			if (CanFloat) {
+				// 押し付けられていない場合
+				if (!(Land && Land.IsExtrusionLanding)) {
+					// 水による浮上
+					Debug.LogWarning("waterfloat");
+					MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f), MoveManager.MoveType.waterFloat);
 				}
 			}
-			// 水上なら
+		}
+		// 水上なら
+		else if (IsWaterSurface) {
+			// 重さや位置に変化が無ければ
+			if ((WeightMng.WeightLv == WeightManager.Weight.light) && (transform.position.y == prevHeight)) {
+				// 落下しない
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.waterFloat);
+			}
+			// 重さや位置が変化していれば
 			else {
-				// 重さや位置に変化が無ければ
-				if ((WeightMng.WeightLv == WeightManager.Weight.light) && (transform.position.y == prevHeight)) {
-					// 落下しない
-					MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
-					MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
-				}
-				// 重さや位置が変化していれば
-				else {
-					// 水面状態を解除
-					IsWaterSurface = false;
-				}
+				// 水面状態を解除
+				IsWaterSurface = false;
 			}
 		}
 	}

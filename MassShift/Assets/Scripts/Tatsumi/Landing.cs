@@ -84,6 +84,8 @@ public class Landing : MonoBehaviour {
 			// 値の変更
 			isWaterFloatLanding = value;
 
+			Debug.Log("IsWaterFloatLanding =" + value);
+
 //			// 有効化になった瞬間
 //			if (value == true) {
 //				IsWaterFloatLandingTrueChange = true;
@@ -316,7 +318,7 @@ public class Landing : MonoBehaviour {
 		if (!WaterStt.IsInWater && (WeightMng.WeightLv == WeightManager.Weight.light)) {
 			// 水面に浮かぶオブジェクトの上に積まれていればtrue
 			List<Transform> underPileObjs = Pile.GetPileBoxList(Vector3.down);  // 自身が積まれているオブジェクト
-//			Debug.LogWarning(name + " " + underPileObjs.Count);
+			Debug.LogWarning(name + " " + underPileObjs.Count);
 			foreach (var underPileObj in underPileObjs) {
 				// 水面に浮かぶオブジェクトが見つかればtrue
 				WaterState underPileWaterStt = underPileObj.GetComponent<WaterState>();
@@ -326,7 +328,6 @@ public class Landing : MonoBehaviour {
 				}
 			}
 		}
-
 		IsWaterFloatLanding = waterFloat;
 
 //		// 値変化時

@@ -8,11 +8,12 @@ public class MoveManager : MonoBehaviour {
 	const float ColMargin = 0.01f;
 
 	public enum MoveType {
-		min = -3,
+		min = -1,
 
-		gravity = -2,   // 重力
-		prevMove = -1,  // 前回移動の保持
-		other = 0,      // その他
+		gravity,	// 重力
+		prevMove,	// 前回移動の保持
+		other,		// その他
+		waterFloat,	// 水の浮力
 
 		max,
 	}
@@ -471,14 +472,14 @@ public class MoveManager : MonoBehaviour {
 
 					// 自身が衝突相手を押し出せるか
 					canExtrusion = (
-						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding) &&    // 判定に必要なコンポーネントが揃っている
-						(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&                // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
-						!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy))  // 自身が水中の場合、相手が重さ2でない
-
+						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding)    // 判定に必要なコンポーネントが揃っている
+						&& (!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore)                // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
+						&& !(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy))	// 自身が水中の場合、相手が重さ2でない
+						&&(!(moveLanding && moveLanding.IsLanding))							// 自身がLandingコンポーネントを持っている場合、着地していない
+						//&&(!((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitLanding.IsLanding))) &&	// 自身が浮かぶ重さの場合、相手が接地していない(すり抜け床の上に着地しているオブジェクトに対する押し出しを無くす)
+						&&!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (moveWeightMng.WeightLv <= hitWeightMng.WeightLv))	// 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さ以下でない
 						) &&
 
-						(!(moveLanding && moveLanding.IsLanding)) &&                            // 自身がLandingコンポーネントを持っている場合、着地していない
-																								//(!((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitLanding.IsLanding))) &&	// 自身が浮かぶ重さの場合、相手が接地していない(すり抜け床の上に着地しているオブジェクトに対する押し出しを無くす)
 						(((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) || // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
 						(waterFloatExtrusion) ||                                                // 水中で上のオブジェクトを押し上げている、又は
 						(moveMng.ExtrusionForcible || _extrusionForcible));                     // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
@@ -514,7 +515,7 @@ public class MoveManager : MonoBehaviour {
 					}
 					// 押し出せる場合
 					else {
-						Debug.LogWarning(_moveCol.name + " 押し出し>" + hitMoveMng.name);
+						Debug.Log("押し出し " + _moveCol.name + " > " + hitMoveMng.name);
 
 						if (hitMoveMng && moveMng) {
 							// 押し出し相手の上下移動量を削除
