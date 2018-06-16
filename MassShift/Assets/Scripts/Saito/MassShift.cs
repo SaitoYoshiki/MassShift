@@ -72,6 +72,29 @@ public class MassShift : MonoBehaviour
 		//return p.CanShift;
 	}
 
+	public bool IsShift {
+		get {
+			switch (mState) {
+				case CSelectState.cNormal:
+				case CSelectState.cClick:
+				case CSelectState.cDrag:
+					return false;
+				case CSelectState.cMoveSourceToDest:
+				case CSelectState.cMoveFromShare:
+				case CSelectState.cMoveToShare:
+				case CSelectState.cReturnToSource:
+				case CSelectState.cReturnToShare:
+				case CSelectState.cSuccess:
+					return true;
+				case CSelectState.cFail:
+				case CSelectState.cCantShift:
+					return false;
+			}
+			return false;
+		}
+	}
+
+
 
 	void UpdateState()
 	{
@@ -891,6 +914,14 @@ public class MassShift : MonoBehaviour
 
 			//移す表示の線を消す
 			mMassShiftLine.SetActive(false);
+
+			//共有ボックス間の線を非表示に
+			SetActiveShareLine(mMassShiftShareLineFromDest, false);
+			SetActiveShareLine(mMassShiftShareLineToSource, false);
+
+			//重さを移せるかのUIを消す
+			SourceStageShift.NotShow();
+			DestStageShift.NotShow();
 
 			ChangeCursorState(CCursorState.cCanNotShift);
 		}

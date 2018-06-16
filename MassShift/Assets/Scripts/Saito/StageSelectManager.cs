@@ -461,14 +461,14 @@ public class StageSelectManager : MonoBehaviour {
 			}
 
 
-			bool lIsEnter = Input.GetKeyDown(KeyCode.W);
+			bool lIsEnter = Input.GetKey(KeyCode.W);
 
 			//ゴール判定
 			//
 			if (mSelectStageNum != -1) {
 
 				//もし入る操作が行われているなら
-				if (lIsEnter) {
+				if (lIsEnter && CanGoal(mGoal[mSelectStageNum])) {
 					lDecideSelectStageNum = mSelectStageNum;
 					break;
 				}
@@ -479,13 +479,24 @@ public class StageSelectManager : MonoBehaviour {
 		}
 
 
-		//UIを消す
-		mEnterUI.gameObject.SetActive(false);
-
-
 		//重さを移せないようにする
 		OnCanShiftOperation(false);
 		mPause.canPause = false;
+
+		//プレイヤーが入力できないようにする
+		CanInputPlayer(false);
+
+		//プレイヤーの回転が終わるまで待つ
+		while(true) {
+			if(mPlayer.IsRotation == false) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//UIを消す
+		mEnterUI.gameObject.SetActive(false);
 
 		//ズーム終了後のカメラ位置を変更
 		mCameraMove.mEndPosition = GetPlayerZoomCameraPosition();
@@ -628,9 +639,39 @@ public class StageSelectManager : MonoBehaviour {
 
 
 	bool CanEnter(Goal lGoal) {
-		if (lGoal == null) return false;
-		if (!lGoal.IsInPlayer(mPlayer)) return false;
-		return true;
+
+		//プレイヤーがゴール枠に完全に入っていないなら
+		if (!lGoal.IsInPlayer(mPlayer)) {
+			return false;   //ゴールできない
+		}
+
+		return true;    //ゴール可能
+	}
+
+	bool CanGoal(Goal lGoal) {
+
+		//ゴールに入れないなら
+		if(CanEnter(lGoal) == false) {
+			return false;	//ゴールできない
+		}
+
+		//プレイヤーが接地していないなら
+		if (mPlayer.GetComponent<Landing>().IsLanding == false) {
+			return false;   //ゴールできない
+		}
+
+		//重さを移している最中なら
+		if (mMassShift.IsShift) {
+			return false;   //ゴールできない
+		}
+
+		//重さを移した後1秒以内なら
+		if (mMassShift.FromLastShiftTime <= 1.0f) {
+			return false;   //ゴールできない
+		}
+
+		return true;    //ゴール可能
+
 	}
 
 	void SetEnterColor(int aIndex) {
@@ -665,6 +706,20 @@ public class StageSelectManager : MonoBehaviour {
 		mPlayer.CanJump = aCanMove;
 		mPlayer.CanRotation = aCanMove;
 	}
+
+	//プレイヤーの入力を可能にしたり、不可能にしたりする
+	//
+	void CanInputPlayer(bool aCan) {
+		float lTime = 0.0f;
+		if (aCan == false) {
+			lTime = 1.0f * 60.0f * 60.0f * 24.0f;
+		}
+		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.0f, lTime);
+		VirtualController.SetAxis(VirtualController.CtrlCode.Jump, 0.0f, lTime);
+		VirtualController.SetAxis(VirtualController.CtrlCode.Lift, 0.0f, lTime);
+		VirtualController.SetAxis(VirtualController.CtrlCode.Vertical, 0.0f, lTime);
+	}
+
 
 	//プレイヤーの演出用
 	void OnPlayerEffect(bool aIsEffect) {
