@@ -151,7 +151,7 @@ public class StageSelectManager : MonoBehaviour {
 
 
 		//カメラの開始地点をプレイヤーにズームしたところからにする
-		mCameraMove.mStartPosition = GetPlayerZoomCameraPosition();
+		mCameraMove.mStartPosition = GetPlayerZoomCameraPosition(g.transform.up.y <= 0.0f);
 
 
 		//逆向きの天井なら
@@ -499,7 +499,7 @@ public class StageSelectManager : MonoBehaviour {
 		mEnterUI.gameObject.SetActive(false);
 
 		//ズーム終了後のカメラ位置を変更
-		mCameraMove.mEndPosition = GetPlayerZoomCameraPosition();
+		mCameraMove.mEndPosition = GetPlayerZoomCameraPosition(mGoal[lDecideSelectStageNum].transform.up.y <= 0.0f);
 
 
 		//カメラの開始地点を現在のカメラ位置にする
@@ -727,11 +727,16 @@ public class StageSelectManager : MonoBehaviour {
 		mPlayer.GetComponent<Player>().enabled = !aIsEffect;
 	}
 
-	Vector3 GetPlayerZoomCameraPosition() {
+	Vector3 GetPlayerZoomCameraPosition(bool aIsReverse) {
 		Player p = FindObjectOfType<Player>();
 		Vector3 lPosition = p.transform.position;
-		lPosition.y -= 1.0f;
-		lPosition.z = 40.0f;
+		lPosition.y -= 0.0f;
+
+		//プレイヤーが逆向きなら
+		if(aIsReverse) {
+			lPosition.y -= 2.0f;	//位置を調節
+		}
+		lPosition.z = 35.0f;
 		return lPosition;
 	}
 }
