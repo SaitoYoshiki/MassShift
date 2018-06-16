@@ -320,6 +320,15 @@ public class Player : MonoBehaviour {
 			return plAnim;
 		}
 	}
+	PileWeight pile = null;
+	PileWeight Pile {
+		get {
+			if (!pile) {
+				pile = GetComponent<PileWeight>();
+			}
+			return pile;
+		}
+	}
 
 	[SerializeField]
 	Transform rotTransform = null;
@@ -698,13 +707,13 @@ public class Player : MonoBehaviour {
 		if (!canJump) {
 			return false;
 		}
+
 		// ステージに接地、又は水面で安定していなければ
 		//		Debug.LogWarning("IsLanding:" + Land.IsLanding);
 		//if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
 		if (!(Land.IsLanding || WaterStt.IsWaterSurface)) {
-			PileWeight pile = GetComponent<PileWeight>();
 			// 接地、又は安定しているオブジェクトにも接地していなけ	れば
-			List<Transform> pileObjs = pile.GetPileBoxList(new Vector3(0.0f, MoveMng.GravityForce, 0.0f));
+			List<Transform> pileObjs = Pile.GetPileBoxList(new Vector3(0.0f, MoveMng.GravityForce, 0.0f));
 			bool stagePile = false;
 			foreach (var pileObj in pileObjs) {
 				Landing pileLand = pileObj.GetComponent<Landing>();
@@ -718,6 +727,14 @@ public class Player : MonoBehaviour {
 			}
 			if ((pileObjs.Count == 0) || !stagePile) {
 				// ジャンプ不可
+				return false;
+			}
+		}
+
+		// 水面の場合
+		if (WaterStt.IsWaterSurface) {
+			// 自身の上にオブジェクトが乗っていればジャンプできない
+			if (Pile.GetPileBoxList(Vector3.up).Count > 0) {
 				return false;
 			}
 		}

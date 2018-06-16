@@ -6,7 +6,7 @@ public class Support {
 	const float FloatMin = 0.001f;
 
 	// 指定コライダーが接触するコライダーのリストを返す
-	static public List<RaycastHit> GetColliderHitInfoList(Collider _col, Vector3 _move, int _mask, List<Collider> _ignoreColList = null) {
+	static public List<RaycastHit> GetColliderHitInfoList(Collider _col, Vector3 _move, int _mask, List<GameObject> _ignoreObjList = null) {
 		List<RaycastHit> hitInfoList = new List<RaycastHit>();
 
 		// コライダーが存在しなければ
@@ -48,18 +48,18 @@ public class Support {
 			Debug.LogWarning("コライダーがBoxCollider, SphereCollider, CapsuleCollider, MeshColliderのいずれでもありませんでした。衝突が検知されません。" + Support.ObjectInfoToString(_col.gameObject));
 		}
 
-		if (_ignoreColList == null) {
-			_ignoreColList = new List<Collider>();
+		if (_ignoreObjList == null) {
+			_ignoreObjList = new List<GameObject>();
 		}
 		// 自身を判定無視対象に追加
-		if (!_ignoreColList.Contains(_col)) {
-			_ignoreColList.Add(_col);
+		if (!_ignoreObjList.Contains(_col.gameObject)) {
+			_ignoreObjList.Add(_col.gameObject);
 		}
 
 		// 判定無視対象をリストから除く
-		foreach (var ignoreCol in _ignoreColList) {
+		foreach (var ignoreObj in _ignoreObjList) {
 			for (int idx = (hitInfoList.Count - 1); idx >= 0; idx--) {
-				if (hitInfoList[idx].collider == ignoreCol) {
+				if (hitInfoList[idx].collider.gameObject == ignoreObj) {
 					hitInfoList.RemoveAt(idx);
 				}
 			}
@@ -71,12 +71,10 @@ public class Support {
 				hitInfoList.RemoveAt(idx);
 			}
 		}
-
 		return hitInfoList;
 	}
 
 	static public string ObjectInfoToString(GameObject _obj) {
 		return ("\nname:" + _obj.name + " pos:" + _obj.transform.position);
 	}
-
 }

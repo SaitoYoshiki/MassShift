@@ -60,7 +60,11 @@ public class WaterState : MonoBehaviour {
 				// trueへの変化時
 				if (value) {
 					// 高さを補正
-					MoveManager.MoveTo(new Vector3(transform.position.x, ((int)(inWaterCol.bounds.center.y + inWaterCol.bounds.size.y * 0.5f + 0.5f) - 0.5f), transform.position.z), waterCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fance"}));
+					bool flg = false;
+					//if (flg = MoveManager.MoveTo(new Vector3(transform.position.x, ((inWaterCol.bounds.center.y + inWaterCol.bounds.size.y * 0.5f + 0.5f) - 0.5f), transform.position.z), waterCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fance" }), false, true)) {
+						transform.position = new Vector3(transform.position.x, ((inWaterCol.bounds.center.y + inWaterCol.bounds.size.y * 0.5f + 0.5f) - 0.5f) + 0.5f, transform.position.z);
+					//}
+					//Debug.LogError("水上補正 " + name + " " + transform.position.y + " " + flg);
 
 					// 安定時の高さを保持
 					prevHeight = transform.position.y;

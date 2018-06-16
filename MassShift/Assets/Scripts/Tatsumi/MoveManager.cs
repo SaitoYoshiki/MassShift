@@ -353,18 +353,18 @@ public class MoveManager : MonoBehaviour {
 
 	// 可能な限り移動、指定分全て移動できたらtrueを返す
 	static public bool Move(Vector3 _move, BoxCollider _moveCol, int _mask, out Vector3 _resMove, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		bool ret = true;    // 自身が指定位置まで移動出来たらtrue
 		Vector3 moveVec = new Vector3((_move.x == 0.0f ? 0.0f : Mathf.Sign(_move.x)), (_move.y == 0.0f ? 0.0f : Mathf.Sign(_move.y)), 0.0f);
 		MoveManager moveMng = _moveCol.GetComponent<MoveManager>();
 		Vector3 befPos = _moveCol.transform.position;
 
 		// 回帰呼び出し時に自身を衝突対象としない
-		if (_ignoreColList == null) {
-			_ignoreColList = new List<Collider>();
+		if (_ignoreObjList == null) {
+			_ignoreObjList = new List<GameObject>();
 		}
-		if (!_ignoreColList.Contains(_moveCol)) {
-			_ignoreColList.Add(_moveCol);
+		if (!_ignoreObjList.Contains(_moveCol.gameObject)) {
+			_ignoreObjList.Add(_moveCol.gameObject);
 		}
 
 		// すり抜け指定オブジェクトが接触していなければそのオブジェクトのすり抜け指定を解除
@@ -377,7 +377,7 @@ public class MoveManager : MonoBehaviour {
 			}
 		}
 		//		string testStr = _moveCol.name;
-		//		foreach (var ignoreCol in _ignoreColList) {
+		//		foreach (var ignoreCol in _ignoreObjList) {
 		//			testStr += "\n" + ignoreCol.name;
 		//		}
 		//		Debug.LogWarning(testStr);
@@ -389,7 +389,7 @@ public class MoveManager : MonoBehaviour {
 			// y軸の衝突を全て取得
 			float yRange = ((Mathf.Abs(_move.y) + ColMargin) * Mathf.Sign(_move.y));
 			//			RaycastHit[] hitInfos = Physics.BoxCastAll(_moveCol.bounds.center, _moveCol.size * 0.5f, new Vector3(0.0f, _move.y, 0.0f));
-			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(0.0f, yRange, 0.0f), _mask, _ignoreColList);
+			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(0.0f, yRange, 0.0f), _mask, _ignoreObjList);
 
 			// すり抜け指定オブジェクトを除外
 			if (moveMng) {
@@ -444,42 +444,44 @@ public class MoveManager : MonoBehaviour {
 					MoveManager hitMoveMng = nearHitinfo.collider.GetComponent<MoveManager>();
 					Landing hitLanding = nearHitinfo.collider.GetComponent<Landing>();
 
-						// 水中で上のオブジェクトを押し上げている場合
-						WaterState moveWaterStt = _moveCol.GetComponent<WaterState>();
-						bool waterFloatExtrusion = false;
-						waterFloatExtrusion = (
-							(moveWaterStt && moveWeightMng && hitWeightMng) &&          // コンポーネントが揃っている
-							(moveWaterStt.IsInWater) &&                                 // 自身が水中
-							(moveWeightMng.WeightLv == WeightManager.Weight.light) &&   // 自身の重さが水面に浮かぶ重さ
-							(hitWeightMng.WeightLv <= moveWeightMng.WeightLv) &&        // 相手の重さが自身より軽いか同じ
-							(moveVec.y > 0.0f));                                        // 移動する方向が上方向
+					// 水中で上のオブジェクトを押し上げている場合
+					WaterState moveWaterStt = _moveCol.GetComponent<WaterState>();
+					WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
+					bool waterFloatExtrusion = false;
+					waterFloatExtrusion = (
+						(moveWaterStt && moveWeightMng && hitWeightMng) && (hitWaterStt) &&	// コンポーネントが揃っている
+						(moveWaterStt.IsInWater) && (hitWaterStt.IsInWater) &&				// 自身も相手も水中
+						(!moveWaterStt.IsWaterSurface) &&									// 自身が水面でない
+						(moveWeightMng.WeightLv == WeightManager.Weight.light) &&			// 自身の重さが水面に浮かぶ重さ
+						(hitWeightMng.WeightLv <= moveWeightMng.WeightLv) &&				// 相手の重さが自身より軽いか同じ
+						(moveVec.y > 0.0f));												// 移動する方向が上方向
 
-						//test
-						//string testStr =(waterFloatExtrusion + "\n" +
-						//(moveWaterStt != null) + " " + (moveWeightMng != null) + " " + (hitWeightMng != null) + "\n");
-						//if (moveWaterStt && moveWeightMng && hitWeightMng) {
-						//testStr += "" +
-						//	(moveWaterStt.IsInWater) + " " +
-						//	(moveWeightMng.WeightLv == WeightManager.Weight.light) + " " +
-						//	(hitWeightMng.WeightLv <= moveWeightMng.WeightLv) + "\n" +
-						//	(moveVec.y > 0.0f) + " " + moveVec.y;
-						//}
-						//Debug.LogWarning(testStr);
-						//test
+					//test
+					//string testStr =(waterFloatExtrusion + "\n" +
+					//(moveWaterStt != null) + " " + (moveWeightMng != null) + " " + (hitWeightMng != null) + "\n");
+					//if (moveWaterStt && moveWeightMng && hitWeightMng) {
+					//testStr += "" +
+					//	(moveWaterStt.IsInWater) + " " +
+					//	(moveWeightMng.WeightLv == WeightManager.Weight.light) + " " +
+					//	(hitWeightMng.WeightLv <= moveWeightMng.WeightLv) + "\n" +
+					//	(moveVec.y > 0.0f) + " " + moveVec.y;
+					//}
+					//Debug.LogWarning(testStr);
+					//test
 
-						// 自身が衝突相手を押し出せるか
-						canExtrusion = (
-							(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding) &&    // 判定に必要なコンポーネントが揃っている
-							(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&                // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
-							!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy))	// 自身が水中の場合、相手が重さ2でない
-							
-							) &&
+					// 自身が衝突相手を押し出せるか
+					canExtrusion = (
+						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding) &&    // 判定に必要なコンポーネントが揃っている
+						(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&                // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
+						!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy))  // 自身が水中の場合、相手が重さ2でない
 
-							(!(moveLanding && moveLanding.IsLanding)) &&							// 自身がLandingコンポーネントを持っている場合、着地していない
-							//(!((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitLanding.IsLanding))) &&	// 自身が浮かぶ重さの場合、相手が接地していない(すり抜け床の上に着地しているオブジェクトに対する押し出しを無くす)
-							(((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) || // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
-							(waterFloatExtrusion) ||                                                // 水中で上のオブジェクトを押し上げている、又は
-							(moveMng.ExtrusionForcible || _extrusionForcible));                     // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
+						) &&
+
+						(!(moveLanding && moveLanding.IsLanding)) &&                            // 自身がLandingコンポーネントを持っている場合、着地していない
+																								//(!((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitLanding.IsLanding))) &&	// 自身が浮かぶ重さの場合、相手が接地していない(すり抜け床の上に着地しているオブジェクトに対する押し出しを無くす)
+						(((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) || // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
+						(waterFloatExtrusion) ||                                                // 水中で上のオブジェクトを押し上げている、又は
+						(moveMng.ExtrusionForcible || _extrusionForcible));                     // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
 
 					// 相手側の自身に対するすり抜け指定があれば
 					if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughColList.Contains(_moveCol)) {
@@ -487,10 +489,10 @@ public class MoveManager : MonoBehaviour {
 						canExtrusion = false;
 					}
 
-//					// 相手がボタンなら無条件で押し出す
-//					if(nearHitinfo.collider.tag == "Button") {
-//						canExtrusion = true;
-//					}
+					//					// 相手がボタンなら無条件で押し出す
+					//					if(nearHitinfo.collider.tag == "Button") {
+					//						canExtrusion = true;
+					//					}
 
 					bool stopFlg = false;   // 移動量を削除するフラグ
 					bool breakFlg = false;
@@ -530,14 +532,14 @@ public class MoveManager : MonoBehaviour {
 
 						Vector3 resMove;
 						if (Move(new Vector3(0.0f, moveVec.y * otherMoveDistance, 0.0f), (BoxCollider)nearHitinfo.collider, _mask, out resMove,
-							false, (moveMng.ExtrusionForcible || _extrusionForcible), _ignoreColList)) {    // 押し出し優先情報を使用
-							// 自身は指定通り移動
-							Move(new Vector3(0.0f, _move.y, 0.0f), _moveCol, _mask, true, false, _ignoreColList);  // 押し出し不可移動
+							false, (moveMng.ExtrusionForcible || _extrusionForcible), _ignoreObjList)) {    // 押し出し優先情報を使用
+																											// 自身は指定通り移動
+							Move(new Vector3(0.0f, _move.y, 0.0f), _moveCol, _mask, true, false, _ignoreObjList);  // 押し出し不可移動
 						}
 						// 押し出しきれない場合
 						else {
 							// 自身も直前まで移動
-							Move(new Vector3(0.0f, dis + resMove.x, 0.0f), _moveCol, _mask, true, false, _ignoreColList);  // 押し出し不可移動
+							Move(new Vector3(0.0f, dis + resMove.x, 0.0f), _moveCol, _mask, true, false, _ignoreObjList);  // 押し出し不可移動
 
 							// 指定位置まで移動できない
 							ret = false;
@@ -552,9 +554,9 @@ public class MoveManager : MonoBehaviour {
 					if (land != null) {
 						// 着地先がステージ又はステージに接地中や水上安定状態のオブジェクトなら
 						Landing hitLand = nearHitinfo.collider.GetComponent<Landing>(); // nullならステージ
-						WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
 						if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
-							(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface) || (hitLand.IsWaterFloatLanding)) {
+							(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && moveWeightMng.WeightLv == WeightManager.Weight.flying) ||   // 水上のオブジェクトへの水中からの着地
+							(hitLand.IsWaterFloatLanding)) {
 							if (land.GetIsLanding(Vector3.up * moveVec.y)) {
 								land.IsLanding = true;
 							}
@@ -575,67 +577,70 @@ public class MoveManager : MonoBehaviour {
 						break;
 					}
 				}
-///				dis += ColMargin;
-///				///Debug.LogError("dis:" + dis);
-///
-///				// 押し出し判定
-///				WeightManager moveWeightMng = _moveCol.GetComponent<WeightManager>();
-///				WeightManager hitWeightMng = nearHitinfo.collider.GetComponent<WeightManager>();
-///				bool canExtrusion = // 自身が衝突相手を押し出せるか
-///					(!_dontExtrusionFlg) && (moveWeightMng) && (hitWeightMng) &&    // 必要なコンポーネントが揃っている
-///					((moveWeightMng.WeightLv > hitWeightMng.WeightLv));             // 自身の重さが相手の重さより重い
-///
-///				// 押し出せない場合
-///				if (!canExtrusion) {
-///					///Debug.LogError("押し出せない");
-///					// 直前まで移動
-///					///Debug.LogError("yMove bef pos:" + _moveCol.transform.position.x + ", " + _moveCol.transform.position.y);
-/////					UnityEditor.EditorApplication.isPaused = true;
-///					_moveCol.transform.position += new Vector3(0.0f, -moveVec.y * dis, 0.0f);
-///					///Debug.LogError("yMove aft pos:" + _moveCol.transform.position.x + ", " + _moveCol.transform.position.y);
-/////					UnityEditor.EditorApplication.isPaused = true;
-///
-///					// 指定位置まで移動できない
-///					ret = false;
-///				}
-///				// 押し出せる場合
-///				else {
-///					///Debug.LogError("押し出せる");
-///					// 押し出しを行い、押し出し切れた場合
-///					if (Move(new Vector3(0.0f, (_move.y - dis), 0.0f), (BoxCollider)nearHitinfo.collider, _mask)) {
-///						// 自身は指定通り移動
-///						_moveCol.transform.position += _move;
-///					}
-///					// 押し出しきれない場合
-///					else {
-///						///Debug.LogError("押し出しきれない");
-///						// 自身も直前まで移動
-///						Move(new Vector3(0.0f, (_move.y - dis), 0.0f), _moveCol, _mask, true);	// 押し出し不可移動
-///
-///						// 指定位置まで移動できない
-///						ret = false;
-///					}
-///				}
-///				//UnityEditor.EditorApplication.isPaused = true;
-///
-///				// 着地判定
-///				Landing land = _moveCol.GetComponent<Landing>();
-///				if (land != null) {
-///					// 着地先がステージ又はステージに接地中のオブジェクトなら
-///					Landing hitLand = nearHitinfo.collider.GetComponent<Landing>();	// nullならステージ
-///					if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding)) {
-///						land.IsLanding = land.GetIsLanding(Vector3.up * moveVec.y);
-///						land.IsLanding = land.GetIsLanding(-Vector3.up * moveVec.y);
-///					}
-///				}
-///
-///				// 移動量を削除
-///				MoveManager moveMng = _moveCol.GetComponent<MoveManager>();
-///				if (moveMng) {
-///					moveMng.StopMoveVirtical(MoveType.prevMove);
-///					moveMng.StopMoveVirtical(MoveType.gravity);
-///				}
-				}
+
+				#region old
+				///				dis += ColMargin;
+				///				///Debug.LogError("dis:" + dis);
+				///
+				///				// 押し出し判定
+				///				WeightManager moveWeightMng = _moveCol.GetComponent<WeightManager>();
+				///				WeightManager hitWeightMng = nearHitinfo.collider.GetComponent<WeightManager>();
+				///				bool canExtrusion = // 自身が衝突相手を押し出せるか
+				///					(!_dontExtrusionFlg) && (moveWeightMng) && (hitWeightMng) &&    // 必要なコンポーネントが揃っている
+				///					((moveWeightMng.WeightLv > hitWeightMng.WeightLv));             // 自身の重さが相手の重さより重い
+				///
+				///				// 押し出せない場合
+				///				if (!canExtrusion) {
+				///					///Debug.LogError("押し出せない");
+				///					// 直前まで移動
+				///					///Debug.LogError("yMove bef pos:" + _moveCol.transform.position.x + ", " + _moveCol.transform.position.y);
+				/////					UnityEditor.EditorApplication.isPaused = true;
+				///					_moveCol.transform.position += new Vector3(0.0f, -moveVec.y * dis, 0.0f);
+				///					///Debug.LogError("yMove aft pos:" + _moveCol.transform.position.x + ", " + _moveCol.transform.position.y);
+				/////					UnityEditor.EditorApplication.isPaused = true;
+				///
+				///					// 指定位置まで移動できない
+				///					ret = false;
+				///				}
+				///				// 押し出せる場合
+				///				else {
+				///					///Debug.LogError("押し出せる");
+				///					// 押し出しを行い、押し出し切れた場合
+				///					if (Move(new Vector3(0.0f, (_move.y - dis), 0.0f), (BoxCollider)nearHitinfo.collider, _mask)) {
+				///						// 自身は指定通り移動
+				///						_moveCol.transform.position += _move;
+				///					}
+				///					// 押し出しきれない場合
+				///					else {
+				///						///Debug.LogError("押し出しきれない");
+				///						// 自身も直前まで移動
+				///						Move(new Vector3(0.0f, (_move.y - dis), 0.0f), _moveCol, _mask, true);	// 押し出し不可移動
+				///
+				///						// 指定位置まで移動できない
+				///						ret = false;
+				///					}
+				///				}
+				///				//UnityEditor.EditorApplication.isPaused = true;
+				///
+				///				// 着地判定
+				///				Landing land = _moveCol.GetComponent<Landing>();
+				///				if (land != null) {
+				///					// 着地先がステージ又はステージに接地中のオブジェクトなら
+				///					Landing hitLand = nearHitinfo.collider.GetComponent<Landing>();	// nullならステージ
+				///					if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding)) {
+				///						land.IsLanding = land.GetIsLanding(Vector3.up * moveVec.y);
+				///						land.IsLanding = land.GetIsLanding(-Vector3.up * moveVec.y);
+				///					}
+				///				}
+				///
+				///				// 移動量を削除
+				///				MoveManager moveMng = _moveCol.GetComponent<MoveManager>();
+				///				if (moveMng) {
+				///					moveMng.StopMoveVirtical(MoveType.prevMove);
+				///					moveMng.StopMoveVirtical(MoveType.gravity);
+				///				}
+				#endregion
+			}
 			// 衝突が無ければ
 			else {
 				// 指定通り移動
@@ -649,7 +654,7 @@ public class MoveManager : MonoBehaviour {
 			// x軸の衝突を全て取得
 			float xRange = ((Mathf.Abs(_move.x) + ColMargin) * Mathf.Sign(_move.x));
 			//			RaycastHit[] hitInfos = Physics.BoxCastAll(_moveCol.bounds.center, _moveCol.size * 0.5f, new Vector3(_move.x, 0.0f, 0.0f));
-			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(xRange, 0.0f, 0.0f), _mask, _ignoreColList);
+			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(xRange, 0.0f, 0.0f), _mask, _ignoreObjList);
 
 			// すり抜け指定オブジェクトを除外
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
@@ -715,14 +720,7 @@ public class MoveManager : MonoBehaviour {
 		_hitCol = null;
 		return ret;
 
-
-
-
-
-
-
-
-
+		#region old
 		//		_resMove = Vector3.zero;
 		//		_hitCol = null;
 		//		GameObject obj = _moveCol.gameObject;
@@ -914,55 +912,56 @@ public class MoveManager : MonoBehaviour {
 		//						}
 		//						*/
 		//		}
+		#endregion
 	}
 	static public bool Move(Vector3 _move, BoxCollider _moveCol, int _mask,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Vector3 dummyResMove;
 		Collider dummyHitCol;
 		return Move(_move, _moveCol, _mask, out dummyResMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool Move(Vector3 _move, BoxCollider _moveCol, int _mask, out Vector3 _resMove,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Collider dummyHitCol;
 		return Move( _move, _moveCol, _mask, out _resMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool Move(Vector3 _move, BoxCollider _moveCol, int _mask, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Vector3 dummyResMove;
 		return Move( _move, _moveCol, _mask, out dummyResMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 
 	static public bool Move(Vector3 _move, GameObject _moveObj, int _mask, out Vector3 _resMove, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		if (!_moveObj) {
 			if (!_moveObj) {
 				Debug.LogError("_moveObjが見つかりませんでした。");
 			}
 		}
 		return Move(_move, _moveObj.GetComponent<BoxCollider>(), _mask, out _resMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool Move(Vector3 _move, GameObject _moveObj, int _mask,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Vector3 dummyResMove;
 		Collider dummyHitCol;
 		return Move(_move, _moveObj, _mask, out dummyResMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool Move(Vector3 _move, GameObject _moveObj, int _mask, out Vector3 _resMove,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Collider dummyHitCol;
 		return Move(_move, _moveObj, _mask, out _resMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool Move(Vector3 _move, GameObject _moveObj, int _mask, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Vector3 dummyResMove;
 		return Move(_move, _moveObj, _mask, out dummyResMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 
 
@@ -985,52 +984,52 @@ public class MoveManager : MonoBehaviour {
 
 	// 移動量ではなく移動先位置を基準に移動する
 	static public bool MoveTo(Vector3 _pos, BoxCollider _moveCol, int _mask, out Vector3 _resMove, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
-		return Move(_pos - _moveCol.transform.position, _moveCol, _mask, out _resMove, out _hitCol, _dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
+		return Move(_pos - _moveCol.transform.position, _moveCol, _mask, out _resMove, out _hitCol, _dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool MoveTo(Vector3 _pos, BoxCollider _moveCol, int _mask,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Vector3 dummyResMove;
 		Collider dummyHitCol;
 		return MoveTo(_pos, _moveCol, _mask, out dummyResMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool MoveTo(Vector3 _pos, BoxCollider _moveCol, int _mask, out Vector3 _resMove,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Collider dummyHitCol;
 		return MoveTo(_pos, _moveCol, _mask, out _resMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool MoveTo(Vector3 _pos, BoxCollider _moveCol, int _mask, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Vector3 dummyResMove;
 		return MoveTo(_pos, _moveCol, _mask, out dummyResMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 
 	static public bool MoveTo(Vector3 _pos, GameObject _moveObj, int _mask, out Vector3 _resMove, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		return Move(_pos - _moveObj.transform.position, _moveObj, _mask, out _resMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool MoveTo(Vector3 _pos, GameObject _moveObj, int _mask,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Vector3 dummyResMove;
 		Collider dummyHitCol;
 		return MoveTo(_pos, _moveObj, _mask, out dummyResMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool MoveTo(Vector3 _pos, GameObject _moveObj, int _mask, out Vector3 _resMove,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Collider dummyHitCol;
 		return MoveTo(_pos, _moveObj, _mask, out _resMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 	static public bool MoveTo(Vector3 _pos, GameObject _moveObj, int _mask, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<Collider> _ignoreColList = null) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null) {
 		Vector3 dummyResMove;
 		return MoveTo(_pos, _moveObj, _mask, out dummyResMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreColList);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList);
 	}
 
 	//	bool MoveTo(Vector3 _pos, Collider _col, int _mask, out Vector3 _resMove, out Collider _hitCol) {
