@@ -34,13 +34,23 @@ public class Player : MonoBehaviour {
 		}
 	}
 	[SerializeField]
-	bool canRotation = true;
+	bool canRotation = true;	// 設定された方向に合わせるように回転する処理が行えるか
 	public bool CanRotation {
 		get {
 			return canRotation;
 		}
 		set {
 			canRotation = value;
+		}
+	}
+	[SerializeField]
+	bool canRotationTurn = true;	// 向く方向を設定する処理が行えるか
+	public bool CanRotationTurn {
+		get {
+			return canRotationTurn;
+		}
+		set {
+			canRotationTurn = value;
 		}
 	}
 	[SerializeField]
@@ -535,7 +545,8 @@ public class Player : MonoBehaviour {
 			float nowRotVec = RotVec.y;
 			float landRotVec = 0.0f;
 
-			if (MoveMng.PrevMove.y > 0.0f) {
+			//if (MoveMng.PrevMove.y > 0.0f) {
+			if (MoveMng.GetFallVec() > 0.0f) {
 				if ((WeightMng.WeightLv == WeightManager.Weight.flying) ||
 				((WeightMng.WeightLv == WeightManager.Weight.light) && (WaterStt.IsInWater))) {
 					landRotVec = 1.0f;
@@ -845,19 +856,24 @@ public class Player : MonoBehaviour {
 		//			(Lift.St == Lifting.LiftState.standby)) {
 		//		// 接地中なら
 		//		if (Land.IsLanding || WaterStt.IsWaterSurface) {
-		// 左右入力中なら
-		if (walkStandbyVec != 0.0f) {
-			// 一定の移動がある方向に向きを設定
-			if (MoveMng.PrevMove.x > turnRotBorderSpd) {
-				RotVec = new Vector3(1.0f, RotVec.y, RotVec.z);
-			} else if (MoveMng.PrevMove.x < -turnRotBorderSpd) {
-				RotVec = new Vector3(-1.0f, RotVec.y, RotVec.z);
-			} else {
-				// 移動量が一定以下なら入力方向に向く
-				if (walkStandbyVec > 0.0f) {
+		if (CanRotationTurn) {
+			// 左右入力中なら
+			if (walkStandbyVec != 0.0f) {
+				// 一定の移動がある方向に向きを設定
+				if (MoveMng.PrevMove.x > turnRotBorderSpd) {
 					RotVec = new Vector3(1.0f, RotVec.y, RotVec.z);
-				} else if (walkStandbyVec < 0.0f) {
+				}
+				else if (MoveMng.PrevMove.x < -turnRotBorderSpd) {
 					RotVec = new Vector3(-1.0f, RotVec.y, RotVec.z);
+				}
+				else {
+					// 移動量が一定以下なら入力方向に向く
+					if (walkStandbyVec > 0.0f) {
+						RotVec = new Vector3(1.0f, RotVec.y, RotVec.z);
+					}
+					else if (walkStandbyVec < 0.0f) {
+						RotVec = new Vector3(-1.0f, RotVec.y, RotVec.z);
+					}
 				}
 			}
 		}

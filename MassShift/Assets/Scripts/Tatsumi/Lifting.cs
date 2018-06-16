@@ -476,7 +476,7 @@ public class Lifting : MonoBehaviour {
 				// ジャンプ、重さ変更、振り向きを不可に
 				Pl.CanJump = false;
 				Pl.CanShift = false;
-				//Pl.CanRotation = false;
+				Pl.CanRotationTurn = false;
 
 				// 移動量を削除
 				MoveMng.StopMoveVirticalAll();
@@ -501,7 +501,7 @@ public class Lifting : MonoBehaviour {
 			// ジャンプ、重さ変更、振り向きを不可に
 			Pl.CanJump = false;
 			Pl.CanShift = false;
-			//Pl.CanRotation = false;
+			Pl.CanRotationTurn = false;
 
 			// 下ろし始める
 			LiftDownStart();
@@ -599,7 +599,7 @@ public class Lifting : MonoBehaviour {
 
 		// プレイヤーのジャンプ、振り向きを可能に
 		Pl.CanJump = true;
-		//Pl.CanRotation = true;
+		Pl.CanRotationTurn = true;
 
 		// プレイヤーの重さ移しを可能に
 		Pl.CanShift = true;
@@ -692,7 +692,7 @@ public class Lifting : MonoBehaviour {
 
 		// プレイヤーのジャンプ、振り向きを可能に
 		Pl.CanJump = true;
-		//Pl.CanRotation = true;
+		Pl.CanRotationTurn = true;
 	}
 
 	void SwitchLiftCollider(bool _liftUp) {
