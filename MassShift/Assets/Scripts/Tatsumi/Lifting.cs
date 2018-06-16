@@ -65,7 +65,7 @@ public class Lifting : MonoBehaviour {
 			return (St == LiftState.lifting);
 		}
 	}
-	public bool IsLiftStop {
+	public bool IsLiftCantMove {
 		get {
 			return ((St == LiftState.liftUp) || (St == LiftState.liftUpFailed) || (St == LiftState.liftDown) || (St == LiftState.liftDownFailed));
 		}

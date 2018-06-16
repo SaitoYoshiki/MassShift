@@ -471,7 +471,7 @@ public class MoveManager : MonoBehaviour {
 						canExtrusion = (
 							(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding) &&    // 判定に必要なコンポーネントが揃っている
 							(!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore) &&                // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
-							!(moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy))	// 自身が水中の場合、相手が重さ2でない
+							!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy))	// 自身が水中の場合、相手が重さ2でない
 							
 							) &&
 

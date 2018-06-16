@@ -479,6 +479,10 @@ public class Player : MonoBehaviour {
 
 		// 落下アニメーション
 		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (MoveMng.PrevMove.y < 0.0f));
+		// 持ち上げ/下しの最中は落下しない
+		if (Lift.IsLiftCantMove) {
+			fallFlg = false;
+		}
 		if (fallFlg && !prevFallFlg) {
 			Debug.Log("Fall");
 			if (!Lift.IsLifting) {
@@ -610,7 +614,7 @@ public class Player : MonoBehaviour {
 		IsWaterSurfaceSwiming = false;
 
 		// 持ち下ろしアニメーション中、または天井回転待ち中であれば処理しない
-		if (Lift.IsLiftStop || IsHandSpringWeit) return;
+		if (Lift.IsLiftCantMove || IsHandSpringWeit) return;
 
 		// 重さ0のプレイヤーが重さ2の持ち上げオブジェクトを離す時の回転中も処理しない
 		if (isHeavyReleaseRotate) return;
