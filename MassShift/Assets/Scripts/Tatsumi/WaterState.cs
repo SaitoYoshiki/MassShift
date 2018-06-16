@@ -56,10 +56,11 @@ public class WaterState : MonoBehaviour {
 			// 変化時
 			if (IsWaterSurface != value) {
 				IsWaterSurfaceChange = true;
-				
+
 				// trueへの変化時
 				if (value) {
-					transform.position = new Vector3(transform.position.x, ((int)(transform.position.y) - 0.5f), transform.position.z);
+					// 高さを補正
+					MoveManager.MoveTo(new Vector3(transform.position.x, ((int)(inWaterCol.bounds.center.y + inWaterCol.bounds.size.y * 0.5f + 0.5f) - 0.5f), transform.position.z), waterCol, LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fance"}));
 
 					// 安定時の高さを保持
 					prevHeight = transform.position.y;
@@ -167,6 +168,7 @@ public class WaterState : MonoBehaviour {
 	void FixedUpdate() {
 		List<RaycastHit> waterAreaList = Support.GetColliderHitInfoList(waterCol, Vector3.zero, LayerMask.GetMask("WaterArea"));
 		if (waterAreaList.Count > 0) {
+			// 入った水エリアを保持する
 			float nearDis = float.MaxValue; 
 			foreach (var waterArea in waterAreaList) {
 				BoxCollider waterBox = waterArea.transform.GetComponent<BoxCollider>();
