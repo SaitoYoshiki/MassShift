@@ -43,7 +43,7 @@ public class ShakeCamera : MonoBehaviour {
 
 	public bool IsShake {
 		get {
-			if (mShakeTimeFromStart <= mShakeTime) {
+			if (mShakeTimeFromStart < mShakeTime) {
 				return true;
 			}
 			return false;
