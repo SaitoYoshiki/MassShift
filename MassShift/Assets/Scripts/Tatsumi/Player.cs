@@ -484,7 +484,7 @@ public class Player : MonoBehaviour {
 		// 持ち上げ/下げ
 		if (liftInputFlg) {
 			liftInputFlg = false;
-			if ((Land.IsLanding || WaterStt.IsWaterSurface) /*&& !IsRotation*/ && !IsHandSpringWeit) {
+			if ((Land.IsLanding || WaterStt.IsWaterSurface || land.IsWaterFloatLanding) /*&& !IsRotation*/ && !IsHandSpringWeit) {
 				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();
