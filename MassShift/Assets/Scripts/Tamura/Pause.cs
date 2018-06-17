@@ -109,9 +109,8 @@ public class Pause : MonoBehaviour {
         }
         // ポーズ解除
         else {
+            Time.timeScale = 1.0f;
             if (!pauseAnimFlg) {
-                Time.timeScale = 1.0f;
-
                 /*if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
                     pauseCanvas_SS.SetActive(false);
                 }
