@@ -377,7 +377,7 @@ public class MoveManager : MonoBehaviour {
 		if (moveMng && moveMng.nestingThroughFlg) {
 			for (int idx = moveMng.throughColList.Count - 1; idx >= 0; idx--) {
 				BoxCollider throughBoxCol = (BoxCollider)moveMng.throughColList[idx];
-				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.5f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
+				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.55f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
 					moveMng.throughColList.RemoveAt(idx);
 				}
 			}
