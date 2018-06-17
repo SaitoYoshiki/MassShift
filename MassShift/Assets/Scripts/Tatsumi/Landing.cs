@@ -78,6 +78,12 @@ public class Landing : MonoBehaviour {
 			return isWaterFloatLanding;
 		}
 		set {
+			if (value == true) {
+				// 縦方向の移動を停止
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+			}
+
 			// 値に変更が無ければ処理しない
 			if (isWaterFloatLanding == value) return;
 

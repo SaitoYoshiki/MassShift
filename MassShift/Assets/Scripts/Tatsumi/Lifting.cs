@@ -728,7 +728,8 @@ public class Lifting : MonoBehaviour {
 
 //			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
 			if (Pl.RotVec.y == 1.0f && !isPosUp) {
-				transform.position += new Vector3(0.0f, liftingPosOffset, 0.0f);
+				MoveManager.Move(new Vector3(0.0f, liftingPosOffset, 0.0f), GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fance" }));
+				//transform.position += new Vector3(0.0f, liftingPosOffset, 0.0f);
 				isPosUp = true;
 			}
 		} else {
@@ -738,6 +739,7 @@ public class Lifting : MonoBehaviour {
 
 //			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
 			if (Pl.RotVec.y == 1.0f && isPosUp) {
+				MoveManager.Move(new Vector3(0.0f, -liftingPosOffset, 0.0f), GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fance" }));
 				transform.position -= new Vector3(0.0f, liftingPosOffset, 0.0f);
 				isPosUp = false;
 			}
