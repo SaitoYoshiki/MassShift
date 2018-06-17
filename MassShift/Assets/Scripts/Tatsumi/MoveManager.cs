@@ -412,8 +412,8 @@ public class MoveManager : MonoBehaviour {
 			// y軸判定衝突判定
 			if (hitInfos.Count > 0) {
 				// 近い順にソート
-				//hitInfos = hitInfos.OrderBy(x => x.distance).ToList();
-				hitInfos = hitInfos.OrderBy(x => Mathf.Abs(x.transform.position.y - _moveCol.transform.position.y)).ToList();
+				hitInfos = hitInfos.OrderBy(x => x.distance).ToList();
+				//hitInfos = hitInfos.OrderBy(x => Mathf.Abs(x.transform.position.y - _moveCol.transform.position.y)).ToList();
 
 				///Debug.LogError(_moveCol.name + " y軸衝突");
 				///foreach (var hitInfo in hitInfos) {
@@ -567,13 +567,15 @@ public class MoveManager : MonoBehaviour {
 					if (land != null) {
 						// 着地先がステージ又はステージに接地中や水上安定状態のオブジェクトなら
 						Landing hitLand = nearHitinfo.collider.GetComponent<Landing>(); // nullならステージ
-						if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
-							(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && moveWeightMng.WeightLv == WeightManager.Weight.flying) ||   // 水上のオブジェクトへの水中からの着地
-							(hitLand.IsWaterFloatLanding)) {
-							if (land.GetIsLanding(Vector3.up * moveVec.y)) {
-								land.IsLanding = true;
+						if (!hitLand || (moveWeightMng && hitWeightMng && !((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitWeightMng.WeightLv >= WeightManager.Weight.light)))) {
+							if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
+								(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && moveWeightMng.WeightLv == WeightManager.Weight.flying) ||   // 水上のオブジェクトへの水中からの着地
+								(hitLand.IsWaterFloatLanding)) {
+								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
+									land.IsLanding = true;
+								}
+								land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
 							}
-							land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
 						}
 					}
 
