@@ -85,7 +85,8 @@ public class WeightManager : MonoBehaviour {
 				}
 
 				if (Pile && MoveMng) {
-					List<Transform> pileObjs = Pile.GetPileBoxList(Vector3.up * MoveMng.GravityForce);
+//					List<Transform> pileObjs = Pile.GetPileBoxList(Vector3.up * MoveMng.GravityForce);
+					List<Transform> pileObjs = Pile.GetPileBoxList(Vector3.up);
 					foreach (var pileObj in pileObjs) {
 						WeightManager pileObjWeightMng = pileObj.GetComponent<WeightManager>();
 						if (pileMaxWeightLv < pileObjWeightMng.weightLv) {

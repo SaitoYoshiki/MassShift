@@ -193,7 +193,7 @@ public class Landing : MonoBehaviour {
 		}
 	}
 
-	void Update() {
+	void FixedUpdate() {
 		if ((IsLanding) || (IsExtrusionLanding)) {
 			CheckLandingFalse();
 		}
