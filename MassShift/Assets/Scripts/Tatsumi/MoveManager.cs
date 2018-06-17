@@ -345,7 +345,7 @@ public class MoveManager : MonoBehaviour {
 //		}
 	}
 
-	public void AddMove(Vector3 _move, MoveType _type = 0) {
+	public void AddMove(Vector3 _move, MoveType _type = MoveType.other) {
 		MoveInfo moveInfo = new MoveInfo();
 		moveInfo.vec = _move;
 		moveInfo.type = _type;
