@@ -78,6 +78,12 @@ public class Landing : MonoBehaviour {
 			return isWaterFloatLanding;
 		}
 		set {
+			if (value == true) {
+				// 縦方向の移動を停止
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+			}
+
 			// 値に変更が無ければ処理しない
 			if (isWaterFloatLanding == value) return;
 
@@ -182,7 +188,9 @@ public class Landing : MonoBehaviour {
 	[SerializeField] bool autoMask = true;
 
 	void Awake() {
-		mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });
+		if (autoMask) {
+			mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });
+		}
 	}
 
 	void Update() {
@@ -318,7 +326,7 @@ public class Landing : MonoBehaviour {
 		if (!WaterStt.IsInWater && (WeightMng.WeightLv == WeightManager.Weight.light)) {
 			// 水面に浮かぶオブジェクトの上に積まれていればtrue
 			List<Transform> underPileObjs = Pile.GetPileBoxList(Vector3.down);  // 自身が積まれているオブジェクト
-			Debug.LogWarning(name + " " + underPileObjs.Count);
+//			Debug.LogWarning(name + " " + underPileObjs.Count);
 			foreach (var underPileObj in underPileObjs) {
 				// 水面に浮かぶオブジェクトが見つかればtrue
 				WaterState underPileWaterStt = underPileObj.GetComponent<WaterState>();

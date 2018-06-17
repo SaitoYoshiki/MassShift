@@ -49,6 +49,8 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     Vector3 cameraStartPos;
 
+	GameObject mBGMInstance;
+
 	// Use this for initialization
 	void Start() {
 
@@ -111,8 +113,8 @@ public class GameManager : MonoBehaviour {
 			GameObject lBGMPrefab = mAreaBGM[lAreaNumber];
 
 			//BGMを流し始める
-			var t = SoundManager.SPlay(lBGMPrefab);
-			SoundManager.SFade(t, 0.0f, SoundManager.SVolume(lBGMPrefab), 2.0f);
+			mBGMInstance = SoundManager.SPlay(lBGMPrefab);
+			SoundManager.SFade(mBGMInstance, 0.0f, SoundManager.SVolume(lBGMPrefab), 2.0f);
 		}
 
 
@@ -308,6 +310,10 @@ public class GameManager : MonoBehaviour {
 
 		//歩くのをやめる
 		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
+
+
+		//BGMを止める
+		SoundManager.SFade(mBGMInstance, SoundManager. SVolume(mBGMInstance), 0.0f, 0.5f, true);
 
 		Cursor.visible = true;
 		mResult.canGoal = true;

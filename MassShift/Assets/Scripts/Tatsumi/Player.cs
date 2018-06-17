@@ -54,14 +54,15 @@ public class Player : MonoBehaviour {
 		}
 	}
 	[SerializeField]
-	bool isShift = true;    // 重さ移し中フラグ
+	bool isShiftLastRead = true;    // 重さ移し中フラグ
 	public bool IsShift {
 		get {
-			return isShift;
+			isShiftLastRead = Mass.IsShift;
+			return isShiftLastRead;
 		}
-		set {
-			isShift = value;
-		}
+		//set {
+		//	isShiftLastRead = value;
+		//}
 	}
 	public bool IsLanding {
 		get {
@@ -78,6 +79,17 @@ public class Player : MonoBehaviour {
 		private set {
 			prevIsRotation = isRotation;
 			isRotation = value;
+		}
+	}
+
+	[SerializeField]
+	MassShift mass = null;
+	MassShift Mass {
+		get {
+			if (!mass) {
+				mass = (MassShift)FindObjectOfType(typeof(MassShift));
+			}
+			return mass;
 		}
 	}
 
@@ -460,6 +472,7 @@ public class Player : MonoBehaviour {
 
 	void Awake() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
+		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * CameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
 	}
 
 	void Update() {
@@ -484,7 +497,7 @@ public class Player : MonoBehaviour {
 		// 持ち上げ/下げ
 		if (liftInputFlg) {
 			liftInputFlg = false;
-			if ((Land.IsLanding || WaterStt.IsWaterSurface) /*&& !IsRotation*/ && !IsHandSpringWeit) {
+			if ((Land.IsLanding || WaterStt.IsWaterSurface || land.IsWaterFloatLanding) /*&& !IsRotation*/ && !IsHandSpringWeit) {
 				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();

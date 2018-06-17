@@ -150,8 +150,18 @@ public class ChangeScene : MonoBehaviour {
         }
         // チュートリアルなら
         else {
-            // 演出せず次のステージへ
-            changeSceneFlg = true;
+            // 最終ステージでないなら
+            if (Area.ExistNextStageSameArea(Area.GetAreaNumber(), Area.GetStageNumber())) {
+                // 演出せず次のステージへ
+                changeSceneFlg = true;
+            }
+            // チュートリアルの最終面なら
+            else {
+                // ステージセレクトへ飛ぶ
+                changeSceneMode = CHANGE_SCENE_MODE.STAGESELECT;
+                changeSceneFlg = true;
+
+            }
         }
         
     }
