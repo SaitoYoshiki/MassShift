@@ -320,7 +320,7 @@ public class Landing : MonoBehaviour {
 		if (!WaterStt.IsInWater && (WeightMng.WeightLv == WeightManager.Weight.light)) {
 			// 水面に浮かぶオブジェクトの上に積まれていればtrue
 			List<Transform> underPileObjs = Pile.GetPileBoxList(Vector3.down);  // 自身が積まれているオブジェクト
-			Debug.LogWarning(name + " " + underPileObjs.Count);
+//			Debug.LogWarning(name + " " + underPileObjs.Count);
 			foreach (var underPileObj in underPileObjs) {
 				// 水面に浮かぶオブジェクトが見つかればtrue
 				WaterState underPileWaterStt = underPileObj.GetComponent<WaterState>();
