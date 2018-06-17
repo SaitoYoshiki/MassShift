@@ -165,6 +165,7 @@ public class Lifting : MonoBehaviour {
 	[SerializeField]
 	float liftDownSoundDeray = 0.2f;
 
+	[SerializeField]
 	bool isPosUp = false;
 
 	WeightManager weightMng = null;
@@ -308,6 +309,7 @@ public class Lifting : MonoBehaviour {
 			// オブジェクトの位置を同期
 			if (!MoveManager.MoveTo(PlAnim.GetBoxPosition(), LiftObj.GetComponent<BoxCollider>(), liftingColMask)) {
 				Debug.Log("下ろし失敗");
+
 				LiftDownEnd();
 
 				// アニメーション遷移
@@ -321,6 +323,7 @@ public class Lifting : MonoBehaviour {
 
 			// 下ろし完了時
 			if (PlAnim.CompleteRelease()) {
+
 				// オブジェクトを離す
 				LiftDownEnd();
 
@@ -740,7 +743,7 @@ public class Lifting : MonoBehaviour {
 //			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
 			if (Pl.RotVec.y == 1.0f && isPosUp) {
 				MoveManager.Move(new Vector3(0.0f, -liftingPosOffset, 0.0f), GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fance" }));
-				transform.position -= new Vector3(0.0f, liftingPosOffset, 0.0f);
+				//transform.position -= new Vector3(0.0f, liftingPosOffset, 0.0f);
 				isPosUp = false;
 			}
 		}

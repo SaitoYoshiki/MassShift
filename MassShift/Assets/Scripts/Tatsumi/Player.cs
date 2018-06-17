@@ -569,7 +569,6 @@ public class Player : MonoBehaviour {
 			if (nowRotVec != landRotVec) {
 				RotVec = new Vector3(RotVec.x, landRotVec, RotVec.z);
 
-
 				if (!notHandSpring) {
 					// 天井回転アニメーション
 					if (!Lift.IsLifting) {
