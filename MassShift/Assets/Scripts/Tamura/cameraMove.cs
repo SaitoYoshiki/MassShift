@@ -21,6 +21,9 @@ public class cameraMove : MonoBehaviour {
     [SerializeField]
     GameObject stageselect;
 
+    [SerializeField]
+    PlayerAnimation pa;
+
     StageTransition st;
     ChangeScene cs;
 
@@ -35,6 +38,7 @@ public class cameraMove : MonoBehaviour {
     bool oldZoomOutFlg;
 
     bool goTutorialFlg = false;
+    bool titleEndFlg = false;
 
     AsyncOperation TutorialActive;
     AsyncOperation StageSelectActive;
@@ -72,6 +76,20 @@ public class cameraMove : MonoBehaviour {
                 //StageSelectActive.allowSceneActivation = true;
             }
         }*/
+
+        if (!titleEndFlg) {
+            return;
+        }
+        else {
+            if (pa.IsStandByAnimationFinish()) {
+                if (goTutorialFlg) {
+                    TutorialActive.allowSceneActivation = true;
+                }
+                else {
+                    StageSelectActive.allowSceneActivation = true;
+                }
+            }
+        }
 	}
 
     void CheckFirstZoom() {
@@ -184,15 +202,17 @@ public class cameraMove : MonoBehaviour {
     public void OnTutorialSelected() {
         cameraEndPoint = new Vector3(-36.0f, 3.0f, -35.0f);
         goTutorialFlg = true;
+        titleEndFlg = true;
         TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Single);
+        TutorialActive.allowSceneActivation = false;
     }
 
     public void OnStageSelectSelected() {
         cameraEndPoint = new Vector3(-32.0f, 1.0f, -50.0f);
         goTutorialFlg = false;
-
+        titleEndFlg = true;
         StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
-
+        StageSelectActive.allowSceneActivation = false;
         //colorPer = 0.01f;
 
         //SceneManager.sceneLoaded += OnSceneLoaded;

@@ -329,7 +329,6 @@ public class StageSelectManager : MonoBehaviour {
 		//プレイヤーを移動不可にする
 		CanMovePlayer(false);
 
-
 		// タイトルシーンからの遷移でなければ
 		if (!mFromTitle) {
 			//ステージ開始時の演出
