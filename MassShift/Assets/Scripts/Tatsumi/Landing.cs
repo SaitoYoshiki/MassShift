@@ -62,6 +62,11 @@ public class Landing : MonoBehaviour {
 		set {
 			isExtrusionLanding = value;
 
+			// 値の変更時
+			if(isExtrusionLanding != value) {
+				isExtrusionLandingChange = true;
+			}
+
 			// 押し出し接地時
 			if (value == true) {
 				// 縦方向の移動を停止
@@ -70,6 +75,8 @@ public class Landing : MonoBehaviour {
 			}
 		}
 	}
+	[SerializeField]
+	bool isExtrusionLandingChange = false;
 
 	[SerializeField]
 	bool isWaterFloatLanding = false;
@@ -198,6 +205,11 @@ public class Landing : MonoBehaviour {
 			CheckLandingFalse();
 		}
 		UpdateWaterFloatLanding();
+
+		if (!isExtrusionLandingChange) {
+			isExtrusionLanding = false;
+		}
+		isExtrusionLandingChange = false;
 	}
 
 	// 接触時にその接触が指定方向への接触かを判定
