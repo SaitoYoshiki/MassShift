@@ -182,7 +182,9 @@ public class Landing : MonoBehaviour {
 	[SerializeField] bool autoMask = true;
 
 	void Awake() {
-		mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });
+		if (autoMask) {
+			mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });
+		}
 	}
 
 	void Update() {
