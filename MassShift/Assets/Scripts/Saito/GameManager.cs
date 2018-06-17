@@ -49,6 +49,8 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     Vector3 cameraStartPos;
 
+	GameObject mBGMInstance;
+
 	// Use this for initialization
 	void Start() {
 
@@ -111,8 +113,8 @@ public class GameManager : MonoBehaviour {
 			GameObject lBGMPrefab = mAreaBGM[lAreaNumber];
 
 			//BGMを流し始める
-			var t = SoundManager.SPlay(lBGMPrefab);
-			SoundManager.SFade(t, 0.0f, SoundManager.SVolume(lBGMPrefab), 2.0f);
+			mBGMInstance = SoundManager.SPlay(lBGMPrefab);
+			SoundManager.SFade(mBGMInstance, 0.0f, SoundManager.SVolume(lBGMPrefab), 2.0f);
 		}
 
 
@@ -166,11 +168,26 @@ public class GameManager : MonoBehaviour {
 
 			//ゴール判定
 			//
-			if (CanGoal() || _Debug_ClearFlag) {
+			if (CanGoal(mGoal) || _Debug_ClearFlag) {
 				break;
 			}
 
 			yield return null;	//ゲームメインを続ける
+		}
+
+		//重さを移せないようにする
+		OnCanShiftOperation(false);
+		mPause.canPause = false;
+
+		//プレイヤーを操作不可にする
+		CanInputPlayer(false);
+		
+		//プレイヤーの回転が終わるまで待つ
+		while (true) {
+			if (mPlayer.IsRotation == false) {
+				break;
+			}
+			yield return null;
 		}
 
 
@@ -181,9 +198,7 @@ public class GameManager : MonoBehaviour {
 		CanMovePlayer(false);
 
 
-		//重さを移せないようにする
-		OnCanShiftOperation(false);
-		mPause.canPause = false;
+		
 
 		//ズーム終了後のカメラ位置を変更
 		mCameraMove.mEndPosition = GetPlayerZoomCameraPosition();
@@ -296,39 +311,48 @@ public class GameManager : MonoBehaviour {
 		//歩くのをやめる
 		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
 
+
+		//BGMを止める
+		SoundManager.SFade(mBGMInstance, SoundManager. SVolume(mBGMInstance), 0.0f, 0.5f, true);
+
 		Cursor.visible = true;
 		mResult.canGoal = true;
 	}
+	
 
-	bool CanGoal() {
-		
+	bool CanGoal(Goal lGoal) {
+
 		//全てのボタンがオンでないなら
 		if (!mGoal.IsAllButtonOn) {
 			return false;   //ゴールできない
 		}
 
 		//プレイヤーがゴール枠に完全に入っていないなら
-		if (!mGoal.IsInPlayer(mPlayer)) {
+		if (!lGoal.IsInPlayer(mPlayer)) {
 			return false;   //ゴールできない
 		}
 
 		//プレイヤーが接地していないなら
-		if(mPlayer.GetComponent<Landing>().IsLanding == false) {
-			return false;	//ゴールできない
+		if (mPlayer.GetComponent<Landing>().IsLanding == false) {
+			return false;   //ゴールできない
 		}
 
-		//プレイヤーが回転中なら
-		if (mPlayer.GetComponent<Player>().IsRotation) {
+		//重さを移している最中なら
+		if (mMassShift.IsShift) {
 			return false;   //ゴールできない
 		}
 
 		//重さを移した後1秒以内なら
-		if (mMassShift.FromLastShiftTime <= mCanGoalTimeFromShift) {
-			return false;	//ゴールできない
+		if (mMassShift.FromLastShiftTime <= 1.0f) {
+			return false;   //ゴールできない
 		}
 
-		return true;	//ゴール可能
+		return true;    //ゴール可能
+
 	}
+
+
+
 
 	//重さを移せるようになる
 	//
@@ -356,5 +380,19 @@ public class GameManager : MonoBehaviour {
 		lPosition.y -= 1.0f;
 		lPosition.z = 40.0f;
 		return lPosition;
+	}
+
+
+	//プレイヤーの入力を可能にしたり、不可能にしたりする
+	//
+	void CanInputPlayer(bool aCan) {
+		float lTime = 0.0f;
+		if (aCan == false) {
+			lTime = 1.0f * 60.0f * 60.0f * 24.0f;
+		}
+		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.0f, lTime);
+		VirtualController.SetAxis(VirtualController.CtrlCode.Jump, 0.0f, lTime);
+		VirtualController.SetAxis(VirtualController.CtrlCode.Lift, 0.0f, lTime);
+		VirtualController.SetAxis(VirtualController.CtrlCode.Vertical, 0.0f, lTime);
 	}
 }
