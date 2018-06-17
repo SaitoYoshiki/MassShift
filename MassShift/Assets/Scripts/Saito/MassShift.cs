@@ -419,6 +419,12 @@ public class MassShift : MonoBehaviour
 				return;
 			}
 
+			//プレイヤーが持ち降ろしの最中なら
+			if (mPlayer.GetComponent<Lifting>().IsLiftCantMove) {
+				ChangeState(CSelectState.cFail);    //失敗
+				return;
+			}
+
 			//選択元から重さを移せるとき
 			if (CanShiftSource(mSource)) {
 				mDest = mSelect;
