@@ -210,6 +210,11 @@ public class MoveManager : MonoBehaviour {
 	bool nestingThroughFlg = false; // 例外的なめり込みが発生した際にそのコライダーをすり抜けるフラグ
 	[SerializeField]
 	List<Collider> throughColList = new List<Collider>(); // 例外的なめり込みが発生しているコライダーリスト
+	public List<Collider> ThroughColList {
+		get {
+			return throughColList;
+		}
+	}
 
 	[SerializeField]
 	bool canMoveByWind = true;
