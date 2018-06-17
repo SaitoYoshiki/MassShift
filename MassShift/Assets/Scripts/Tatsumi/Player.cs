@@ -743,13 +743,13 @@ public class Player : MonoBehaviour {
 			}
 		}
 
-		// 水面の場合
-		if (WaterStt.IsWaterSurface) {
-			// 自身の上にオブジェクトが乗っていればジャンプできない
-			if (Pile.GetPileBoxList(Vector3.up).Count > 0) {
-				return false;
-			}
-		}
+//		// 水面の場合
+//		if (WaterStt.IsWaterSurface) {
+//			// 自身の上にオブジェクトが乗っていればジャンプできない
+//			if (Pile.GetPileBoxList(Vector3.up).Count > 0) {
+//				return false;
+//			}
+//		}
 
 		// ジャンプ直後であれば
 		//		if (jumpLimitTime > Time.time) return;
