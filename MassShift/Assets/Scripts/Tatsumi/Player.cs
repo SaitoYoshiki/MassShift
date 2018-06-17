@@ -54,14 +54,15 @@ public class Player : MonoBehaviour {
 		}
 	}
 	[SerializeField]
-	bool isShift = true;    // 重さ移し中フラグ
+	bool isShiftLastRead = true;    // 重さ移し中フラグ
 	public bool IsShift {
 		get {
-			return isShift;
+			isShiftLastRead = Mass.IsShift;
+			return isShiftLastRead;
 		}
-		set {
-			isShift = value;
-		}
+		//set {
+		//	isShiftLastRead = value;
+		//}
 	}
 	public bool IsLanding {
 		get {
@@ -78,6 +79,17 @@ public class Player : MonoBehaviour {
 		private set {
 			prevIsRotation = isRotation;
 			isRotation = value;
+		}
+	}
+
+	[SerializeField]
+	MassShift mass = null;
+	MassShift Mass {
+		get {
+			if (!mass) {
+				mass = (MassShift)FindObjectOfType(typeof(MassShift));
+			}
+			return mass;
 		}
 	}
 
