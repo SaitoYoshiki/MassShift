@@ -412,7 +412,8 @@ public class MoveManager : MonoBehaviour {
 			// y軸判定衝突判定
 			if (hitInfos.Count > 0) {
 				// 近い順にソート
-				hitInfos = hitInfos.OrderBy(x => x.distance).ToList();
+				//hitInfos = hitInfos.OrderBy(x => x.distance).ToList();
+				hitInfos = hitInfos.OrderBy(x => Mathf.Abs(x.transform.position.y - _moveCol.transform.position.y)).ToList();
 
 				///Debug.LogError(_moveCol.name + " y軸衝突");
 				///foreach (var hitInfo in hitInfos) {
@@ -423,7 +424,9 @@ public class MoveManager : MonoBehaviour {
 				// y軸の全ての衝突を取得
 				RaycastHit nearHitinfo = new RaycastHit();
 				//				float dis = float.MinValue;
-				foreach (var hitInfo in hitInfos) {
+				for (int hitInfoIdx = 0; hitInfoIdx < hitInfos.Count; hitInfoIdx++) {
+					RaycastHit hitInfo = hitInfos[hitInfoIdx];
+				//foreach (var hitInfo in hitInfos) {
 					//					float cmpDis = (Mathf.Abs(_moveCol.bounds.center.y - hitInfo.collider.bounds.center.y) - (_moveCol.bounds.size.y + hitInfo.collider.bounds.size.y) * 0.5f) * -1;
 					float dis = (Mathf.Abs(_moveCol.bounds.center.y - hitInfo.collider.bounds.center.y) - (_moveCol.bounds.size.y + hitInfo.collider.bounds.size.y) * 0.5f);
 					//					if (cmpDis > dis) {
@@ -450,12 +453,13 @@ public class MoveManager : MonoBehaviour {
 					WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
 					bool waterFloatExtrusion = false;
 					waterFloatExtrusion = (
-						(moveWaterStt && moveWeightMng && hitWeightMng) && (hitWaterStt) &&	// コンポーネントが揃っている
-						(moveWaterStt.IsInWater) && (hitWaterStt.IsInWater) &&				// 自身も相手も水中
-						(!moveWaterStt.IsWaterSurface) &&									// 自身が水面でない
-						(moveWeightMng.WeightLv == WeightManager.Weight.light) &&			// 自身の重さが水面に浮かぶ重さ
-						(hitWeightMng.WeightLv <= moveWeightMng.WeightLv) &&				// 相手の重さが自身より軽いか同じ
-						(moveVec.y > 0.0f));												// 移動する方向が上方向
+						(moveWaterStt && moveWeightMng && hitWeightMng) && (hitWaterStt) && // コンポーネントが揃っている
+						(moveWaterStt.IsInWater) &&                                         // 自身が水中
+						(!moveWaterStt.IsWaterSurface) &&                                   // 自身が水面でない
+						(moveWeightMng.WeightLv <= WeightManager.Weight.light) &&           // 自身の重さが水面に浮かぶ重さ
+						(moveWeightMng.WeightLv <= WeightManager.Weight.light) &&           // 相手の重さが自身より以下
+						(moveVec.y > 0.0f));                                                // 移動する方向が上方向
+
 
 					//test
 					//string testStr =(waterFloatExtrusion + "\n" +
@@ -472,13 +476,13 @@ public class MoveManager : MonoBehaviour {
 
 					// 自身が衝突相手を押し出せるか
 					canExtrusion = (
-						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding)    // 判定に必要なコンポーネントが揃っている
-						&& (!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore)                // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
-						&& !(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy))	// 自身が水中の場合、相手が重さ2でない
-						&&(!(moveLanding && moveLanding.IsLanding))							// 自身がLandingコンポーネントを持っている場合、着地していない
-						//&&(!((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitLanding.IsLanding))) &&	// 自身が浮かぶ重さの場合、相手が接地していない(すり抜け床の上に着地しているオブジェクトに対する押し出しを無くす)
-						&&!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (moveWeightMng.WeightLv <= hitWeightMng.WeightLv))	// 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さ以下でない
+						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding)										// 判定に必要なコンポーネントが揃っている
+						&& (!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore))												// 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
+						&& (!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)))	// 自身が水中の場合、相手が重さ2でない
+						&& (!(moveLanding && moveLanding.IsLanding))															// 自身がLandingコンポーネントを持っている場合、着地していない
+						&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (moveWeightMng.WeightLv < hitWeightMng.WeightLv))	// 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽くない
 						) &&
+
 
 						(((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) || // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
 						(waterFloatExtrusion) ||                                                // 水中で上のオブジェクトを押し上げている、又は
@@ -540,7 +544,15 @@ public class MoveManager : MonoBehaviour {
 						// 押し出しきれない場合
 						else {
 							// 自身も直前まで移動
-							Move(new Vector3(0.0f, dis + resMove.x, 0.0f), _moveCol, _mask, true, false, _ignoreObjList);  // 押し出し不可移動
+							_move = new Vector3(0.0f, ((dis + Mathf.Abs(resMove.y)) * moveVec.y), 0.0f);	// 他のオブジェクトに対して押し出す移動量も更新
+							Move(_move, _moveCol, _mask, true, false, _ignoreObjList);  // 押し出し不可移動
+
+							// 移動量が縮んだことで衝突しなくなるオブジェクトをリストから排除
+							for(int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+								if(_move.magnitude < Mathf.Abs(hitInfos[idx].transform.position.y - _moveCol.transform.position.y)) {
+									hitInfos.RemoveAt(idx);
+								}
+							}
 
 							// 指定位置まで移動できない
 							ret = false;
