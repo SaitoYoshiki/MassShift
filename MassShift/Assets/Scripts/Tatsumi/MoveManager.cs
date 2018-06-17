@@ -572,7 +572,7 @@ public class MoveManager : MonoBehaviour {
 							if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
 								(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && moveWeightMng.WeightLv == WeightManager.Weight.flying) ||   // 水上のオブジェクトへの水中からの着地
 								(hitLand.IsWaterFloatLanding)) {
-								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
+ 								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
 									// 水中や水面では水上のオブジェクトに着地しない
 									if (!(moveWaterStt && hitWaterStt && (moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !(hitWaterStt.IsInWater || hitWaterStt.IsWaterSurface))) {
 										land.IsLanding = true;
