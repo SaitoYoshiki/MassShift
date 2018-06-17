@@ -110,9 +110,9 @@ public class Pause : MonoBehaviour {
         // ポーズ解除
         else {
             if (!pauseAnimFlg) {
-                /*Time.timeScale = 1.0f;
+                Time.timeScale = 1.0f;
 
-                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+                /*if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
                     pauseCanvas_SS.SetActive(false);
                 }
                 else {
@@ -190,6 +190,7 @@ public class Pause : MonoBehaviour {
             }
 
             optionCanvas.SetActive(true);
+            GetComponent<SetPlayerPrefs>().SetSliderValue();
         }
         else {
             // オプション画面を閉じる

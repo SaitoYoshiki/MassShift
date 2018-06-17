@@ -4,17 +4,18 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 [RequireComponent(typeof(Camera))]
-//[ExecuteInEditMode]
 public class Blur : MonoBehaviour {
     Material material;
 
     [SerializeField]
     int resolution = 0;
 
+    [SerializeField]
+    Shader shader;
+
     public int Resolution { get { return resolution; } set { resolution = value; } }
 
     void Awake() {
-        var shader = Shader.Find("Custom/Blur");
         material = new Material(shader);
     }
 

@@ -5,6 +5,13 @@ using UnityEngine.UI;
 using UnityEngine.Audio;
 
 public class SetPlayerPrefs : MonoBehaviour {
+    [SerializeField]
+    Slider masterVolumeSlider;
+    [SerializeField]
+    Slider bgmVolumeSlider;
+    [SerializeField]
+    Slider seVolumeSlider;
+
     // オプションデータキー
     private static string masterVolumeSettings = "masterVolumeSet";
     private static string bgmVolumeSettings = "bgmVolumeSet";
@@ -62,6 +69,19 @@ public class SetPlayerPrefs : MonoBehaviour {
         // データ保存
         PlayerPrefs.Save();
 	}
+
+    // オプション画面を開いた時にスライダーの数値を適応する
+    public void SetSliderValue() {
+        if (PlayerPrefs.HasKey(masterVolumeSettings)) {
+            masterVolumeSlider.value = PlayerPrefs.GetFloat(masterVolumeSettings, 0.5f);
+        }
+        if (PlayerPrefs.HasKey(bgmVolumeSettings)) {
+            bgmVolumeSlider.value = PlayerPrefs.GetFloat(bgmVolumeSettings, 0.5f);
+        }
+        if (PlayerPrefs.HasKey(seVolumeSettings)) {
+            seVolumeSlider.value = PlayerPrefs.GetFloat(seVolumeSettings, 0.5f);
+        }
+    }
 
     // 起動時に呼び出す
     bool LoadOptionSetting() {
