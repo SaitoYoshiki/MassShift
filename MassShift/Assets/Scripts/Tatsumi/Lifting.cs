@@ -128,6 +128,8 @@ public class Lifting : MonoBehaviour {
 	Transform cameraLookTransform = null;
 	[SerializeField]
 	Transform fourSideTransform = null;
+	[SerializeField]
+	Transform fourSideTopColTransform = null;
 
 	[SerializeField]
 	float downOffsetPos = -0.75f;
@@ -151,6 +153,10 @@ public class Lifting : MonoBehaviour {
 	float upRevFourSidePos = -0.75f;
 	[SerializeField]
 	float liftingPosOffset = -1.25f;
+	[SerializeField]
+	float upTopColPos = 0.5f;
+	[SerializeField]
+	float downTopColPos = 0.5f;
 
 	[SerializeField]
 	bool canHeavyLift = true;   // 自身より重いモノでも持てるフラグ、現状(2080609)の仕様では常にtrue
@@ -776,8 +782,10 @@ public class Lifting : MonoBehaviour {
 			} else {
 				fourSideTransform.localPosition = new Vector3(fourSideTransform.localPosition.x, upRevFourSidePos, fourSideTransform.localPosition.z);
 			}
+			fourSideTopColTransform.localPosition = new Vector3(fourSideTopColTransform.localPosition.x, upTopColPos, fourSideTopColTransform.localPosition.z);
 		} else {
 			fourSideTransform.localPosition = new Vector3(fourSideTransform.localPosition.x, downFourSidePos, fourSideTransform.localPosition.z);
+			fourSideTopColTransform.localPosition = new Vector3(fourSideTopColTransform.localPosition.x, downTopColPos, fourSideTopColTransform.localPosition.z);
 		}
 	}
 
