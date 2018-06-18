@@ -134,7 +134,11 @@ public class ChangeScene : MonoBehaviour {
 
     public void OnNextButtonDown() {
         // ポーズを解除してシーン変更フラグを立てる
-        pauseFlg = false;
+        if (pauseFlg) {
+            pauseFlg = false;
+        }
+        GetComponent<Pause>().DisableGraphicRaycaster();
+        GetComponent<Result>().DisableGraphicRaycaster();
         changeSceneMode = CHANGE_SCENE_MODE.NEXT;
 
         // リザルト画面を消す
@@ -168,7 +172,11 @@ public class ChangeScene : MonoBehaviour {
 
     public void OnRetryButtonDown() {
         // ポーズを解除してシーン変更フラグを立てる
-        pauseFlg = false;
+        if (pauseFlg) {
+            pauseFlg = false;
+        }
+        GetComponent<Pause>().DisableGraphicRaycaster();
+        GetComponent<Result>().DisableGraphicRaycaster();
         changeSceneMode = CHANGE_SCENE_MODE.RETRY;
         changeSceneFlg = true;
 
@@ -181,14 +189,20 @@ public class ChangeScene : MonoBehaviour {
 
     public void OnTutorialButtonDown() {
         // ポーズを解除してシーン変更フラグを立てる
-        pauseFlg = false;
+        if (pauseFlg) {
+            pauseFlg = false;
+        }
         changeSceneMode = CHANGE_SCENE_MODE.TUTORIAL;
         changeSceneFlg = true;
     }
 
     public void OnStageSelectButtonDown() {
         // ポーズを解除してシーン変更フラグを立てる
-        pauseFlg = false;
+        if (pauseFlg) {
+            pauseFlg = false;
+        }
+        GetComponent<Pause>().DisableGraphicRaycaster();
+        GetComponent<Result>().DisableGraphicRaycaster();
         changeSceneMode = CHANGE_SCENE_MODE.STAGESELECT;
 
         // リザルト画面を消す
@@ -208,7 +222,10 @@ public class ChangeScene : MonoBehaviour {
 
     public void OnTitleButtonDown() {
         // ポーズを解除してシーン変更フラグを立てる
-        pauseFlg = false;
+        if (pauseFlg) {
+            pauseFlg = false;
+        }
+        GetComponent<Pause>().DisableGraphicRaycaster();
         changeSceneMode = CHANGE_SCENE_MODE.TITLE;
         changeSceneFlg = true;
     }

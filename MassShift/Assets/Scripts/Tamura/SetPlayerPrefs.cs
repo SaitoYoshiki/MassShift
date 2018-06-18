@@ -126,16 +126,19 @@ public class SetPlayerPrefs : MonoBehaviour {
     // 1920x1080の解像度に変更
     public void SetResolutionLarge() {
         Screen.SetResolution(widthLarge, heightLarge, fullScreenFlg, refreshRate);
+        Screen.fullScreen = true;
     }
 
     // 1600x900の解像度に変更
     public void SetResolutionMedium() {
         Screen.SetResolution(widthMedium, heightMedium, fullScreenFlg, refreshRate);
+        Screen.fullScreen = false;
     }
 
     // 1280x720の解像度に変更
     public void SetResolutionSmall() {
         Screen.SetResolution(widthSmall, heightSmall, fullScreenFlg, refreshRate);
+        Screen.fullScreen = false;
     }
 
     // 描画品質をセット
