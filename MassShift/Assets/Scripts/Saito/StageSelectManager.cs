@@ -161,7 +161,8 @@ public class StageSelectManager : MonoBehaviour {
 		}
 
 		//カメラを見ていないようにする
-		mPlayer.GetComponent<Player>().CameraLookRatio = 0.0f;
+		mPlayer.CameraLookRatio = 0.0f;
+		mPlayer.LookCamera();
 
 
 		//戻ってきたエリアによって、プレイヤーとボックスの重さを調整
@@ -509,7 +510,8 @@ public class StageSelectManager : MonoBehaviour {
 		CanMovePlayer(false);
 
 		//カメラを見ていないようにする
-		mPlayer.GetComponent<Player>().CameraLookRatio = 0.0f;
+		mPlayer.CameraLookRatio = 0.0f;
+		mPlayer.LookCamera();
 
 		OnPlayerEffect(true);   //プレイヤーの更新を切る
 

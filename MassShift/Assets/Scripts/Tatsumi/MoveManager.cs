@@ -210,6 +210,11 @@ public class MoveManager : MonoBehaviour {
 	bool nestingThroughFlg = false; // 例外的なめり込みが発生した際にそのコライダーをすり抜けるフラグ
 	[SerializeField]
 	List<Collider> throughColList = new List<Collider>(); // 例外的なめり込みが発生しているコライダーリスト
+	public List<Collider> ThroughColList {
+		get {
+			return throughColList;
+		}
+	}
 
 	[SerializeField]
 	bool canMoveByWind = true;
@@ -345,7 +350,7 @@ public class MoveManager : MonoBehaviour {
 //		}
 	}
 
-	public void AddMove(Vector3 _move, MoveType _type = 0) {
+	public void AddMove(Vector3 _move, MoveType _type = MoveType.other) {
 		MoveInfo moveInfo = new MoveInfo();
 		moveInfo.vec = _move;
 		moveInfo.type = _type;
@@ -372,7 +377,7 @@ public class MoveManager : MonoBehaviour {
 		if (moveMng && moveMng.nestingThroughFlg) {
 			for (int idx = moveMng.throughColList.Count - 1; idx >= 0; idx--) {
 				BoxCollider throughBoxCol = (BoxCollider)moveMng.throughColList[idx];
-				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.5f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
+				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.55f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
 					moveMng.throughColList.RemoveAt(idx);
 				}
 			}
@@ -453,12 +458,13 @@ public class MoveManager : MonoBehaviour {
 					WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
 					bool waterFloatExtrusion = false;
 					waterFloatExtrusion = (
-						(moveWaterStt && moveWeightMng && hitWeightMng) && (hitWaterStt) && // コンポーネントが揃っている
-						(moveWaterStt.IsInWater) &&                                         // 自身が水中
-						(!moveWaterStt.IsWaterSurface) &&                                   // 自身が水面でない
-						(moveWeightMng.WeightLv <= WeightManager.Weight.light) &&           // 自身の重さが水面に浮かぶ重さ
-						(moveWeightMng.WeightLv <= WeightManager.Weight.light) &&           // 相手の重さが自身より以下
-						(moveVec.y > 0.0f));                                                // 移動する方向が上方向
+						(moveWaterStt && moveWeightMng && hitWeightMng && hitLanding) && (hitWaterStt) &	// コンポーネントが揃っている
+						(moveWaterStt.IsInWater) &&															// 自身が水中
+						(!moveWaterStt.IsWaterSurface) &&													// 自身が水面でない
+						(moveWeightMng.WeightLv == WeightManager.Weight.light) &&							// 自身の重さが水面に浮かぶ重さ
+						(hitWeightMng.WeightLv == WeightManager.Weight.light) &&							// 相手の重さが水面に浮かぶ重さ
+						(!hitLanding.IsLanding && !hitLanding.IsWaterFloatLanding) &&						// 相手が着地していない
+						(moveVec.y > 0.0f));																// 移動する方向が上方向
 
 
 					//test
@@ -571,8 +577,14 @@ public class MoveManager : MonoBehaviour {
 							if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
 								(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && moveWeightMng.WeightLv == WeightManager.Weight.flying) ||   // 水上のオブジェクトへの水中からの着地
 								(hitLand.IsWaterFloatLanding)) {
-								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
-									land.IsLanding = true;
+ 								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
+									// 水中や水面では水上のオブジェクトに着地しない
+									if (!(moveWaterStt && hitWaterStt && (moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !(hitWaterStt.IsInWater || hitWaterStt.IsWaterSurface))) {
+										land.IsLanding = true;
+									}
+									else {
+										moveMng.StopMoveVirtical(MoveType.prevMove);
+									}
 								}
 								land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
 							}

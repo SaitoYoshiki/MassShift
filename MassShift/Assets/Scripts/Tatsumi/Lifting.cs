@@ -128,6 +128,8 @@ public class Lifting : MonoBehaviour {
 	Transform cameraLookTransform = null;
 	[SerializeField]
 	Transform fourSideTransform = null;
+	[SerializeField]
+	Transform fourSideTopColTransform = null;
 
 	[SerializeField]
 	float downOffsetPos = -0.75f;
@@ -151,6 +153,10 @@ public class Lifting : MonoBehaviour {
 	float upRevFourSidePos = -0.75f;
 	[SerializeField]
 	float liftingPosOffset = -1.25f;
+	[SerializeField]
+	float upTopColPos = 0.5f;
+	[SerializeField]
+	float downTopColPos = 0.5f;
 
 	[SerializeField]
 	bool canHeavyLift = true;   // 自身より重いモノでも持てるフラグ、現状(2080609)の仕様では常にtrue
@@ -165,7 +171,9 @@ public class Lifting : MonoBehaviour {
 	[SerializeField]
 	float liftDownSoundDeray = 0.2f;
 
+	[SerializeField]
 	bool isPosUp = false;
+	bool failedPosUpFlg = false;
 
 	WeightManager weightMng = null;
 	WeightManager WeightMng {
@@ -308,6 +316,12 @@ public class Lifting : MonoBehaviour {
 			// オブジェクトの位置を同期
 			if (!MoveManager.MoveTo(PlAnim.GetBoxPosition(), LiftObj.GetComponent<BoxCollider>(), liftingColMask)) {
 				Debug.Log("下ろし失敗");
+
+				if (Pl.RotVec.y == 1.0f) {
+					Debug.LogWarning("下ろし失敗補正");
+					failedPosUpFlg = true;
+				}
+
 				LiftDownEnd();
 
 				// アニメーション遷移
@@ -321,6 +335,7 @@ public class Lifting : MonoBehaviour {
 
 			// 下ろし完了時
 			if (PlAnim.CompleteRelease()) {
+
 				// オブジェクトを離す
 				LiftDownEnd();
 
@@ -649,11 +664,11 @@ public class Lifting : MonoBehaviour {
 		//		}
 		#endregion
 
-		// プレイヤー当たり判定の設定
-		SwitchLiftCollider(false);
-
 		// 対象をすり抜けオブジェクトに追加
 		MoveMng.AddThroughCollider(LiftObj.GetComponent<Collider>());
+
+		// プレイヤー当たり判定の設定
+		SwitchLiftCollider(false);
 
 		// 対象の水中浮上可能フラグを戻す
 		liftWaterStt.CanFloat = true;
@@ -720,28 +735,40 @@ public class Lifting : MonoBehaviour {
 			Debug.LogError("WeightManagerが見つかりませんでした。");
 		}
 
+		Debug.LogWarning("liftUp" + _liftUp + "\nbef isPosUp " + isPosUp);
+
 		// プレイヤー当たり判定とモデルの位置を調整
 		if (_liftUp) {
 			offsetTransform.localPosition = new Vector3(offsetTransform.localPosition.x, upStdOffsetPos, offsetTransform.localPosition.z);
 			rotationTransform.localPosition = new Vector3(rotationTransform.localPosition.x, upRotationPos, rotationTransform.localPosition.z);
 			modelTransform.localPosition = new Vector3(modelTransform.localPosition.x, upModelPos, modelTransform.localPosition.z);
 
-//			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
-			if (Pl.RotVec.y == 1.0f && !isPosUp) {
-				transform.position += new Vector3(0.0f, liftingPosOffset, 0.0f);
-				isPosUp = true;
+			//			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
+			if ((Pl.RotVec.y == 1.0f && !isPosUp)) {
+				MoveManager.Move(new Vector3(0.0f, liftingPosOffset, 0.0f), GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Box", "Fance" }));
+				//transform.position += new Vector3(0.0f, liftingPosOffset, 0.0f);
+				Debug.LogWarning("MoveA");
 			}
-		} else {
+		}
+		else {
 			offsetTransform.localPosition = new Vector3(offsetTransform.localPosition.x, downOffsetPos, offsetTransform.localPosition.z);
 			rotationTransform.localPosition = new Vector3(rotationTransform.localPosition.x, downRotationPos, rotationTransform.localPosition.z);
 			modelTransform.localPosition = new Vector3(modelTransform.localPosition.x, downModelPos, modelTransform.localPosition.z);
-
-//			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
-			if (Pl.RotVec.y == 1.0f && isPosUp) {
-				transform.position -= new Vector3(0.0f, liftingPosOffset, 0.0f);
+			//			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
+			if ((Pl.RotVec.y == 1.0f && isPosUp) || failedPosUpFlg) {
+				List<GameObject> throughObjList = new List<GameObject>();
+				foreach (var throughCol in MoveMng.ThroughColList) {
+					throughObjList.Add(throughCol.gameObject);
+				}
+				MoveManager.Move(new Vector3(0.0f, -liftingPosOffset, 0.0f), GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Box", "Fance" }), false, true, throughObjList);
+				Debug.LogWarning("MoveB");
+				//transform.position -= new Vector3(0.0f, liftingPosOffset, 0.0f);
 				isPosUp = false;
 			}
+			failedPosUpFlg = false;
 		}
+
+		Debug.LogWarning("aft isPosUp " + isPosUp);
 
 		// 四辺コライダーの位置を調整
 		CorrectFourSideCollider(_liftUp);
@@ -771,8 +798,10 @@ public class Lifting : MonoBehaviour {
 			} else {
 				fourSideTransform.localPosition = new Vector3(fourSideTransform.localPosition.x, upRevFourSidePos, fourSideTransform.localPosition.z);
 			}
+			fourSideTopColTransform.localPosition = new Vector3(fourSideTopColTransform.localPosition.x, upTopColPos, fourSideTopColTransform.localPosition.z);
 		} else {
 			fourSideTransform.localPosition = new Vector3(fourSideTransform.localPosition.x, downFourSidePos, fourSideTransform.localPosition.z);
+			fourSideTopColTransform.localPosition = new Vector3(fourSideTopColTransform.localPosition.x, downTopColPos, fourSideTopColTransform.localPosition.z);
 		}
 	}
 

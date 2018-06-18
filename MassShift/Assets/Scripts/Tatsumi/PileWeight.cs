@@ -26,6 +26,8 @@ public class PileWeight : MonoBehaviour {
 	public List<Transform> GetPileBoxList(Vector3 _vec) {
 		List<Transform> ret = new List<Transform>();
 		AddPileBoxList(ret, _vec);
+//		if(name == "Player_test")
+//			Debug.LogWarning(name + _vec + "[0]" + ((ret == null || ret.Count == 0) ? "null" : ret[0].name));
 		return ret;
 	}
 
@@ -102,13 +104,13 @@ public class PileWeight : MonoBehaviour {
 		// リストの重複を排除
 		RemoveDuplicateObject(_boxList);
 
-		// 自身から離れるように動いているオブジェクトを排除
-		for (int boxListIdx = _boxList.Count - 1; boxListIdx >= 0; boxListIdx--) {
-			MoveManager boxMoveMng = _boxList[boxListIdx].GetComponent<MoveManager>();
-			if (boxMoveMng && (Mathf.Sign(boxMoveMng.PrevMove.y) != Mathf.Sign(_boxList[boxListIdx].transform.position.y - transform.position.y))) {
-				hitObjList.RemoveAt(boxListIdx);
-			}
-		}
+//		// 自身から離れるように動いているオブジェクトを排除
+//		for (int boxListIdx = _boxList.Count - 1; boxListIdx >= 0; boxListIdx--) {
+//			MoveManager boxMoveMng = _boxList[boxListIdx].GetComponent<MoveManager>();
+//			if (boxMoveMng && (Mathf.Sign(boxMoveMng.PrevMove.y) != Mathf.Sign(_boxList[boxListIdx].transform.position.y - transform.position.y))) {
+//				_boxList.RemoveAt(boxListIdx);
+//			}
+//		}
 
 		// 新たな対象オブジェクトそれぞれで再帰呼び出し
 		for (int hitObjIdx = 0; hitObjIdx < hitObjList.Count; hitObjIdx++) {
