@@ -19,9 +19,9 @@ public class SetAudioSetting : MonoBehaviour {
     }
 
     public void LoadAudio(float _master, float _bgm, float _se) {
-        mixer.SetFloat("masterVolume", 20 * Mathf.Log10(_master));
-        mixer.SetFloat("bgmVolume", 20 * Mathf.Log10(_bgm));
-        mixer.SetFloat("seVolume", 20 * Mathf.Log10(_se));
+        mixer.SetFloat("masterVolume", 20 * Mathf.Log10(Mathf.Clamp(_master, 0.0001f, 1.0f)));
+        mixer.SetFloat("bgmVolume", 20 * Mathf.Log10(Mathf.Clamp(_bgm, 0.0001f, 1.0f)));
+        mixer.SetFloat("seVolume", 20 * Mathf.Log10(Mathf.Clamp(_se, 0.0001f, 1.0f)));
     }
 
     public void SetMasterSetting(float _sliderValue) {

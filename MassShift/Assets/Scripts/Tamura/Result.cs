@@ -116,4 +116,8 @@ public class Result : MonoBehaviour {
             resultAnimFlg = false;
         }
     }
+
+    public void DisableGraphicRaycaster() {
+        ResultCanvas.GetComponent<UnityEngine.UI.GraphicRaycaster>().enabled = false;
+    }
 }

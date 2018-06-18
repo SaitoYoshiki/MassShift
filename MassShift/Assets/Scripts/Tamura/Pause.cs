@@ -110,6 +110,7 @@ public class Pause : MonoBehaviour {
         // ポーズ解除
         else {
             Time.timeScale = 1.0f;
+            DisableGraphicRaycaster();
             if (!pauseAnimFlg) {
                 /*if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
                     pauseCanvas_SS.SetActive(false);
@@ -146,6 +147,7 @@ public class Pause : MonoBehaviour {
                 pauseUI.transform.localScale = Vector3.Lerp(new Vector3(1.0f, 0.1f, 1.0f), Vector3.one, animPer);
                 if (animPer >= 1.0f) {
                     pauseAnimFlg = false;
+                    EnableGraphicRaycaster();
                 }
             }
         }
@@ -214,5 +216,23 @@ public class Pause : MonoBehaviour {
     public void Exit() {
         // exeの終了
         Application.Quit();
+    }
+
+    void EnableGraphicRaycaster() {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+            pauseCanvas_SS.GetComponent<UnityEngine.UI.GraphicRaycaster>().enabled = true;
+        }
+        else {
+            pauseCanvas.GetComponent<UnityEngine.UI.GraphicRaycaster>().enabled = true;
+        }
+    }
+
+    public void DisableGraphicRaycaster() {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+            pauseCanvas_SS.GetComponent<UnityEngine.UI.GraphicRaycaster>().enabled = false;
+        }
+        else {
+            pauseCanvas.GetComponent<UnityEngine.UI.GraphicRaycaster>().enabled = false;
+        }
     }
 }
