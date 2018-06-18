@@ -68,6 +68,19 @@ public class PileWeight : MonoBehaviour {
 			}
 		}
 
+		// ステージに乗っているオブジェクトは排除
+		for (int idx = hitObjList.Count - 1; idx >= 0; idx--) {
+			List<Collider> landColList = hitObjList[idx].GetComponent<Landing>().LandColList;
+			if (landColList != null) {
+				foreach (var landCol in landColList) {
+					if (landCol.gameObject.layer == LayerMask.NameToLayer("Stage")) {
+						hitObjList.RemoveAt(idx);
+						break;
+					}
+				}
+			}
+		}
+
 		// 指定方向の反対側の四辺コライダーに接触している対象オブジェクトのコライダーをリスト化	
 		List<Collider> outColList = new List<Collider>();
 		for (int idx = 0; idx < back.Count; idx++) {

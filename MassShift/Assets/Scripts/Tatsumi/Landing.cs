@@ -118,6 +118,11 @@ public class Landing : MonoBehaviour {
 //	}
 
 	[SerializeField] List<Collider> landColList = new List<Collider>();				// 接地しているオブジェクト
+	public List<Collider> LandColList {
+		get {
+			return landColList;
+		}
+	}
 	[SerializeField] List<Collider> landExtrusionColList = new List<Collider>();	// 押し出しによって接地しているオブジェクト
 
 //	[SerializeField] bool upCollide = false;

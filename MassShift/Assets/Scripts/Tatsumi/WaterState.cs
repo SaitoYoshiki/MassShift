@@ -194,7 +194,7 @@ public class WaterState : MonoBehaviour {
 				// 押し付けられていない場合
 				if (!(Land && Land.IsExtrusionLanding)) {
 					// 水による浮上
-					Debug.LogWarning("waterfloat");
+					//Debug.LogWarning("waterfloat");
 					MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f), MoveManager.MoveType.waterFloat);
 				}
 			}

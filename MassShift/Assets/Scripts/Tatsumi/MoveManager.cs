@@ -466,7 +466,6 @@ public class MoveManager : MonoBehaviour {
 						(!hitLanding.IsLanding && !hitLanding.IsWaterFloatLanding) &&						// 相手が着地していない
 						(moveVec.y > 0.0f));																// 移動する方向が上方向
 
-
 					//test
 					//string testStr =(waterFloatExtrusion + "\n" +
 					//(moveWaterStt != null) + " " + (moveWeightMng != null) + " " + (hitWeightMng != null) + "\n");
@@ -588,6 +587,10 @@ public class MoveManager : MonoBehaviour {
 								}
 								land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
 							}
+						}
+						// すり抜け床の上のオブジェクトに着地
+						if(!land.IsLanding && (moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitWeightMng.WeightLv >= WeightManager.Weight.light) && (hitLand.IsLanding)) {
+							land.IsLanding = true;
 						}
 					}
 
