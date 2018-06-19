@@ -208,6 +208,10 @@ public class Landing : MonoBehaviour {
 	void FixedUpdate() {
 		if ((IsLanding) || (IsExtrusionLanding)) {
 			CheckLandingFalse();
+			if ((IsLanding) || (IsExtrusionLanding)) {
+			}
+			MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+			MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 		}
 		UpdateWaterFloatLanding();
 
@@ -283,8 +287,14 @@ public class Landing : MonoBehaviour {
 		// 一致方向のすり抜け床の除外
 		for (int idx = landColList.Count - 1; idx >= 0; idx--) {
 			OnewayFloor oneway = landColList[idx].GetComponent<OnewayFloor>();
-			if (oneway && oneway.IsThrough(Vector3.up * MoveMng.PrevMove.y, gameObject)) {
-				landColList.RemoveAt(idx);
+			if (MoveMng.PrevMove.y != 0.0f) {
+				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.PrevMove.y, gameObject)) {
+					landColList.RemoveAt(idx);
+				}
+			}else {
+				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.GetFallVec(), gameObject)) {
+					landColList.RemoveAt(idx);
+				}
 			}
 		}
 
