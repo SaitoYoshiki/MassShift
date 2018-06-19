@@ -29,7 +29,7 @@ public class OnewayFloor : MonoBehaviour {
 		LayerMask lMask = LayerMask.GetMask(new string[] { "Player", "Box" });
 
 		var lCollider = GetComponent<BoxCollider>();
-		var rc = Physics.OverlapBox(lCollider.bounds.center, lCollider.bounds.size / 2.0f, transform.rotation, lMask);
+		var rc = Physics.OverlapBox(lCollider.bounds.center, lCollider.bounds.size * 0.5f, transform.rotation, lMask);
 
 		foreach (var r in rc) {
 			l.Add(r.gameObject);
