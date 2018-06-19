@@ -39,8 +39,8 @@ public class Button : MonoBehaviour {
 			}
 		}
 		else {
-			//mPushRate -= 1.0f / mReleaseTakeTime * Time.deltaTime;
-			mPushRate = 0.0f;   //いきなり戻る
+			mPushRate -= 1.0f / mReleaseTakeTime * Time.deltaTime;
+			//mPushRate = 0.0f;   //いきなり戻る
 			mPushingTime = 0.0f;
 		}
 
