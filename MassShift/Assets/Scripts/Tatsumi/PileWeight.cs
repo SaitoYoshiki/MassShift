@@ -23,15 +23,15 @@ public class PileWeight : MonoBehaviour {
 	// Update is called once per frame
 	//	void Update () {}
 
-	public List<Transform> GetPileBoxList(Vector3 _vec) {
+	public List<Transform> GetPileBoxList(Vector3 _vec, bool _ignoreOnStgObj = true) {
 		List<Transform> ret = new List<Transform>();
-		AddPileBoxList(ret, _vec);
+		AddPileBoxList(ret, _vec, _ignoreOnStgObj);
 //		if(name == "Player_test")
 //			Debug.LogWarning(name + _vec + "[0]" + ((ret == null || ret.Count == 0) ? "null" : ret[0].name));
 		return ret;
 	}
 
-	void AddPileBoxList(List<Transform> _boxList, Vector3 _vec) {
+	void AddPileBoxList(List<Transform> _boxList, Vector3 _vec, bool _ignoreOnStgObj) {
 		List<Transform> forward = new List<Transform>();  // 対象コライダー
 		List<Transform> back = new List<Transform>();     // 除外コライダー
 
@@ -69,13 +69,15 @@ public class PileWeight : MonoBehaviour {
 		}
 
 		// ステージに乗っているオブジェクトは排除
-		for (int idx = hitObjList.Count - 1; idx >= 0; idx--) {
-			List<Collider> landColList = hitObjList[idx].GetComponent<Landing>().LandColList;
-			if (landColList != null) {
-				foreach (var landCol in landColList) {
-					if (landCol.gameObject.layer == LayerMask.NameToLayer("Stage")) {
-						hitObjList.RemoveAt(idx);
-						break;
+		if (_ignoreOnStgObj) {
+			for (int idx = hitObjList.Count - 1; idx >= 0; idx--) {
+				List<Collider> landColList = hitObjList[idx].GetComponent<Landing>().LandColList;
+				if (landColList != null) {
+					foreach (var landCol in landColList) {
+						if (landCol.gameObject.layer == LayerMask.NameToLayer("Stage")) {
+							hitObjList.RemoveAt(idx);
+							break;
+						}
 					}
 				}
 			}
@@ -130,7 +132,7 @@ public class PileWeight : MonoBehaviour {
 			PileWeight otherBox = hitObjList[hitObjIdx].GetComponent<PileWeight>();
 			if (otherBox != null) {
 				// 再帰呼び出し
-				otherBox.AddPileBoxList(_boxList, _vec);
+				otherBox.AddPileBoxList(_boxList, _vec, _ignoreOnStgObj);
 			}
 		}
 	}
