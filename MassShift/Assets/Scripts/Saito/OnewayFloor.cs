@@ -119,12 +119,12 @@ public class OnewayFloor : MonoBehaviour {
 		lColliderSize.x = mWidth;
 		GetComponent<BoxCollider>().size = lColliderSize;
 
-		switch(mDirection) {
+		switch (mDirection) {
 			case CDirection.cUp:
 				transform.rotation = Quaternion.identity;
 				break;
 			case CDirection.cDown:
-				transform.rotation = new Quaternion(0.0f, 0.0f, 1.0f, 0.0f);	//EulerAngleだと微妙な誤差が出るので、直に入れる
+				transform.rotation = new Quaternion(0.0f, 0.0f, 1.0f, 0.0f);    //EulerAngleだと微妙な誤差が出るので、直に入れる
 				break;
 		}
 	}
@@ -162,13 +162,11 @@ public class OnewayFloor : MonoBehaviour {
 
 #endif
 
-
 	[SerializeField, Tooltip("すり抜けられる方向")]
 	CDirection mDirection;
 
 	[SerializeField, Tooltip("床の幅")]
 	int mWidth;
-
 
 	[SerializeField, EditOnPrefab, Tooltip("床の全てのモデルの親"), Space(16)]
 	GameObject mFloorModel;
