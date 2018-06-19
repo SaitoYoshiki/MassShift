@@ -153,7 +153,7 @@ public class Fan : MonoBehaviour {
 			lRes.Add(h.mGameObject);
 			{
 				//風下にある、隣接するオブジェクトにも風を適用
-				foreach(var t in h.mGameObject.GetComponent<PileWeight>().GetPileBoxList(GetDirectionVector(mDirection))) {
+				foreach(var t in h.mGameObject.GetComponent<PileWeight>().GetPileBoxList(GetDirectionVector(mDirection), false)) {
 
 					//重さが2ならそこで止める
 					if(t.GetComponent<WeightManager>().WeightLv == WeightManager.Weight.heavy) {
