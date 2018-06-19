@@ -589,7 +589,8 @@ public class MoveManager : MonoBehaviour {
 							}
 						}
 						// すり抜け床の上のオブジェクトに着地
-						if(!land.IsLanding && (moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitWeightMng.WeightLv >= WeightManager.Weight.light) && (hitLand.IsLanding)) {
+						if((land && !land.IsLanding) && (moveWeightMng && hitWeightMng && hitLand) &&
+							(moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitWeightMng.WeightLv >= WeightManager.Weight.light) && (hitLand.IsLanding)) {
 							land.IsLanding = true;
 						}
 					}
