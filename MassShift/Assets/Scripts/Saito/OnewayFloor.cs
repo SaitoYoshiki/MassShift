@@ -29,11 +29,26 @@ public class OnewayFloor : MonoBehaviour {
 		LayerMask lMask = LayerMask.GetMask(new string[] { "Player", "Box" });
 
 		var lCollider = GetComponent<BoxCollider>();
+		var lDirection = GetDirectionVector(mDirection);
+
+		//本体へのめり込み判定
 		var rc = Physics.OverlapBox(lCollider.bounds.center, lCollider.bounds.size * 0.5f, transform.rotation, lMask);
 
 		foreach (var r in rc) {
 			l.Add(r.gameObject);
 		}
+
+		//一応、入り口側を広く判定しておき、めり込んで囚われるのを防ぐ
+		Vector3 lCheckSize = lCollider.bounds.size * 0.5f;
+		lCheckSize.y = 0.05f;
+		rc = Physics.OverlapBox(lCollider.bounds.center - lDirection * (lCollider.bounds.size.y / 2.0f + 0.025f), lCheckSize, transform.rotation, lMask);
+
+		foreach (var r in rc) {
+			if(l.Contains(r.gameObject) == false) {
+				l.Add(r.gameObject);
+			}
+		}
+
 
 		return l;
 	}
@@ -179,6 +194,7 @@ public class OnewayFloor : MonoBehaviour {
 
 	[SerializeField, PrefabOnly, EditOnPrefab, Tooltip("床の右端のモデル")]
 	GameObject mFloorRightPrefab;
+
 
 	[SerializeField, EditOnPrefab, Tooltip("上向きの時のマテリアル")]
 	Material mLightMaterialUp;
