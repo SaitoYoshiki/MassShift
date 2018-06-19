@@ -221,13 +221,15 @@ public class Lifting : MonoBehaviour {
 	}
 
 	void Update() {
-		UpdateLifting();
-
 		// 入力がなければ
 		if (Input.GetAxis("Lift") == 0.0f) {
 			// 処理後状態を解除
 			afterHoldInput = false;
 		}
+	}
+
+	void FixedUpdate() {
+		UpdateLifting();
 	}
 
 	void UpdateLifting() {

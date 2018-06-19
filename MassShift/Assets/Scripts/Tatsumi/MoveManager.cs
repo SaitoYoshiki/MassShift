@@ -406,6 +406,16 @@ public class MoveManager : MonoBehaviour {
 				}
 			}
 
+			// 相手側のすり抜け指定オブジェクトリストに自身が入っており、そのオブジェクトから離れるように動く場合
+			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+				MoveManager hitMoveMng = hitInfos[idx].collider.GetComponent<MoveManager>();
+				//if (hitMoveMng && hitMoveMng.ThroughColList.Contains(_moveCol)/* && (moveVec.y == Mathf.Sign(hitInfos[idx].transform.position.y - _moveCol.transform.position.y))*/) {
+				if (hitMoveMng && hitMoveMng.ThroughColList.Contains(_moveCol)) {
+						// 相手を衝突対象から除外
+						hitInfos.RemoveAt(idx);
+				}
+			}
+
 			// 一致方向のすり抜け床の除外
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
 				OnewayFloor oneway = hitInfos[idx].collider.GetComponent<OnewayFloor>();
@@ -442,6 +452,7 @@ public class MoveManager : MonoBehaviour {
 					/**/
 					nearHitinfo = hitInfo;
 					dis -= ColMargin;
+					dis -= Mathf.Abs(befPos.y - _moveCol.transform.position.y);
 					dis = Mathf.Max(dis, 0.0f);
 
 					// 押し出し判定

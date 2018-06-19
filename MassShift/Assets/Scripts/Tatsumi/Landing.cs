@@ -209,9 +209,9 @@ public class Landing : MonoBehaviour {
 		if ((IsLanding) || (IsExtrusionLanding)) {
 			CheckLandingFalse();
 			if ((IsLanding) || (IsExtrusionLanding)) {
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 			}
-			MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
-			MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 		}
 		UpdateWaterFloatLanding();
 
@@ -291,10 +291,19 @@ public class Landing : MonoBehaviour {
 				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.PrevMove.y, gameObject)) {
 					landColList.RemoveAt(idx);
 				}
-			}else {
+			} else {
 				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.GetFallVec(), gameObject)) {
 					landColList.RemoveAt(idx);
 				}
+			}
+		}
+
+		// 自身が上方向に移動する重さの際に、下方向に移動する重さでありextrusionLandingがfalseのオブジェクトを除外
+		if (MoveMng.GetFallVec() == 1.0f) {
+			for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
+				MoveManager landMoveMng = LandColList[idx].GetComponent<MoveManager>();
+				if (landMoveMng && (landMoveMng.GetFallVec() == -1.0f))
+					LandColList.RemoveAt(idx);
 			}
 		}
 
