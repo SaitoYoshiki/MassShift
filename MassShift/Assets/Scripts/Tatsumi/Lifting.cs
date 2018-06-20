@@ -267,8 +267,11 @@ public class Lifting : MonoBehaviour {
 				if (heavyFailedFlg || (!MoveManager.MoveTo(GetLiftUpBoxPoint(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true))) {
 					Debug.Log("持ち上げ失敗");
 
-//					// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
-//					LiftObjMoveMng.enabled = false;
+					//					// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
+					//					LiftObjMoveMng.enabled = false;
+
+					// 持ち上げ移動中フラグをfalseに
+					LiftObjMoveMng.IsLiftUpMove = false;
 
 					// 対象をすり抜けオブジェクトに追加
 					MoveMng.AddThroughCollider(LiftObj.GetComponent<Collider>());
@@ -564,6 +567,9 @@ public class Lifting : MonoBehaviour {
 			MoveMng.CanMoveByWind = false;
 			LiftObjMoveMng.CanMoveByWind = false;
 
+			// 持ち上げ移動中フラグをtrueに
+			LiftObjMoveMng.IsLiftUpMove = true;
+
 			// サウンド再生
 			SoundManager.SPlay(liftSE, liftUpSoundDeray);
 
@@ -608,6 +614,9 @@ public class Lifting : MonoBehaviour {
 		// プレイヤーと持ち上げオブジェクトを風で動かせるように変更
 		MoveMng.CanMoveByWind = true;
 		LiftObjMoveMng.CanMoveByWind = true;
+
+		// 持ち上げ移動中フラグをfalseに
+		LiftObjMoveMng.IsLiftUpMove = false;
 
 		// プレイヤー当たり判定の設定
 		SwitchLiftCollider(true);
