@@ -501,7 +501,6 @@ public class Player : MonoBehaviour {
 				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();
-
 				//}
 				//	liftTrg = true;
 				//} else {
@@ -510,7 +509,7 @@ public class Player : MonoBehaviour {
 		}
 
 		// 落下アニメーション
-		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (MoveMng.PrevMove.y < 0.0f));
+		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (Mathf.Sign(MoveMng.PrevMove.y) == (MoveMng.GetFallVec())));
 		// 持ち上げ/下しの最中は落下しない
 		if (Lift.IsLiftCantMove) {
 			fallFlg = false;

@@ -29,11 +29,26 @@ public class OnewayFloor : MonoBehaviour {
 		LayerMask lMask = LayerMask.GetMask(new string[] { "Player", "Box" });
 
 		var lCollider = GetComponent<BoxCollider>();
-		var rc = Physics.OverlapBox(lCollider.bounds.center, lCollider.bounds.size / 2.0f, transform.rotation, lMask);
+		var lDirection = GetDirectionVector(mDirection);
+
+		//本体へのめり込み判定
+		var rc = Physics.OverlapBox(lCollider.bounds.center, lCollider.bounds.size * 0.5f, transform.rotation, lMask);
 
 		foreach (var r in rc) {
 			l.Add(r.gameObject);
 		}
+
+		//一応、入り口側を広く判定しておき、めり込んで囚われるのを防ぐ
+		Vector3 lCheckSize = lCollider.bounds.size * 0.5f;
+		lCheckSize.y = 0.05f;
+		rc = Physics.OverlapBox(lCollider.bounds.center - lDirection * (lCollider.bounds.size.y / 2.0f + 0.025f), lCheckSize, transform.rotation, lMask);
+
+		foreach (var r in rc) {
+			if(l.Contains(r.gameObject) == false) {
+				l.Add(r.gameObject);
+			}
+		}
+
 
 		return l;
 	}
@@ -119,12 +134,12 @@ public class OnewayFloor : MonoBehaviour {
 		lColliderSize.x = mWidth;
 		GetComponent<BoxCollider>().size = lColliderSize;
 
-		switch(mDirection) {
+		switch (mDirection) {
 			case CDirection.cUp:
 				transform.rotation = Quaternion.identity;
 				break;
 			case CDirection.cDown:
-				transform.rotation = new Quaternion(0.0f, 0.0f, 1.0f, 0.0f);	//EulerAngleだと微妙な誤差が出るので、直に入れる
+				transform.rotation = new Quaternion(0.0f, 0.0f, 1.0f, 0.0f);    //EulerAngleだと微妙な誤差が出るので、直に入れる
 				break;
 		}
 	}
@@ -162,13 +177,11 @@ public class OnewayFloor : MonoBehaviour {
 
 #endif
 
-
 	[SerializeField, Tooltip("すり抜けられる方向")]
 	CDirection mDirection;
 
 	[SerializeField, Tooltip("床の幅")]
 	int mWidth;
-
 
 	[SerializeField, EditOnPrefab, Tooltip("床の全てのモデルの親"), Space(16)]
 	GameObject mFloorModel;
@@ -181,6 +194,7 @@ public class OnewayFloor : MonoBehaviour {
 
 	[SerializeField, PrefabOnly, EditOnPrefab, Tooltip("床の右端のモデル")]
 	GameObject mFloorRightPrefab;
+
 
 	[SerializeField, EditOnPrefab, Tooltip("上向きの時のマテリアル")]
 	Material mLightMaterialUp;
