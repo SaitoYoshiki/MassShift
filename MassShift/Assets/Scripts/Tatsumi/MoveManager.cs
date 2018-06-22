@@ -271,6 +271,32 @@ public class MoveManager : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
+		// めり込んだ相手をすり抜けるようにする
+		if (updateOverlapCol) {
+			overlapColList.Clear();
+			overlapColList.AddRange(Physics.OverlapBox(((BoxCollider)UseCol).bounds.center, ((BoxCollider)UseCol).bounds.size * 0.5f, UseCol.transform.rotation, LayerMask.GetMask("Player", "Box")));
+			for (int idx = overlapColList.Count - 1; idx >= 0; idx--) {
+				// 自身を除く
+				if (overlapColList[idx].gameObject == gameObject) {
+					overlapColList.RemoveAt(idx);
+					continue;
+				}
+				// MoveManagerを持っていない相手を除く
+				if (!overlapColList[idx].GetComponent<MoveManager>()) {
+					overlapColList.RemoveAt(idx);
+					continue;
+				}
+				if (overlapColThrough) {
+					// すり抜け対象オブジェクトに存在しなければ追加
+					if (!ThroughObjList.Contains(overlapColList[idx].gameObject)) {
+						Debug.LogWarning("overlap ThroughObjList\n" +
+							"this:" + name + " add:" + overlapColList[idx].gameObject.name);
+						ThroughObjList.Add(overlapColList[idx].gameObject);
+					}
+				}
+			}
+		}
+
 		// 重力加速度
 		if (useGravity/* && !Land.IsLanding*/) {
 			AddMove(new Vector3(0.0f, GravityForce * Time.fixedDeltaTime, 0.0f), MoveType.gravity);
@@ -365,27 +391,6 @@ public class MoveManager : MonoBehaviour {
 		//		if (!Input.GetKey(KeyCode.Tab)) {
 		//			//UnityEditor.EditorApplication.isPaused = true;
 		//		}
-
-		//test /* めり込んだ相手をすり抜けるようにする仮処理、本実装時はMoveManager.cs_425辺りのOverlapBox()引数内の0.55fを0.5fに変更 */	// 本実装しました(20180622)
-		if (updateOverlapCol) {
-			overlapColList.Clear();
-			overlapColList.AddRange(Physics.OverlapBox(((BoxCollider)UseCol).bounds.center, ((BoxCollider)UseCol).bounds.size * 0.5f, UseCol.transform.rotation, LayerMask.GetMask("Stage", "Player", "Box", "Fance")));
-			for (int idx = overlapColList.Count - 1; idx >= 0; idx--) {
-				// 自身を除く
-				if (overlapColList[idx].gameObject == gameObject) {
-					overlapColList.RemoveAt(idx);
-					continue;
-				}
-				if (overlapColThrough) {
-					// すり抜け対象オブジェクトに存在しなければ追加
-					if (!ThroughObjList.Contains(overlapColList[idx].gameObject)) {
-						Debug.LogWarning("ThroughObjList Add:" + overlapColList[idx].gameObject.name);
-						ThroughObjList.Add(overlapColList[idx].gameObject);
-					}
-				}
-			}
-		}
-		//test
 	}
 
 	public void AddMove(Vector3 _move, MoveType _type = MoveType.other) {

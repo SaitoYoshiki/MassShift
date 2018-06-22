@@ -501,7 +501,6 @@ public class Player : MonoBehaviour {
 				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();
-
 				//}
 				//	liftTrg = true;
 				//} else {

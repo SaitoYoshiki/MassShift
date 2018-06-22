@@ -520,6 +520,9 @@ public class Lifting : MonoBehaviour {
 			// 重さ変更中は処理しない
 			if (Pl.IsShift) return null;
 
+			// すり抜け中のオブジェクトがあると置けない
+			if (MoveMng.ThroughObjList.Count > 0) return null;
+
 			// ジャンプ、重さ変更、振り向きを不可に
 			Pl.CanJump = false;
 			Pl.CanShift = false;
