@@ -274,7 +274,7 @@ public class Lifting : MonoBehaviour {
 					LiftObjMoveMng.IsLiftUpMove = false;
 
 					// 対象をすり抜けオブジェクトに追加
-					MoveMng.AddThroughCollider(LiftObj.GetComponent<Collider>());
+					MoveMng.AddThroughCollider(LiftObj);
 
 					// 同期できなければ下ろす
 					St = LiftState.liftUpFailed;
@@ -676,7 +676,7 @@ public class Lifting : MonoBehaviour {
 		#endregion
 
 		// 対象をすり抜けオブジェクトに追加
-		MoveMng.AddThroughCollider(LiftObj.GetComponent<Collider>());
+		MoveMng.AddThroughCollider(LiftObj);
 
 		// プレイヤー当たり判定の設定
 		SwitchLiftCollider(false);
@@ -768,7 +768,7 @@ public class Lifting : MonoBehaviour {
 			//			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
 			if ((Pl.RotVec.y == 1.0f && isPosUp) || failedPosUpFlg) {
 				List<GameObject> throughObjList = new List<GameObject>();
-				foreach (var throughCol in MoveMng.ThroughColList) {
+				foreach (var throughCol in MoveMng.ThroughObjList) {
 					throughObjList.Add(throughCol.gameObject);
 				}
 				MoveManager.Move(new Vector3(0.0f, -liftingPosOffset, 0.0f), GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Box", "Fance" }), false, true, throughObjList);
