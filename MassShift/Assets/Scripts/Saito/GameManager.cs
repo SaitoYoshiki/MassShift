@@ -233,7 +233,7 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 		//左側にいるなら
-		else if (mPlayer.transform.position.x >= lGoalCenter.x) {
+		else if (mPlayer.transform.position.x > lGoalCenter.x) {
 			//左に歩かせる
 			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, -1.0f, 30.0f);
 
