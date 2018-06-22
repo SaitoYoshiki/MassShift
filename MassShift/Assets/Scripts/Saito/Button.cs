@@ -156,11 +156,25 @@ public class Button : MonoBehaviour {
 		}
 	}
 
+	//プレイヤーがボタンを押しているか
+	public bool IsPlayerPush {
+		get {
+			foreach(var h in mHitObjectList) {
+				if(h.layer == LayerMask.NameToLayer("Player")) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
 
 	//ボタンの上にオブジェクトが乗っているかの更新
 	//
 	void UpdateIsPush() {
 		LayerMask lLayerMask = LayerMask.GetMask(new string[] { "Box", "Player" });
+
+		mHitObjectList.Clear();
 
 		bool lIsPush = false;
 
@@ -168,7 +182,7 @@ public class Button : MonoBehaviour {
 		foreach(var c in lHitColliders) {
 			if(c.gameObject.layer == LayerMask.NameToLayer("Box") || c.gameObject.layer == LayerMask.NameToLayer("Player")) {
 				lIsPush = true;
-				break;
+				mHitObjectList.Add(c.gameObject);
 			}
 		}
 
@@ -193,6 +207,8 @@ public class Button : MonoBehaviour {
 		}
 	}
 	bool mBeforeButtonOn = false;
+
+	List<GameObject> mHitObjectList = new List<GameObject>();	//押しているオブジェクトのリスト
 
 	Vector3 mLedgeStartPosition;    //Ledgeの開始位置
 
