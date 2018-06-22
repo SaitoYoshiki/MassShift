@@ -209,10 +209,10 @@ public class MoveManager : MonoBehaviour {
 	[SerializeField]
 	bool nestingThroughFlg = false; // 例外的なめり込みが発生した際にそのコライダーをすり抜けるフラグ
 	[SerializeField]
-	List<Collider> throughColList = new List<Collider>(); // 例外的なめり込みが発生しているコライダーリスト
-	public List<Collider> ThroughColList {
+	List<GameObject> throughObjList = new List<GameObject>(); // 例外的なめり込みが発生しているコライダーを持つオブジェクトのリスト
+	public List<GameObject> ThroughObjList {
 		get {
-			return throughColList;
+			return throughObjList;
 		}
 	}
 
@@ -237,6 +237,23 @@ public class MoveManager : MonoBehaviour {
 		}
 	}
 
+	[SerializeField] bool isLiftUpMove = false;
+	public bool IsLiftUpMove {
+		get {
+			return isLiftUpMove;
+		}
+		set {
+			isLiftUpMove = value;
+		}
+	}
+
+	[SerializeField]
+	List<Collider> overlapColList = new List<Collider>();
+	[SerializeField]
+	bool updateOverlapCol = false;
+	[SerializeField]
+	bool overlapColThrough = false;
+
 	void Awake() {
 		if (autoMask) mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Box", "Fence" });		
 	}
@@ -258,28 +275,28 @@ public class MoveManager : MonoBehaviour {
 		if (useGravity/* && !Land.IsLanding*/) {
 			AddMove(new Vector3(0.0f, GravityForce * Time.fixedDeltaTime, 0.0f), MoveType.gravity);
 
-//			float maxGravityForce = GravityForce;
-//			// 積み重なっている重さオブジェクトから最も重いオブジェクトを取得
-//			if (Pile) {
-//				WeightManager maxWeightMng = WeightMng; // 最も重い重さ
-//				List<Transform> pileObjs = Pile.GetPileBoxList(new Vector3(0.0f, GravityForce, 0.0f));
-////				Debug.LogError("pile:" + name + " " + pileObjs.Count);
-//
-//				foreach (var pileObj in pileObjs) {
-//					WeightManager pileWeight = pileObj.GetComponent<WeightManager>();
-//					if (!pileWeight) continue;
-//					// 積み重なっている重さオブジェクトの重さと比較
-//					if (pileWeight.WeightLv > maxWeightMng.WeightLv) {
-//						maxWeightMng = pileWeight;
-//						maxGravityForce = pileWeight.WeightForce;
-////						Debug.LogError("pileWeight>" + pileWeight.name);
-//						prevWeight = pileWeight.WeightLv;
-//						prevWeightForce = pileWeight.WeightForce;
-//					}
-//				}
-//			}
-//			
-//			AddMove(new Vector3(0.0f, maxGravityForce * Time.deltaTime, 0.0f), MoveType.gravity);
+			//			float maxGravityForce = GravityForce;
+			//			// 積み重なっている重さオブジェクトから最も重いオブジェクトを取得
+			//			if (Pile) {
+			//				WeightManager maxWeightMng = WeightMng; // 最も重い重さ
+			//				List<Transform> pileObjs = Pile.GetPileBoxList(new Vector3(0.0f, GravityForce, 0.0f));
+			////				Debug.LogError("pile:" + name + " " + pileObjs.Count);
+			//
+			//				foreach (var pileObj in pileObjs) {
+			//					WeightManager pileWeight = pileObj.GetComponent<WeightManager>();
+			//					if (!pileWeight) continue;
+			//					// 積み重なっている重さオブジェクトの重さと比較
+			//					if (pileWeight.WeightLv > maxWeightMng.WeightLv) {
+			//						maxWeightMng = pileWeight;
+			//						maxGravityForce = pileWeight.WeightForce;
+			////						Debug.LogError("pileWeight>" + pileWeight.name);
+			//						prevWeight = pileWeight.WeightLv;
+			//						prevWeightForce = pileWeight.WeightForce;
+			//					}
+			//				}
+			//			}
+			//			
+			//			AddMove(new Vector3(0.0f, maxGravityForce * Time.deltaTime, 0.0f), MoveType.gravity);
 		}
 
 		// 前回の加速度
@@ -329,9 +346,9 @@ public class MoveManager : MonoBehaviour {
 			}
 		}
 
-//		if (name == "Player_test") {
-//			Debug.LogWarning("move:" + move);
-//		}
+		//		if (name == "Player_test") {
+		//			Debug.LogWarning("move:" + move);
+		//		}
 
 		// 移動
 		Vector3 resMove;    // 実際に移動出来た移動量
@@ -345,9 +362,30 @@ public class MoveManager : MonoBehaviour {
 		moveList.Clear();
 
 		//test
-//		if (!Input.GetKey(KeyCode.Tab)) {
-//			//UnityEditor.EditorApplication.isPaused = true;
-//		}
+		//		if (!Input.GetKey(KeyCode.Tab)) {
+		//			//UnityEditor.EditorApplication.isPaused = true;
+		//		}
+
+		//test /* めり込んだ相手をすり抜けるようにする仮処理、本実装時はMoveManager.cs_425辺りのOverlapBox()引数内の0.55fを0.5fに変更 */
+		if (updateOverlapCol) {
+			overlapColList.Clear();
+			overlapColList.AddRange(Physics.OverlapBox(((BoxCollider)UseCol).bounds.center, ((BoxCollider)UseCol).bounds.size * 0.5f, UseCol.transform.rotation, LayerMask.GetMask("Stage", "Player", "Box", "Fance")));
+			for (int idx = overlapColList.Count - 1; idx >= 0; idx--) {
+				// 自身を除く
+				if (overlapColList[idx].gameObject == gameObject) {
+					overlapColList.RemoveAt(idx);
+					continue;
+				}
+				//if (overlapColThrough) {
+				//	// すり抜け対象オブジェクトに存在しなければ追加
+				//	if (!ThroughObjList.Contains(overlapColList[idx].gameObject)) {
+				//		Debug.LogWarning("ThroughObjList Add:" + overlapColList[idx].gameObject.name);
+				//		ThroughObjList.Add(overlapColList[idx].gameObject);
+				//	}
+				//}
+			}
+		}
+		//test
 	}
 
 	public void AddMove(Vector3 _move, MoveType _type = MoveType.other) {
@@ -375,10 +413,21 @@ public class MoveManager : MonoBehaviour {
 
 		// すり抜け指定オブジェクトが接触していなければそのオブジェクトのすり抜け指定を解除
 		if (moveMng && moveMng.nestingThroughFlg) {
-			for (int idx = moveMng.throughColList.Count - 1; idx >= 0; idx--) {
-				BoxCollider throughBoxCol = (BoxCollider)moveMng.throughColList[idx];
+			for (int idx = moveMng.throughObjList.Count - 1; idx >= 0; idx--) {
+				BoxCollider throughBoxCol = null;
+				MoveManager throughObjMoveMng = moveMng.throughObjList[idx].GetComponent<MoveManager>();
+				if (throughObjMoveMng != null) {
+					throughBoxCol = (BoxCollider)throughObjMoveMng.UseCol;
+				} else {
+					throughBoxCol = moveMng.throughObjList[idx].GetComponent<BoxCollider>();
+				};
+
+				//*
 				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.55f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
-					moveMng.throughColList.RemoveAt(idx);
+				/*/	
+				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.5f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
+				/**/
+					moveMng.throughObjList.RemoveAt(idx);
 				}
 			}
 		}
@@ -400,7 +449,7 @@ public class MoveManager : MonoBehaviour {
 			// すり抜け指定オブジェクトを除外
 			if (moveMng) {
 				for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
-					if (moveMng.throughColList.Contains(hitInfos[idx].collider)) {
+					if (moveMng.throughObjList.Contains(hitInfos[idx].collider.gameObject)) {
 						hitInfos.RemoveAt(idx);
 					}
 				}
@@ -410,7 +459,7 @@ public class MoveManager : MonoBehaviour {
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
 				MoveManager hitMoveMng = hitInfos[idx].collider.GetComponent<MoveManager>();
 				//if (hitMoveMng && hitMoveMng.ThroughColList.Contains(_moveCol)/* && (moveVec.y == Mathf.Sign(hitInfos[idx].transform.position.y - _moveCol.transform.position.y))*/) {
-				if (hitMoveMng && hitMoveMng.ThroughColList.Contains(_moveCol)) {
+				if (hitMoveMng && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
 						// 相手を衝突対象から除外
 						hitInfos.RemoveAt(idx);
 				}
@@ -475,7 +524,7 @@ public class MoveManager : MonoBehaviour {
 						(moveWeightMng.WeightLv == WeightManager.Weight.light) &&							// 自身の重さが水面に浮かぶ重さ
 						(hitWeightMng.WeightLv == WeightManager.Weight.light) &&							// 相手の重さが水面に浮かぶ重さ
 						(!hitLanding.IsLanding && !hitLanding.IsWaterFloatLanding) &&						// 相手が着地していない
-						(moveVec.y > 0.0f));																// 移動する方向が上方向
+						(moveVec.y > 0.0f));                                                                // 移動する方向が上方向
 
 					//test
 					//string testStr =(waterFloatExtrusion + "\n" +
@@ -491,21 +540,27 @@ public class MoveManager : MonoBehaviour {
 					//test
 
 					// 自身が衝突相手を押し出せるか
-					canExtrusion = (
-						(moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding)										// 判定に必要なコンポーネントが揃っている
-						&& (!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore))												// 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
-						&& (!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)))	// 自身が水中の場合、相手が重さ2でない
-						&& (!(moveLanding && moveLanding.IsLanding))															// 自身がLandingコンポーネントを持っている場合、着地していない
-						&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (moveWeightMng.WeightLv < hitWeightMng.WeightLv))	// 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽くない
-						) &&
+					canExtrusion = false;
+					if ((moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding)   // 判定に必要なコンポーネントが揃っている
+						&& (!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore)) {         // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
 
+						if ((!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)))    // 自身が水中の場合、相手が重さ2でない
+						&& (!(moveLanding && moveLanding.IsLanding))                                                                // 自身がLandingコンポーネントを持っている場合、着地していない
+						&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (moveWeightMng.WeightLv < hitWeightMng.WeightLv)))  // 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽くない
+						&& (!hitMoveMng.IsLiftUpMove)   // 相手が持ち上げ中のオブジェクトでない
 
-						(((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) || // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
+						&& (
+						((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) || // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
 						(waterFloatExtrusion) ||                                                // 水中で上のオブジェクトを押し上げている、又は
-						(moveMng.ExtrusionForcible || _extrusionForcible));                     // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
+						(moveMng.ExtrusionForcible || _extrusionForcible))) {                     // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
+							canExtrusion = true;
+						} else if (moveMng.IsLiftUpMove) {  // 自身を持ち上げオブジェクトとする持ち上げ時の押し出しである
+							canExtrusion = true;
+						}
+					}
 
 					// 相手側の自身に対するすり抜け指定があれば
-					if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughColList.Contains(_moveCol)) {
+					if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
 						// 押し出し不可
 						canExtrusion = false;
 					}
@@ -700,7 +755,7 @@ public class MoveManager : MonoBehaviour {
 
 			// すり抜け指定オブジェクトを除外
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
-				if (moveMng.throughColList.Contains(hitInfos[idx].collider)) {
+				if (moveMng.throughObjList.Contains(hitInfos[idx].collider.gameObject)) {
 					hitInfos.RemoveAt(idx);
 				}
 			}
@@ -1231,9 +1286,9 @@ public class MoveManager : MonoBehaviour {
 	//		return resMove;
 	//	}
 
-	public void AddThroughCollider(Collider _throughCol) {
-		if (_throughCol && !throughColList.Contains(_throughCol)) {
-			throughColList.Add(_throughCol);
+	public void AddThroughCollider(GameObject _throughObj) {
+		if (_throughObj && !throughObjList.Contains(_throughObj)) {
+			throughObjList.Add(_throughObj);
 		}
 	}
 

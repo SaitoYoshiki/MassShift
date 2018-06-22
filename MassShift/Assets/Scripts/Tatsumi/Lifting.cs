@@ -267,11 +267,14 @@ public class Lifting : MonoBehaviour {
 				if (heavyFailedFlg || (!MoveManager.MoveTo(GetLiftUpBoxPoint(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true))) {
 					Debug.Log("持ち上げ失敗");
 
-//					// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
-//					LiftObjMoveMng.enabled = false;
+					//					// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
+					//					LiftObjMoveMng.enabled = false;
+
+					// 持ち上げ移動中フラグをfalseに
+					LiftObjMoveMng.IsLiftUpMove = false;
 
 					// 対象をすり抜けオブジェクトに追加
-					MoveMng.AddThroughCollider(LiftObj.GetComponent<Collider>());
+					MoveMng.AddThroughCollider(LiftObj);
 
 					// 同期できなければ下ろす
 					St = LiftState.liftUpFailed;
@@ -564,6 +567,9 @@ public class Lifting : MonoBehaviour {
 			MoveMng.CanMoveByWind = false;
 			LiftObjMoveMng.CanMoveByWind = false;
 
+			// 持ち上げ移動中フラグをtrueに
+			LiftObjMoveMng.IsLiftUpMove = true;
+
 			// サウンド再生
 			SoundManager.SPlay(liftSE, liftUpSoundDeray);
 
@@ -608,6 +614,9 @@ public class Lifting : MonoBehaviour {
 		// プレイヤーと持ち上げオブジェクトを風で動かせるように変更
 		MoveMng.CanMoveByWind = true;
 		LiftObjMoveMng.CanMoveByWind = true;
+
+		// 持ち上げ移動中フラグをfalseに
+		LiftObjMoveMng.IsLiftUpMove = false;
 
 		// プレイヤー当たり判定の設定
 		SwitchLiftCollider(true);
@@ -667,7 +676,7 @@ public class Lifting : MonoBehaviour {
 		#endregion
 
 		// 対象をすり抜けオブジェクトに追加
-		MoveMng.AddThroughCollider(LiftObj.GetComponent<Collider>());
+		MoveMng.AddThroughCollider(LiftObj);
 
 		// プレイヤー当たり判定の設定
 		SwitchLiftCollider(false);
@@ -759,7 +768,7 @@ public class Lifting : MonoBehaviour {
 			//			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
 			if ((Pl.RotVec.y == 1.0f && isPosUp) || failedPosUpFlg) {
 				List<GameObject> throughObjList = new List<GameObject>();
-				foreach (var throughCol in MoveMng.ThroughColList) {
+				foreach (var throughCol in MoveMng.ThroughObjList) {
 					throughObjList.Add(throughCol.gameObject);
 				}
 				MoveManager.Move(new Vector3(0.0f, -liftingPosOffset, 0.0f), GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Stage", "Box", "Fance" }), false, true, throughObjList);
