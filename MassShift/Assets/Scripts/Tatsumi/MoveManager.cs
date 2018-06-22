@@ -281,11 +281,6 @@ public class MoveManager : MonoBehaviour {
 					overlapColList.RemoveAt(idx);
 					continue;
 				}
-				// MoveManagerを持っていない相手を除く
-				if (!overlapColList[idx].GetComponent<MoveManager>()) {
-					overlapColList.RemoveAt(idx);
-					continue;
-				}
 				if (overlapColThrough) {
 					// すり抜け対象オブジェクトに存在しなければ追加
 					if (!ThroughObjList.Contains(overlapColList[idx].gameObject)) {
@@ -417,7 +412,8 @@ public class MoveManager : MonoBehaviour {
 		}
 
 		// すり抜け指定オブジェクトが接触していなければそのオブジェクトのすり抜け指定を解除
-		if (moveMng && moveMng.nestingThroughFlg) {
+		//		if (moveMng && moveMng.nestingThroughFlg) {
+		if (moveMng) {
 			for (int idx = moveMng.throughObjList.Count - 1; idx >= 0; idx--) {
 				BoxCollider throughBoxCol = null;
 				MoveManager throughObjMoveMng = moveMng.throughObjList[idx].GetComponent<MoveManager>();
