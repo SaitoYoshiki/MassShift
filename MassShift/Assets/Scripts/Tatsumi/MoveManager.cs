@@ -366,7 +366,7 @@ public class MoveManager : MonoBehaviour {
 		//			//UnityEditor.EditorApplication.isPaused = true;
 		//		}
 
-		//test /* めり込んだ相手をすり抜けるようにする仮処理、本実装時はMoveManager.cs_425辺りのOverlapBox()引数内の0.55fを0.5fに変更 */
+		//test /* めり込んだ相手をすり抜けるようにする仮処理、本実装時はMoveManager.cs_425辺りのOverlapBox()引数内の0.55fを0.5fに変更 */	// 本実装しました(20180622)
 		if (updateOverlapCol) {
 			overlapColList.Clear();
 			overlapColList.AddRange(Physics.OverlapBox(((BoxCollider)UseCol).bounds.center, ((BoxCollider)UseCol).bounds.size * 0.5f, UseCol.transform.rotation, LayerMask.GetMask("Stage", "Player", "Box", "Fance")));
@@ -376,13 +376,13 @@ public class MoveManager : MonoBehaviour {
 					overlapColList.RemoveAt(idx);
 					continue;
 				}
-				//if (overlapColThrough) {
-				//	// すり抜け対象オブジェクトに存在しなければ追加
-				//	if (!ThroughObjList.Contains(overlapColList[idx].gameObject)) {
-				//		Debug.LogWarning("ThroughObjList Add:" + overlapColList[idx].gameObject.name);
-				//		ThroughObjList.Add(overlapColList[idx].gameObject);
-				//	}
-				//}
+				if (overlapColThrough) {
+					// すり抜け対象オブジェクトに存在しなければ追加
+					if (!ThroughObjList.Contains(overlapColList[idx].gameObject)) {
+						Debug.LogWarning("ThroughObjList Add:" + overlapColList[idx].gameObject.name);
+						ThroughObjList.Add(overlapColList[idx].gameObject);
+					}
+				}
 			}
 		}
 		//test
@@ -422,11 +422,7 @@ public class MoveManager : MonoBehaviour {
 					throughBoxCol = moveMng.throughObjList[idx].GetComponent<BoxCollider>();
 				};
 
-				//*
-				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.55f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
-				/*/	
 				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.5f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
-				/**/
 					moveMng.throughObjList.RemoveAt(idx);
 				}
 			}
