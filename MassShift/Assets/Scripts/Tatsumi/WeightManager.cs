@@ -68,6 +68,16 @@ public class WeightManager : MonoBehaviour {
 		}
 	}
 
+	Player pl = null;
+	Player Pl {
+		get {
+			if (!pl) {
+				pl = GetComponent<Player>();
+			}
+			return pl;
+		}
+	}
+
 	// 自身に積み重なっている重さオブジェクトの中で最も重いオブジェクトの重さレベルを返す
 	[SerializeField] Weight pileMaxWeightLv =  WeightDefLv;
 	public Weight PileMaxWeightLv {

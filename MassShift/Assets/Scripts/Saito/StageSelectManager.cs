@@ -198,6 +198,7 @@ public class StageSelectManager : MonoBehaviour {
 
 		//プレイヤーを移動不可にする
 		CanMovePlayer(false);
+		CanJumpPlayer(false);
 
 		OnPlayerEffect(true);   //プレイヤーの更新を切る
 		mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f);    //少し奥に移動
@@ -329,6 +330,7 @@ public class StageSelectManager : MonoBehaviour {
 
 		//プレイヤーを移動不可にする
 		CanMovePlayer(false);
+		CanJumpPlayer(false);
 
 		// タイトルシーンからの遷移でなければ
 		if (!mFromTitle) {
@@ -408,6 +410,7 @@ public class StageSelectManager : MonoBehaviour {
 		mStageSelectScroll.mCameraMoveSpeed = 50.0f;
 		mPause.canPause = true; //ポーズが出来るようになる
 		CanMovePlayer(true);
+		CanJumpPlayer(true);
 
 
 		int lSelectStageNum = -1;
@@ -486,8 +489,10 @@ public class StageSelectManager : MonoBehaviour {
 		//プレイヤーが入力できないようにする
 		CanInputPlayer(false);
 
+		CanJumpPlayer(false);
+
 		//プレイヤーの回転が終わるまで待つ
-		while(true) {
+		while (true) {
 			if(mPlayer.IsRotation == false) {
 				break;
 			}
@@ -506,12 +511,57 @@ public class StageSelectManager : MonoBehaviour {
 		mCameraMove.mStartPosition = mCameraMove.transform.position;
 
 
+		//プレイヤーをゴールの中心まで歩かせる
+		Vector3 lGoalCenter = mGoal[lDecideSelectStageNum].transform.position;
+
+		//左側にいるなら
+		if(mPlayer.transform.position.x <= lGoalCenter.x) {
+			//右に歩かせる
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 1.0f, 30.0f);
+
+			//ゴールの中心を超えたら、歩かせるのをやめる
+			while(true) {
+				if(mPlayer.transform.position.x >= lGoalCenter.x) {
+					Vector3 lPos = mPlayer.transform.position;
+					lPos.x = lGoalCenter.x;
+					mPlayer.transform.position = lPos;  //補正
+					break;
+				}
+				yield return null;
+			}
+		}
+		//左側にいるなら
+		else if (mPlayer.transform.position.x >= lGoalCenter.x) {
+			//左に歩かせる
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, -1.0f, 30.0f);
+
+			//ゴールの中心を超えたら、歩かせるのをやめる
+			while (true) {
+				if (mPlayer.transform.position.x <= lGoalCenter.x) {
+					Vector3 lPos = mPlayer.transform.position;
+					lPos.x = lGoalCenter.x;
+					mPlayer.transform.position = lPos;  //補正
+					break;
+				}
+				yield return null;
+			}
+		}
+
+		mPlayer.GetComponent<MoveManager>().StopMoveHorizontalAll();
+		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.0f, 30.0f);
+
+		//プレイヤーの回転が終わるまで待つ
+		while (true) {
+			if (mPlayer.IsRotation == false) {
+				break;
+			}
+			yield return null;
+		}
+
+
 		//プレイヤーを移動不可にする
 		CanMovePlayer(false);
-
-		//カメラを見ていないようにする
-		mPlayer.CameraLookRatio = 0.0f;
-		mPlayer.LookCamera();
+		CanJumpPlayer(false);
 
 		OnPlayerEffect(true);   //プレイヤーの更新を切る
 
@@ -704,8 +754,10 @@ public class StageSelectManager : MonoBehaviour {
 
 	void CanMovePlayer(bool aCanMove) {
 		mPlayer.CanWalk = aCanMove;
-		mPlayer.CanJump = aCanMove;
 		mPlayer.CanRotation = aCanMove;
+	}
+	void CanJumpPlayer(bool aCanMove) {
+		mPlayer.CanJump = aCanMove;
 	}
 
 	//プレイヤーの入力を可能にしたり、不可能にしたりする

@@ -35,7 +35,7 @@ public class Button : MonoBehaviour {
 				mPushRate = 1.0f;   //いきなり最大まで押し込む
 			}
 			else {
-				mPushRate = 0.0f;
+				mPushRate -= 1.0f / mReleaseTakeTime * Time.deltaTime;
 			}
 		}
 		else {

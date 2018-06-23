@@ -253,6 +253,7 @@ public class Player : MonoBehaviour {
 	float walkStandbyVec = 0.0f;    // 移動しようとしている方向
 	[SerializeField]
 	bool jumpStandbyFlg = false;   // ジャンプしようとしているフラグ
+	[SerializeField]
 	bool prevJumpStandbyFlg = false;
 	//	float jumpLimitTime = 0.0f;						// 次回ジャンプ可能時間
 
@@ -262,6 +263,8 @@ public class Player : MonoBehaviour {
 	bool prevIsInWater = false;
 	[SerializeField]
 	bool prevIsLanding = false;
+	[SerializeField]
+	bool prevIsExtrusionLanding = false;
 	[SerializeField]
 	bool prevIsWaterFloatLanding = false;
 	[SerializeField]
@@ -406,8 +409,7 @@ public class Player : MonoBehaviour {
 			handSpringWeitEndTime = value;
 		}
 	}
-	[SerializeField]
-	bool IsHandSpringWeit {
+	public bool IsHandSpringWeit {
 		get {
 			return (HandSpringEndTime > Time.time);
 		}
@@ -469,8 +471,10 @@ public class Player : MonoBehaviour {
 	bool isHeavyReleaseRotate = false;
 	[SerializeField]
 	bool liftInputFlg = false;
+	[SerializeField]
+	bool jumpReserveInput = true;
 
-	void Awake() {
+	void Start() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * CameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
 	}
@@ -482,7 +486,8 @@ public class Player : MonoBehaviour {
 
 		// ジャンプ入力
 		//		jumpStandbyFlg |= (Input.GetAxis("Jump") != 0.0f);
-		jumpStandbyFlg |= (VirtualController.GetAxis(VirtualController.CtrlCode.Jump) != 0.0f);
+		//		jumpStandbyFlg |= (VirtualController.GetAxis(VirtualController.CtrlCode.Jump) != 0.0f);
+		jumpStandbyFlg = (VirtualController.GetAxis(VirtualController.CtrlCode.Jump) != 0.0f);
 
 		// ジャンプ滞空時間
 		remainJumpTime = (!Land.IsLanding ? remainJumpTime + Time.deltaTime : 0.0f);
@@ -529,9 +534,18 @@ public class Player : MonoBehaviour {
 		Walk();
 
 		// ジャンプ
-		bool isJump = Jump();
-		prevJumpStandbyFlg = jumpStandbyFlg;
-		jumpStandbyFlg = false;
+		if (jumpReserveInput) {
+			if (Jump()) {
+				prevJumpStandbyFlg = true;
+			}
+			if (!jumpStandbyFlg) {
+				prevJumpStandbyFlg = false;
+			}
+		} else {
+			Jump();
+			prevJumpStandbyFlg = jumpStandbyFlg;
+			Debug.LogWarning(prevJumpStandbyFlg);
+		}
 
 		// 立ち止まり
 		WalkDown();
@@ -544,12 +558,12 @@ public class Player : MonoBehaviour {
 
 		bool landTrueChangeFlg = ((land.IsLanding && (land.IsLanding != prevIsLanding)) ||
 			(land.IsWaterFloatLanding && (land.IsWaterFloatLanding != prevIsWaterFloatLanding)));
-		prevIsLanding = land.IsLanding;
-		prevIsWaterFloatLanding = land.IsWaterFloatLanding;
 
-		// 着地時、または入/出水時の戻り回転時
+		// 着地時、入/出水時の戻り回転時
 		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
-		if (landTrueChangeFlg || ((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {
+		if (landTrueChangeFlg ||																									// 通常の着地時
+			(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
+			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {	// 反転したまま水上に落ちた時
 			// 入/出水時の戻り回転なら天井回転アニメーションは行わない
 			bool notHandSpring = (WaterStt.IsInWater != prevIsInWater);
 
@@ -636,6 +650,10 @@ public class Player : MonoBehaviour {
 			SwimAudioSource.volume -= swimSoundVolDownSpd;
 		}
 		SwimAudioSource.volume = Mathf.Clamp(SwimAudioSource.volume, swimSoundMinVol, swimSoundMaxVol);
+
+		prevIsLanding = Land.IsLanding;
+		prevIsExtrusionLanding = Land.IsExtrusionLanding;
+		prevIsWaterFloatLanding = Land.IsWaterFloatLanding;
 	}
 
 	void Walk() {
@@ -734,7 +752,7 @@ public class Player : MonoBehaviour {
 		//		Debug.LogWarning("IsLanding:" + Land.IsLanding);
 		//if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
 		if (!(Land.IsLanding || WaterStt.IsWaterSurface)) {
-			// 接地、又は安定しているオブジェクトにも接地していなけ	れば
+			// 接地、又は安定しているオブジェクトにも接地していなければ
 			List<Transform> pileObjs = Pile.GetPileBoxList(new Vector3(0.0f, MoveMng.GravityForce, 0.0f));
 			bool stagePile = false;
 			foreach (var pileObj in pileObjs) {
@@ -782,7 +800,7 @@ public class Player : MonoBehaviour {
 		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 
 		// 左右方向の移動量をジャンプ中速度まで下げる
-		MoveMng.PrevMove = new Vector3(Mathf.Sign(MoveMng.PrevMove.x) * Mathf.Clamp(MoveMng.PrevMove.x, -JumpSpd, JumpSpd), MoveMng.PrevMove.y, MoveMng.PrevMove.z);
+		MoveMng.PrevMove = new Vector3(Mathf.Clamp(MoveMng.PrevMove.x, -JumpSpd, JumpSpd), MoveMng.PrevMove.y, MoveMng.PrevMove.z);
 
 		// 左右方向の加速度を削除
 		//		MoveMng.StopMoveHorizontalAll();
@@ -811,8 +829,9 @@ public class Player : MonoBehaviour {
 		WaterStt.IsWaterSurface = false;
 		WaterStt.BeginWaterStopIgnore();
 
-		// ジャンプ入力を無効化
-		jumpStandbyFlg = false;
+		//// ジャンプ入力を無効化
+		//prevJumpStandbyFlg = jumpStandbyFlg;
+		//jumpStandbyFlg = false;
 
 		// 通常の重力加速度を一時的に無効
 		//MoveMng.GravityCustomTime = (Time.time + JumpTime);

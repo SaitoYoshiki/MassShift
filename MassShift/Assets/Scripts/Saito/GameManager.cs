@@ -103,6 +103,7 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーを操作不可に
 		CanMovePlayer(false);
+		CanJumpPlayer(false);
 		OnCanShiftOperation(false);
 		mPause.canPause = false;
 
@@ -141,6 +142,7 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーが操作可能になる
 		CanMovePlayer(true);
+		CanJumpPlayer(true);
 		mPause.canPause = true;
 
 		//カメラのズームアウトを始める
@@ -181,7 +183,8 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーを操作不可にする
 		CanInputPlayer(false);
-		
+		CanJumpPlayer(false);
+
 		//プレイヤーの回転が終わるまで待つ
 		while (true) {
 			if (mPlayer.IsRotation == false) {
@@ -191,31 +194,14 @@ public class GameManager : MonoBehaviour {
 		}
 
 
-		//ゴール時の、プレイヤーがドアから出ていく演出
+		//カメラのズームイン
 		//
 
-		//Playerを操作不可にする
-		CanMovePlayer(false);
-
-
-		
-
 		//ズーム終了後のカメラ位置を変更
-		mCameraMove.mEndPosition = GetPlayerZoomCameraPosition();
-
+		mCameraMove.mEndPosition = GetGoalZoomCameraPosition();
 
 		//カメラの開始地点を現在のカメラ位置にする
 		mCameraMove.mStartPosition = mCameraMove.transform.position;
-
-
-		//プレイヤーを移動不可にする
-		CanMovePlayer(false);
-
-		//カメラを見ていないようにする
-		mPlayer.GetComponent<Player>().CameraLookRatio = 0.0f;
-
-		OnPlayerEffect(true);   //プレイヤーの更新を切る
-		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
 
 		mCameraMove.MoveStart();
 
@@ -226,6 +212,68 @@ public class GameManager : MonoBehaviour {
 			}
 			yield return null;
 		}
+		
+
+		//プレイヤーをゴールの中心まで歩かせる
+		//
+
+		Vector3 lGoalCenter = mGoal.transform.position;
+
+		//左側にいるなら
+		if (mPlayer.transform.position.x <= lGoalCenter.x) {
+			//右に歩かせる
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.5f, 30.0f);
+
+			//ゴールの中心を超えたら、歩かせるのをやめる
+			while (true) {
+				if (mPlayer.transform.position.x >= lGoalCenter.x) {
+					Vector3 lPos = mPlayer.transform.position;
+					lPos.x = lGoalCenter.x;
+					mPlayer.transform.position = lPos;  //補正
+					break;
+				}
+				yield return null;
+			}
+		}
+		//左側にいるなら
+		else if (mPlayer.transform.position.x > lGoalCenter.x) {
+			//左に歩かせる
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, -0.5f, 30.0f);
+
+			//ゴールの中心を超えたら、歩かせるのをやめる
+			while (true) {
+				if (mPlayer.transform.position.x <= lGoalCenter.x) {
+					Vector3 lPos = mPlayer.transform.position;
+					lPos.x = lGoalCenter.x;
+					mPlayer.transform.position = lPos;  //補正
+					break;
+				}
+				yield return null;
+			}
+		}
+
+		//左右移動の入力を消す
+		mPlayer.GetComponent<MoveManager>().StopMoveHorizontalAll();
+		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.0f, 30.0f);
+
+
+		//プレイヤーの回転が終わるまで待つ
+		//
+		while (true) {
+			if (mPlayer.IsRotation == false) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//プレイヤーを移動不可にする
+		CanMovePlayer(false);
+		CanJumpPlayer(false);
+
+		OnPlayerEffect(true);   //プレイヤーの更新を切る
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
+		
 
 
 		//
@@ -364,8 +412,10 @@ public class GameManager : MonoBehaviour {
 
 	void CanMovePlayer(bool aCanMove) {
 		mPlayer.CanWalk = aCanMove;
-		mPlayer.CanJump = aCanMove;
 		mPlayer.CanRotation = aCanMove;
+	}
+	void CanJumpPlayer(bool aCanMove) {
+		mPlayer.CanJump = aCanMove;
 	}
 
 	//プレイヤーの演出用
@@ -378,6 +428,14 @@ public class GameManager : MonoBehaviour {
 		Player p = FindObjectOfType<Player>();
 		Vector3 lPosition = p.transform.position;
 		lPosition.y -= 1.0f;
+		lPosition.z = 40.0f;
+		return lPosition;
+	}
+	Vector3 GetGoalZoomCameraPosition() {
+		Vector3 lPosition = mGoal.transform.position;
+		if(mGoal.transform.up.y <= 0.0f) {
+			lPosition.y -= 2.0f;
+		}
 		lPosition.z = 40.0f;
 		return lPosition;
 	}

@@ -94,6 +94,16 @@ public class PlayerAnimation : MonoBehaviour {
 
 	float mSpeed = 0.0f;
 	Vector3 mBeforePosition;
+
+	Player pl = null;
+	Player Pl {
+		get {
+			if (!pl) {
+				pl = GetComponent<Player>();
+			}
+			return pl;
+		}
+	}
 	
 	public void ChangeState(CState aNextState) {
 		mBeforeState = mState;
@@ -707,6 +717,7 @@ public class PlayerAnimation : MonoBehaviour {
 		if (mState == CState.cJumpStart) return true;
 		if (mState == CState.cJumpMid) return true;
 		if (mState == CState.cJumpFall) return true;
+		if ((mState == CState.cHandSpring) && (!Pl.IsHandSpringWeit)) return true;
 		return false;
 	}
 
