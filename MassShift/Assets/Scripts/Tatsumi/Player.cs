@@ -253,6 +253,7 @@ public class Player : MonoBehaviour {
 	float walkStandbyVec = 0.0f;    // 移動しようとしている方向
 	[SerializeField]
 	bool jumpStandbyFlg = false;   // ジャンプしようとしているフラグ
+	[SerializeField]
 	bool prevJumpStandbyFlg = false;
 	//	float jumpLimitTime = 0.0f;						// 次回ジャンプ可能時間
 
@@ -483,7 +484,8 @@ public class Player : MonoBehaviour {
 
 		// ジャンプ入力
 		//		jumpStandbyFlg |= (Input.GetAxis("Jump") != 0.0f);
-		jumpStandbyFlg |= (VirtualController.GetAxis(VirtualController.CtrlCode.Jump) != 0.0f);
+		//		jumpStandbyFlg |= (VirtualController.GetAxis(VirtualController.CtrlCode.Jump) != 0.0f);
+		jumpStandbyFlg = (VirtualController.GetAxis(VirtualController.CtrlCode.Jump) != 0.0f);
 
 		// ジャンプ滞空時間
 		remainJumpTime = (!Land.IsLanding ? remainJumpTime + Time.deltaTime : 0.0f);
@@ -530,9 +532,12 @@ public class Player : MonoBehaviour {
 		Walk();
 
 		// ジャンプ
-		bool isJump = Jump();
-		prevJumpStandbyFlg = jumpStandbyFlg;
-		jumpStandbyFlg = false;
+		Jump();
+		if (prevJumpStandbyFlg != jumpStandbyFlg) {
+			prevJumpStandbyFlg = jumpStandbyFlg;
+		}
+		Debug.LogWarning(prevJumpStandbyFlg);
+//		jumpStandbyFlg = false;
 
 		// 立ち止まり
 		WalkDown();
@@ -739,7 +744,7 @@ public class Player : MonoBehaviour {
 		//		Debug.LogWarning("IsLanding:" + Land.IsLanding);
 		//if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
 		if (!(Land.IsLanding || WaterStt.IsWaterSurface)) {
-			// 接地、又は安定しているオブジェクトにも接地していなけ	れば
+			// 接地、又は安定しているオブジェクトにも接地していなければ
 			List<Transform> pileObjs = Pile.GetPileBoxList(new Vector3(0.0f, MoveMng.GravityForce, 0.0f));
 			bool stagePile = false;
 			foreach (var pileObj in pileObjs) {
@@ -787,7 +792,7 @@ public class Player : MonoBehaviour {
 		MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 
 		// 左右方向の移動量をジャンプ中速度まで下げる
-		MoveMng.PrevMove = new Vector3(Mathf.Sign(MoveMng.PrevMove.x) * Mathf.Clamp(MoveMng.PrevMove.x, -JumpSpd, JumpSpd), MoveMng.PrevMove.y, MoveMng.PrevMove.z);
+		MoveMng.PrevMove = new Vector3(Mathf.Clamp(MoveMng.PrevMove.x, -JumpSpd, JumpSpd), MoveMng.PrevMove.y, MoveMng.PrevMove.z);
 
 		// 左右方向の加速度を削除
 		//		MoveMng.StopMoveHorizontalAll();
@@ -816,8 +821,9 @@ public class Player : MonoBehaviour {
 		WaterStt.IsWaterSurface = false;
 		WaterStt.BeginWaterStopIgnore();
 
-		// ジャンプ入力を無効化
-		jumpStandbyFlg = false;
+		//// ジャンプ入力を無効化
+		//prevJumpStandbyFlg = jumpStandbyFlg;
+		//jumpStandbyFlg = false;
 
 		// 通常の重力加速度を一時的に無効
 		//MoveMng.GravityCustomTime = (Time.time + JumpTime);
