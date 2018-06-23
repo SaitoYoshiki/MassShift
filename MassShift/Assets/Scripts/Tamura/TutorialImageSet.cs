@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// button.csからisPlayerPushでプレイヤーがボタンを押しているかどうか判定する
+// PlayerオブジェクトのLifting.csからIsLifting()関数でプレイヤーが箱を持っているかどうか確認する
 
 public class TutorialImageSet : MonoBehaviour {
     public UnityEngine.UI.Image tutorialLight;
@@ -18,7 +18,11 @@ public class TutorialImageSet : MonoBehaviour {
     public BoxCollider boxCol;
 
     [SerializeField]
-    Button button;
+    GameObject player;
+    Lifting lf;
+
+    UnityEngine.UI.Image video;
+    UnityEngine.Video.VideoPlayer vp;
 
     // 電源ON/OFFのアニメーション時間
     [SerializeField]
@@ -34,6 +38,35 @@ public class TutorialImageSet : MonoBehaviour {
         if (tutorialVideo2 != null) {
             vp2 = tutorialVideo2.GetComponent<UnityEngine.Video.VideoPlayer>();
         }
+
+        if (player != null) {
+            lf = player.GetComponent<Lifting>();
+        }
+    }
+
+    void Update() {
+        if (player != null && lf.IsLifting && tutorialVideo2 != null) {
+            vp1.time = 0.0f;
+            vp1.Pause();
+            vp1.gameObject.SetActive(false);
+
+            video = tutorialVideo2;
+            vp = vp2;
+            vp.gameObject.SetActive(true);
+            //vp.Play();
+        }
+        else {
+            if (tutorialVideo2 != null) {
+                vp2.time = 0.0f;
+                vp2.Pause();
+                vp2.gameObject.SetActive(false);
+            }
+
+            video = tutorialVideo1;
+            vp = vp1;
+            vp.gameObject.SetActive(true);
+            //vp.Play();
+        }
     }
 
     public void StartAnimation() {
@@ -45,10 +78,7 @@ public class TutorialImageSet : MonoBehaviour {
         float nowAnimTime = Time.fixedUnscaledTime - animStartTime;
         float animPer = Mathf.Clamp((nowAnimTime / animTime), 0.0f, 1.0f);
 
-        UnityEngine.UI.Image video;
-        UnityEngine.Video.VideoPlayer vp;
-
-        if (button != null && button.IsButtonOn && !button.IsPlayerPush && tutorialVideo2 != null) {
+        if (player != null && lf.IsLifting && tutorialVideo2 != null) {
             vp1.time = 0.0f;
             vp1.Pause();
 
