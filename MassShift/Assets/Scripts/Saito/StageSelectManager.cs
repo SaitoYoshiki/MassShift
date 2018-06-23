@@ -506,12 +506,55 @@ public class StageSelectManager : MonoBehaviour {
 		mCameraMove.mStartPosition = mCameraMove.transform.position;
 
 
+		//プレイヤーをゴールの中心まで歩かせる
+		Vector3 lGoalCenter = mGoal[lDecideSelectStageNum].transform.position;
+
+		//左側にいるなら
+		if(mPlayer.transform.position.x <= lGoalCenter.x) {
+			//右に歩かせる
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 1.0f, 30.0f);
+
+			//ゴールの中心を超えたら、歩かせるのをやめる
+			while(true) {
+				if(mPlayer.transform.position.x >= lGoalCenter.x) {
+					Vector3 lPos = mPlayer.transform.position;
+					lPos.x = lGoalCenter.x;
+					mPlayer.transform.position = lPos;  //補正
+					break;
+				}
+				yield return null;
+			}
+		}
+		//左側にいるなら
+		else if (mPlayer.transform.position.x >= lGoalCenter.x) {
+			//左に歩かせる
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, -1.0f, 30.0f);
+
+			//ゴールの中心を超えたら、歩かせるのをやめる
+			while (true) {
+				if (mPlayer.transform.position.x <= lGoalCenter.x) {
+					Vector3 lPos = mPlayer.transform.position;
+					lPos.x = lGoalCenter.x;
+					mPlayer.transform.position = lPos;  //補正
+					break;
+				}
+				yield return null;
+			}
+		}
+
+		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.0f, 30.0f);
+
+		//プレイヤーの回転が終わるまで待つ
+		while (true) {
+			if (mPlayer.IsRotation == false) {
+				break;
+			}
+			yield return null;
+		}
+
+
 		//プレイヤーを移動不可にする
 		CanMovePlayer(false);
-
-		//カメラを見ていないようにする
-		mPlayer.CameraLookRatio = 0.0f;
-		mPlayer.LookCamera();
 
 		OnPlayerEffect(true);   //プレイヤーの更新を切る
 

@@ -271,6 +271,27 @@ public class MoveManager : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
+		// めり込んだ相手をすり抜けるようにする
+		if (updateOverlapCol) {
+			overlapColList.Clear();
+			overlapColList.AddRange(Physics.OverlapBox(((BoxCollider)UseCol).bounds.center, ((BoxCollider)UseCol).bounds.size * 0.5f, UseCol.transform.rotation, LayerMask.GetMask("Player", "Box")));
+			for (int idx = overlapColList.Count - 1; idx >= 0; idx--) {
+				// 自身を除く
+				if (overlapColList[idx].gameObject == gameObject) {
+					overlapColList.RemoveAt(idx);
+					continue;
+				}
+				if (overlapColThrough) {
+					// すり抜け対象オブジェクトに存在しなければ追加
+					if (!ThroughObjList.Contains(overlapColList[idx].gameObject)) {
+						Debug.LogWarning("overlap ThroughObjList\n" +
+							"this:" + name + " add:" + overlapColList[idx].gameObject.name);
+						ThroughObjList.Add(overlapColList[idx].gameObject);
+					}
+				}
+			}
+		}
+
 		// 重力加速度
 		if (useGravity/* && !Land.IsLanding*/) {
 			AddMove(new Vector3(0.0f, GravityForce * Time.fixedDeltaTime, 0.0f), MoveType.gravity);
@@ -365,27 +386,6 @@ public class MoveManager : MonoBehaviour {
 		//		if (!Input.GetKey(KeyCode.Tab)) {
 		//			//UnityEditor.EditorApplication.isPaused = true;
 		//		}
-
-		//test /* めり込んだ相手をすり抜けるようにする仮処理、本実装時はMoveManager.cs_425辺りのOverlapBox()引数内の0.55fを0.5fに変更 */
-		if (updateOverlapCol) {
-			overlapColList.Clear();
-			overlapColList.AddRange(Physics.OverlapBox(((BoxCollider)UseCol).bounds.center, ((BoxCollider)UseCol).bounds.size * 0.5f, UseCol.transform.rotation, LayerMask.GetMask("Stage", "Player", "Box", "Fance")));
-			for (int idx = overlapColList.Count - 1; idx >= 0; idx--) {
-				// 自身を除く
-				if (overlapColList[idx].gameObject == gameObject) {
-					overlapColList.RemoveAt(idx);
-					continue;
-				}
-				//if (overlapColThrough) {
-				//	// すり抜け対象オブジェクトに存在しなければ追加
-				//	if (!ThroughObjList.Contains(overlapColList[idx].gameObject)) {
-				//		Debug.LogWarning("ThroughObjList Add:" + overlapColList[idx].gameObject.name);
-				//		ThroughObjList.Add(overlapColList[idx].gameObject);
-				//	}
-				//}
-			}
-		}
-		//test
 	}
 
 	public void AddMove(Vector3 _move, MoveType _type = MoveType.other) {
@@ -412,7 +412,8 @@ public class MoveManager : MonoBehaviour {
 		}
 
 		// すり抜け指定オブジェクトが接触していなければそのオブジェクトのすり抜け指定を解除
-		if (moveMng && moveMng.nestingThroughFlg) {
+		//		if (moveMng && moveMng.nestingThroughFlg) {
+		if (moveMng) {
 			for (int idx = moveMng.throughObjList.Count - 1; idx >= 0; idx--) {
 				BoxCollider throughBoxCol = null;
 				MoveManager throughObjMoveMng = moveMng.throughObjList[idx].GetComponent<MoveManager>();
@@ -422,11 +423,7 @@ public class MoveManager : MonoBehaviour {
 					throughBoxCol = moveMng.throughObjList[idx].GetComponent<BoxCollider>();
 				};
 
-				//*
-				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.55f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
-				/*/	
 				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.5f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
-				/**/
 					moveMng.throughObjList.RemoveAt(idx);
 				}
 			}
