@@ -136,7 +136,7 @@ public class StageSelectManager : MonoBehaviour {
 		mPause.canPause = false;
 
 		//プレートの色を変える
-		SetEnterColor(-1);
+		SetEnterColor((Area.sBeforeAreaNumber - 1) * 5 + (Area.sBeforeStageNumber - 1));
 
 
 		//ズーム終了後のカメラ位置を変更
