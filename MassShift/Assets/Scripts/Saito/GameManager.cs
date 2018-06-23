@@ -222,7 +222,7 @@ public class GameManager : MonoBehaviour {
 		//左側にいるなら
 		if (mPlayer.transform.position.x <= lGoalCenter.x) {
 			//右に歩かせる
-			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 1.0f, 30.0f);
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.5f, 30.0f);
 
 			//ゴールの中心を超えたら、歩かせるのをやめる
 			while (true) {
@@ -238,7 +238,7 @@ public class GameManager : MonoBehaviour {
 		//左側にいるなら
 		else if (mPlayer.transform.position.x > lGoalCenter.x) {
 			//左に歩かせる
-			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, -1.0f, 30.0f);
+			VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, -0.5f, 30.0f);
 
 			//ゴールの中心を超えたら、歩かせるのをやめる
 			while (true) {
