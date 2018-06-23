@@ -166,9 +166,6 @@ public class WeightRotate : MonoBehaviour {
 		int lLeftTotal = lLeft.Sum(x => (int)(x.WeightLv));
 		int lRightTotal = lRight.Sum(x => (int)(x.WeightLv));
 
-		Debug.Log("LeftTotal:" + lLeftTotal);
-		Debug.Log("RightTotal:" + lRightTotal);
-
 		//左のほうが4以上重かったら
 		if (lLeftTotal - lRightTotal >= 4) {
 			return -1.0f;	//左に傾く
