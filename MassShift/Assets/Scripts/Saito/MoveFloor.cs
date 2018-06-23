@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class MoveFloor : MonoBehaviour {
 
@@ -257,11 +258,39 @@ public class MoveFloor : MonoBehaviour {
 
 		Vector3 lBeforeColliderPosition = mFloor.transform.position;
 
+
+		//乗っているオブジェクトが、一緒に動くようにする
+		//例えば下向きに動くなら、上に乗っているものも同じ分だけ動かす
+		var lPileList = GetComponentInChildren<PileWeight>().GetPileBoxList(-lWorldMoveDelta, false);
+		IEnumerable<Transform> lPileListOrderNear;
+		//下向きに動くなら
+		if (lWorldMoveDelta.y <= 0.0f) {
+			lPileListOrderNear = lPileList.OrderBy(x => x.transform.position.y);    //下から順にソート
+		}
+		//上向きに動くなら
+		else {
+			lPileListOrderNear = lPileList.OrderBy(x => -x.transform.position.y);   //上から順にソート
+		}
+
+
 		//行けるところを計算する
 		MoveManager.Move(lWorldMoveDelta, mFloor.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Box", "Stage", "Player", "Fence" }), false, true);
 
 		//コライダーの位置をもとに戻す
-		return mFloor.transform.position - lBeforeColliderPosition;
+		Vector3 lMoveDelta = mFloor.transform.position - lBeforeColliderPosition;
+
+		
+		//乗っているオブジェクトが一緒に動くようにする
+		foreach(var lObject in lPileListOrderNear) {
+			//同じ方向に動くなら
+			if (lObject.GetComponent<MoveManager>().GravityForce * lWorldMoveDelta.y > 0.0f) {
+				MoveManager.Move(lWorldMoveDelta * 2.0f, lObject.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Box", "Stage", "Player", "Fence" }), false, false);
+			}
+		}
+
+
+
+		return lMoveDelta;
 	}
 	
 	Vector3 GetFloorPositionAnimation(float aNowTime, float aEndTime, int aHz, float aAmp) {
@@ -322,6 +351,22 @@ public class MoveFloor : MonoBehaviour {
 		//右端
 		GameObject lRight = EditorUtility.InstantiatePrefab(mFloorRightPrefab, mFloorModel);
 		lRight.transform.localPosition = Vector3.right * (float)(mWidth - 1) / 2;
+
+
+		//Pile用のコライダーの大きさ・場所変更
+		Vector3 lTopBottomScale = mFourSideTop.transform.localScale;
+		lTopBottomScale.x = mWidth;
+		mFourSideTop.transform.localScale = lTopBottomScale;
+		mFourSideBottom.transform.localScale = lTopBottomScale;
+
+		Vector3 lLeftPosition = mFourSideLeft.transform.localPosition;
+		lLeftPosition.x = -mWidth / 2.0f;
+		mFourSideLeft.transform.localPosition = lLeftPosition;
+
+		Vector3 lRightPosition = mFourSideRight.transform.localPosition;
+		lRightPosition.x = mWidth / 2.0f;
+		mFourSideRight.transform.localPosition = lRightPosition;
+
 
 
 		//コライダーの大きさ変更
@@ -486,6 +531,19 @@ public class MoveFloor : MonoBehaviour {
 
 	[SerializeField, PrefabOnly, EditOnPrefab, Tooltip("レールの下端のモデル")]
 	GameObject mRailBottomPrefab;
+
+	[SerializeField, Tooltip("四方向の、上のコライダー")]
+	GameObject mFourSideTop;
+
+	[SerializeField, Tooltip("四方向の、下のコライダー")]
+	GameObject mFourSideBottom;
+
+	[SerializeField, Tooltip("四方向の、左のコライダー")]
+	GameObject mFourSideLeft;
+
+	[SerializeField, Tooltip("四方向の、右のコライダー")]
+	GameObject mFourSideRight;
+
 
 	[SerializeField, EditOnPrefab, Tooltip("左の歯車")]
 	GameObject mGearLeftModel;
