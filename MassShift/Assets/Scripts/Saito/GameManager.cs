@@ -253,6 +253,7 @@ public class GameManager : MonoBehaviour {
 		}
 
 		//左右移動の入力を消す
+		mPlayer.GetComponent<MoveManager>().StopMoveHorizontalAll();
 		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.0f, 30.0f);
 
 
