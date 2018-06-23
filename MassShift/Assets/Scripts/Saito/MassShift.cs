@@ -1150,9 +1150,11 @@ public class MassShift : MonoBehaviour
 
 	bool GetShiftButton() {
 
+		/*
 		if (Utility.IsJoystickConnect()) {
 			return Input.GetAxis("JoyShift") >= mShiftOnValue;
 		}
+		*/
 		return Input.GetKey(KeyCode.Mouse0);
 	}
 	bool GetDoubleShiftButton() {
@@ -1160,37 +1162,20 @@ public class MassShift : MonoBehaviour
 	}
 
 	float GetShiftXAxis() {
-		if (Utility.IsJoystickConnect()) {
-			//return Input.GetAxis("JoyShiftHorizontal");
-			return 0.0f;
-		}
-		else {
-			if (Input.GetKey(KeyCode.J)) return -1.0f;
-			if (Input.GetKey(KeyCode.L)) return 1.0f;
-		}
+		//return Input.GetAxis("JoyShiftHorizontal");
+		if (Input.GetKey(KeyCode.J)) return -1.0f;
+		if (Input.GetKey(KeyCode.L)) return 1.0f;
 		return 0.0f;
 	}
-	float GetShiftYAxis()
-	{
-		if (Utility.IsJoystickConnect()) {
-			//return Input.GetAxis("JoyShiftVertical");
-			return 0.0f;
-		}
-		else {
-			if (Input.GetKey(KeyCode.I)) return 1.0f;
-			if (Input.GetKey(KeyCode.K)) return -1.0f;
-		}
+	float GetShiftYAxis() {
+		//return Input.GetAxis("JoyShiftVertical");
+		if (Input.GetKey(KeyCode.I)) return 1.0f;
+		if (Input.GetKey(KeyCode.K)) return -1.0f;
 		return 0.0f;
 	}
 
 	void MoveCursor() {
-		//ジョイスティックが接続されていたら
-		if (Utility.IsJoystickConnect()) {
-			MoveCursorByJoistick(); //カーソルで動かす
-		}
-		else {
-			MoveCursorByMouse();	//マウスで動かす
-		}
+		MoveCursorByMouse();    //マウスで動かす
 	}
 
 	//マウスでカーソルを動かす
