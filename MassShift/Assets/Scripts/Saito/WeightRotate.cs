@@ -50,10 +50,7 @@ public class WeightRotate : MonoBehaviour {
 		//初期化
 		if (mNeedInitState) {
 			mNeedInitState = false;
-
-			if(TargetRotateRate != 0.0f) {
-				ShakeCamera.ShakeAll(mShakeSecond, mShakeMagnitude);    //カメラを揺らす
-			}
+			
 		}
 
 		//回転する必要がないなら
@@ -167,16 +164,16 @@ public class WeightRotate : MonoBehaviour {
 		int lRightTotal = lRight.Sum(x => (int)(x.WeightLv));
 
 		//左のほうが4以上重かったら
-		if (lLeftTotal - lRightTotal >= 4) {
+		if (lLeftTotal - lRightTotal >= 2) {
 			return -1.0f;	//左に傾く
 		}
 
 		//右のほうが4以上重かったら
-		if (lRightTotal - lLeftTotal >= 4) {
+		if (lRightTotal - lLeftTotal >= 2) {
 			return 1.0f;   //右に傾く
 		}
 
-		return 0.0f;	//傾かない
+		return mTargetRotateRate;	//依然と同じ傾き
 	}
 
 	float mConditionX = 0.0f;	//左側にあるか右側にあるかを判断するときに使用する、ワールド座標のx
