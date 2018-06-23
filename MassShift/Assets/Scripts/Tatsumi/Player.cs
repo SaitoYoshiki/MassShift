@@ -471,6 +471,8 @@ public class Player : MonoBehaviour {
 	bool isHeavyReleaseRotate = false;
 	[SerializeField]
 	bool liftInputFlg = false;
+	[SerializeField]
+	bool jumpReserveInput = true;
 
 	void Start() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
@@ -532,12 +534,18 @@ public class Player : MonoBehaviour {
 		Walk();
 
 		// ジャンプ
-		Jump();
-		if (prevJumpStandbyFlg != jumpStandbyFlg) {
+		if (jumpReserveInput) {
+			if (Jump()) {
+				prevJumpStandbyFlg = true;
+			}
+			if (!jumpStandbyFlg) {
+				prevJumpStandbyFlg = false;
+			}
+		} else {
+			Jump();
 			prevJumpStandbyFlg = jumpStandbyFlg;
+			Debug.LogWarning(prevJumpStandbyFlg);
 		}
-		Debug.LogWarning(prevJumpStandbyFlg);
-//		jumpStandbyFlg = false;
 
 		// 立ち止まり
 		WalkDown();
