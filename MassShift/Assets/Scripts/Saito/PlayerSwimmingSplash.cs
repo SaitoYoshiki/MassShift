@@ -12,6 +12,12 @@ public class PlayerSwimmingSplash : MonoBehaviour {
 	[SerializeField, Tooltip("このゲームオブジェクトに追従する")]
 	GameObject mFollowTransform;
 
+	public GameObject FollowTransform {
+		get {
+			return mFollowTransform;
+		}
+	}
+
 	Player mPlayer;
 
 	bool mIsPlaying;

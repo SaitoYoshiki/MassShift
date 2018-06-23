@@ -103,6 +103,7 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーを操作不可に
 		CanMovePlayer(false);
+		CanJumpPlayer(false);
 		OnCanShiftOperation(false);
 		mPause.canPause = false;
 
@@ -141,6 +142,7 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーが操作可能になる
 		CanMovePlayer(true);
+		CanJumpPlayer(true);
 		mPause.canPause = true;
 
 		//カメラのズームアウトを始める
@@ -181,7 +183,8 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーを操作不可にする
 		CanInputPlayer(false);
-		
+		CanJumpPlayer(false);
+
 		//プレイヤーの回転が終わるまで待つ
 		while (true) {
 			if (mPlayer.IsRotation == false) {
@@ -250,6 +253,7 @@ public class GameManager : MonoBehaviour {
 		}
 
 		//左右移動の入力を消す
+		mPlayer.GetComponent<MoveManager>().StopMoveHorizontalAll();
 		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.0f, 30.0f);
 
 
@@ -265,6 +269,7 @@ public class GameManager : MonoBehaviour {
 
 		//プレイヤーを移動不可にする
 		CanMovePlayer(false);
+		CanJumpPlayer(false);
 
 		OnPlayerEffect(true);   //プレイヤーの更新を切る
 		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
@@ -407,8 +412,10 @@ public class GameManager : MonoBehaviour {
 
 	void CanMovePlayer(bool aCanMove) {
 		mPlayer.CanWalk = aCanMove;
-		mPlayer.CanJump = aCanMove;
 		mPlayer.CanRotation = aCanMove;
+	}
+	void CanJumpPlayer(bool aCanMove) {
+		mPlayer.CanJump = aCanMove;
 	}
 
 	//プレイヤーの演出用
