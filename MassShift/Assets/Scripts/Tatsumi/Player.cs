@@ -473,10 +473,40 @@ public class Player : MonoBehaviour {
 	bool liftInputFlg = false;
 	[SerializeField]
 	bool jumpReserveInput = true;
+	[SerializeField]
+	bool isSandwitch = false;
+	[SerializeField]
+	bool prevIsSandwitch = false;
+
+	FourSideCollider fourSideCol = null;
+	FourSideCollider FourSideCol {
+		get {
+			if (!fourSideCol) {
+				fourSideCol = GetComponent<FourSideCollider>();
+			}
+			return fourSideCol;
+		}
+	}
+	Transform TopCol {
+		get {
+			if (!FourSideCol) return null;
+			return FourSideCol.TopCol;
+		}
+	}
+	Transform BottomCol {
+		get {
+			if (!FourSideCol) return null;
+			return FourSideCol.BottomCol;
+		}
+	}
+	[SerializeField]
+	bool autoSandwitchMask = true;
+	LayerMask sandwitchMask;
 
 	void Start() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * CameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
+		if (autoSandwitchMask) sandwitchMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 	}
 
 	void Update() {
@@ -559,10 +589,21 @@ public class Player : MonoBehaviour {
 		bool landTrueChangeFlg = ((land.IsLanding && (land.IsLanding != prevIsLanding)) ||
 			(land.IsWaterFloatLanding && (land.IsWaterFloatLanding != prevIsWaterFloatLanding)));
 
+		bool topColOverlap = (Physics.OverlapBox(TopCol.position, TopCol.lossyScale * 0.5f, TopCol.rotation, sandwitchMask).Length > 0);
+		bool bottomColOverlap = (Physics.OverlapBox(BottomCol.position, TopCol.lossyScale * 0.5f, TopCol.rotation, sandwitchMask).Length > 0);
+		isSandwitch = (topColOverlap && bottomColOverlap);
+		bool landColOverlap = false;
+		if (MoveMng.GetFallVec() <= 0.0f) {
+			landColOverlap = bottomColOverlap;
+		} else {
+			landColOverlap = topColOverlap;
+		}
+
 		// 着地時、入/出水時の戻り回転時
 		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
-		if (landTrueChangeFlg ||																									// 通常の着地時
-			(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
+		if ((landTrueChangeFlg && !isSandwitch) ||																					// 通常の着地時
+//			(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
+			(prevIsSandwitch && !isSandwitch  && landColOverlap) ||																// 上下を挟まれている状態から解放された時
 			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {	// 反転したまま水上に落ちた時
 			// 入/出水時の戻り回転なら天井回転アニメーションは行わない
 			bool notHandSpring = (WaterStt.IsInWater != prevIsInWater);
@@ -594,7 +635,6 @@ public class Player : MonoBehaviour {
 				}
 			}
 		}
-		prevIsInWater = WaterStt.IsInWater;
 
 		// 着地アニメーション
 		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
@@ -654,6 +694,8 @@ public class Player : MonoBehaviour {
 		prevIsLanding = Land.IsLanding;
 		prevIsExtrusionLanding = Land.IsExtrusionLanding;
 		prevIsWaterFloatLanding = Land.IsWaterFloatLanding;
+		prevIsInWater = WaterStt.IsInWater;
+		prevIsSandwitch = isSandwitch;
 	}
 
 	void Walk() {
