@@ -17,6 +17,9 @@ public class PileWeight : MonoBehaviour {
 		}
 	}
 
+	[SerializeField]
+	bool ignoreOtherPileTarget = false;	// 他のPileWeightのGetPileBoxList()の対象にならない
+
 	// Use this for initialization
 	//	void Start () {}
 
@@ -61,9 +64,13 @@ public class PileWeight : MonoBehaviour {
 		// 自身を排除
 		hitObjList.Remove(transform);
 
-		//パイルを持っていないオブジェクトは排除
 		for (int i = hitObjList.Count - 1; i >= 0; i--) {
+			//パイルを持っていないオブジェクトは排除
 			if (hitObjList[i].GetComponent<PileWeight>() == null) {
+				hitObjList.RemoveAt(i);
+			}
+			// PileWeihgtの対象とならないフラグがtrueのオブジェクトを排除
+			else if (hitObjList[i].GetComponent<PileWeight>().ignoreOtherPileTarget) {
 				hitObjList.RemoveAt(i);
 			}
 		}
