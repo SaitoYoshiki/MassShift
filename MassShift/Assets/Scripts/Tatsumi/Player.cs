@@ -263,6 +263,8 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	bool prevIsLanding = false;
 	[SerializeField]
+	bool prevIsExtrusionLanding = false;
+	[SerializeField]
 	bool prevIsWaterFloatLanding = false;
 	[SerializeField]
 	bool prevFallFlg = false;
@@ -406,8 +408,7 @@ public class Player : MonoBehaviour {
 			handSpringWeitEndTime = value;
 		}
 	}
-	[SerializeField]
-	bool IsHandSpringWeit {
+	public bool IsHandSpringWeit {
 		get {
 			return (HandSpringEndTime > Time.time);
 		}
@@ -470,7 +471,7 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	bool liftInputFlg = false;
 
-	void Awake() {
+	void Start() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * CameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
 	}
@@ -544,12 +545,12 @@ public class Player : MonoBehaviour {
 
 		bool landTrueChangeFlg = ((land.IsLanding && (land.IsLanding != prevIsLanding)) ||
 			(land.IsWaterFloatLanding && (land.IsWaterFloatLanding != prevIsWaterFloatLanding)));
-		prevIsLanding = land.IsLanding;
-		prevIsWaterFloatLanding = land.IsWaterFloatLanding;
 
-		// 着地時、または入/出水時の戻り回転時
+		// 着地時、入/出水時の戻り回転時
 		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
-		if (landTrueChangeFlg || ((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {
+		if (landTrueChangeFlg ||																									// 通常の着地時
+			(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
+			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {	// 反転したまま水上に落ちた時
 			// 入/出水時の戻り回転なら天井回転アニメーションは行わない
 			bool notHandSpring = (WaterStt.IsInWater != prevIsInWater);
 
@@ -636,6 +637,10 @@ public class Player : MonoBehaviour {
 			SwimAudioSource.volume -= swimSoundVolDownSpd;
 		}
 		SwimAudioSource.volume = Mathf.Clamp(SwimAudioSource.volume, swimSoundMinVol, swimSoundMaxVol);
+
+		prevIsLanding = Land.IsLanding;
+		prevIsExtrusionLanding = Land.IsExtrusionLanding;
+		prevIsWaterFloatLanding = Land.IsWaterFloatLanding;
 	}
 
 	void Walk() {
