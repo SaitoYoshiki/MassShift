@@ -17,7 +17,7 @@ public class DisablePauseUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (rs.canGoal || ps.pauseFlg) {
+        if (rs.canGoal || ps.pauseFlg || !ps.canPause) {
             PauseUI.SetActive(false);
         }
         else {
