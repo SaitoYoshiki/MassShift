@@ -312,15 +312,16 @@ public class Landing : MonoBehaviour {
 		}
 
 		// 自身にしか着地していないオブジェクトを除外
+		List<Collider> thisOnlyLandList = new List<Collider>();
 		for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
 			Landing colLand = LandColList[idx].GetComponent<Landing>();
 			if (colLand && ((colLand.LandColList.Count == 1) && colLand.LandColList.Contains(MoveMng.UseCol))) {
-				LandColList.RemoveAt(idx);
+				thisOnlyLandList.Add(LandColList[idx]);
 			}
 		}
 
 		// 接地しているオブジェクトが存在しなければ離地
-		if (landColList.Count == 0) {
+		if ((landColList.Count - thisOnlyLandList.Count) == 0) {
 			IsLanding = false;
 			IsExtrusionLanding = false;
 			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));

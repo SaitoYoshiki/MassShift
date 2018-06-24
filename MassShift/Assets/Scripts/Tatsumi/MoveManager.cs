@@ -684,6 +684,10 @@ public class MoveManager : MonoBehaviour {
 										((moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !(hitWaterStt.IsInWater || hitWaterStt.IsWaterSurface))) {
 										nowLanding = false;
 									}
+									// 自身にしか着地していない相手には着地しない
+									else if (hitLand && (hitLand.LandColList.Count == 1) && hitLand.LandColList.Contains(moveMng.UseCol)) {
+										nowLanding = false;
+									}
 									if (nowLanding) {
 										land.IsLanding = true;
 									}
