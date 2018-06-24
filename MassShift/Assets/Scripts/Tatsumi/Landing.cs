@@ -62,13 +62,14 @@ public class Landing : MonoBehaviour {
 		set {
 			isExtrusionLanding = value;
 
-			// 値の変更時
-			if(isExtrusionLanding != value) {
-				isExtrusionLandingChange = true;
-			}
+			//// 値の変更時
+			//if(isExtrusionLanding != value) {
+			//	isExtrusionLandingChange = true;
+			//}
 
 			// 押し出し接地時
 			if (value == true) {
+				isExtrusionLandingChange = true;
 				// 縦方向の移動を停止
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
