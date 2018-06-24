@@ -679,36 +679,44 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 
 	public void StartStandBy() {
+		if (IsLiftAction()) return;
 		if (mState != CState.cWalk) return;	//歩き状態からしか外からは呼び出せない
 		ChangeState(CState.cStandBy);
 	}
 	public void StartWalk() {
+		if (IsLiftAction()) return;
 		if (mState != CState.cStandBy && mState != CState.cJumpLand) return; //立ち止まり状態からしか外からは呼び出せない
 		ChangeState(CState.cWalk);
 	}
 
 	public void StartWaterStandBy() {
-//		if (!StartLandCheck()) return;
+		//		if (!StartLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cWaterStandBy);
 	}
 	public void StartHoldWaterStandBy() {
-//		if (!StartHoldLandCheck()) return;
+		//		if (!StartHoldLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldWaterStandBy);
 	}
 	public void StartSwim() {
-//		if (!StartLandCheck()) return;
+		//		if (!StartLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cSwim);
 	}
 	public void StartHoldSwim() {
-//		if (!StartHoldLandCheck()) return;
+		//		if (!StartHoldLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldSwim);
 	}
 
 	public void StartJump() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cJumpStart);
 	}
 
 	public void StartFall() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cJumpFall);
 	}
 
@@ -722,6 +730,7 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 
 	public void StartLand() {
+		if (IsLiftAction()) return;
 		if (!StartLandCheck()) return;
 		ChangeState(CState.cJumpLand);
 	}
@@ -742,19 +751,23 @@ public class PlayerAnimation : MonoBehaviour {
 
 
 	public void StartHoldStandBy() {
+		if (IsLiftAction()) return;
 		if (mState != CState.cHoldWalk) return; //歩き状態からしか外からは呼び出せない
 		ChangeState(CState.cHoldStandBy);
 	}
 	public void StartHoldWalk() {
+		if (IsLiftAction()) return;
 		if (mState != CState.cHoldStandBy && mState != CState.cHoldJumpLand) return; //立ち止まり状態からしか外からは呼び出せない
 		ChangeState(CState.cHoldWalk);
 	}
 
 	public void StartHoldJump() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldJumpStart);
 	}
 
 	public void StartHoldFall() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldJumpFall);
 	}
 
@@ -768,15 +781,18 @@ public class PlayerAnimation : MonoBehaviour {
 
 	public void StartHoldLand() {
 		if (!StartHoldLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldJumpLand);
 	}
 
 
 	public void StartHandSpring() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHandSpring);
 	}
 
 	public void StartHoldHandSpring() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldHandSpring);
 	}
 
@@ -796,6 +812,13 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 	public void ExitRelease() {
 		ChangeState(CState.cStandBy);
+	}
+
+	bool IsLiftAction() {
+		if (mState == CState.cCatch) return true;
+		if (mState == CState.cCatchFailed) return true;
+		if (mState == CState.cRelease) return true;
+		return false;
 	}
 
 
