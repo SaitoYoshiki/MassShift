@@ -524,7 +524,7 @@ public class MoveManager : MonoBehaviour {
 					WaterState hitWaterStt = nearHitinfo.collider.GetComponent<WaterState>();
 					bool waterFloatExtrusion = false;
 					waterFloatExtrusion = (
-						(moveWaterStt && moveWeightMng && hitWeightMng && hitLanding) && (hitWaterStt) &	// コンポーネントが揃っている
+						(moveWaterStt && moveWeightMng && hitWeightMng && hitLanding) && (hitWaterStt) &&	// コンポーネントが揃っている
 						(moveWaterStt.IsInWater) &&															// 自身が水中
 						(!moveWaterStt.IsWaterSurface) &&													// 自身が水面でない
 						(moveWeightMng.WeightLv == WeightManager.Weight.light) &&							// 自身の重さが水面に浮かぶ重さ
@@ -536,7 +536,7 @@ public class MoveManager : MonoBehaviour {
 					if (_waterFloatExtrusion &&
 						(moveWaterStt && moveWeightMng && hitWeightMng && hitLanding) && (hitWaterStt)) {
 						// 自身の押し出し相手も水面に浮かぶ重さ、また水面でなければ
-						if ((hitWeightMng.WeightLv <= WeightManager.Weight.light) && !hitWaterStt.IsWaterSurface) {
+						if (hitWeightMng.WeightLv <= WeightManager.Weight.light) {
 							waterFloatExtrusion = true;
 						}
 					}
