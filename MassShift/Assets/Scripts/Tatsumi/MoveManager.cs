@@ -528,7 +528,7 @@ public class MoveManager : MonoBehaviour {
 						(moveWaterStt.IsInWater) &&															// 自身が水中
 						(!moveWaterStt.IsWaterSurface) &&													// 自身が水面でない
 						(moveWeightMng.WeightLv == WeightManager.Weight.light) &&							// 自身の重さが水面に浮かぶ重さ
-						(hitWeightMng.WeightLv == WeightManager.Weight.light) &&							// 相手の重さが水面に浮かぶ重さ
+						(hitWeightMng.WeightLv <= WeightManager.Weight.light) &&							// 相手の重さが水面に浮かぶ重さ
 						(!hitLanding.IsLanding && !hitLanding.IsWaterFloatLanding) &&						// 相手が着地していない
 						(moveVec.y > 0.0f));                                                                // 移動する方向が上方向
 
@@ -567,14 +567,17 @@ public class MoveManager : MonoBehaviour {
 						&& (!hitMoveMng.IsLiftUpMove)   // 相手が持ち上げ中のオブジェクトであれば不可
 
 						&& (
-						((moveWeightMng.PileMaxWeightLv > hitWeightMng.PileMaxWeightLv) && !hitLanding.IsLanding) ||	// 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
-						(waterFloatExtrusion))) {																		// 水中で上のオブジェクトを押し上げている
+						((moveWeightMng.PileMaxWeightLv > hitWeightMng.PileMaxWeightLv) && !hitLanding.IsLanding)/* ||	// 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
+						(waterFloatExtrusion)*/)) {																		// 水中で上のオブジェクトを押し上げている
 							canExtrusion = true;
 						} else {
 							if (moveMng.IsLiftUpMove) {  // 自身を持ち上げオブジェクトとする持ち上げ時の押し出しである
 								canExtrusion = true;
 							}
 							if (moveMng.ExtrusionForcible || _extrusionForcible) {	// 強制的に押し出す設定である
+								canExtrusion = true;
+							}
+							if (waterFloatExtrusion) {  // 水中で上のオブジェクトを押し上げている
 								canExtrusion = true;
 							}
 						}
