@@ -5,7 +5,8 @@ using System.Linq;
 
 public class MoveManager : MonoBehaviour {
 	// 定数
-	const float ColMargin = 0.01f;
+	const float ColMargin = 0.01f;	// 衝突時に衝突相手から開ける余裕
+	const float ThroughDis = 0.1f;	// めり込み時に無条件ですり抜け処理を行う最大距離
 
 	public enum MoveType {
 		min = -1,
@@ -453,6 +454,11 @@ public class MoveManager : MonoBehaviour {
 							// すり抜け指定オブジェクトを除外
 							hitInfos.RemoveAt(idx);
 						}
+						// すり抜け指定オブジェクトと近すぎる場合
+						else if(Mathf.Abs(_moveCol.bounds.center.y - (((BoxCollider)hitInfos[idx].collider).bounds.center.y)) <= ThroughDis) {
+							// すり抜け指定オブジェクトを除外
+							hitInfos.RemoveAt(idx);
+						}
 					}
 				}
 			}
@@ -811,6 +817,11 @@ public class MoveManager : MonoBehaviour {
 						// すり抜け指定オブジェクトから離れるように動く場合
 						if (hitInfos[idx].collider.GetComponent<MoveManager>() && _moveCol.GetComponent<MoveManager>() &&
 							moveVec.x != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.x - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.x)) {
+							// すり抜け指定オブジェクトを除外
+							hitInfos.RemoveAt(idx);
+						}
+						// すり抜け指定オブジェクトと近すぎる場合
+						else if (Mathf.Abs(_moveCol.bounds.center.x - (((BoxCollider)hitInfos[idx].collider).bounds.center.x)) <= ThroughDis) {
 							// すり抜け指定オブジェクトを除外
 							hitInfos.RemoveAt(idx);
 						}
