@@ -818,10 +818,12 @@ public class MoveManager : MonoBehaviour {
 				// x軸の最も近い衝突を取得
 //				RaycastHit nearHitinfo = new RaycastHit();
 				float dis = float.MaxValue;
+				string nearName = "";
 				foreach (var hitInfo in hitInfos) {
 					float cmpDis = (Mathf.Abs(_moveCol.bounds.center.x - hitInfo.collider.bounds.center.x) - (_moveCol.bounds.size.x + hitInfo.collider.bounds.size.x) * 0.5f);
 					if (cmpDis < dis) {
 						dis = cmpDis;
+						nearName = hitInfo.transform.parent.name;
 //						nearHitinfo = hitInfo;
 					}
 				}

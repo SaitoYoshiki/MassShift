@@ -264,7 +264,7 @@ public class Lifting : MonoBehaviour {
 
 			// オブジェクトの位置を同期
 			if (liftMoveFlg) {
-				if (heavyFailedFlg || (!MoveManager.MoveTo(GetLiftUpBoxPoint(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true))) {
+				if (heavyFailedFlg || (!MoveManager.Move(GetLiftUpBoxMove(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true))) {
 					Debug.Log("持ち上げ失敗");
 
 					//					// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
@@ -520,12 +520,12 @@ public class Lifting : MonoBehaviour {
 			// 重さ変更中は処理しない
 			if (Pl.IsShift) return null;
 
-			//// 持ち上げ中オブジェクト以外のすり抜け中のオブジェクトがある場合は処理しない
-			//foreach (var throughObj in MoveMng.ThroughObjList) {
-			//	if (throughObj != LiftObj) {
-			//		return null;
-			//	}
-			//}
+			// 持ち上げ中オブジェクト以外のすり抜け中のオブジェクトがある場合は処理しない
+			foreach (var throughObj in MoveMng.ThroughObjList) {
+				if (throughObj != LiftObj) {
+					return null;
+				}
+			}
 
 			// ジャンプ、重さ変更、振り向きを不可に
 			Pl.CanJump = false;
@@ -823,16 +823,20 @@ public class Lifting : MonoBehaviour {
 		}
 	}
 
-	Vector3 GetLiftUpBoxPoint() {
+	Vector3 GetLiftUpBoxMove() {
 		if (LiftObj == null) return Vector3.zero;
 
-		Vector3 ret = PlAnim.GetBoxPosition();
-
-		// x軸が離れようとした場合は離さない
-		float defDis = (LiftObj.transform.position.x - Pl.transform.position.x);
-		float dis = (ret.x - Pl.transform.position.x);
-		if (Mathf.Abs(dis) > Mathf.Abs(defDis)) {
-			ret = new Vector3((Pl.transform.position.x + defDis), ret.y, ret.z);
+		Vector3 ret = (PlAnim.GetBoxPosition() - LiftObj.transform.position);
+		float vec = Mathf.Sign(LiftObj.transform.position.x - Pl.transform.position.x);
+		
+		//// x軸が離れようとした場合は離さない
+		//float defDis = (LiftObj.transform.position.x - Pl.transform.position.x);
+		//float dis = (ret.x - Pl.transform.position.x);
+		//if (Mathf.Abs(dis) > Mathf.Abs(defDis)) {
+		//	ret = new Vector3((Pl.transform.position.x + defDis), ret.y, ret.z);
+		//}
+		if(vec == Mathf.Sign(ret.x)) {
+			ret = new Vector3(0.0f, ret.y, ret.z);
 		}
 		return ret;
 	}
