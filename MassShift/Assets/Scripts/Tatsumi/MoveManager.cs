@@ -274,7 +274,7 @@ public class MoveManager : MonoBehaviour {
 		// めり込んだ相手をすり抜けるようにする
 		if (updateOverlapCol) {
 			overlapColList.Clear();
-			overlapColList.AddRange(Physics.OverlapBox(((BoxCollider)UseCol).bounds.center, ((BoxCollider)UseCol).bounds.size * 0.5f, UseCol.transform.rotation, LayerMask.GetMask("Player", "Box")));
+			overlapColList.AddRange(Physics.OverlapBox(((BoxCollider)UseCol).bounds.center, ((BoxCollider)UseCol).bounds.size * 0.55f, UseCol.transform.rotation, LayerMask.GetMask("Player", "Box")));
 			for (int idx = overlapColList.Count - 1; idx >= 0; idx--) {
 				// 自身を除く
 				if (overlapColList[idx].gameObject == gameObject) {
@@ -423,7 +423,7 @@ public class MoveManager : MonoBehaviour {
 					throughBoxCol = moveMng.throughObjList[idx].GetComponent<BoxCollider>();
 				};
 
-				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.5f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
+				if (!Physics.OverlapBox(throughBoxCol.bounds.center, throughBoxCol.bounds.size * 0.55f, throughBoxCol.transform.rotation).Contains<Collider>(_moveCol)) {
 					moveMng.throughObjList.RemoveAt(idx);
 				}
 			}
@@ -447,18 +447,25 @@ public class MoveManager : MonoBehaviour {
 			if (moveMng) {
 				for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
 					if (moveMng.throughObjList.Contains(hitInfos[idx].collider.gameObject)) {
-						hitInfos.RemoveAt(idx);
+						// すり抜け指定オブジェクトから離れるように動く場合
+						if (moveVec.y != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.y - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.y)) {
+							// すり抜け指定オブジェクトを除外
+							hitInfos.RemoveAt(idx);
+						}
 					}
 				}
 			}
 
-			// 相手側のすり抜け指定オブジェクトリストに自身が入っており、そのオブジェクトから離れるように動く場合
+			// 相手側のすり抜け指定オブジェクトリストに自身が入っている場合
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
 				MoveManager hitMoveMng = hitInfos[idx].collider.GetComponent<MoveManager>();
 				//if (hitMoveMng && hitMoveMng.ThroughColList.Contains(_moveCol)/* && (moveVec.y == Mathf.Sign(hitInfos[idx].transform.position.y - _moveCol.transform.position.y))*/) {
 				if (hitMoveMng && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
+					// すり抜け指定オブジェクトリストを持つオブジェクトから離れるように動く場合
+					if (moveVec.y != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.y - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.y)) {
 						// 相手を衝突対象から除外
 						hitInfos.RemoveAt(idx);
+					}
 				}
 			}
 
@@ -560,11 +567,11 @@ public class MoveManager : MonoBehaviour {
 						}
 					}
 
-					// 相手側の自身に対するすり抜け指定があれば
-					if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
-						// 押し出し不可
-						canExtrusion = false;
-					}
+					//// 相手側の自身に対するすり抜け指定があれば
+					//if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
+					//	// 押し出し不可
+					//	canExtrusion = false;
+					//}
 
 					//					// 相手がボタンなら無条件で押し出す
 					//					if(nearHitinfo.collider.tag == "Button") {
@@ -755,10 +762,36 @@ public class MoveManager : MonoBehaviour {
 			//			RaycastHit[] hitInfos = Physics.BoxCastAll(_moveCol.bounds.center, _moveCol.size * 0.5f, new Vector3(_move.x, 0.0f, 0.0f));
 			List<RaycastHit> hitInfos = Support.GetColliderHitInfoList(_moveCol, new Vector3(xRange, 0.0f, 0.0f), _mask, _ignoreObjList);
 
+			//// すり抜け指定オブジェクトを除外
+			//for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+			//	if (moveMng.throughObjList.Contains(hitInfos[idx].collider.gameObject)) {
+			//		hitInfos.RemoveAt(idx);
+			//	}
+			//}
+
 			// すり抜け指定オブジェクトを除外
+			if (moveMng) {
+				for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+					if (moveMng.throughObjList.Contains(hitInfos[idx].collider.gameObject)) {
+						// すり抜け指定オブジェクトから離れるように動く場合
+						if (moveVec.x != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.x - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.x)) {
+							// すり抜け指定オブジェクトを除外
+							hitInfos.RemoveAt(idx);
+						}
+					}
+				}
+			}
+
+			// 相手側のすり抜け指定オブジェクトリストに自身が入っている場合
 			for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
-				if (moveMng.throughObjList.Contains(hitInfos[idx].collider.gameObject)) {
-					hitInfos.RemoveAt(idx);
+				MoveManager hitMoveMng = hitInfos[idx].collider.GetComponent<MoveManager>();
+				//if (hitMoveMng && hitMoveMng.ThroughColList.Contains(_moveCol)/* && (moveVec.y == Mathf.Sign(hitInfos[idx].transform.position.y - _moveCol.transform.position.y))*/) {
+				if (hitMoveMng && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
+					// すり抜け指定オブジェクトリストを持つオブジェクトから離れるように動く場合
+					if (moveVec.x != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.x - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.x)) {
+						// 相手を衝突対象から除外
+						hitInfos.RemoveAt(idx);
+					}
 				}
 			}
 
