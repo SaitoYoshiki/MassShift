@@ -543,6 +543,23 @@ public class Player : MonoBehaviour {
 			}
 		}
 
+		// 落下アニメーション
+		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (Mathf.Sign(MoveMng.PrevMove.y) == (MoveMng.GetFallVec())));
+		// 持ち上げ/下しの最中は落下しない
+		if (Lift.IsLiftCantMove) {
+			fallFlg = false;
+		}
+		if (fallFlg && !prevFallFlg) {
+			Debug.Log("Fall");
+			if (!Lift.IsLifting) {
+				PlAnim.StartFall();
+			}
+			else {
+				PlAnim.StartHoldFall();
+			}
+		}
+		prevFallFlg = fallFlg;
+
 		bool landTrueChangeFlg = ((land.IsLanding && (land.IsLanding != prevIsLanding)) ||
 	(land.IsWaterFloatLanding && (land.IsWaterFloatLanding != prevIsWaterFloatLanding)));
 
@@ -595,59 +612,6 @@ public class Player : MonoBehaviour {
 			}
 		}
 
-		// 着地アニメーション
-		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
-		//			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
-		if (landTrueChangeFlg) {
-			//			Land.IsLandingTrueChange = false;
-			//			Land.IsWaterFloatLandingTrueChange = false;
-			if (!Lift.IsLifting) {
-				PlAnim.StartLand();
-			}
-			else {
-				PlAnim.StartHoldLand();
-			}
-			if (WeightMng.WeightLv <= WeightManager.Weight.light) {
-				PlAnim.SetLandSpeed(lightLandAnimSpd);
-			}
-			else {
-				PlAnim.SetLandSpeed(heavyLandAnimSpd);
-			}
-		}
-
-		// 出水時アニメーション
-		if (WaterStt.IsWaterSurfaceChange) {
-			WaterStt.IsWaterSurfaceChange = false;
-			// 着水解除時
-			if (!WaterStt.IsWaterSurface) {
-				// 落下アニメーションに遷移
-				if (!Lift.IsLifting) {
-					PlAnim.StartFall();
-				}
-				else {
-					PlAnim.StartHoldFall();
-				}
-			}
-		}
-
-
-		// 落下アニメーション
-		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (Mathf.Sign(MoveMng.PrevMove.y) == (MoveMng.GetFallVec())));
-		// 持ち上げ/下しの最中は落下しない
-		if (Lift.IsLiftCantMove) {
-			fallFlg = false;
-		}
-		if (fallFlg && !prevFallFlg) {
-			Debug.Log("Fall");
-			if (!Lift.IsLifting) {
-				PlAnim.StartFall();
-			}
-			else {
-				PlAnim.StartHoldFall();
-			}
-		}
-		prevFallFlg = fallFlg;
-
 		// 左右移動
 		Walk();
 
@@ -674,6 +638,37 @@ public class Player : MonoBehaviour {
 		// 自動ジャンプ
 		ClimbJump();
 
+		// 着地アニメーション
+		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
+		//			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
+		if (landTrueChangeFlg) {
+			//			Land.IsLandingTrueChange = false;
+			//			Land.IsWaterFloatLandingTrueChange = false;
+			if (!Lift.IsLifting) {
+				PlAnim.StartLand();
+			} else {
+				PlAnim.StartHoldLand();
+			}
+			if (WeightMng.WeightLv <= WeightManager.Weight.light) {
+				PlAnim.SetLandSpeed(lightLandAnimSpd);
+			} else {
+				PlAnim.SetLandSpeed(heavyLandAnimSpd);
+			}
+		}
+
+		// 出水時アニメーション
+		if (WaterStt.IsWaterSurfaceChange) {
+			WaterStt.IsWaterSurfaceChange = false;
+			// 着水解除時
+			if (!WaterStt.IsWaterSurface) {
+				// 落下アニメーションに遷移
+				if (!Lift.IsLifting) {
+					PlAnim.StartFall();
+				} else {
+					PlAnim.StartHoldFall();
+				}
+			}
+		}
 
 		//		if ((!Land.IsLanding && Land.IsLandingTrueChange) && (!Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
 		//			Land.IsLandingTrueChange = false;
