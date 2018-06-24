@@ -659,13 +659,13 @@ public class MoveManager : MonoBehaviour {
 					if (land != null) {
 						// 着地先がステージ又はステージに接地中や水上安定状態のオブジェクトなら
 						Landing hitLand = nearHitinfo.collider.GetComponent<Landing>(); // nullならステージ
-						if (!hitLand || (moveWeightMng && hitWeightMng && !((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitWeightMng.WeightLv >= WeightManager.Weight.light)))) {
+						if (!hitLand || (moveWeightMng && hitWeightMng/* && !((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitWeightMng.WeightLv >= WeightManager.Weight.light))*/)) {
 							if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
 								(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && moveWeightMng.WeightLv == WeightManager.Weight.flying) ||   // 水上のオブジェクトへの水中からの着地
 								(hitLand.IsWaterFloatLanding)) {
  								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
 									// 水中や水面では水上のオブジェクト、ボタンには着地しない
-									if (!(moveWaterStt && hitWaterStt && (moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !(hitWaterStt.IsInWater || hitWaterStt.IsWaterSurface)) &&
+									if (!(moveWaterStt && hitWaterStt && (moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !hitWaterStt.IsWaterSurface) &&
 										(hitInfo.collider.tag != "Button")) {
 										land.IsLanding = true;
 									}
