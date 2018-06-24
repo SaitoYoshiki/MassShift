@@ -448,7 +448,8 @@ public class MoveManager : MonoBehaviour {
 				for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
 					if (moveMng.throughObjList.Contains(hitInfos[idx].collider.gameObject)) {
 						// すり抜け指定オブジェクトから離れるように動く場合
-						if (moveVec.y != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.y - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.y)) {
+						if (hitInfos[idx].collider.GetComponent<MoveManager>() && _moveCol.GetComponent<MoveManager>() &&
+							moveVec.y != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.y - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.y)) {
 							// すり抜け指定オブジェクトを除外
 							hitInfos.RemoveAt(idx);
 						}
@@ -462,7 +463,8 @@ public class MoveManager : MonoBehaviour {
 				//if (hitMoveMng && hitMoveMng.ThroughColList.Contains(_moveCol)/* && (moveVec.y == Mathf.Sign(hitInfos[idx].transform.position.y - _moveCol.transform.position.y))*/) {
 				if (hitMoveMng && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
 					// すり抜け指定オブジェクトリストを持つオブジェクトから離れるように動く場合
-					if (moveVec.y != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.y - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.y)) {
+					if (hitInfos[idx].collider.GetComponent<MoveManager>() && _moveCol.GetComponent<MoveManager>() &&
+						moveVec.y != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.y - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.y)) {
 						// 相手を衝突対象から除外
 						hitInfos.RemoveAt(idx);
 					}
@@ -774,7 +776,8 @@ public class MoveManager : MonoBehaviour {
 				for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
 					if (moveMng.throughObjList.Contains(hitInfos[idx].collider.gameObject)) {
 						// すり抜け指定オブジェクトから離れるように動く場合
-						if (moveVec.x != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.x - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.x)) {
+						if (hitInfos[idx].collider.GetComponent<MoveManager>() && _moveCol.GetComponent<MoveManager>() &&
+							moveVec.x != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.x - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.x)) {
 							// すり抜け指定オブジェクトを除外
 							hitInfos.RemoveAt(idx);
 						}
@@ -788,7 +791,8 @@ public class MoveManager : MonoBehaviour {
 				//if (hitMoveMng && hitMoveMng.ThroughColList.Contains(_moveCol)/* && (moveVec.y == Mathf.Sign(hitInfos[idx].transform.position.y - _moveCol.transform.position.y))*/) {
 				if (hitMoveMng && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
 					// すり抜け指定オブジェクトリストを持つオブジェクトから離れるように動く場合
-					if (moveVec.x != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.x - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.x)) {
+					if (hitInfos[idx].collider.GetComponent<MoveManager>() && _moveCol.GetComponent<MoveManager>() &&
+						moveVec.x != Mathf.Sign(hitInfos[idx].collider.GetComponent<MoveManager>().UseCol.bounds.center.x - _moveCol.GetComponent<MoveManager>().UseCol.bounds.center.x)) {
 						// 相手を衝突対象から除外
 						hitInfos.RemoveAt(idx);
 					}
