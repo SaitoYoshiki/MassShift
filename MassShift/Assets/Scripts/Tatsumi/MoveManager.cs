@@ -547,12 +547,16 @@ public class MoveManager : MonoBehaviour {
 						&& (!hitMoveMng.IsLiftUpMove)   // 相手が持ち上げ中のオブジェクトでない
 
 						&& (
-						((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) || // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
-						(waterFloatExtrusion) ||                                                // 水中で上のオブジェクトを押し上げている、又は
-						(moveMng.ExtrusionForcible || _extrusionForcible))) {                     // 自身が押し出し優先設定であるか、今回の移動が押し出し優先設定であれば
+						((moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding) ||  // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
+						(waterFloatExtrusion))) {                                                       // 水中で上のオブジェクトを押し上げている
 							canExtrusion = true;
-						} else if (moveMng.IsLiftUpMove) {  // 自身を持ち上げオブジェクトとする持ち上げ時の押し出しである
-							canExtrusion = true;
+						} else {
+							if (moveMng.IsLiftUpMove) {  // 自身を持ち上げオブジェクトとする持ち上げ時の押し出しである
+								canExtrusion = true;
+							}
+							if (moveMng.ExtrusionForcible || _extrusionForcible) {	// 強制的に押し出す設定である
+								canExtrusion = true;
+							}
 						}
 					}
 
