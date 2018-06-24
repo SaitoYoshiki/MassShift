@@ -40,7 +40,7 @@ public class WaterState : MonoBehaviour {
 				SetWaterMaxSpeed(weightLvExitWaterMoveMax, null);
 
 				// 水面状態を解除
-//				IsWaterSurface = false;
+				//				IsWaterSurface = false;
 			}
 		}
 	}
@@ -91,7 +91,7 @@ public class WaterState : MonoBehaviour {
 	}
 
 	[SerializeField]
-	bool isSubmerge = false;	// 上に乗っているオブジェクトによって水面から沈められている
+	bool isSubmerge = false;    // 上に乗っているオブジェクトによって水面から沈められている
 	bool IsSubmerge {
 		get {
 			return isSubmerge;
@@ -192,15 +192,15 @@ public class WaterState : MonoBehaviour {
 					inWaterCol = waterBox;
 				}
 			}
-			isInWater = true;	// プロパティを使わずに直接変更
+			isInWater = true;   // プロパティを使わずに直接変更
 		}
 	}
 
-		void FixedUpdate() {
+	void FixedUpdate() {
 		List<RaycastHit> waterAreaList = Support.GetColliderHitInfoList(waterCol, Vector3.zero, LayerMask.GetMask("WaterArea"));
 		if (waterAreaList.Count > 0) {
 			// 入った水エリアを保持する
-			float nearDis = float.MaxValue; 
+			float nearDis = float.MaxValue;
 			foreach (var waterArea in waterAreaList) {
 				BoxCollider waterBox = waterArea.transform.GetComponent<BoxCollider>();
 				float cmpDis = Mathf.Abs((waterBox.bounds.center.y + waterBox.bounds.size.y * 0.5f) - (waterCol.bounds.center.y));
@@ -210,7 +210,8 @@ public class WaterState : MonoBehaviour {
 				}
 			}
 			IsInWater = true;
-		} else {
+		}
+		else {
 			IsInWater = false;
 		}
 

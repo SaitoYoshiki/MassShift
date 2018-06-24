@@ -261,7 +261,8 @@ public class Landing : MonoBehaviour {
 				IsLanding = false;
 				return;
 			}
-		} else {
+		}
+		else {
 			if (MoveMng.PrevMove.y < 0.0f) {
 				IsLanding = false;
 				return;
@@ -271,7 +272,8 @@ public class Landing : MonoBehaviour {
 		// 接地側の判定オブジェクトを取得
 		if (landVec <= 0.0f) {
 			LandingCol = FourSideCol.BottomCol;
-		} else {
+		}
+		else {
 			LandingCol = FourSideCol.TopCol;
 		}
 
@@ -292,7 +294,8 @@ public class Landing : MonoBehaviour {
 				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.PrevMove.y, gameObject)) {
 					landColList.RemoveAt(idx);
 				}
-			} else {
+			}
+			else {
 				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.GetFallVec(), gameObject)) {
 					landColList.RemoveAt(idx);
 				}
@@ -305,6 +308,14 @@ public class Landing : MonoBehaviour {
 				MoveManager landMoveMng = LandColList[idx].GetComponent<MoveManager>();
 				if (landMoveMng && (landMoveMng.GetFallVec() == -1.0f))
 					LandColList.RemoveAt(idx);
+			}
+		}
+
+		// 自身にしか着地していないオブジェクトを除外
+		for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
+			Landing colLand = LandColList[idx].GetComponent<Landing>();
+			if (colLand && ((colLand.LandColList.Count == 1) && colLand.LandColList.Contains(MoveMng.UseCol))) {
+				LandColList.RemoveAt(idx);
 			}
 		}
 
