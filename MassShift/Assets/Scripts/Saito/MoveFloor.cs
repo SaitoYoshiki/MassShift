@@ -279,12 +279,15 @@ public class MoveFloor : MonoBehaviour {
 		//コライダーの位置をもとに戻す
 		Vector3 lMoveDelta = mFloor.transform.position - lBeforeColliderPosition;
 
-		
+
 		//乗っているオブジェクトが一緒に動くようにする
 		foreach(var lObject in lPileListOrderNear) {
+
+			var lMoveMng = lObject.GetComponent<MoveManager>();
+
 			//同じ方向に動くなら
-			if (lObject.GetComponent<MoveManager>().GravityForce * lWorldMoveDelta.y > 0.0f) {
-				MoveManager.Move(lWorldMoveDelta * 2.0f, lObject.GetComponent<BoxCollider>(), LayerMask.GetMask(new string[] { "Box", "Stage", "Player", "Fence" }), false, false);
+			if (lMoveMng.GravityForce * lWorldMoveDelta.y > 0.0f) {
+				MoveManager.Move(lWorldMoveDelta * 2.0f, (BoxCollider)(lMoveMng.UseCol), LayerMask.GetMask(new string[] { "Box", "Stage", "Player", "Fence" }), false, false);
 			}
 		}
 
