@@ -397,7 +397,7 @@ public class MoveManager : MonoBehaviour {
 
 	// 可能な限り移動、指定分全て移動できたらtrueを返す
 	static public bool Move(Vector3 _move, BoxCollider _moveCol, int _mask, out Vector3 _resMove, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		bool ret = true;    // 自身が指定位置まで移動出来たらtrue
 		Vector3 moveVec = new Vector3((_move.x == 0.0f ? 0.0f : Mathf.Sign(_move.x)), (_move.y == 0.0f ? 0.0f : Mathf.Sign(_move.y)), 0.0f);
 		MoveManager moveMng = _moveCol.GetComponent<MoveManager>();
@@ -555,6 +555,11 @@ public class MoveManager : MonoBehaviour {
 					//Debug.LogWarning(testStr);
 					//test
 
+					// 押し出す重さを更新
+					if (moveWeightMng && (_extrusionWeightLv < moveWeightMng.WeightLv)) {
+						_extrusionWeightLv = moveWeightMng.WeightLv;
+					}
+
 					// 自身が衝突相手を押し出せるか
 					canExtrusion = false;
 					if ((moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding)   // 判定に必要なコンポーネントが揃っている
@@ -563,11 +568,11 @@ public class MoveManager : MonoBehaviour {
 						if ((!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)))    // 自身が水中の場合、相手が重さ2であれば、不可
 						&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.flying) && (moveVec.y == -1.0f) && moveWaterStt.IsWaterSurface))	// 相手が水中であり重さ0、更に下方向の押し出しである場合、自身が水面安定状態であれば不可
 						&& (!(moveLanding && moveLanding.IsLanding))                                                                // 自身がLandingコンポーネントを持っている場合、着地していれば不可
-						&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (moveWeightMng.WeightLv < hitWeightMng.WeightLv)))  // 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽ければ不可
+						&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (_extrusionWeightLv < hitWeightMng.WeightLv)))  // 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽ければ不可
 						&& (!hitMoveMng.IsLiftUpMove)   // 相手が持ち上げ中のオブジェクトであれば不可
 
 						&& (
-						((moveWeightMng.PileMaxWeightLv > hitWeightMng.PileMaxWeightLv) && !hitLanding.IsLanding)/* ||	// 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
+						((_extrusionWeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding)/* ||	// 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
 						(waterFloatExtrusion)*/)) {																		// 水中で上のオブジェクトを押し上げている
 							canExtrusion = true;
 						} else {
@@ -1077,53 +1082,53 @@ public class MoveManager : MonoBehaviour {
 		#endregion
 	}
 	static public bool Move(Vector3 _move, BoxCollider _moveCol, int _mask,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Vector3 dummyResMove;
 		Collider dummyHitCol;
 		return Move(_move, _moveCol, _mask, out dummyResMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool Move(Vector3 _move, BoxCollider _moveCol, int _mask, out Vector3 _resMove,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Collider dummyHitCol;
 		return Move( _move, _moveCol, _mask, out _resMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool Move(Vector3 _move, BoxCollider _moveCol, int _mask, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Vector3 dummyResMove;
 		return Move( _move, _moveCol, _mask, out dummyResMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 
 	static public bool Move(Vector3 _move, GameObject _moveObj, int _mask, out Vector3 _resMove, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		if (!_moveObj) {
 			if (!_moveObj) {
 				Debug.LogError("_moveObjが見つかりませんでした。");
 			}
 		}
 		return Move(_move, _moveObj.GetComponent<BoxCollider>(), _mask, out _resMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool Move(Vector3 _move, GameObject _moveObj, int _mask,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Vector3 dummyResMove;
 		Collider dummyHitCol;
 		return Move(_move, _moveObj, _mask, out dummyResMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool Move(Vector3 _move, GameObject _moveObj, int _mask, out Vector3 _resMove,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Collider dummyHitCol;
 		return Move(_move, _moveObj, _mask, out _resMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool Move(Vector3 _move, GameObject _moveObj, int _mask, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Vector3 dummyResMove;
 		return Move(_move, _moveObj, _mask, out dummyResMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 
 
@@ -1146,53 +1151,53 @@ public class MoveManager : MonoBehaviour {
 
 	// 移動量ではなく移動先位置を基準に移動する
 	static public bool MoveTo(Vector3 _pos, BoxCollider _moveCol, int _mask, out Vector3 _resMove, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		return Move(_pos - _moveCol.transform.position, _moveCol, _mask, out _resMove, out _hitCol,
-		 _dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+		 _dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool MoveTo(Vector3 _pos, BoxCollider _moveCol, int _mask,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Vector3 dummyResMove;
 		Collider dummyHitCol;
 		return MoveTo(_pos, _moveCol, _mask, out dummyResMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool MoveTo(Vector3 _pos, BoxCollider _moveCol, int _mask, out Vector3 _resMove,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Collider dummyHitCol;
 		return MoveTo(_pos, _moveCol, _mask, out _resMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool MoveTo(Vector3 _pos, BoxCollider _moveCol, int _mask, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Vector3 dummyResMove;
 		return MoveTo(_pos, _moveCol, _mask, out dummyResMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 
 	static public bool MoveTo(Vector3 _pos, GameObject _moveObj, int _mask, out Vector3 _resMove, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		return Move(_pos - _moveObj.transform.position, _moveObj, _mask, out _resMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool MoveTo(Vector3 _pos, GameObject _moveObj, int _mask,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Vector3 dummyResMove;
 		Collider dummyHitCol;
 		return MoveTo(_pos, _moveObj, _mask, out dummyResMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool MoveTo(Vector3 _pos, GameObject _moveObj, int _mask, out Vector3 _resMove,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Collider dummyHitCol;
 		return MoveTo(_pos, _moveObj, _mask, out _resMove, out dummyHitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 	static public bool MoveTo(Vector3 _pos, GameObject _moveObj, int _mask, out Collider _hitCol,
-		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false) {
+		bool _dontExtrusionFlg = false, bool _extrusionForcible = false, List<GameObject> _ignoreObjList = null, bool _waterFloatExtrusion = false, WeightManager.Weight _extrusionWeightLv = WeightManager.Weight.flying) {
 		Vector3 dummyResMove;
 		return MoveTo(_pos, _moveObj, _mask, out dummyResMove, out _hitCol,
-			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion);
+			_dontExtrusionFlg, _extrusionForcible, _ignoreObjList, _waterFloatExtrusion, _extrusionWeightLv);
 	}
 
 	//	bool MoveTo(Vector3 _pos, Collider _col, int _mask, out Vector3 _resMove, out Collider _hitCol) {
