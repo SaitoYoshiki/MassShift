@@ -202,7 +202,7 @@ public class WaterState : MonoBehaviour {
 		// 水上なら
 		else if (IsWaterSurface) {
 			// 重さや位置に変化が無ければ
-			if ((WeightMng.WeightLv == WeightManager.Weight.light) && (transform.position.y == prevHeight)) {
+			if ((WeightMng.PileMaxWeightLv == WeightManager.Weight.light) && (transform.position.y == prevHeight)) {
 				// 落下しない
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
@@ -219,7 +219,7 @@ public class WaterState : MonoBehaviour {
 	void SetWaterMaxSpeed(List<float> _oneTimeWeightLvMaxSpd, List<float> _stayWeightLvMaxSpd) {
 		// 水面に浮かぶ重さレベルでの入出水時に入出水速度が一定以下なら
 		//		Debug.LogError("(" + MoveMng.TotalMove.magnitude + " <= " + cutOutSpd + ")");
-		if ((WeightMng.WeightLv == WeightManager.Weight.light) && (MoveMng.PrevMove.magnitude <= cutOutSpd)) {
+		if ((WeightMng.PileMaxWeightLv == WeightManager.Weight.light) && (MoveMng.PrevMove.magnitude <= cutOutSpd)) {
 			// 停止
 			Debug.Log("WaterState CutOut" + MoveMng.PrevMove.magnitude);
 			MoveMng.OneTimeMaxSpd = 0.0f;
