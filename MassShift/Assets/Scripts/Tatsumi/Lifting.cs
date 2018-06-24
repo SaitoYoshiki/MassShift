@@ -857,11 +857,11 @@ public class Lifting : MonoBehaviour {
 		Vector3 pos = PlAnim.GetBoxPosition();
 
 		// x軸がプレイヤーの中心より後ろだったら
-		float posVec = Mathf.Sign(LiftObj.transform.position.x - Pl.transform.position.x);
-		if(Pl.RotVec.x != posVec) {
-			// 中央に補正
-			pos = new Vector3(Pl.transform.position.x, pos.y, pos.z);
-		}
+		//float posVec = Mathf.Sign(LiftObj.transform.position.x - Pl.transform.position.x);
+		//if(Pl.RotVec.x != posVec) {
+		//	// 中央に補正
+		//	pos = new Vector3(Pl.transform.position.x, pos.y, pos.z);
+		//}
 
 		return pos;
 	}
