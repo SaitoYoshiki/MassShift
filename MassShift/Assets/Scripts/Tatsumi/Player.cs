@@ -561,7 +561,7 @@ public class Player : MonoBehaviour {
 		prevFallFlg = fallFlg;
 
 		bool landTrueChangeFlg = ((land.IsLanding && (land.IsLanding != prevIsLanding)) ||
-	(land.IsWaterFloatLanding && (land.IsWaterFloatLanding != prevIsWaterFloatLanding)));
+			(land.IsWaterFloatLanding && (land.IsWaterFloatLanding != prevIsWaterFloatLanding)));
 
 		bool topColOverlap = (Physics.OverlapBox(TopCol.position, TopCol.lossyScale * 0.5f, TopCol.rotation, sandwitchMask).Length > 0);
 		bool bottomColOverlap = (Physics.OverlapBox(BottomCol.position, TopCol.lossyScale * 0.5f, TopCol.rotation, sandwitchMask).Length > 0);
@@ -577,7 +577,7 @@ public class Player : MonoBehaviour {
 		// 着地時、入/出水時の戻り回転時
 		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
 		if ((landTrueChangeFlg && !isSandwitch) ||                                                                                  // 通常の着地時
-																																	//			(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
+			//(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
 			(prevIsSandwitch && !isSandwitch && landColOverlap) ||                                                                  // 上下を挟まれている状態から解放された時
 			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {  // 反転したまま水上に落ちた時
 																																	// 入/出水時の戻り回転なら天井回転アニメーションは行わない
