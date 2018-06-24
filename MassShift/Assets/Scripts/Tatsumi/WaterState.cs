@@ -211,6 +211,12 @@ public class WaterState : MonoBehaviour {
 					//Debug.LogWarning("waterfloat");
 					MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f), MoveManager.MoveType.waterFloat);
 				}
+				// 自身が宙に浮く重さであり、水上に浮く以上の重さのオブジェクトに抑えられている場合
+				if ((WeightMng.WeightLv == WeightManager.Weight.flying) && (WeightMng.PileMaxWeightLv >= WeightManager.Weight.light)) {
+					// 重力による移動と前回の移動量をなくす
+					MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+					MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+				}
 			}
 		}
 		// 水上なら
