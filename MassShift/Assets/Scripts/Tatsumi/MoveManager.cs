@@ -637,7 +637,7 @@ public class MoveManager : MonoBehaviour {
 
 						Vector3 resMove;
 						if (Move(new Vector3(0.0f, moveVec.y * otherMoveDistance, 0.0f), (BoxCollider)nearHitinfo.collider, _mask, out resMove,
-							false, (moveMng.ExtrusionForcible || _extrusionForcible), _ignoreObjList, waterFloatExtrusion)) {    // 押し出し優先情報を使用
+							false, (moveMng.ExtrusionForcible || _extrusionForcible), _ignoreObjList, waterFloatExtrusion, _extrusionWeightLv)) {    // 押し出し優先情報を使用
 																											
 							// 自身は指定通り移動
 							Move(new Vector3(0.0f, _move.y, 0.0f), _moveCol, _mask, true, false, _ignoreObjList, false);  // 押し出し不可移動
