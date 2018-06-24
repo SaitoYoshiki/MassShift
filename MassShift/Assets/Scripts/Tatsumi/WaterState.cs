@@ -168,9 +168,23 @@ public class WaterState : MonoBehaviour {
 		if (!waterCol) {
 			waterCol = GetComponent<BoxCollider>();
 		}
-	}																											
+		List<RaycastHit> waterAreaList = Support.GetColliderHitInfoList(waterCol, Vector3.zero, LayerMask.GetMask("WaterArea"));
+		if (waterAreaList.Count > 0) {
+			// 入った水エリアを保持する
+			float nearDis = float.MaxValue;
+			foreach (var waterArea in waterAreaList) {
+				BoxCollider waterBox = waterArea.transform.GetComponent<BoxCollider>();
+				float cmpDis = Mathf.Abs((waterBox.bounds.center.y + waterBox.bounds.size.y * 0.5f) - (waterCol.bounds.center.y));
+				if (cmpDis < nearDis) {
+					nearDis = cmpDis;
+					inWaterCol = waterBox;
+				}
+			}
+			isInWater = true;	// プロパティを使わずに直接変更
+		}
+	}
 
-	void FixedUpdate() {
+		void FixedUpdate() {
 		List<RaycastHit> waterAreaList = Support.GetColliderHitInfoList(waterCol, Vector3.zero, LayerMask.GetMask("WaterArea"));
 		if (waterAreaList.Count > 0) {
 			// 入った水エリアを保持する
@@ -195,7 +209,7 @@ public class WaterState : MonoBehaviour {
 				if (!(Land && Land.IsExtrusionLanding)) {
 					// 水による浮上
 					//Debug.LogWarning("waterfloat");
-					MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f), MoveManager.MoveType.waterFloat);
+					MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.PileMaxWeightLv], 0.0f), MoveManager.MoveType.waterFloat);
 				}
 			}
 		}
