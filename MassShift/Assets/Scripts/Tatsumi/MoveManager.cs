@@ -664,9 +664,18 @@ public class MoveManager : MonoBehaviour {
 								(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && moveWeightMng.WeightLv == WeightManager.Weight.flying) ||   // 水上のオブジェクトへの水中からの着地
 								(hitLand.IsWaterFloatLanding)) {
  								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
-									// 水中や水面では水上のオブジェクト、ボタンには着地しない
-									if (!(moveWaterStt && hitWaterStt && (moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !hitWaterStt.IsWaterSurface) &&
-										(hitInfo.collider.tag != "Button")) {
+									bool nowLanding = true; // 結果がtrueならIsLandingをtrueにする
+									
+									// 相手がボタンなら着地しない
+									if (hitInfo.collider.tag == "Button") {
+										nowLanding = false;
+									}
+									// 自身が水中で相手が地上なら着地しない
+									else if (moveWaterStt && hitWaterStt &&
+										((moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !(hitWaterStt.IsInWater || hitWaterStt.IsWaterSurface))) {
+										nowLanding = false;
+									}
+									if (nowLanding) {
 										land.IsLanding = true;
 									}
 									else {
