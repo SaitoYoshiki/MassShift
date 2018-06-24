@@ -40,7 +40,7 @@ public class WaterState : MonoBehaviour {
 				SetWaterMaxSpeed(weightLvExitWaterMoveMax, null);
 
 				// 水面状態を解除
-//				IsWaterSurface = false;
+				//				IsWaterSurface = false;
 			}
 		}
 	}
@@ -87,6 +87,17 @@ public class WaterState : MonoBehaviour {
 		}
 		set {
 			isWaterSurfaceChange = value;
+		}
+	}
+
+	[SerializeField]
+	bool isSubmerge = false;    // 上に乗っているオブジェクトによって水面から沈められている
+	bool IsSubmerge {
+		get {
+			return isSubmerge;
+		}
+		set {
+			isSubmerge = value;
 		}
 	}
 
@@ -153,6 +164,7 @@ public class WaterState : MonoBehaviour {
 	BoxCollider waterCol = null;
 	[SerializeField]
 	BoxCollider inWaterCol = null;
+	bool prevIsWaterSurface = false;
 
 	Landing land = null;
 	Landing Land {
@@ -168,13 +180,27 @@ public class WaterState : MonoBehaviour {
 		if (!waterCol) {
 			waterCol = GetComponent<BoxCollider>();
 		}
-	}																											
+		List<RaycastHit> waterAreaList = Support.GetColliderHitInfoList(waterCol, Vector3.zero, LayerMask.GetMask("WaterArea"));
+		if (waterAreaList.Count > 0) {
+			// 入った水エリアを保持する
+			float nearDis = float.MaxValue;
+			foreach (var waterArea in waterAreaList) {
+				BoxCollider waterBox = waterArea.transform.GetComponent<BoxCollider>();
+				float cmpDis = Mathf.Abs((waterBox.bounds.center.y + waterBox.bounds.size.y * 0.5f) - (waterCol.bounds.center.y));
+				if (cmpDis < nearDis) {
+					nearDis = cmpDis;
+					inWaterCol = waterBox;
+				}
+			}
+			isInWater = true;   // プロパティを使わずに直接変更
+		}
+	}
 
 	void FixedUpdate() {
 		List<RaycastHit> waterAreaList = Support.GetColliderHitInfoList(waterCol, Vector3.zero, LayerMask.GetMask("WaterArea"));
 		if (waterAreaList.Count > 0) {
 			// 入った水エリアを保持する
-			float nearDis = float.MaxValue; 
+			float nearDis = float.MaxValue;
 			foreach (var waterArea in waterAreaList) {
 				BoxCollider waterBox = waterArea.transform.GetComponent<BoxCollider>();
 				float cmpDis = Mathf.Abs((waterBox.bounds.center.y + waterBox.bounds.size.y * 0.5f) - (waterCol.bounds.center.y));
@@ -184,25 +210,32 @@ public class WaterState : MonoBehaviour {
 				}
 			}
 			IsInWater = true;
-		} else {
+		}
+		else {
 			IsInWater = false;
 		}
 
 		// 水中なら
 		if (isInWater && !IsWaterSurface) {
 			if (CanFloat) {
-				// 押し付けられていない場合
-				if (!(Land && Land.IsExtrusionLanding)) {
+//				// 押し付けられていない場合
+//				if (!(Land && Land.IsExtrusionLanding)) {
 					// 水による浮上
 					//Debug.LogWarning("waterfloat");
 					MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f), MoveManager.MoveType.waterFloat);
+//				}
+				// 自身が宙に浮く重さであり、水上に浮く以上の重さのオブジェクトに抑えられている場合
+				if ((WeightMng.WeightLv == WeightManager.Weight.flying) && (WeightMng.PileMaxWeightLv >= WeightManager.Weight.light)) {
+					// 重力による移動と前回の移動量をなくす
+					MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+					MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 				}
 			}
 		}
 		// 水上なら
 		else if (IsWaterSurface) {
 			// 重さや位置に変化が無ければ
-			if ((WeightMng.WeightLv == WeightManager.Weight.light) && (transform.position.y == prevHeight)) {
+			if ((WeightMng.WeightLv == WeightManager.Weight.light) && (transform.position.y == prevHeight) && (WeightMng.PileMaxWeightLv != WeightManager.Weight.heavy)) {
 				// 落下しない
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
@@ -212,14 +245,26 @@ public class WaterState : MonoBehaviour {
 			else {
 				// 水面状態を解除
 				IsWaterSurface = false;
+
+				// 上に乗っているオブジェクトに沈められた場合
+				if (WeightMng.PileMaxWeightLv == WeightManager.Weight.heavy) {
+					// 下方向への移動が続く限り、水面状態にならない
+					IsSubmerge = true;
+				}
 			}
+		}
+
+		// 上に乗っているオブジェクトに沈められた後、上方向に移動していれば
+		if (IsSubmerge && MoveMng.PrevMove.y > 0.0f) {
+			// 沈められていない
+			IsSubmerge = false;
 		}
 	}
 
 	void SetWaterMaxSpeed(List<float> _oneTimeWeightLvMaxSpd, List<float> _stayWeightLvMaxSpd) {
-		// 水面に浮かぶ重さレベルでの入出水時に入出水速度が一定以下なら
+		// 水面に浮かぶ重さレベルでの入出水時に入出水速度が一定以下であり、上に乗っているオブジェクトに沈められていなければ
 		//		Debug.LogError("(" + MoveMng.TotalMove.magnitude + " <= " + cutOutSpd + ")");
-		if ((WeightMng.WeightLv == WeightManager.Weight.light) && (MoveMng.PrevMove.magnitude <= cutOutSpd)) {
+		if ((WeightMng.WeightLv == WeightManager.Weight.light) && (MoveMng.PrevMove.magnitude <= cutOutSpd) && !IsSubmerge) {
 			// 停止
 			Debug.Log("WaterState CutOut" + MoveMng.PrevMove.magnitude);
 			MoveMng.OneTimeMaxSpd = 0.0f;

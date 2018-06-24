@@ -12,9 +12,6 @@ public class PlayerAnimation : MonoBehaviour {
 	Transform mHandTransform;
 
 	[SerializeField]
-	Transform mCatchStartHandPosition;
-
-	[SerializeField]
 	Transform mCatchEndHandPosition;
 
 	[SerializeField]
@@ -26,8 +23,15 @@ public class PlayerAnimation : MonoBehaviour {
 	[SerializeField]
 	Transform mReleaseEndBoxPosition;
 
-	Vector3 mStartDifference;
-	Vector3 mEndDifference;
+	[SerializeField]
+	Transform mWaterReleaseEndHandPosition;
+
+	[SerializeField]
+	Transform mWaterReleaseEndBoxPosition;
+
+	public Vector3 mStartDifference;
+	public Vector3 mEndDifference;
+	public Vector3 mLiftDifference;
 
 	[SerializeField]
 	float mCatchStartTime = 0.0f;
@@ -41,12 +45,13 @@ public class PlayerAnimation : MonoBehaviour {
 	[SerializeField]
 	float mReleaseEndTime = 1.0f;
 
+	[SerializeField]
+	float mWaterReleaseEndTime = 0.5f;
+
 	float mBeforeStandByLoopTime = 1.0f;
 
 	Animator mAnimator;
-
-	public bool mIsHover = false;   //浮いているかどうか
-
+	
 	public enum CState {
 
 		cStandBy,
@@ -82,6 +87,8 @@ public class PlayerAnimation : MonoBehaviour {
 	CState mBeforeState;
 
 	bool mIsInit = true;
+
+	public bool mBeforeCatch = false;	//持ち上げ状態ではあるが、まだボックスを持ち上げていない
 
 	bool mCompleteCatchFailed = false;
 	bool mCompleteCatch = false;
@@ -356,7 +363,11 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 
 	bool IsHover() {
-		return GetComponent<MoveManager>().GravityForce > 0.0f;
+		return GetComponent<Player>().RotVec.y >= 0.5f;
+	}
+
+	bool IsWaterSurface() {
+		return GetComponent<WaterState>().IsWaterSurface;
 	}
 
 	void InitJumpFall() {
@@ -428,7 +439,7 @@ public class PlayerAnimation : MonoBehaviour {
 			mIsInit = false;
 		}
 
-		mCatchFailedStateTime -= Time.deltaTime * 2.0f;
+		mCatchFailedStateTime -= Time.deltaTime;
 		mStateTime = mCatchFailedStateTime;
 
 		if (EndCatchFailed()) {
@@ -601,32 +612,94 @@ public class PlayerAnimation : MonoBehaviour {
 
 		//持ち上げている途中なら
 		if (IsCatching() || IsCatchFailed()) {
-			if(mCatchStartTime <= mStateTime && mStateTime < mCatchEndTime) {
-				float lRate = (mStateTime - mCatchStartTime) / (mCatchEndTime - mCatchStartTime);
-				lRes = mHandTransform.position + Vector3.Lerp(mStartDifference, mEndDifference, Mathf.Clamp01(lRate));
+			//また持ち上げていないなら
+			if (mBeforeCatch) {
+				//開始時間を超えていて
+				if (0.3f <= mStateTime) {
+					if (IsHover() == false) {
+						if (mHandTransform.position.y >= mBox.transform.position.y - 0.25f) {
+							mBeforeCatch = false;   //プレイヤーが上向きで、手の位置がボックスより上なら、持ち始める
+						}
+					}
+					else {
+						if (mHandTransform.position.y <= mBox.transform.position.y + 0.25f) {
+							mBeforeCatch = false;   //プレイヤーが下向きで、手の位置がボックスよりも下なら、持ち始める
+						}
+					}
+				}
+				
+
+				if(mBeforeCatch) {
+					lRes = mBox.transform.position;
+					return ToZeroZ(lRes);
+				}
+				//持ち始めたなら
+				else {
+					mStartDifference = mBox.transform.position - mHandTransform.position;
+					mEndDifference = mCatchEndBoxPosition.position - mCatchEndHandPosition.position;
+					mCatchStartTime = mStateTime;
+				}
 			}
-			else if (mStateTime < mCatchStartTime) {
-				lRes = mBox.transform.position;
-			}
-			else if (mCatchEndTime <= mStateTime) {
+
+			//終了の時間を超えていたら
+			if (mCatchEndTime <= mStateTime) {
 				lRes = mCatchEndBoxPosition.position;
+				return ToZeroZ(lRes);
+			}
+			else {
+				float lUnder = (mCatchEndTime - mCatchStartTime);
+				if(Mathf.Approximately(0.0f, lUnder)) {
+					lRes = mCatchEndBoxPosition.position;
+					return ToZeroZ(lRes);
+				}
+				float lRate = (mStateTime - mCatchStartTime) / lUnder;
+
+				Vector3 lDifference = Vector3.Lerp(mStartDifference, mEndDifference, Mathf.Clamp01(lRate));
+				lRes = mHandTransform.position + lDifference;
+				mLiftDifference = lDifference;
 			}
 		}
-		if (IsReleasing()) {
-			if (mReleaseStartTime <= mStateTime && mStateTime < mReleaseEndTime) {
-				Vector3 lStartDifference = mCatchEndBoxPosition.position - mCatchEndHandPosition.position;
-				Vector3 lEndDifference = mReleaseEndBoxPosition.position - mReleaseEndHandPosition.position;
-				float lRate = (mStateTime - mReleaseStartTime) / (mReleaseEndTime - mReleaseStartTime);
+		else if (IsReleasing()) {
+
+			float lEndTime = mReleaseEndTime;
+			if(IsWaterSurface()) {
+				lEndTime = mWaterReleaseEndTime;
+			}
+
+			if (mReleaseStartTime <= mStateTime && mStateTime < lEndTime) {
+				Vector3 lStartDifference;
+				Vector3 lEndDifference;
+				float lRate;
+				
+				lStartDifference = mCatchEndBoxPosition.position - mCatchEndHandPosition.position;
+
+				//水面なら
+				if(IsWaterSurface()) {
+					lEndDifference = mWaterReleaseEndBoxPosition.position - mWaterReleaseEndHandPosition.position;
+					lRate = (mStateTime - mReleaseStartTime) / (mWaterReleaseEndTime - mReleaseStartTime);
+				}
+				//そうでないなら
+				else {
+					lEndDifference = mReleaseEndBoxPosition.position - mReleaseEndHandPosition.position;
+					lRate = (mStateTime - mReleaseStartTime) / (mReleaseEndTime - mReleaseStartTime);
+				}
 				lRes = mHandTransform.position + Vector3.Lerp(mStartDifference, mEndDifference, Mathf.Clamp01(lRate));
 			}
 			else if (mStateTime < mReleaseStartTime) {
 				lRes = mCatchEndBoxPosition.position;
+				return ToZeroZ(lRes);
 			}
-			else if (mReleaseEndTime <= mStateTime) {
-				lRes = mReleaseEndBoxPosition.position;
+			else {
+				if(IsWaterSurface()) {
+					lRes = mWaterReleaseEndBoxPosition.position;
+				}
+				else {
+					lRes = mReleaseEndBoxPosition.position;
+				}
+				return ToZeroZ(lRes);
 			}
 		}
-		
+
 		return ToZeroZ(lRes);
 	}
 	Vector3 ToZeroZ(Vector3 aVec) {
@@ -679,36 +752,44 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 
 	public void StartStandBy() {
+		if (IsLiftAction()) return;
 		if (mState != CState.cWalk) return;	//歩き状態からしか外からは呼び出せない
 		ChangeState(CState.cStandBy);
 	}
 	public void StartWalk() {
+		if (IsLiftAction()) return;
 		if (mState != CState.cStandBy && mState != CState.cJumpLand) return; //立ち止まり状態からしか外からは呼び出せない
 		ChangeState(CState.cWalk);
 	}
 
 	public void StartWaterStandBy() {
-//		if (!StartLandCheck()) return;
+		//		if (!StartLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cWaterStandBy);
 	}
 	public void StartHoldWaterStandBy() {
-//		if (!StartHoldLandCheck()) return;
+		//		if (!StartHoldLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldWaterStandBy);
 	}
 	public void StartSwim() {
-//		if (!StartLandCheck()) return;
+		//		if (!StartLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cSwim);
 	}
 	public void StartHoldSwim() {
-//		if (!StartHoldLandCheck()) return;
+		//		if (!StartHoldLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldSwim);
 	}
 
 	public void StartJump() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cJumpStart);
 	}
 
 	public void StartFall() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cJumpFall);
 	}
 
@@ -722,16 +803,16 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 
 	public void StartLand() {
+		if (IsLiftAction()) return;
 		if (!StartLandCheck()) return;
 		ChangeState(CState.cJumpLand);
 	}
 
 	public void StartCatch(GameObject aBox) {
 		mBox = aBox;
-		mStartDifference = aBox.transform.position - mCatchStartHandPosition.position;
-		mEndDifference = mCatchEndBoxPosition.position - mCatchEndHandPosition.position;
 		ChangeState(CState.cCatch);
 		mCompleteCatch = false;
+		mBeforeCatch = true;
 	}
 
 	public void FailedCatch() {
@@ -742,19 +823,23 @@ public class PlayerAnimation : MonoBehaviour {
 
 
 	public void StartHoldStandBy() {
+		if (IsLiftAction()) return;
 		if (mState != CState.cHoldWalk) return; //歩き状態からしか外からは呼び出せない
 		ChangeState(CState.cHoldStandBy);
 	}
 	public void StartHoldWalk() {
+		if (IsLiftAction()) return;
 		if (mState != CState.cHoldStandBy && mState != CState.cHoldJumpLand) return; //立ち止まり状態からしか外からは呼び出せない
 		ChangeState(CState.cHoldWalk);
 	}
 
 	public void StartHoldJump() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldJumpStart);
 	}
 
 	public void StartHoldFall() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldJumpFall);
 	}
 
@@ -768,15 +853,18 @@ public class PlayerAnimation : MonoBehaviour {
 
 	public void StartHoldLand() {
 		if (!StartHoldLandCheck()) return;
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldJumpLand);
 	}
 
 
 	public void StartHandSpring() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHandSpring);
 	}
 
 	public void StartHoldHandSpring() {
+		if (IsLiftAction()) return;
 		ChangeState(CState.cHoldHandSpring);
 	}
 
@@ -796,6 +884,13 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 	public void ExitRelease() {
 		ChangeState(CState.cStandBy);
+	}
+
+	bool IsLiftAction() {
+		if (mState == CState.cCatch) return true;
+		if (mState == CState.cCatchFailed) return true;
+		if (mState == CState.cRelease) return true;
+		return false;
 	}
 
 

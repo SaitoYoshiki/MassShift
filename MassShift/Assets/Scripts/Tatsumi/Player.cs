@@ -532,7 +532,7 @@ public class Player : MonoBehaviour {
 		// 持ち上げ/下げ
 		if (liftInputFlg) {
 			liftInputFlg = false;
-			if ((Land.IsLanding || WaterStt.IsWaterSurface || land.IsWaterFloatLanding) /*&& !IsRotation*/ && !IsHandSpringWeit) {
+			if ((Land.IsLanding || WaterStt.IsWaterSurface || land.IsWaterFloatLanding) /*&& !IsRotation*/ && !IsHandSpring) {
 				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
 				Lift.Lift();
@@ -560,6 +560,58 @@ public class Player : MonoBehaviour {
 		}
 		prevFallFlg = fallFlg;
 
+		bool landTrueChangeFlg = ((land.IsLanding && (land.IsLanding != prevIsLanding)) ||
+			(land.IsWaterFloatLanding && (land.IsWaterFloatLanding != prevIsWaterFloatLanding)));
+
+		bool topColOverlap = (Physics.OverlapBox(TopCol.position, TopCol.lossyScale * 0.5f, TopCol.rotation, sandwitchMask).Length > 0);
+		bool bottomColOverlap = (Physics.OverlapBox(BottomCol.position, TopCol.lossyScale * 0.5f, TopCol.rotation, sandwitchMask).Length > 0);
+		isSandwitch = (topColOverlap && bottomColOverlap);
+		bool landColOverlap = false;
+		if (MoveMng.GetFallVec() <= 0.0f) {
+			landColOverlap = bottomColOverlap;
+		}
+		else {
+			landColOverlap = topColOverlap;
+		}
+
+		// 着地時、入/出水時の戻り回転時
+		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
+		if ((landTrueChangeFlg && !isSandwitch) ||                                                                                  // 通常の着地時
+			//(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
+			(prevIsSandwitch && !isSandwitch && landColOverlap) ||                                                                  // 上下を挟まれている状態から解放された時
+			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {  // 反転したまま水上に落ちた時
+																																	// 入/出水時の戻り回転なら天井回転アニメーションは行わない
+			bool notHandSpring = (WaterStt.IsInWater != prevIsInWater);
+
+			// 必要なら回転アニメーション
+			float nowRotVec = RotVec.y;
+			float landRotVec = 0.0f;
+
+			//if (MoveMng.PrevMove.y > 0.0f) {
+			if (MoveMng.GetFallVec() > 0.0f) {
+				if ((WeightMng.WeightLv == WeightManager.Weight.flying) ||
+				((WeightMng.WeightLv == WeightManager.Weight.light) && (WaterStt.IsInWater))) {
+					landRotVec = 1.0f;
+				}
+			}
+
+			if (nowRotVec != landRotVec) {
+				RotVec = new Vector3(RotVec.x, landRotVec, RotVec.z);
+
+				if (!notHandSpring) {
+					// 天井回転アニメーション
+					if (!Lift.IsLifting) {
+						PlAnim.StartHandSpring();
+					}
+					else {
+						PlAnim.StartHoldHandSpring();
+					}
+					HandSpringEndTime = (Time.time + handSpringWeitTime);
+					IsHandSpring = true;
+				}
+			}
+		}
+
 		// 左右移動
 		Walk();
 
@@ -585,56 +637,6 @@ public class Player : MonoBehaviour {
 
 		// 自動ジャンプ
 		ClimbJump();
-
-		bool landTrueChangeFlg = ((land.IsLanding && (land.IsLanding != prevIsLanding)) ||
-			(land.IsWaterFloatLanding && (land.IsWaterFloatLanding != prevIsWaterFloatLanding)));
-
-		bool topColOverlap = (Physics.OverlapBox(TopCol.position, TopCol.lossyScale * 0.5f, TopCol.rotation, sandwitchMask).Length > 0);
-		bool bottomColOverlap = (Physics.OverlapBox(BottomCol.position, TopCol.lossyScale * 0.5f, TopCol.rotation, sandwitchMask).Length > 0);
-		isSandwitch = (topColOverlap && bottomColOverlap);
-		bool landColOverlap = false;
-		if (MoveMng.GetFallVec() <= 0.0f) {
-			landColOverlap = bottomColOverlap;
-		} else {
-			landColOverlap = topColOverlap;
-		}
-
-		// 着地時、入/出水時の戻り回転時
-		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
-		if ((landTrueChangeFlg && !isSandwitch) ||																					// 通常の着地時
-//			(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
-			(prevIsSandwitch && !isSandwitch  && landColOverlap) ||																// 上下を挟まれている状態から解放された時
-			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {	// 反転したまま水上に落ちた時
-			// 入/出水時の戻り回転なら天井回転アニメーションは行わない
-			bool notHandSpring = (WaterStt.IsInWater != prevIsInWater);
-
-			// 必要なら回転アニメーション
-			float nowRotVec = RotVec.y;
-			float landRotVec = 0.0f;
-
-			//if (MoveMng.PrevMove.y > 0.0f) {
-			if (MoveMng.GetFallVec() > 0.0f) {
-				if ((WeightMng.WeightLv == WeightManager.Weight.flying) ||
-				((WeightMng.WeightLv == WeightManager.Weight.light) && (WaterStt.IsInWater))) {
-					landRotVec = 1.0f;
-				}
-			}
-
-			if (nowRotVec != landRotVec) {
-				RotVec = new Vector3(RotVec.x, landRotVec, RotVec.z);
-
-				if (!notHandSpring) {
-					// 天井回転アニメーション
-					if (!Lift.IsLifting) {
-						PlAnim.StartHandSpring();
-					} else {
-						PlAnim.StartHoldHandSpring();
-					}
-					HandSpringEndTime = (Time.time + handSpringWeitTime);
-					IsHandSpring = true;
-				}
-			}
-		}
 
 		// 着地アニメーション
 		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
@@ -787,6 +789,10 @@ public class Player : MonoBehaviour {
 		}
 		// ジャンプ可能でなければ
 		if (!canJump) {
+			return false;
+		}
+		// 天井反転中なら
+		if (IsHandSpring) {
 			return false;
 		}
 

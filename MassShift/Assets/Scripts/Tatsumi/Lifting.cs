@@ -195,6 +195,9 @@ public class Lifting : MonoBehaviour {
 		}
 	}
 
+	[SerializeField]
+	bool liftDownWeit = false;
+
 	void Awake() {
 		if (autoLiftingColMask) liftingColMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		if (autoBoxMask) boxMask = LayerMask.GetMask(new string[] { "Box" });
@@ -264,7 +267,7 @@ public class Lifting : MonoBehaviour {
 
 			// オブジェクトの位置を同期
 			if (liftMoveFlg) {
-				if (heavyFailedFlg || (!MoveManager.MoveTo(GetLiftUpBoxPoint(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true))) {
+				if (heavyFailedFlg || (!MoveManager.Move(GetLiftUpBoxMove(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true))) {
 					Debug.Log("持ち上げ失敗");
 
 					//					// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
@@ -318,29 +321,45 @@ public class Lifting : MonoBehaviour {
 			LiftObjMoveMng.StopMoveVirticalAll();
 			LiftObjMoveMng.StopMoveHorizontalAll();
 
-			// オブジェクトの位置を同期
-			if (!MoveManager.MoveTo(PlAnim.GetBoxPosition(), LiftObj.GetComponent<BoxCollider>(), liftingColMask)) {
-				Debug.Log("下ろし失敗");
+			// 回転終了待ち
+			if (liftDownWeit) {
+				if(Pl.CameraLookRatio == 0.0f) {
+					liftDownWeit = false;
 
-				if (Pl.RotVec.y == 1.0f) {
-					Debug.LogWarning("下ろし失敗補正");
-					failedPosUpFlg = true;
+					// 持ち上げ中オブジェクトの判定を有効化
+					LiftObj.GetComponent<BoxCollider>().enabled = true;
+
+					// 下ろしアニメーションへの遷移
+					PlAnim.StartRelease();
+
+					// サウンド再生
+					SoundManager.SPlay(liftSE, liftDownSoundDeray);
 				}
+			}
+			else {
+				// オブジェクトの位置を同期
+				if (!MoveManager.MoveTo(GetLiftDownBoxPosition(), LiftObj.GetComponent<BoxCollider>(), liftingColMask)) {
+					Debug.Log("下ろし失敗");
 
-				LiftDownEnd();
+					if (Pl.RotVec.y == 1.0f) {
+						Debug.LogWarning("下ろし失敗補正");
+						failedPosUpFlg = true;
+					}
 
-				// アニメーション遷移
-				PlAnim.ExitRelease();
+					LiftDownEnd();
 
-				return;
+					// アニメーション遷移
+					PlAnim.ExitRelease();
+
+					return;
+				}
 			}
 
 			// プレイヤーのモデルと同じ回転をオブジェクトに加える
 			LiftObjModel.transform.rotation = cameraLookTransform.rotation;
 
 			// 下ろし完了時
-			if (PlAnim.CompleteRelease()) {
-
+			if (!liftDownWeit && PlAnim.CompleteRelease()) {
 				// オブジェクトを離す
 				LiftDownEnd();
 
@@ -375,7 +394,7 @@ public class Lifting : MonoBehaviour {
 			LiftObjMoveMng.StopMoveHorizontalAll();
 
 			// オブジェクトの位置を同期
-			if (!MoveManager.MoveTo(PlAnim.GetBoxPosition(), LiftObj.GetComponent<BoxCollider>(), liftingColMask)) {
+			if (!MoveManager.MoveTo(GetLiftDownBoxPosition(), LiftObj.GetComponent<BoxCollider>(), liftingColMask)) {
 				Debug.Log("持ち上げ失敗に失敗");
 
 				// オブジェクトを離す
@@ -520,12 +539,12 @@ public class Lifting : MonoBehaviour {
 			// 重さ変更中は処理しない
 			if (Pl.IsShift) return null;
 
-			// 持ち上げ中オブジェクト以外のすり抜け中のオブジェクトがある場合は処理しない
-			foreach (var throughObj in MoveMng.ThroughObjList) {
-				if (throughObj != LiftObj) {
-					return null;
-				}
-			}
+			//// 持ち上げ中オブジェクト以外のすり抜け中のオブジェクトがある場合は処理しない
+			//foreach (var throughObj in MoveMng.ThroughObjList) {
+			//	if (throughObj != LiftObj) {
+			//		return null;
+			//	}
+			//}
 
 			// ジャンプ、重さ変更、振り向きを不可に
 			Pl.CanJump = false;
@@ -589,12 +608,6 @@ public class Lifting : MonoBehaviour {
 	GameObject LiftDownStart() {
 		Debug.Log("LiftDownStart:" + LiftObj.name);
 
-		// 持ち上げ中オブジェクトの判定を有効化
-		LiftObj.GetComponent<BoxCollider>().enabled = true;
-
-		// 下ろしアニメーションへの遷移
-		PlAnim.StartRelease();
-
 		// 状態の変更
 		St = LiftState.liftDown;
 
@@ -602,8 +615,7 @@ public class Lifting : MonoBehaviour {
 		MoveMng.CanMoveByWind = false;
 		LiftObjMoveMng.CanMoveByWind = false;
 
-		// サウンド再生
-		SoundManager.SPlay(liftSE, liftDownSoundDeray);
+		liftDownWeit = true;
 
 		return LiftObj;
 	}
@@ -773,7 +785,7 @@ public class Lifting : MonoBehaviour {
 			rotationTransform.localPosition = new Vector3(rotationTransform.localPosition.x, downRotationPos, rotationTransform.localPosition.z);
 			modelTransform.localPosition = new Vector3(modelTransform.localPosition.x, downModelPos, modelTransform.localPosition.z);
 			//			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
-			if ((Pl.RotVec.y == 1.0f && isPosUp) || failedPosUpFlg) {
+			if ((Pl.RotVec.y == 1.0f && isPosUp) || failedPosUpFlg || WeightMng.heavyRot) {
 				List<GameObject> throughObjList = new List<GameObject>();
 				foreach (var throughCol in MoveMng.ThroughObjList) {
 					throughObjList.Add(throughCol.gameObject);
@@ -782,6 +794,7 @@ public class Lifting : MonoBehaviour {
 				Debug.LogWarning("MoveB");
 				//transform.position -= new Vector3(0.0f, liftingPosOffset, 0.0f);
 				isPosUp = false;
+				WeightMng.heavyRot = false;
 			}
 			failedPosUpFlg = false;
 		}
@@ -823,18 +836,35 @@ public class Lifting : MonoBehaviour {
 		}
 	}
 
-	Vector3 GetLiftUpBoxPoint() {
+	Vector3 GetLiftUpBoxMove() {
 		if (LiftObj == null) return Vector3.zero;
 
-		Vector3 ret = PlAnim.GetBoxPosition();
-
-		// x軸が離れようとした場合は離さない
-		float defDis = (LiftObj.transform.position.x - Pl.transform.position.x);
-		float dis = (ret.x - Pl.transform.position.x);
-		if (Mathf.Abs(dis) > Mathf.Abs(defDis)) {
-			ret = new Vector3((Pl.transform.position.x + defDis), ret.y, ret.z);
+		Vector3 ret = (PlAnim.GetBoxPosition() - LiftObj.transform.position);
+		float vec = Mathf.Sign(LiftObj.transform.position.x - Pl.transform.position.x);
+		
+		//// x軸が離れようとした場合は離さない
+		//float defDis = (LiftObj.transform.position.x - Pl.transform.position.x);
+		//float dis = (ret.x - Pl.transform.position.x);
+		//if (Mathf.Abs(dis) > Mathf.Abs(defDis)) {
+		//	ret = new Vector3((Pl.transform.position.x + defDis), ret.y, ret.z);
+		//}
+		if(vec == Mathf.Sign(ret.x)) {
+			ret = new Vector3(0.0f, ret.y, ret.z);
 		}
 		return ret;
+	}
+
+	Vector3 GetLiftDownBoxPosition() {
+		Vector3 pos = PlAnim.GetBoxPosition();
+
+		// x軸がプレイヤーの中心より後ろだったら
+		//float posVec = Mathf.Sign(LiftObj.transform.position.x - Pl.transform.position.x);
+		//if(Pl.RotVec.x != posVec) {
+		//	// 中央に補正
+		//	pos = new Vector3(Pl.transform.position.x, pos.y, pos.z);
+		//}
+
+		return pos;
 	}
 
 //	public void ReleaseLiftObject() {

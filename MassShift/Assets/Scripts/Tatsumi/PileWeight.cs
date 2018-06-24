@@ -48,7 +48,7 @@ public class PileWeight : MonoBehaviour {
 		// 指定方向側の四辺コライダーに接触している対象オブジェクトのコライダーをリスト化
 		List<Collider> hitColList = new List<Collider>();
 		for (int idx = 0; idx < forward.Count; idx++) {
-			hitColList.AddRange(Physics.OverlapBox(forward[idx].transform.position, forward[idx].transform.localScale * 0.5f, forward[idx].transform.rotation, mask));
+			hitColList.AddRange(Physics.OverlapBox(forward[idx].transform.position, forward[idx].transform.lossyScale * 0.5f, forward[idx].transform.rotation, mask));
 		}
 
 		// 対象オブジェクトのコライダーのリストをオブジェクトのリストに変換
@@ -93,7 +93,7 @@ public class PileWeight : MonoBehaviour {
 		// 指定方向の反対側の四辺コライダーに接触している対象オブジェクトのコライダーをリスト化	
 		List<Collider> outColList = new List<Collider>();
 		for (int idx = 0; idx < back.Count; idx++) {
-			outColList.AddRange(Physics.OverlapBox(back[idx].transform.position, back[idx].transform.localScale * 0.5f, back[idx].transform.rotation, mask));
+			outColList.AddRange(Physics.OverlapBox(back[idx].transform.position, back[idx].transform.lossyScale * 0.5f, back[idx].transform.rotation, mask));
 		}
 
 		// 除外オブジェクトのコライダーのリストをオブジェクトのリストに変換

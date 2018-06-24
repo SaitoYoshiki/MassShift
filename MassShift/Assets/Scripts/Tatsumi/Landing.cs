@@ -62,13 +62,14 @@ public class Landing : MonoBehaviour {
 		set {
 			isExtrusionLanding = value;
 
-			// 値の変更時
-			if(isExtrusionLanding != value) {
-				isExtrusionLandingChange = true;
-			}
+			//// 値の変更時
+			//if(isExtrusionLanding != value) {
+			//	isExtrusionLandingChange = true;
+			//}
 
 			// 押し出し接地時
 			if (value == true) {
+				isExtrusionLandingChange = true;
 				// 縦方向の移動を停止
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
@@ -260,7 +261,8 @@ public class Landing : MonoBehaviour {
 				IsLanding = false;
 				return;
 			}
-		} else {
+		}
+		else {
 			if (MoveMng.PrevMove.y < 0.0f) {
 				IsLanding = false;
 				return;
@@ -270,7 +272,8 @@ public class Landing : MonoBehaviour {
 		// 接地側の判定オブジェクトを取得
 		if (landVec <= 0.0f) {
 			LandingCol = FourSideCol.BottomCol;
-		} else {
+		}
+		else {
 			LandingCol = FourSideCol.TopCol;
 		}
 
@@ -291,7 +294,8 @@ public class Landing : MonoBehaviour {
 				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.PrevMove.y, gameObject)) {
 					landColList.RemoveAt(idx);
 				}
-			} else {
+			}
+			else {
 				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.GetFallVec(), gameObject)) {
 					landColList.RemoveAt(idx);
 				}
@@ -307,8 +311,17 @@ public class Landing : MonoBehaviour {
 			}
 		}
 
+		// 自身にしか着地していないオブジェクトを除外
+		List<Collider> thisOnlyLandList = new List<Collider>();
+		for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
+			Landing colLand = LandColList[idx].GetComponent<Landing>();
+			if (colLand && ((colLand.LandColList.Count == 1) && colLand.LandColList.Contains(MoveMng.UseCol))) {
+				thisOnlyLandList.Add(LandColList[idx]);
+			}
+		}
+
 		// 接地しているオブジェクトが存在しなければ離地
-		if (landColList.Count == 0) {
+		if ((landColList.Count - thisOnlyLandList.Count) == 0) {
 			IsLanding = false;
 			IsExtrusionLanding = false;
 			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));
