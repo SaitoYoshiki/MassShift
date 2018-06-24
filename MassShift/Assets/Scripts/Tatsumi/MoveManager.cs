@@ -527,8 +527,8 @@ public class MoveManager : MonoBehaviour {
 						(moveWaterStt && moveWeightMng && hitWeightMng && hitLanding) && (hitWaterStt) &	// コンポーネントが揃っている
 						(moveWaterStt.IsInWater) &&															// 自身が水中
 						(!moveWaterStt.IsWaterSurface) &&													// 自身が水面でない
-						(moveWeightMng.WeightLv <= WeightManager.Weight.light) &&							// 自身の重さが水面に浮かぶ重さ
-						(hitWeightMng.WeightLv <= WeightManager.Weight.light) &&							// 相手の重さが水面に浮かぶ重さ
+						(moveWeightMng.WeightLv == WeightManager.Weight.light) &&							// 自身の重さが水面に浮かぶ重さ
+						(hitWeightMng.WeightLv == WeightManager.Weight.light) &&							// 相手の重さが水面に浮かぶ重さ
 						(!hitLanding.IsLanding && !hitLanding.IsWaterFloatLanding) &&						// 相手が着地していない
 						(moveVec.y > 0.0f));                                                                // 移動する方向が上方向
 
