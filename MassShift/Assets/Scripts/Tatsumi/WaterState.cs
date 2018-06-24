@@ -218,12 +218,12 @@ public class WaterState : MonoBehaviour {
 		// 水中なら
 		if (isInWater && !IsWaterSurface) {
 			if (CanFloat) {
-				// 押し付けられていない場合
-				if (!(Land && Land.IsExtrusionLanding)) {
+//				// 押し付けられていない場合
+//				if (!(Land && Land.IsExtrusionLanding)) {
 					// 水による浮上
 					//Debug.LogWarning("waterfloat");
 					MoveMng.AddMove(new Vector3(0.0f, waterFloatSpd[(int)WeightMng.WeightLv], 0.0f), MoveManager.MoveType.waterFloat);
-				}
+//				}
 				// 自身が宙に浮く重さであり、水上に浮く以上の重さのオブジェクトに抑えられている場合
 				if ((WeightMng.WeightLv == WeightManager.Weight.flying) && (WeightMng.PileMaxWeightLv >= WeightManager.Weight.light)) {
 					// 重力による移動と前回の移動量をなくす
