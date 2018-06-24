@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // PlayerオブジェクトのLifting.csからIsLifting()関数でプレイヤーが箱を持っているかどうか確認する
 
@@ -42,28 +43,46 @@ public class TutorialImageSet : MonoBehaviour {
         if (player != null) {
             lf = player.GetComponent<Lifting>();
         }
+
+        video = tutorialVideo1;
+        vp = vp1;
     }
 
     void Update() {
+        // プレイヤーが箱を持ち上げた時、2つ目の動画に切り替わる
         if (player != null && lf.IsLifting && tutorialVideo2 != null) {
             vp1.time = 0.0f;
             vp1.Pause();
+
+            vp1.GetComponent<Image>().enabled = false;
             vp1.gameObject.SetActive(false);
 
             video = tutorialVideo2;
             vp = vp2;
+
+            if (vp.isPlaying) {
+                vp.GetComponent<Image>().enabled = true;
+            }
             vp.gameObject.SetActive(true);
             //vp.Play();
         }
+        // 箱を下ろした時、1つ目の動画に切り替わる
         else {
             if (tutorialVideo2 != null) {
                 vp2.time = 0.0f;
                 vp2.Pause();
+
+                vp2.GetComponent<Image>().enabled = false;
                 vp2.gameObject.SetActive(false);
             }
 
             video = tutorialVideo1;
             vp = vp1;
+
+            if (vp.isPlaying) {
+                vp.GetComponent<Image>().enabled = true;
+            }
+
             vp.gameObject.SetActive(true);
             //vp.Play();
         }
@@ -77,23 +96,6 @@ public class TutorialImageSet : MonoBehaviour {
     public void MonitorAnimation() {
         float nowAnimTime = Time.fixedUnscaledTime - animStartTime;
         float animPer = Mathf.Clamp((nowAnimTime / animTime), 0.0f, 1.0f);
-
-        if (player != null && lf.IsLifting && tutorialVideo2 != null) {
-            vp1.time = 0.0f;
-            vp1.Pause();
-
-            video = tutorialVideo2;
-            vp = vp2;
-        }
-        else {
-            if (tutorialVideo2 != null) {
-                vp2.time = 0.0f;
-                vp2.Pause();
-            }
-
-            video = tutorialVideo1;
-            vp = vp1;
-        }
 
         if (isMonitorON) {
             // 横広がり

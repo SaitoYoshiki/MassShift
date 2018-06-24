@@ -23,7 +23,7 @@ public class Pause : MonoBehaviour {
     GameObject ButtonSelectSEPrefab;
 
     // GameMain側から変更される、ポーズ可能かどうか
-    public bool canPause = true;
+    public bool canPause = false;
 
     public bool pauseFlg = false;   // ポーズ中かどうか
     bool optionFlg = false;         // オプション画面を開いているかどうか
@@ -65,6 +65,9 @@ public class Pause : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Escape) && canPause && !pauseAnimFlg) {
             if (!optionFlg) {
                 PauseFunc();
+                if(!pauseFlg){
+                    GetComponent<buttonSound>().OnPush();
+                }
             }
             else {
                 // オプション画面が出ているときにEscキーを押すとポーズメニューに戻る
