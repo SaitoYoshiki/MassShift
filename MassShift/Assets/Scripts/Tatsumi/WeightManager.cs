@@ -91,7 +91,8 @@ public class WeightManager : MonoBehaviour {
 					(LiftWeightMng && (LiftWeightMng.WeightLv == Weight.heavy))) {
 					// heavyを返す
 					Debug.LogWarning("return heavy");
-					heavyRot = true;
+					HeavyRot = true;
+
 					return Weight.heavy;
 				}
 
@@ -138,7 +139,16 @@ public class WeightManager : MonoBehaviour {
 		}
 	}
 
-	public bool heavyRot = false;
+	[SerializeField]
+	bool heavyRot = false;
+	public bool HeavyRot {
+		get {
+			return heavyRot;
+		}
+		set {
+			heavyRot = value;
+		}
+	}
 		
 	// pull元からpush先へ指定数の重さレベルを移し、移す事に成功したレベル数を返す
 	public int PullWeight(WeightManager _from, int _num = 1) {

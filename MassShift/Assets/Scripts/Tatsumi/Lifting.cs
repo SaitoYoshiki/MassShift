@@ -785,7 +785,8 @@ public class Lifting : MonoBehaviour {
 			rotationTransform.localPosition = new Vector3(rotationTransform.localPosition.x, downRotationPos, rotationTransform.localPosition.z);
 			modelTransform.localPosition = new Vector3(modelTransform.localPosition.x, downModelPos, modelTransform.localPosition.z);
 			//			if ((weightMng.WeightLv == WeightManager.Weight.flying) || (WaterStt.IsInWater && (WeightMng.WeightLv <= WeightManager.Weight.light))) {
-			if ((Pl.RotVec.y == 1.0f && isPosUp) || failedPosUpFlg || WeightMng.heavyRot) {
+			if ((Pl.RotVec.y == 1.0f && isPosUp) || failedPosUpFlg ||
+				(WeightMng.HeavyRot)) {	// 重さ0で重さ2の重さオブジェクトを持ち上げている状態になった時の反転時
 				List<GameObject> throughObjList = new List<GameObject>();
 				foreach (var throughCol in MoveMng.ThroughObjList) {
 					throughObjList.Add(throughCol.gameObject);
@@ -794,7 +795,7 @@ public class Lifting : MonoBehaviour {
 				Debug.LogWarning("MoveB");
 				//transform.position -= new Vector3(0.0f, liftingPosOffset, 0.0f);
 				isPosUp = false;
-				WeightMng.heavyRot = false;
+				WeightMng.HeavyRot = false;
 			}
 			failedPosUpFlg = false;
 		}

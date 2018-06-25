@@ -99,10 +99,15 @@ public class Player : MonoBehaviour {
 		}
 	}
 	bool prevIsRotation = false;
+	bool PrevIsRotation {
+		get {
+			return prevIsRotation;
+		}
+	}
 
 	[SerializeField]
 	bool isHandSpring = false;
-	bool IsHandSpring {
+	public bool IsHandSpring {
 		get {
 			return isHandSpring;
 		}
@@ -1003,6 +1008,8 @@ public class Player : MonoBehaviour {
 				if (Lift && Lift.LiftObj) {
 					WeightManager liftWeightMng = Lift.LiftObj.GetComponent<WeightManager>();
 					if (liftWeightMng && (liftWeightMng.WeightLv == WeightManager.Weight.heavy)) {
+						WeightMng.HeavyRot = true;
+
 						// 持っているブロックを離す
 						//						Lift.ReleaseLiftObject();
 						Lift.LiftDownEnd();
