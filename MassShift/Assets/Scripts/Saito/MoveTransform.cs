@@ -12,6 +12,12 @@ public class MoveTransform : MonoBehaviour {
 	float mDeltaTime = 0.0f;
 	bool mIsMove = false;
 
+	public bool IsMove {
+		get {
+			return mIsMove;
+		}
+	}
+
 	private void Awake() {
 		mEndPosition = transform.position;
 		
