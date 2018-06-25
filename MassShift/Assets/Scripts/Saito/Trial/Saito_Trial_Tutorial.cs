@@ -22,6 +22,8 @@ public class Saito_Trial_Tutorial : MonoBehaviour {
 	[SerializeField]
 	float mFadeTime = 0.2f;
 
+    Pause pause;
+
 	// Use this for initialization
 	void Start () {
 		/*foreach(var i in mImage) {
@@ -32,6 +34,8 @@ public class Saito_Trial_Tutorial : MonoBehaviour {
             // 枠のライト部分を暗く
             SetFade(iset.tutorialLight, 0.0f);
         }
+
+        pause = FindObjectOfType<Pause>();
 	}
 	
 	// Update is called once per frame
@@ -52,7 +56,7 @@ public class Saito_Trial_Tutorial : MonoBehaviour {
 
             if (mTargetIndex == i) {
                 lFadeDelta *= -1.0f;
-                if (!imgSet[i].isMonitorON) {
+                if (!imgSet[i].isMonitorON && pause.canPause) {
                     imgSet[i].isMonitorON = true;
                     imgSet[i].StartAnimation();
                 }
