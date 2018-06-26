@@ -22,6 +22,13 @@ public class StageSelectScroll : MonoBehaviour {
 	[SerializeField]
 	GameObject mLeftWall;   //エリア1で、左側に戻れないようにする壁
 
+	bool mIsMoving;
+	public bool IsMoving {
+		get {
+			return mIsMoving;
+		}
+	}
+
 	//スクロールするかどうか
 	public bool mIsScroll = false;
 
@@ -78,6 +85,13 @@ public class StageSelectScroll : MonoBehaviour {
 		Vector3 lMove = lDir.normalized * lMoveDistance;
 
 		mCamera.transform.position += lMove;
+
+		if(lMove.magnitude == 0.0f) {
+			mIsMoving = false;
+		}
+		else {
+			mIsMoving = true;
+		}
 	}
 
 }
