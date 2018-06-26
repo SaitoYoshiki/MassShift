@@ -6,24 +6,24 @@ using UnityEngine;
 public class StageClearShiftTimes : ScriptableObject {
 	
 	[System.Serializable]
-	class StageData {
+	public class Data {
 		[SerializeField]
-		int mGrade1 = -1;
+		int mScore2Times = -1;	//この手数以下なら、星２つ
 		[SerializeField]
-		int mGrade2 = -1;
+		int mScore3Times = -1;	//この手数以下なら、星３つ
 
-		public int Grade1 {
+		public int Score2Times {
 			get {
-				return mGrade1;
+				return mScore2Times;
 			}
 		}
-		public int Grade2 {
+		public int Score3Times {
 			get {
-				return mGrade2;
+				return mScore3Times;
 			}
 		}
 	}
 
 	[SerializeField]
-	List<StageData> mStages;
+	public List<Data> mStages;
 }
