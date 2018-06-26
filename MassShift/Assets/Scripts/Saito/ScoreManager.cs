@@ -14,15 +14,15 @@ public class ScoreManager : MonoBehaviour {
 		}
 	}
 	
-	//クリアに必要な手数
+	//クリアに必要な手数のデータ（アセットで設定）
 	[SerializeField]
 	List<StageClearShiftTimes> mClearShiftTimes;
 
 
-	//現在の星の数
+	//現在のスコアの数
 	//
 	public int Score() {
-		int lShiftTimes = ShiftTimes;
+		int lShiftTimes = ShiftTimes();
 		if(lShiftTimes <= Score3Times()) {
 			return 3;
 		}
@@ -43,11 +43,24 @@ public class ScoreManager : MonoBehaviour {
 
 	//現在の手数
 	//
-	public int ShiftTimes {
-		get {
-			return mMassShift.ShiftTimes;
-		}
+	public int ShiftTimes() {
+		return mMassShift.ShiftTimes;
 	}
+
+	//そのステージの、クリアしたときの最小手数を取得
+	//
+	public int ShiftTimes(int aAreaNumber, int aStageNumber) {
+		SaveData.StageData lData = SaveData.Instance.Data(aAreaNumber, aStageNumber);
+		return lData.mShiftTimesOnClear;
+	}
+
+	//そのステージの、クリアしたときの最小手数を保存
+	//
+	public void ShiftTimes(int aAreaNumber, int aStageNumber, int aClearShiftTimes) {
+		SaveData.StageData lData = SaveData.Instance.Data(aAreaNumber, aStageNumber);
+		lData.mShiftTimesOnClear = aClearShiftTimes;
+	}
+
 
 	//無効な値
 	public const int cInvalidScoreTimes = -1;
