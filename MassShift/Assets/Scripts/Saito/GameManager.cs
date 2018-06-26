@@ -376,7 +376,18 @@ public class GameManager : MonoBehaviour {
 			int lNowTimes = ScoreManager.Instance.ShiftTimes();
 
 			//今までと今回で、移した回数の最小値を保存する
-			ScoreManager.Instance.ShiftTimes(lAreaNum, lStageNum, Mathf.Min(lBeforeTimes, lNowTimes));
+			bool lIsShortest = false;
+			int lNewTimes = lBeforeTimes;
+			if(lBeforeTimes == ScoreManager.cInvalidScoreTimes) {
+				lNewTimes = lNowTimes;
+			}
+			if (lNowTimes < lBeforeTimes) {
+				lNewTimes = lNowTimes;
+				lIsShortest = true;
+			}
+
+			ScoreManager.Instance.ShiftTimes(lAreaNum, lStageNum, lNewTimes);
+			ScoreManager.Instance.IsShortestTimes = lIsShortest;
 		}
 		
 
