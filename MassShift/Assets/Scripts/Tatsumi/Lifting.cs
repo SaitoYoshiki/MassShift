@@ -162,8 +162,14 @@ public class Lifting : MonoBehaviour {
 	bool canHeavyLift = true;   // 自身より重いモノでも持てるフラグ、現状(2080609)の仕様では常にtrue
 
 	[SerializeField]
-	WaterState liftWaterStt = null;
-
+	WaterState LiftWaterStt {
+		get {
+			if (LiftObj) {
+				return LiftObj.GetComponent<WaterState>();
+			}
+			return null;
+		}
+	}
 	[SerializeField]
 	GameObject liftSE;
 	[SerializeField]
@@ -248,14 +254,14 @@ public class Lifting : MonoBehaviour {
 
 			// 持つオブジェクトの補間位置が現在のオブジェクトより高ければ
 			bool liftMoveFlg = false;
-			float landVec = MoveMng.GravityForce;
-			liftWaterStt = LiftObj.GetComponent<WaterState>();
-			WeightManager liftWeightMng = LiftObj.GetComponent<WeightManager>();
-			// 水中で水に浮く重さなら上方向に接地
-			if (liftWaterStt && liftWeightMng && liftWaterStt.IsInWater && !liftWaterStt.IsWaterSurface && liftWeightMng.WeightLv <= WeightManager.Weight.light) {
-				landVec = 1.0f;
-			}
-			if (landVec < 0.0f) {   // 接地方向が下
+			//float landVec = MoveMng.GravityForce;
+			//WeightManager liftWeightMng = LiftObj.GetComponent<WeightManager>();
+			//// 水中で水に浮く重さなら上方向に接地
+			//if (LiftWaterStt && liftWeightMng && LiftWaterStt.IsInWater && !LiftWaterStt.IsWaterSurface && liftWeightMng.WeightLv <= WeightManager.Weight.light) {
+			//	landVec = 1.0f;
+			//}
+			//if (landVec < 0.0f) {   // 接地方向が下
+			if (Pl.RotVec.y == 0.0f) {
 				if (PlAnim.GetBoxPosition().y > LiftObj.transform.position.y) {
 					liftMoveFlg = true;
 				}
@@ -360,6 +366,7 @@ public class Lifting : MonoBehaviour {
 
 			// 下ろし完了時
 			if (!liftDownWeit && PlAnim.CompleteRelease()) {
+				Debug.LogWarning("下ろし完了");
 				// オブジェクトを離す
 				LiftDownEnd();
 
@@ -415,6 +422,7 @@ public class Lifting : MonoBehaviour {
 
 			// 持ち上げ失敗完了時
 			if (PlAnim.CompleteCatchFailed()) {
+				Debug.Log("持ち上げ失敗完了");
 				// 持ち上げオブジェクトを離す
 				LiftDownEnd();
 
@@ -493,6 +501,16 @@ public class Lifting : MonoBehaviour {
 				if ((!hitInfoLand || !hitInfoWaterStt) || 
 					(!hitInfoLand.IsLanding && !hitInfoLand.IsWaterFloatLanding && !hitInfoWaterStt.IsWaterSurface)) {
 					hitInfos.RemoveAt(idx);
+				}
+			}
+
+			// 上下をオブジェクトに挟まれている場合
+			if (Pl.IsSandwitch) {
+				// 挟んでいるオブジェクト以外は持ち上げ対象から除外
+				for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+					if (!Pl.SandwitchCols.Contains(hitInfos[idx].collider)) {
+						hitInfos.RemoveAt(idx);
+					}
 				}
 			}
 
@@ -653,7 +671,7 @@ public class Lifting : MonoBehaviour {
 	}
 
 	public void LiftDownEnd() {	// 持っているオブジェクトを強制的に下ろす使い方もできる
-		Debug.Log("LiftDownEnd");
+		Debug.Log("LiftDownEnd " + LiftObj.name);
 
 		// プレイヤーのモデルに同期していた回転を消去
 		LiftObjModel.rotation = Quaternion.identity;
@@ -701,12 +719,10 @@ public class Lifting : MonoBehaviour {
 		SwitchLiftCollider(false);
 
 		// 対象の水中浮上可能フラグを戻す
-		liftWaterStt.CanFloat = true;
-		liftWaterStt = null;
+		LiftWaterStt.CanFloat = true;
 
 		// 持ち上げオブジェクトをnullに
 		LiftObj = null;
-		liftWaterStt = null;
 
 		#region
 		//			// オブジェクトを離す
