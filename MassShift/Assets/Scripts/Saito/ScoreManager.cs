@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class ScoreManager : MonoBehaviour {
 
-	MassShift mMassShift;
+	MassShift _mMassShift;
+	MassShift mMassShift {
+		get {
+			if(_mMassShift == null) {
+				_mMassShift = FindObjectOfType<MassShift>();
+			}
+			return _mMassShift;
+		}
+	}
 	
 	//クリアに必要な手数
 	[SerializeField]
 	List<StageClearShiftTimes> mClearShiftTimes;
-
-	private void Start() {
-		mMassShift = FindObjectOfType<MassShift>();
-	}
 
 
 	//現在の星の数
@@ -25,9 +29,15 @@ public class ScoreManager : MonoBehaviour {
 		if (lShiftTimes <= Score2Times()) {
 			return 2;
 		}
+
+		//今の仕様だと、どれだけ手数を超えてもスコアは１以上になる
+		return 1;
+
+		/*
 		if (lShiftTimes <= Score1Times()) {
 			return 1;
 		}
+		*/
 		return 0;
 	}
 
