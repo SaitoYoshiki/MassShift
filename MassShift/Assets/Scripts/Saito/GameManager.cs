@@ -363,6 +363,23 @@ public class GameManager : MonoBehaviour {
 		//BGMを止める
 		SoundManager.SFade(mBGMInstance, SoundManager. SVolume(mBGMInstance), 0.0f, 0.5f, true);
 
+
+		//移した回数を保存
+		//
+		
+		//チュートリアル以外のステージなら
+		if (Area.IsInStage() && Area.GetAreaNumber() != 0) {
+			int lAreaNum = Area.GetAreaNumber();
+			int lStageNum = Area.GetStageNumber();
+
+			int lBeforeTimes = ScoreManager.Instance.ShiftTimes(lAreaNum, lStageNum);
+			int lNowTimes = ScoreManager.Instance.ShiftTimes();
+
+			//今までと今回で、移した回数の最小値を保存する
+			ScoreManager.Instance.ShiftTimes(lAreaNum, lStageNum, Mathf.Min(lBeforeTimes, lNowTimes));
+		}
+		
+
 		Cursor.visible = true;
 		mResult.canGoal = true;
 	}
