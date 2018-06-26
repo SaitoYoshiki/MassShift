@@ -2,24 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ScoreManager : MonoBehaviour {
+public class ScoreManager {
 
 	MassShift _mMassShift;
 	MassShift mMassShift {
 		get {
 			if(_mMassShift == null) {
-				_mMassShift = FindObjectOfType<MassShift>();
+				_mMassShift = GameObject.FindObjectOfType<MassShift>();
 			}
 			return _mMassShift;
 		}
 	}
+
+	ScoreManagerData mScoreManagerData;
 	
-	//クリアに必要な手数のデータ（アセットで設定）
-	[SerializeField]
-	List<StageClearShiftTimes> mClearShiftTimes;
+	static ScoreManager sInstance;
+	public static ScoreManager Instance {
+		get {
+			if(sInstance == null) {
+				sInstance = new ScoreManager();
+			}
+			return sInstance;
+		}
+	}
+
+	ScoreManager() {
+		var g = Resources.Load("ScoreManagerData") as GameObject;
+		mScoreManagerData = g.GetComponent<ScoreManagerData>();
+	}
 
 
-	//現在のスコアの数
+	//現在のスコア
 	//
 	public int Score() {
 		int lShiftTimes = ShiftTimes();
@@ -40,6 +53,29 @@ public class ScoreManager : MonoBehaviour {
 		*/
 		return 0;
 	}
+
+
+	//スコア
+	//
+	public int Score(int aAreaNumber, int aStageNumber, int aShiftTimes) {
+		if (aShiftTimes <= Score3Times(aAreaNumber, aStageNumber)) {
+			return 3;
+		}
+		if (aShiftTimes <= Score2Times(aAreaNumber, aStageNumber)) {
+			return 2;
+		}
+
+		//今の仕様だと、どれだけ手数を超えてもスコアは１以上になる
+		return 1;
+
+		/*
+		if (aShiftTimes <= Score1Times(aAreaNumber, aStageNumber)) {
+			return 1;
+		}
+		*/
+		return 0;
+	}
+
 
 	//現在の手数
 	//
@@ -134,7 +170,7 @@ public class ScoreManager : MonoBehaviour {
 			return null;
 		}
 
-		return mClearShiftTimes[lAreaNumber - 1].mStages[lStageNumber - 1];
+		return mScoreManagerData.mClearShiftTimes[lAreaNumber - 1].mStages[lStageNumber - 1];
 	}
 
 	StageClearShiftTimes.Data GetClearShiftTimesData(int aAreaNumber, int aStageNumber) {
@@ -144,6 +180,6 @@ public class ScoreManager : MonoBehaviour {
 			return null;
 		}
 
-		return mClearShiftTimes[aAreaNumber - 1].mStages[aStageNumber - 1];
+		return mScoreManagerData.mClearShiftTimes[aAreaNumber - 1].mStages[aStageNumber - 1];
 	}
 }
