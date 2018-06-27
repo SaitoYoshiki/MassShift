@@ -676,7 +676,7 @@ public class MoveManager : MonoBehaviour {
 						Landing hitLand = nearHitinfo.collider.GetComponent<Landing>(); // nullならステージ
 						if (!hitLand || (moveWeightMng && hitWeightMng/* && !((moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitWeightMng.WeightLv >= WeightManager.Weight.light))*/)) {
 							if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
-								(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && moveWeightMng.WeightLv == WeightManager.Weight.flying) ||   // 水上のオブジェクトへの水中からの着地
+								(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && (moveWeightMng.WeightLv == WeightManager.Weight.flying)) ||   // 水上のオブジェクトへの水中からの着地
 								(hitLand.IsWaterFloatLanding)) {
  								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
 									bool nowLanding = true; // 結果がtrueならIsLandingをtrueにする
@@ -688,6 +688,12 @@ public class MoveManager : MonoBehaviour {
 									// 自身が水中で相手が地上なら着地しない
 									else if (moveWaterStt && hitWaterStt &&
 										((moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !(hitWaterStt.IsInWater || hitWaterStt.IsWaterSurface))) {
+										nowLanding = false;
+									}
+									// 自身が重さ1で水中でない時、水中の重さ0には着地しない
+									else if (moveWeightMng && moveWaterStt && hitWeightMng && hitWaterStt &&
+										(moveWeightMng.WeightLv == WeightManager.Weight.light) && !moveWaterStt.IsInWater &&
+										(hitWeightMng.WeightLv == WeightManager.Weight.flying) && hitWaterStt.IsInWater) {
 										nowLanding = false;
 									}
 									// 自身にしか着地していない相手には着地しない
