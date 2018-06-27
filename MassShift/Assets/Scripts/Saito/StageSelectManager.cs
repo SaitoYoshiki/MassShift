@@ -184,11 +184,11 @@ public class StageSelectManager : MonoBehaviour {
 
 
 		//クリアしたエリアによって、ボックスを消して次のエリアに行けないようにする
-		if (StageClearManager.Instance.CanGoArea(2) == false) {
+		if (SaveData.Instance.CanGoArea(2) == false) {
 			mTopStaticWeightBox.SetActive(false);
 			mBottomStaticWeightBox.SetActive(false);
 		}
-		else if (StageClearManager.Instance.CanGoArea(3) == false) {
+		else if (SaveData.Instance.CanGoArea(3) == false) {
 			mBottomStaticWeightBox.SetActive(false);
 		}
 
@@ -311,11 +311,11 @@ public class StageSelectManager : MonoBehaviour {
 		mBottomStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.heavy;
 
 		//クリアしたエリアによって、ボックスを消して次のエリアに行けないようにする
-		if (StageClearManager.Instance.CanGoArea(2) == false) {
+		if (SaveData.Instance.CanGoArea(2) == false) {
 			mTopStaticWeightBox.SetActive(false);
 			mBottomStaticWeightBox.SetActive(false);
 		}
-		else if (StageClearManager.Instance.CanGoArea(3) == false) {
+		else if (SaveData.Instance.CanGoArea(3) == false) {
 			mBottomStaticWeightBox.SetActive(false);
 		}
 

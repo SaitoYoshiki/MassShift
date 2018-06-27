@@ -88,11 +88,11 @@ public class Goal : MonoBehaviour {
 	void TurnLamp() {
 
 		for (int i = 0; i < ButtonOnCount(); i++) {
-			Utility.ChangeMaterialColor(mLampList[i], mLampMaterial, "_EmissionColor", mLampOnEmission * mLampOnEmissionPower);
+			mLampList[i].GetComponent<LampFade>().TurnOn();
 		}
 
 		for (int i = ButtonOnCount(); i < mButtonList.Count; i++) {
-			Utility.ChangeMaterialColor(mLampList[i], mLampMaterial, "_EmissionColor", mLampOffEmission * mLampOffEmissionPower);
+			mLampList[i].GetComponent<LampFade>().TurnOff();
 		}
 	}
 
@@ -375,21 +375,6 @@ public class Goal : MonoBehaviour {
 
 	[SerializeField, EditOnPrefab, Tooltip("ランプ全てのモデルの親")]
 	GameObject mLampModel;
-
-	[SerializeField, EditOnPrefab, Tooltip("色を変更するライトのマテリアル")]
-	Material mLampMaterial;
-
-	[SerializeField, EditOnPrefab, Tooltip("オンの時のライトのエミッション")]
-	Color mLampOnEmission;
-
-	[SerializeField, EditOnPrefab, Tooltip("オンの時のライトのエミッションの強さ")]
-	float mLampOnEmissionPower = 1.0f;
-
-	[SerializeField, EditOnPrefab, Tooltip("オフの時のライトのエミッション")]
-	Color mLampOffEmission;
-
-	[SerializeField, EditOnPrefab, Tooltip("オフの時のライトのエミッションの強さ")]
-	float mLampOffEmissionPower = 1.0f;
 
 	[SerializeField, EditOnPrefab, Tooltip("扉の内側のマテリアル")]
 	Material mInsideMaterial;

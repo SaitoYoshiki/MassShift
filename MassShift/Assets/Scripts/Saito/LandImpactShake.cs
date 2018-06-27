@@ -46,7 +46,9 @@ public class LandImpactShake : MonoBehaviour {
 
 				//プレイヤーなら、移動不可にする
 				SetPlayerCanMove(false);
-				
+				StopPlayerMove();	//慣性をなくす
+
+
 			}
 		}
 	}
@@ -63,6 +65,7 @@ public class LandImpactShake : MonoBehaviour {
 		SetPlayerCanMove(true);
 	}
 
+	//プレイヤーが動けなくする
 	void SetPlayerCanMove(bool aCan) {
 
 		var lPlayer = GetComponent<Player>();
@@ -71,5 +74,14 @@ public class LandImpactShake : MonoBehaviour {
 		lPlayer.CanWalk = aCan;
 		lPlayer.CanJump = aCan;
 		lPlayer.CanRotation = aCan;
+	}
+
+	//プレイヤーの慣性を無くす
+	void StopPlayerMove() {
+
+		var lPlayer = GetComponent<Player>();
+		if (lPlayer == null) return;
+
+		lPlayer.GetComponent<MoveManager>().StopMoveHorizontal(MoveManager.MoveType.prevMove);
 	}
 }

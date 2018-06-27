@@ -311,6 +311,17 @@ public class Landing : MonoBehaviour {
 			}
 		}
 
+		// 自身が重さ1で水中にない時、水中の重さ0には着地できない
+		if ((WeightMng.WeightLv == WeightManager.Weight.light) && !WaterStt.IsInWater) {
+			for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
+				WeightManager colWeightMng = LandColList[idx].GetComponent<WeightManager>();
+				WaterState colWaterStt = LandColList[idx].GetComponent<WaterState>();
+				if (colWeightMng && colWaterStt && colWaterStt.IsInWater && (colWeightMng.WeightLv == WeightManager.Weight.flying)) {
+					LandColList.RemoveAt(idx);
+				}
+			}
+		}
+
 		// 自身にしか着地していないオブジェクトを除外
 		List<Collider> thisOnlyLandList = new List<Collider>();
 		for (int idx = LandColList.Count - 1; idx >= 0; idx--) {

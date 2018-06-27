@@ -30,6 +30,8 @@ public class MassShift : MonoBehaviour
 		mStageShiftLine = FindObjectOfType<StageShiftLine>();
 
 		Cursor.visible = false;
+
+		mShiftTimes = 0;
 	}
 
 	// Update is called once per frame
@@ -745,6 +747,8 @@ public class MassShift : MonoBehaviour
 
 		SoundManager.SPlay(mShiftDestSE);
 
+		mShiftTimes += 1;   //重さを移した回数を増やす
+
 		mFromLastShiftTime = 0.0f;
 	}
 
@@ -1062,6 +1066,16 @@ public class MassShift : MonoBehaviour
 	GameObject mLightBallTemplate;	//ひな型としてインスタンス化しておく
 	GameObject mLightBall;	//重さを移すときに使う
 	List<GameObject> mLightBallShare = new List<GameObject>();  //共有ブロック間で移すときに使う
+
+
+	//重さを移した回数
+	//
+	int mShiftTimes;
+	public int ShiftTimes {
+		get {
+			return mShiftTimes;
+		}
+	}
 
 
 	[SerializeField, EditOnPrefab, Tooltip("重さを移すのに失敗したときのエフェクト")]

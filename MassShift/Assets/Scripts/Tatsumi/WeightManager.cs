@@ -88,7 +88,7 @@ public class WeightManager : MonoBehaviour {
 
 				// 自身がflyingであり、持っているオブジェクトがheavyなら
 				if ((WeightLv == Weight.flying) &&
-					(LiftWeightMng && (LiftWeightMng.WeightLv == Weight.heavy))) {
+					(Pl && LiftWeightMng && (Pl.GetComponent<Lifting>().St == Lifting.LiftState.lifting) && (LiftWeightMng.WeightLv == Weight.heavy))) {
 					// heavyを返す
 					Debug.LogWarning("return heavy");
 					HeavyRot = true;
