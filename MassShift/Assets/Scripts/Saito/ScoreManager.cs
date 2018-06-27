@@ -156,6 +156,19 @@ public class ScoreManager {
 	}
 
 
+	bool mIsShortestTimes = false;
+
+	//最小手数を更新したか
+	//
+	public bool IsShortestTimes {
+		get {
+			return mIsShortestTimes;
+		}
+		set {
+			mIsShortestTimes = value;
+		}
+	}
+
 
 	StageClearShiftTimes.Data GetClearShiftTimesData() {
 		if (Area.IsInStage() == false) {
