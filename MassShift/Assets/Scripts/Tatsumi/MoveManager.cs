@@ -690,10 +690,15 @@ public class MoveManager : MonoBehaviour {
 										((moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !(hitWaterStt.IsInWater || hitWaterStt.IsWaterSurface))) {
 										nowLanding = false;
 									}
-									// 自身が重さ1で水中でない時、水中の重さ0には着地しない
-									else if (moveWeightMng && moveWaterStt && hitWeightMng && hitWaterStt &&
-										(moveWeightMng.WeightLv == WeightManager.Weight.light) && !moveWaterStt.IsInWater &&
-										(hitWeightMng.WeightLv == WeightManager.Weight.flying) && hitWaterStt.IsInWater) {
+									//// 自身が重さ1で水中でない時、水中の重さ0には着地しない
+									//else if (moveWeightMng && moveWaterStt && hitWeightMng && hitWaterStt &&
+									//	(moveWeightMng.WeightLv == WeightManager.Weight.light) && !moveWaterStt.IsInWater &&
+									//	(hitWeightMng.WeightLv == WeightManager.Weight.flying) && hitWaterStt.IsInWater) {
+									//	nowLanding = false;
+									//}
+									// 自身の重さ未満の浮いているオブジェクトには着地できない
+									if (moveWeightMng && hitWeightMng && hitLand &&
+										(moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLand.IsLanding && !hitLand.IsExtrusionLanding) {
 										nowLanding = false;
 									}
 									// 自身にしか着地していない相手には着地しない
