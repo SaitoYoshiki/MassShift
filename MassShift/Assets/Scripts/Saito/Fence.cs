@@ -65,6 +65,15 @@ public class Fence : MonoBehaviour
 		for (int i = 0; i < mLength; i++) {
 			var mi = EditorUtility.InstantiatePrefab(mModelPrefab, mModel);
 			mi.transform.localPosition = GetModelPosition(i);
+
+			switch (mDirection) {
+				case CDirection.cUp:
+					mi.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, -90.0f);
+					break;
+				case CDirection.cRight:
+					mi.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+					break;
+			}
 		}
 
 		switch (mDirection) {

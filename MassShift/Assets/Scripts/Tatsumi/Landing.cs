@@ -311,14 +311,35 @@ public class Landing : MonoBehaviour {
 			}
 		}
 
-		// 自身が重さ1で水中にない時、水中の重さ0には着地できない
-		if ((WeightMng.WeightLv == WeightManager.Weight.light) && !WaterStt.IsInWater) {
-			for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
-				WeightManager colWeightMng = LandColList[idx].GetComponent<WeightManager>();
-				WaterState colWaterStt = LandColList[idx].GetComponent<WaterState>();
-				if (colWeightMng && colWaterStt && colWaterStt.IsInWater && (colWeightMng.WeightLv == WeightManager.Weight.flying)) {
-					LandColList.RemoveAt(idx);
-				}
+//		// 自身が重さ1で水中にない時、水中の重さ0には着地できない
+//		if ((WeightMng.WeightLv == WeightManager.Weight.light) && !WaterStt.IsInWater) {
+//			for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
+//				WeightManager colWeightMng = LandColList[idx].GetComponent<WeightManager>();
+//				WaterState colWaterStt = LandColList[idx].GetComponent<WaterState>();
+//				if (colWeightMng && colWaterStt && colWaterStt.IsInWater && (colWeightMng.WeightLv == WeightManager.Weight.flying)) {
+//					LandColList.RemoveAt(idx);
+//				}
+//			}
+//		}
+//
+//		// 自身が重さ1以上で水中にない時、水中の自身の重さ未満のオブジェクトには着地できない
+//		if ((WeightMng.WeightLv == WeightManager.Weight.heavy) && !WaterStt.IsInWater) {
+//			for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
+//				WeightManager colWeightMng = LandColList[idx].GetComponent<WeightManager>();
+//				WaterState colWaterStt = LandColList[idx].GetComponent<WaterState>();
+//				if (colWeightMng && colWaterStt && colWaterStt.IsInWater && (colWeightMng.WeightLv < WeightMng.WeightLv)) {
+//					LandColList.RemoveAt(idx);
+//				}
+//			}
+//		}
+
+		// 自身の重さ未満の浮いているオブジェクトには着地できない
+		for(int idx = LandColList.Count -1;idx >= 0; idx--) {
+			WeightManager colWeightMng = LandColList[idx].GetComponent<WeightManager>();
+			Landing colLand = LandColList[idx].GetComponent<Landing>();
+			if (WeightMng && colWeightMng && colLand &&
+				(WeightMng.WeightLv > colWeightMng.WeightLv) && !colLand.isLanding && !colLand.IsExtrusionLanding) {
+				LandColList.RemoveAt(idx);
 			}
 		}
 

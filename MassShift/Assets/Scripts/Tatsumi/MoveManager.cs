@@ -572,7 +572,7 @@ public class MoveManager : MonoBehaviour {
 						&& (!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore)) {         // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
 
 						if ((!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)))    // 自身が水中の場合、相手が重さ2であれば、不可
-						&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.flying) && (moveVec.y == -1.0f) && moveWaterStt.IsWaterSurface))	// 相手が水中であり重さ0、更に下方向の押し出しである場合、自身が水面安定状態であれば不可
+						&& (!(hitWaterStt && moveWaterStt && hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.flying) && (moveVec.y == -1.0f) && moveWaterStt.IsWaterSurface))	// 相手が水中であり重さ0、更に下方向の押し出しである場合、自身が水面安定状態であれば不可
 						&& (!(moveLanding && moveLanding.IsLanding))                                                                // 自身がLandingコンポーネントを持っている場合、着地していれば不可
 						&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (_extrusionWeightLv < hitWeightMng.WeightLv)))  // 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽ければ不可
 						&& (!hitMoveMng.IsLiftUpMove)   // 相手が持ち上げ中のオブジェクトであれば不可
@@ -690,10 +690,15 @@ public class MoveManager : MonoBehaviour {
 										((moveWaterStt.IsInWater || moveWaterStt.IsWaterSurface) && !(hitWaterStt.IsInWater || hitWaterStt.IsWaterSurface))) {
 										nowLanding = false;
 									}
-									// 自身が重さ1で水中でない時、水中の重さ0には着地しない
-									else if (moveWeightMng && moveWaterStt && hitWeightMng && hitWaterStt &&
-										(moveWeightMng.WeightLv == WeightManager.Weight.light) && !moveWaterStt.IsInWater &&
-										(hitWeightMng.WeightLv == WeightManager.Weight.flying) && hitWaterStt.IsInWater) {
+									//// 自身が重さ1で水中でない時、水中の重さ0には着地しない
+									//else if (moveWeightMng && moveWaterStt && hitWeightMng && hitWaterStt &&
+									//	(moveWeightMng.WeightLv == WeightManager.Weight.light) && !moveWaterStt.IsInWater &&
+									//	(hitWeightMng.WeightLv == WeightManager.Weight.flying) && hitWaterStt.IsInWater) {
+									//	nowLanding = false;
+									//}
+									// 自身の重さ未満の浮いているオブジェクトには着地できない
+									if (moveWeightMng && hitWeightMng && hitLand &&
+										(moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLand.IsLanding && !hitLand.IsExtrusionLanding) {
 										nowLanding = false;
 									}
 									// 自身にしか着地していない相手には着地しない
