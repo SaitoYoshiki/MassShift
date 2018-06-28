@@ -101,6 +101,6 @@ public class SaveData {
 	//ステージのクリアデータを取得（書き込み、読み込み可能）
 	//
 	public StageData Data(int aAreaNumber, int aStageNumber) {
-		return mStageData[aAreaNumber - 1][aStageNumber - 1];
+		return mStageData[aAreaNumber][aStageNumber - 1];
 	}
 }
