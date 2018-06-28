@@ -24,6 +24,8 @@ public class Saito_Trial_Tutorial : MonoBehaviour {
 
     Pause pause;
 
+    MoveTransform mt;
+
 	// Use this for initialization
 	void Start () {
 		/*foreach(var i in mImage) {
@@ -36,12 +38,20 @@ public class Saito_Trial_Tutorial : MonoBehaviour {
         }
 
         pause = FindObjectOfType<Pause>();
+        mt = FindObjectOfType<MoveTransform>();
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-
-		mTargetIndex = GetHitIndex();
+        if (mt.IsMove) {
+            foreach (var iset in imgSet) {
+                iset.SetVideoScaleZero();
+            }
+            return;
+        }
+        else {
+            mTargetIndex = GetHitIndex();
+        }
 
 		/*for (int i = 0; i < mArea.Count; i++) {
 			float lFadeDelta = -1.0f / mFadeTime * Time.fixedDeltaTime;

@@ -138,6 +138,7 @@ public class ChangeScene : MonoBehaviour {
             pauseFlg = false;
         }
         GetComponent<Pause>().DisableGraphicRaycaster();
+        GetComponent<Pause>().canPause = false;
         GetComponent<Result>().DisableGraphicRaycaster();
         changeSceneMode = CHANGE_SCENE_MODE.NEXT;
 
@@ -176,6 +177,7 @@ public class ChangeScene : MonoBehaviour {
             pauseFlg = false;
         }
         GetComponent<Pause>().DisableGraphicRaycaster();
+        GetComponent<Pause>().canPause = false;
         GetComponent<Result>().DisableGraphicRaycaster();
         changeSceneMode = CHANGE_SCENE_MODE.RETRY;
         changeSceneFlg = true;
@@ -202,6 +204,7 @@ public class ChangeScene : MonoBehaviour {
             pauseFlg = false;
         }
         GetComponent<Pause>().DisableGraphicRaycaster();
+        GetComponent<Pause>().canPause = false;
         GetComponent<Result>().DisableGraphicRaycaster();
         changeSceneMode = CHANGE_SCENE_MODE.STAGESELECT;
 
@@ -226,6 +229,7 @@ public class ChangeScene : MonoBehaviour {
             pauseFlg = false;
         }
         GetComponent<Pause>().DisableGraphicRaycaster();
+        GetComponent<Pause>().canPause = false;
         changeSceneMode = CHANGE_SCENE_MODE.TITLE;
         changeSceneFlg = true;
     }

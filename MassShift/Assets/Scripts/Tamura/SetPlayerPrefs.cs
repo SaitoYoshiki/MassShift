@@ -22,7 +22,7 @@ public class SetPlayerPrefs : MonoBehaviour {
     public float   masterVolumeData;
     public float   bgmVolumeData;
     public float   seVolumeData;
-    int     windowSizeData;
+    public int     windowSizeData;
 
     // 解像度1920x1080
     static int widthLarge = 1920;
@@ -49,6 +49,14 @@ public class SetPlayerPrefs : MonoBehaviour {
             bgmVolumeData = 0.5f;
             seVolumeData = 0.5f;
             windowSizeData = 0;
+
+            if (Screen.width == 1920) {
+
+            }
+            else if (Screen.width == 1920) {
+
+            }
+
             GetComponent<SetAudioSetting>().InitAudio();
         }
     }
@@ -127,18 +135,21 @@ public class SetPlayerPrefs : MonoBehaviour {
     public void SetResolutionLarge() {
         Screen.SetResolution(widthLarge, heightLarge, fullScreenFlg, refreshRate);
         Screen.fullScreen = true;
+        windowSizeData = 0;
     }
 
     // 1600x900の解像度に変更
     public void SetResolutionMedium() {
         Screen.SetResolution(widthMedium, heightMedium, fullScreenFlg, refreshRate);
         Screen.fullScreen = false;
+        windowSizeData = 1;
     }
 
     // 1280x720の解像度に変更
     public void SetResolutionSmall() {
         Screen.SetResolution(widthSmall, heightSmall, fullScreenFlg, refreshRate);
         Screen.fullScreen = false;
+        windowSizeData = 2;
     }
 
     // 描画品質をセット
