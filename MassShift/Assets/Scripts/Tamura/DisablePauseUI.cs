@@ -25,7 +25,7 @@ public class DisablePauseUI : MonoBehaviour {
             PauseUI.SetActive(false);
         }
         else {
-            if (!PauseUI.activeSelf) {
+            if (!PauseUI.activeSelf && !mt.IsMove) {
                 PauseUI.SetActive(true);
             }
         }

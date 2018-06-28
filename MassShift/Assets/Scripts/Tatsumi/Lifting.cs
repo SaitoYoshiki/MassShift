@@ -858,30 +858,39 @@ public class Lifting : MonoBehaviour {
 
 		Vector3 ret = (PlAnim.GetBoxPosition() - LiftObj.transform.position);
 		float vec = Mathf.Sign(LiftObj.transform.position.x - Pl.transform.position.x);
-		
+
 		//// x軸が離れようとした場合は離さない
 		//float defDis = (LiftObj.transform.position.x - Pl.transform.position.x);
 		//float dis = (ret.x - Pl.transform.position.x);
 		//if (Mathf.Abs(dis) > Mathf.Abs(defDis)) {
 		//	ret = new Vector3((Pl.transform.position.x + defDis), ret.y, ret.z);
 		//}
-		if(vec == Mathf.Sign(ret.x)) {
+		if (vec == Mathf.Sign(ret.x)) {
 			ret = new Vector3(0.0f, ret.y, ret.z);
 		}
+
+		// x軸がプレイヤーの中心より後ろだったら
+		float posX = (LiftObj.transform.position.x + ret.x);
+		float posVec = Mathf.Sign(posX - Pl.transform.position.x);
+		if (Pl.RotVec.x != posVec) {
+			// 中央に補正
+			ret = new Vector3((LiftObj.transform.position.x - Pl.transform.position.x), ret.y, ret.z);
+		}
+
 		return ret;
 	}
 
 	Vector3 GetLiftDownBoxPosition() {
-		Vector3 pos = PlAnim.GetBoxPosition();
+		Vector3 ret = PlAnim.GetBoxPosition();
 
 		// x軸がプレイヤーの中心より後ろだったら
-		//float posVec = Mathf.Sign(LiftObj.transform.position.x - Pl.transform.position.x);
-		//if(Pl.RotVec.x != posVec) {
-		//	// 中央に補正
-		//	pos = new Vector3(Pl.transform.position.x, pos.y, pos.z);
-		//}
+		float posVec = Mathf.Sign(ret.x - Pl.transform.position.x);
+		if(Pl.RotVec.x != posVec) {
+			// 中央に補正
+			ret = new Vector3(Pl.transform.position.x, ret.y, ret.z);
+		}
 
-		return pos;
+		return ret;
 	}
 
 //	public void ReleaseLiftObject() {
