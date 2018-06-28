@@ -792,4 +792,10 @@ public class StageSelectManager : MonoBehaviour {
 		lPosition.z = 35.0f;
 		return lPosition;
 	}
+
+    public int SelectStageNum {
+        get{
+            return mSelectStageNum;
+        }
+    }
 }

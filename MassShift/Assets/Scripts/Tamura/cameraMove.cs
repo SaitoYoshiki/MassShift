@@ -193,7 +193,6 @@ public class cameraMove : MonoBehaviour {
             zoomPer = nowZoomTime / zoomInTime;
         }
         else {
-            Debug.Log("ズーム終了");
             _zoomFlg = false;
         }
         this.transform.position = Vector3.Lerp(_startPos, _endPos, zoomPer);

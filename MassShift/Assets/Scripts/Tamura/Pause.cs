@@ -47,7 +47,7 @@ public class Pause : MonoBehaviour {
     public UnityEvent pauseEvent = new UnityEvent();
 
     void Start() {
-        blur = Camera.main.GetComponent<Blur>();
+        blur = FindObjectOfType<Blur>();
 
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
             pauseUI = pauseCanvas_SS.transform.Find("PauseUI").gameObject;
