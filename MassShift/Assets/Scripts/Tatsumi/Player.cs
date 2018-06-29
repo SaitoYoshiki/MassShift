@@ -646,17 +646,18 @@ public class Player : MonoBehaviour {
 		Walk();
 
 		// ジャンプ
-		if (jumpReserveInput) {
-			if (Jump()) {
-				prevJumpStandbyFlg = true;
+		if (!Land.noticeLandEffect) {
+			if (jumpReserveInput) {
+				if (Jump()) {
+					prevJumpStandbyFlg = true;
+				}
+				if (!jumpStandbyFlg) {
+					prevJumpStandbyFlg = false;
+				}
+			} else {
+				Jump();
+				prevJumpStandbyFlg = jumpStandbyFlg;
 			}
-			if (!jumpStandbyFlg) {
-				prevJumpStandbyFlg = false;
-			}
-		} else {
-			Jump();
-			prevJumpStandbyFlg = jumpStandbyFlg;
-			Debug.LogWarning(prevJumpStandbyFlg);
 		}
 
 		// 立ち止まり
