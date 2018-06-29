@@ -24,7 +24,7 @@ public class Landing : MonoBehaviour {
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
 			}
-	
+
 			// 値に変化がない
 			if (isLanding == value) return;
 
@@ -238,7 +238,7 @@ public class Landing : MonoBehaviour {
 		UpdateWaterFloatLanding();
 
 		if (!isExtrusionLandingChange) {
-			isExtrusionLanding = false;
+			IsExtrusionLanding = false;
 		}
 		isExtrusionLandingChange = false;
 	}
@@ -270,7 +270,7 @@ public class Landing : MonoBehaviour {
 	}
 
 	void CheckLandingFalse() {
-		landColList.Clear();
+		LandColList.Clear();
 
 		//		// 接地方向を求める
 		//		float landVec = -1.0f;
@@ -310,26 +310,26 @@ public class Landing : MonoBehaviour {
 		}
 
 		// 離地判定
-		landColList.AddRange(Physics.OverlapBox(LandingCol.position, LandingCol.localScale * 0.5f, LandingCol.rotation, mask));
+		LandColList.AddRange(Physics.OverlapBox(LandingCol.position, LandingCol.localScale * 0.5f, LandingCol.rotation, mask));
 
 		// 自身は接地対象から除く
-		for (int idx = landColList.Count - 1; idx >= 0; idx--) {
-			if (landColList[idx].gameObject == gameObject) {
-				landColList.RemoveAt(idx);
+		for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
+			if (LandColList[idx].gameObject == gameObject) {
+				LandColList.RemoveAt(idx);
 			}
 		}
 
 		// 一致方向のすり抜け床の除外
-		for (int idx = landColList.Count - 1; idx >= 0; idx--) {
-			OnewayFloor oneway = landColList[idx].GetComponent<OnewayFloor>();
+		for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
+			OnewayFloor oneway = LandColList[idx].GetComponent<OnewayFloor>();
 			if (MoveMng.PrevMove.y != 0.0f) {
 				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.PrevMove.y, gameObject)) {
-					landColList.RemoveAt(idx);
+					LandColList.RemoveAt(idx);
 				}
 			}
 			else {
 				if (oneway && oneway.IsThrough(Vector3.up * MoveMng.GetFallVec(), gameObject)) {
-					landColList.RemoveAt(idx);
+					LandColList.RemoveAt(idx);
 				}
 			}
 		}
@@ -372,7 +372,7 @@ public class Landing : MonoBehaviour {
 			WeightManager colWeightMng = LandColList[idx].GetComponent<WeightManager>();
 			Landing colLand = LandColList[idx].GetComponent<Landing>();
 			if (WeightMng && colWeightMng && colLand &&
-				(WeightMng.WeightLv > colWeightMng.WeightLv) && !colLand.isLanding && !colLand.IsExtrusionLanding) {
+				(WeightMng.WeightLv > colWeightMng.WeightLv) && !colLand.IsLanding && !colLand.IsExtrusionLanding) {
 				LandColList.RemoveAt(idx);
 			}
 		}
@@ -387,7 +387,7 @@ public class Landing : MonoBehaviour {
 		}
 
 		// 接地しているオブジェクトが存在しなければ離地
-		if ((landColList.Count - thisOnlyLandList.Count) == 0) {
+		if ((LandColList.Count - thisOnlyLandList.Count) == 0) {
 			IsLanding = false;
 			Debug.Log("離地 " + Support.ObjectInfoToString(gameObject));
 		}
@@ -412,6 +412,7 @@ public class Landing : MonoBehaviour {
 		// 接地方向に移動していれば反接地していない
 		if (MoveMng && (MoveMng.GetFallVec() == Mathf.Sign(MoveMng.PrevMove.y)) && (MoveMng.PrevMove.y != 0.0f)) {
 			IsExtrusionLanding = false;
+
 			return;
 		}
 
