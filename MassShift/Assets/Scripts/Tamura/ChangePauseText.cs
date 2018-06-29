@@ -22,29 +22,29 @@ public class ChangePauseText : MonoBehaviour {
         else {
             StageName.text = "TUTORIAL - " + Area.GetStageNumber();
         }
-        CurrentShiftCount.text = "CURRENT SHIFT : 0";
+        CurrentShiftCount.text = "CURRENT SCORE : 0";
 
         if (Area.GetAreaNumber() != 0) {
-            TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score3Times() - 2) + " - " + ScoreManager.Instance.Score3Times();
+            TargetShiftCount.text = "TARGET SCORE : " + (ScoreManager.Instance.Score3Times() - 2) + " - " + ScoreManager.Instance.Score3Times();
         }
     }
 
 	// Update is called once per frame
 	void Update () {
-        CurrentShiftCount.text = "CURRENT SHIFT : " + ScoreManager.Instance.ShiftTimes();
+        CurrentShiftCount.text = "CURRENT SCORE : " + ScoreManager.Instance.ShiftTimes();
 
         // チュートリアルなら
         if (Area.GetAreaNumber() != 0) {
             // 現在の評価に応じて目標手数範囲のテキスト変更
             switch (ScoreManager.Instance.Score()) {
                 case 1:
-                    TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score2Times() + 1) + " ～ ";
+                    TargetShiftCount.text = "TARGET SCORE : " + (ScoreManager.Instance.Score2Times() + 1) + " ～ ";
                     break;
                 case 2:
-                    TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score3Times() + 1) + " ～ " + ScoreManager.Instance.Score2Times();
+                    TargetShiftCount.text = "TARGET SCORE : " + (ScoreManager.Instance.Score3Times() + 1) + " ～ " + ScoreManager.Instance.Score2Times();
                     break;
                 case 3:
-                    TargetShiftCount.text = "TARGET SHIFT :  ～ " + ScoreManager.Instance.Score3Times();
+                    TargetShiftCount.text = "TARGET SCORE :  ～ " + ScoreManager.Instance.Score3Times();
                     break;
 
                 default:

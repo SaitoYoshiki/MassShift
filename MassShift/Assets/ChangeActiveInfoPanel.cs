@@ -8,27 +8,15 @@ public class ChangeActiveInfoPanel : MonoBehaviour {
     List<GameObject> mAreaTriggers;
 
     [SerializeField]
-    List<GameObject> StageInfoPanel;
-
-    [SerializeField]
     GameObject mPlayer;
 
     int mAreaIndex = 0;
-
-    int oldActivePanel = 0;
 
     // Update is called once per frame
     void FixedUpdate() {
         //現在いるエリア位置を更新
         if (GetHitAreaIndex() != -1) {
             mAreaIndex = GetHitAreaIndex();
-        }
-
-        if (!StageInfoPanel[mAreaIndex].activeSelf) {
-            StageInfoPanel[oldActivePanel].SetActive(false);
-            StageInfoPanel[mAreaIndex].SetActive(true);
-
-            oldActivePanel = mAreaIndex;
         }
     }
 
@@ -47,5 +35,11 @@ public class ChangeActiveInfoPanel : MonoBehaviour {
         }
 
         return -1;	//ヒットするエリアがなかった
+    }
+
+    public int AreaIndex {
+        get {
+            return mAreaIndex + 1;
+        }
     }
 }

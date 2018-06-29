@@ -9,6 +9,6 @@ public class ChangeResultText : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        TotalShiftCount.text = "TOTAL SHIFT : " + ScoreManager.Instance.ShiftTimes();
+        TotalShiftCount.text = "TOTAL SCORE : " + ScoreManager.Instance.ShiftTimes();
 	}
 }
