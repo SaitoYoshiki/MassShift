@@ -14,8 +14,17 @@ public class ChangePauseText : MonoBehaviour {
     Text TargetShiftCount;
 
     void Start() {
-        StageName.text = "STAGE " + Area.GetAreaNumber() + " - " + Area.GetStageNumber();
+        // チュートリアル以外なら
+        if (Area.GetAreaNumber() != 0) {
+            StageName.text = "STAGE " + Area.GetAreaNumber() + " - " + Area.GetStageNumber();
+        }
+        // チュートリアルなら
+        else {
+            StageName.text = "TUTORIAL-" + Area.GetStageNumber();
+        }
         CurrentShiftCount.text = "CURRENT SHIFT : 0";
+
+
         TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score3Times() - 2) + " - " + ScoreManager.Instance.Score3Times();
     }
 
