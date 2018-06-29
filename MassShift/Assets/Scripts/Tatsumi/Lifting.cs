@@ -273,7 +273,7 @@ public class Lifting : MonoBehaviour {
 
 			// オブジェクトの位置を同期
 			if (liftMoveFlg) {
-				if (heavyFailedFlg || (!MoveManager.Move(GetLiftUpBoxMove(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true))) {
+				if (heavyFailedFlg || (!MoveManager.Move(GetLiftUpBoxMove(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true) && (Pl.transform.position.x != LiftObj.transform.position.x))) {
 					Debug.Log("持ち上げ失敗");
 
 					//					// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
@@ -881,7 +881,8 @@ public class Lifting : MonoBehaviour {
 
 		// x軸が後に回ろうとした場合は補正
 		if (pointVec != befVec) {
-			retMove = new Vector3((LiftObj.transform.position.x - Pl.transform.position.x), retMove.y, retMove.z);
+			retMove = new Vector3(Mathf.Abs(LiftObj.transform.position.x - Pl.transform.position.x) * moveVec, retMove.y, retMove.z);
+			Debug.LogWarning(retMove);
 		}	
 
 		return retMove;
