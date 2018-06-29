@@ -204,6 +204,9 @@ public class Lifting : MonoBehaviour {
 	[SerializeField]
 	bool liftDownWeit = false;
 
+	[SerializeField]
+	bool underPriority = false;
+
 	void Awake() {
 		if (autoLiftingColMask) liftingColMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		if (autoBoxMask) boxMask = LayerMask.GetMask(new string[] { "Box" });
@@ -516,12 +519,19 @@ public class Lifting : MonoBehaviour {
 
 			GameObject liftableObj = null;
 			float dis = float.MaxValue;
-//			Debug.LogWarning(hitInfos.Count);
+			//			Debug.LogWarning(hitInfos.Count);
+
 			foreach (var hitInfo in hitInfos) {
-//				Debug.LogWarning(hitInfo.collider.name + " " + hitInfo.collider.tag);
-				if ((hitInfo.collider.tag == "LiftableObject") && (hitInfo.distance < dis)) {
-					liftableObj = hitInfo.collider.gameObject;
-					dis = hitInfo.distance;
+				//				Debug.LogWarning(hitInfo.collider.name + " " + hitInfo.collider.tag);
+				if (!underPriority) {
+					if ((hitInfo.collider.tag == "LiftableObject") && (hitInfo.distance < dis)) {
+						liftableObj = hitInfo.collider.gameObject;
+						dis = hitInfo.distance;
+					}
+				} else {
+					if ((hitInfo.collider.tag == "LiftableObject") && (!liftableObj || (hitInfo.transform.position.y < liftableObj.transform.position.y))) {
+						liftableObj = hitInfo.collider.gameObject;
+					}
 				}
 			}
 
