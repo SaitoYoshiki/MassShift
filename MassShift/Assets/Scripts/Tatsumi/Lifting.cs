@@ -207,6 +207,9 @@ public class Lifting : MonoBehaviour {
 	[SerializeField]
 	bool underPriority = false;
 
+	[SerializeField]
+	Transform catchEndTransform, releaseEndTransform;
+
 	void Awake() {
 		if (autoLiftingColMask) liftingColMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		if (autoBoxMask) boxMask = LayerMask.GetMask(new string[] { "Box" });
@@ -893,22 +896,32 @@ public class Lifting : MonoBehaviour {
 		if (pointVec != befVec) {
 			retMove = new Vector3(Mathf.Abs(LiftObj.transform.position.x - Pl.transform.position.x) * moveVec, retMove.y, retMove.z);
 			Debug.LogWarning(retMove);
-		}	
+		}
+
+		// y軸が終了位置より高かったら補正
+		if (Mathf.Sign(LiftObj.transform.position.y - catchEndTransform.position.y) != Mathf.Sign((LiftObj.transform.position.y + retMove.y) - catchEndTransform.position.y)) {
+			retMove = new Vector3(retMove.x, (catchEndTransform.position.y - LiftObj.transform.position.y), retMove.z);
+		}
 
 		return retMove;
 	}
 
 	Vector3 GetLiftDownBoxPosition() {
-		Vector3 ret = PlAnim.GetBoxPosition();
+		Vector3 retPos = PlAnim.GetBoxPosition();
 
 		// x軸がプレイヤーの中心より後ろだったら
-		float posVec = Mathf.Sign(ret.x - Pl.transform.position.x);
+		float posVec = Mathf.Sign(retPos.x - Pl.transform.position.x);
 		if(Pl.RotVec.x != posVec) {
 			// 中央に補正
-			ret = new Vector3(Pl.transform.position.x, ret.y, ret.z);
+			retPos = new Vector3(Pl.transform.position.x, retPos.y, retPos.z);
 		}
 
-		return ret;
+		// y軸が終了位置より高かったら補正
+		if (Mathf.Sign(LiftObj.transform.position.y - releaseEndTransform.position.y) != Mathf.Sign(retPos.y - releaseEndTransform.position.y)) {
+			retPos = new Vector3(retPos.x, releaseEndTransform.position.y, retPos.z);
+		}
+
+		return retPos;
 	}
 
 //	public void ReleaseLiftObject() {
