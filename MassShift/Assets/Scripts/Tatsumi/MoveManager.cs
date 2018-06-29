@@ -701,7 +701,7 @@ public class MoveManager : MonoBehaviour {
 									//	nowLanding = false;
 									//}
 									// 自身の重さ未満の浮いているオブジェクトには着地できない
-									if (moveWeightMng && hitWeightMng && hitLand &&
+									else if (moveWeightMng && hitWeightMng && hitLand &&
 										(moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLand.IsLanding && !hitLand.IsExtrusionLanding) {
 										nowLanding = false;
 									}
@@ -711,12 +711,16 @@ public class MoveManager : MonoBehaviour {
 									}
 									if (nowLanding) {
 										land.IsLanding = true;
+										Debug.LogWarning("着地 " + _moveCol.name + " " + hitInfo.collider.name);
 									}
 									else {
 										moveMng.StopMoveVirtical(MoveType.prevMove);
 									}
 								}
-								land.IsExtrusionLanding = land.GetIsLanding(Vector3.up * -moveVec.y);
+								// 押しつけられ着地
+								if (land.GetIsLanding(Vector3.up * -moveVec.y)) {
+									land.IsExtrusionLanding = true;
+								}
 							}
 						}
 						// すり抜け床の上のオブジェクトに着地
