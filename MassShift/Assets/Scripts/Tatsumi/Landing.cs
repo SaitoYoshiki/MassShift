@@ -227,16 +227,15 @@ public class Landing : MonoBehaviour {
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 			}
 		}
-		if (IsExtrusionLanding) {
-			CheckExtrusionLandingFalse();
-			if (IsExtrusionLanding) {
-				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
-				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
-			}
-		}
+//		if (IsExtrusionLanding) {
+//			CheckExtrusionLandingFalse();
+////			if (IsExtrusionLanding) {
+////				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+////				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+////			}
+//		}
 
 		UpdateWaterFloatLanding();
-
 		if (!isExtrusionLandingChange) {
 			IsExtrusionLanding = false;
 		}
@@ -394,8 +393,6 @@ public class Landing : MonoBehaviour {
 	}
 
 	void CheckExtrusionLandingFalse() {
-		landExtrusionColList.Clear();
-
 		//		// 接地方向の反対方向に移動していなければ接地していない
 		//		if (WeightMng.WeightLv != WeightManager.Weight.flying) {
 		//			if (MoveMng.PrevMove.y < 0.0f) {
@@ -412,7 +409,6 @@ public class Landing : MonoBehaviour {
 		// 接地方向に移動していれば反接地していない
 		if (MoveMng && (MoveMng.GetFallVec() == Mathf.Sign(MoveMng.PrevMove.y)) && (MoveMng.PrevMove.y != 0.0f)) {
 			IsExtrusionLanding = false;
-
 			return;
 		}
 
@@ -425,6 +421,7 @@ public class Landing : MonoBehaviour {
 		}
 
 		// 離地判定
+		landExtrusionColList.Clear();
 		landExtrusionColList.AddRange(Physics.OverlapBox(extLandingCol.position, extLandingCol.localScale * 0.5f, extLandingCol.rotation, mask));
 
 		// 自身は反接地対象から除く
