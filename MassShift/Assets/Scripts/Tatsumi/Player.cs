@@ -558,7 +558,9 @@ public class Player : MonoBehaviour {
 			if ((Land.IsLanding || WaterStt.IsWaterSurface || land.IsWaterFloatLanding) /*&& !IsRotation*/ && !IsHandSpring) {
 				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
-				Lift.Lift();
+				if (!(IsRotation && Lift.St == Lifting.LiftState.standby)) {
+					Lift.Lift();
+				}
 				//}
 				//	liftTrg = true;
 				//} else {
