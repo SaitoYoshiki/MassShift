@@ -20,31 +20,36 @@ public class ChangePauseText : MonoBehaviour {
         }
         // チュートリアルなら
         else {
-            StageName.text = "TUTORIAL-" + Area.GetStageNumber();
+            StageName.text = "TUTORIAL - " + Area.GetStageNumber();
         }
         CurrentShiftCount.text = "CURRENT SHIFT : 0";
 
-
-        TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score3Times() - 2) + " - " + ScoreManager.Instance.Score3Times();
+        if (Area.GetAreaNumber() != 0) {
+            TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score3Times() - 2) + " - " + ScoreManager.Instance.Score3Times();
+        }
     }
 
 	// Update is called once per frame
 	void Update () {
         CurrentShiftCount.text = "CURRENT SHIFT : " + ScoreManager.Instance.ShiftTimes();
 
-        switch (ScoreManager.Instance.Score()) {
-            case 1:
-                TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score2Times() + 1) + " - ";
-                break;
-            case 2:
-                TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score2Times() - 2) + " - " + ScoreManager.Instance.Score2Times();
-                break;
-            case 3:
-                TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score3Times() - 2) + " - " + ScoreManager.Instance.Score3Times();
-                break;
+        // チュートリアルなら
+        if (Area.GetAreaNumber() != 0) {
+            // 現在の評価に応じて目標手数範囲のテキスト変更
+            switch (ScoreManager.Instance.Score()) {
+                case 1:
+                    TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score2Times() + 1) + " ～ ";
+                    break;
+                case 2:
+                    TargetShiftCount.text = "TARGET SHIFT : " + (ScoreManager.Instance.Score3Times() + 1) + " ～ " + ScoreManager.Instance.Score2Times();
+                    break;
+                case 3:
+                    TargetShiftCount.text = "TARGET SHIFT :  ～ " + ScoreManager.Instance.Score3Times();
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
 	}
 }
