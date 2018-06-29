@@ -395,7 +395,7 @@ public class Landing : MonoBehaviour {
 		//		}
 
 		// 接地方向に移動していれば反接地していない
-		if (MoveMng && (MoveMng.GetFallVec() == Mathf.Sign(MoveMng.PrevMove.y))) {
+		if (MoveMng && (MoveMng.GetFallVec() == Mathf.Sign(MoveMng.PrevMove.y)) && (MoveMng.PrevMove.y != 0.0f)) {
 			IsExtrusionLanding = false;
 			return;
 		}

@@ -569,18 +569,19 @@ public class MoveManager : MonoBehaviour {
 					// 自身が衝突相手を押し出せるか
 					canExtrusion = false;
 					if ((moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding)   // 判定に必要なコンポーネントが揃っている
-						&& (!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore)) {         // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
+						&& (!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore)) {			// 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
 
 						/*bef*/
 
-						if ((!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)))    // 自身が水中の場合、相手が重さ2であれば、不可
+						if ((!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)))	// 自身が水中の場合、相手が重さ2であれば、不可
 							&& (!(hitWaterStt && moveWaterStt && hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.flying) && (moveVec.y == -1.0f) && moveWaterStt.IsWaterSurface))    // 相手が水中であり重さ0、更に下方向の押し出しである場合、自身が水面安定状態であれば不可
-							&& (!(moveLanding && moveLanding.IsLanding))                                                                // 自身がLandingコンポーネントを持っている場合、着地していれば不可
+							&& (!(moveLanding && moveLanding.IsLanding))															// 自身がLandingコンポーネントを持っている場合、着地していれば不可
 							&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (_extrusionWeightLv < hitWeightMng.WeightLv)))  // 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽ければ不可
 							&& (!hitMoveMng.IsLiftUpMove)   // 相手が持ち上げ中のオブジェクトであれば不可
 							&& (
 							((_extrusionWeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding)/* ||    // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
 							(waterFloatExtrusion)*/)) {                                                                        // 水中で上のオブジェクトを押し上げている
+							canExtrusion = true;
 						} else {
 							if (moveMng.IsLiftUpMove) {  // 自身を持ち上げオブジェクトとする持ち上げ時の押し出しである
 								canExtrusion = true;
@@ -594,55 +595,56 @@ public class MoveManager : MonoBehaviour {
 						}
 					}
 
-					/*bef end*/
+						/*bef end*/
 
 
-						/*aft*//* canExtrusion = true;
-
-						// 自身が水中の場合、相手が重さ2であれば、不可
-						if (moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)) {
-							canExtrusion = false;
-						}
-						// 相手が水中であり重さ0、更に下方向の押し出しである場合、自身が水面安定状態であれば不可
-						if (hitWaterStt && moveWaterStt && hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.flying) && (moveVec.y == -1.0f) && moveWaterStt.IsWaterSurface) {
-							canExtrusion = false;
-						}
-						// 自身がLandingコンポーネントを持っている場合、着地していれば不可
-						if (moveLanding && moveLanding.IsLanding) {
-							canExtrusion = false;
-						}
-						// 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽ければ不可
-						if (hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (_extrusionWeightLv < hitWeightMng.WeightLv)) {
-							canExtrusion = false;
-						}
-						// 相手が持ち上げ中のオブジェクトであれば不可
-						if (hitMoveMng.IsLiftUpMove) {
-							canExtrusion = false;
-						}
-
-						// 自身の重さレベルが相手の重さレベル以下の場合は不可
-						if (_extrusionWeightLv <= hitWeightMng.WeightLv) {
-							canExtrusion = false;
-						}
-						// 相手が接地していれば不可
-						if (hitLanding.IsLanding) {
-							canExtrusion = false;
-						}
-
-						// 自身を持ち上げオブジェクトとする持ち上げ時の押し出しである
-						if (moveMng.IsLiftUpMove) {
-							canExtrusion = true;
-						}
-						// 強制的に押し出す設定である
-						if (moveMng.ExtrusionForcible || _extrusionForcible) {
-							canExtrusion = true;
-						}
-						// 水中で上のオブジェクトを押し上げている
-						if (waterFloatExtrusion) {
-							canExtrusion = true;
-						}
-					}
-					/*aft end*/
+						/*aft*/
+//						canExtrusion = true;
+//
+//						// 自身が水中の場合、相手が重さ2であれば、不可
+//						if (moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)) {
+//							canExtrusion = false;
+//						}
+//						// 相手が水中であり重さ0、更に下方向の押し出しである場合、自身が水面安定状態であれば不可
+//						if (hitWaterStt && moveWaterStt && hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.flying) && (moveVec.y == -1.0f) && moveWaterStt.IsWaterSurface) {
+//							canExtrusion = false;
+//						}
+//						// 自身がLandingコンポーネントを持っている場合、着地していれば不可
+//						if (moveLanding && moveLanding.IsLanding) {
+//							canExtrusion = false;
+//						}
+//						// 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽ければ不可
+//						if (hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (_extrusionWeightLv < hitWeightMng.WeightLv)) {
+//							canExtrusion = false;
+//						}
+//						// 相手が持ち上げ中のオブジェクトであれば不可
+//						if (hitMoveMng.IsLiftUpMove) {
+//							canExtrusion = false;
+//						}
+//
+//						// 自身の重さレベルが相手の重さレベル以下の場合は不可
+//						if (_extrusionWeightLv <= hitWeightMng.WeightLv) {
+//							canExtrusion = false;
+//						}
+//						// 相手が接地していれば不可
+//						if (hitLanding.IsLanding) {
+//							canExtrusion = false;
+//						}
+//
+//						// 自身を持ち上げオブジェクトとする持ち上げ時の押し出しである
+//						if (moveMng.IsLiftUpMove) {
+//							canExtrusion = true;
+//						}
+//						// 強制的に押し出す設定である
+//						if (moveMng.ExtrusionForcible || _extrusionForcible) {
+//							canExtrusion = true;
+//						}
+//						// 水中で上のオブジェクトを押し上げている
+//						if (waterFloatExtrusion) {
+//							canExtrusion = true;
+//						}
+//					}
+//					/*aft end*/
 
 						//// 相手側の自身に対するすり抜け指定があれば
 						//if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
