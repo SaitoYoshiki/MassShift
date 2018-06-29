@@ -35,14 +35,18 @@ public class Landing : MonoBehaviour {
 
 			// 接地時
 			if (value == true) {
-			// 着地エフェクト出現タイミング
+				// 着地エフェクト出現タイミング
 				noticeLandEffect = true;
 
 				// ジャンプによる通常の重力加速度停止を解除
 				MoveMng.GravityCustomTime = 0.0f;
 
-//				// 有効になった瞬間
-//				IsLandingTrueChange = true;
+				//				// 有効になった瞬間
+				//				IsLandingTrueChange = true;
+			}
+			// 離地時
+			else {
+				LandColList.Clear();
 			}
 		}
 	}
@@ -78,6 +82,10 @@ public class Landing : MonoBehaviour {
 				// 縦方向の移動を停止
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+			}
+			// 押し出し離地時
+			else {
+				landExtrusionColList.Clear();
 			}
 		}
 	}
