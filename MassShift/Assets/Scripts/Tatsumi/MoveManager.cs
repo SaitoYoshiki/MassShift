@@ -571,21 +571,21 @@ public class MoveManager : MonoBehaviour {
 					if ((moveWeightMng) && (hitWeightMng) && (hitMoveMng) && (hitLanding)   // 判定に必要なコンポーネントが揃っている
 						&& (!_dontExtrusionFlg) && (!hitMoveMng.extrusionIgnore)) {         // 今回の移動が押し出し不可でなく、相手が押し出し不可設定ではない
 
-						if ((!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)))    // 自身が水中の場合、相手が重さ2であれば、不可
-						&& (!(hitWaterStt && moveWaterStt && hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.flying) && (moveVec.y == -1.0f) && moveWaterStt.IsWaterSurface))	// 相手が水中であり重さ0、更に下方向の押し出しである場合、自身が水面安定状態であれば不可
-						&& (!(moveLanding && moveLanding.IsLanding))                                                                // 自身がLandingコンポーネントを持っている場合、着地していれば不可
-						&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (_extrusionWeightLv < hitWeightMng.WeightLv)))  // 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽ければ不可
-						&& (!hitMoveMng.IsLiftUpMove)   // 相手が持ち上げ中のオブジェクトであれば不可
+						/*bef*/
 
-						&& (
-						((_extrusionWeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding)/* ||	// 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
-						(waterFloatExtrusion)*/)) {																		// 水中で上のオブジェクトを押し上げている
-							canExtrusion = true;
+						if ((!(moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)))    // 自身が水中の場合、相手が重さ2であれば、不可
+							&& (!(hitWaterStt && moveWaterStt && hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.flying) && (moveVec.y == -1.0f) && moveWaterStt.IsWaterSurface))    // 相手が水中であり重さ0、更に下方向の押し出しである場合、自身が水面安定状態であれば不可
+							&& (!(moveLanding && moveLanding.IsLanding))                                                                // 自身がLandingコンポーネントを持っている場合、着地していれば不可
+							&& (!(hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (_extrusionWeightLv < hitWeightMng.WeightLv)))  // 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽ければ不可
+							&& (!hitMoveMng.IsLiftUpMove)   // 相手が持ち上げ中のオブジェクトであれば不可
+							&& (
+							((_extrusionWeightLv > hitWeightMng.WeightLv) && !hitLanding.IsLanding)/* ||    // 自身の重さレベルが相手の重さレベルより重く、相手は接地していない、又は
+							(waterFloatExtrusion)*/)) {                                                                        // 水中で上のオブジェクトを押し上げている
 						} else {
 							if (moveMng.IsLiftUpMove) {  // 自身を持ち上げオブジェクトとする持ち上げ時の押し出しである
 								canExtrusion = true;
 							}
-							if (moveMng.ExtrusionForcible || _extrusionForcible) {	// 強制的に押し出す設定である
+							if (moveMng.ExtrusionForcible || _extrusionForcible) {    // 強制的に押し出す設定である
 								canExtrusion = true;
 							}
 							if (waterFloatExtrusion) {  // 水中で上のオブジェクトを押し上げている
@@ -594,16 +594,66 @@ public class MoveManager : MonoBehaviour {
 						}
 					}
 
-					//// 相手側の自身に対するすり抜け指定があれば
-					//if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
-					//	// 押し出し不可
-					//	canExtrusion = false;
-					//}
+					/*bef end*/
 
-					//					// 相手がボタンなら無条件で押し出す
-					//					if(nearHitinfo.collider.tag == "Button") {
-					//						canExtrusion = true;
-					//					}
+
+						/*aft*//* canExtrusion = true;
+
+						// 自身が水中の場合、相手が重さ2であれば、不可
+						if (moveWaterStt && moveWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.heavy)) {
+							canExtrusion = false;
+						}
+						// 相手が水中であり重さ0、更に下方向の押し出しである場合、自身が水面安定状態であれば不可
+						if (hitWaterStt && moveWaterStt && hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.flying) && (moveVec.y == -1.0f) && moveWaterStt.IsWaterSurface) {
+							canExtrusion = false;
+						}
+						// 自身がLandingコンポーネントを持っている場合、着地していれば不可
+						if (moveLanding && moveLanding.IsLanding) {
+							canExtrusion = false;
+						}
+						// 相手が水中であり水上に浮く重さである場合、自身の重さが相手の重さより軽ければ不可
+						if (hitWaterStt.IsInWater && (hitWeightMng.WeightLv == WeightManager.Weight.light) && (_extrusionWeightLv < hitWeightMng.WeightLv)) {
+							canExtrusion = false;
+						}
+						// 相手が持ち上げ中のオブジェクトであれば不可
+						if (hitMoveMng.IsLiftUpMove) {
+							canExtrusion = false;
+						}
+
+						// 自身の重さレベルが相手の重さレベル以下の場合は不可
+						if (_extrusionWeightLv <= hitWeightMng.WeightLv) {
+							canExtrusion = false;
+						}
+						// 相手が接地していれば不可
+						if (hitLanding.IsLanding) {
+							canExtrusion = false;
+						}
+
+						// 自身を持ち上げオブジェクトとする持ち上げ時の押し出しである
+						if (moveMng.IsLiftUpMove) {
+							canExtrusion = true;
+						}
+						// 強制的に押し出す設定である
+						if (moveMng.ExtrusionForcible || _extrusionForcible) {
+							canExtrusion = true;
+						}
+						// 水中で上のオブジェクトを押し上げている
+						if (waterFloatExtrusion) {
+							canExtrusion = true;
+						}
+					}
+					/*aft end*/
+
+						//// 相手側の自身に対するすり抜け指定があれば
+						//if (hitMoveMng && hitMoveMng.nestingThroughFlg && hitMoveMng.throughObjList.Contains(_moveCol.gameObject)) {
+						//	// 押し出し不可
+						//	canExtrusion = false;
+						//}
+
+						//					// 相手がボタンなら無条件で押し出す
+						//					if(nearHitinfo.collider.tag == "Button") {
+						//						canExtrusion = true;
+						//					}
 
 					bool stopFlg = false;   // 移動量を削除するフラグ
 					bool breakFlg = false;
@@ -644,19 +694,19 @@ public class MoveManager : MonoBehaviour {
 						Vector3 resMove;
 						if (Move(new Vector3(0.0f, moveVec.y * otherMoveDistance, 0.0f), (BoxCollider)nearHitinfo.collider, _mask, out resMove,
 							false, (moveMng.ExtrusionForcible || _extrusionForcible), _ignoreObjList, waterFloatExtrusion, _extrusionWeightLv)) {    // 押し出し優先情報を使用
-																											
+
 							// 自身は指定通り移動
 							Move(new Vector3(0.0f, _move.y, 0.0f), _moveCol, _mask, true, false, _ignoreObjList, false);  // 押し出し不可移動
 						}
 						// 押し出しきれない場合
 						else {
 							// 自身も直前まで移動
-							_move = new Vector3(0.0f, ((dis + Mathf.Abs(resMove.y)) * moveVec.y), 0.0f);	// 他のオブジェクトに対して押し出す移動量も更新
+							_move = new Vector3(0.0f, ((dis + Mathf.Abs(resMove.y)) * moveVec.y), 0.0f);    // 他のオブジェクトに対して押し出す移動量も更新
 							Move(_move, _moveCol, _mask, true, false, _ignoreObjList);  // 押し出し不可移動
 
 							// 移動量が縮んだことで衝突しなくなるオブジェクトをリストから排除
-							for(int idx = hitInfos.Count - 1; idx >= 0; idx--) {
-								if(_move.magnitude < Mathf.Abs(hitInfos[idx].transform.position.y - _moveCol.transform.position.y)) {
+							for (int idx = hitInfos.Count - 1; idx >= 0; idx--) {
+								if (_move.magnitude < Mathf.Abs(hitInfos[idx].transform.position.y - _moveCol.transform.position.y)) {
 									hitInfos.RemoveAt(idx);
 								}
 							}
