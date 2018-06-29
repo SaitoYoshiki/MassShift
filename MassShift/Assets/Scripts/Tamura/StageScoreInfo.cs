@@ -56,7 +56,7 @@ public class StageScoreInfo : MonoBehaviour {
             if (ssm.SelectStageNum != -1) {
                 stageInfo.SetActive(true);
 
-                //stageShiftTime = ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum);
+                stageShiftTime = ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum);
 
                 // そもそもステージをクリアしていない場合
                 if (stageShiftTime == -1) {
@@ -83,8 +83,8 @@ public class StageScoreInfo : MonoBehaviour {
 
                 // ステージ名と必要手数を代入
                 stageName.text = ((int)placedArea).ToString() + "-" + selectStageNum.ToString();
-                score3text.text = (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum) - 2).ToString() + "～" + (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)).ToString();
-                score2text.text = (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum) - 2).ToString() + "～" + (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)).ToString();
+                score3text.text = "～" + (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)).ToString();
+                score2text.text = (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum) + 1).ToString() + "～" + (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)).ToString();
                 score1text.text = (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum) + 1).ToString() + "～";
             }
             else {
