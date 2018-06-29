@@ -730,7 +730,7 @@ public class MoveManager : MonoBehaviour {
 							if ((hitLand == null) || (hitLand.IsLanding) || (hitLand.IsExtrusionLanding) ||
 								(hitWaterStt && (moveVec.y < 0.0f) && hitWaterStt.IsWaterSurface && (moveWeightMng.WeightLv == WeightManager.Weight.flying)) ||   // 水上のオブジェクトへの水中からの着地
 								(hitLand.IsWaterFloatLanding)) {
- 								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
+								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
 									bool nowLanding = true; // 結果がtrueならIsLandingをtrueにする
 
 									// 落下方向と異なる方向の移動では着地しない
@@ -776,7 +776,7 @@ public class MoveManager : MonoBehaviour {
 							}
 						}
 						// すり抜け床の上のオブジェクトに着地
-						if((land && !land.IsLanding) && (moveWeightMng && hitWeightMng && hitLand) && (moveVec.y > 0.0f) &&
+						if ((land && !land.IsLanding) && (moveWeightMng && hitWeightMng && hitLand) && (moveVec.y > 0.0f) &&
 							(moveWeightMng.WeightLv == WeightManager.Weight.flying) && (hitWeightMng.WeightLv >= WeightManager.Weight.light) && (hitLand.IsLanding)) {
 							land.IsLanding = true;
 						}

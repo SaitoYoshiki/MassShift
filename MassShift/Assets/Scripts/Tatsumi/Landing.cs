@@ -212,14 +212,21 @@ public class Landing : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
-		if ((IsLanding) || (IsExtrusionLanding)) {
+		if (IsLanding) {
 			CheckLandingFalse();
-			CheckExtrusionLandingFalse();
-			if ((IsLanding) || (IsExtrusionLanding)) {
+			if (IsLanding) {
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
 				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
 			}
 		}
+		if (IsExtrusionLanding) {
+			CheckExtrusionLandingFalse();
+			if (IsExtrusionLanding) {
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.gravity);
+				MoveMng.StopMoveVirtical(MoveManager.MoveType.prevMove);
+			}
+		}
+
 		UpdateWaterFloatLanding();
 
 		if (!isExtrusionLandingChange) {
