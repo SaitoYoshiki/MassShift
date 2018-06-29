@@ -28,8 +28,7 @@ public class LandImpact : MonoBehaviour {
 	Vector3 mBeforePosition;    //前回の位置を保存
 
 	Vector3 mHighestPosition;	//落下時の、最高地点を保存
-
-	bool mBeforeLanding = false;    //前のフレームで設置していたか
+	
 	bool mBeforeInWater = false;	//前のフレームで水の中にいたか
 
 	//コンポーネントのキャッシュ
@@ -62,12 +61,10 @@ public class LandImpact : MonoBehaviour {
 		float lFallDistance = Mathf.Abs(mHighestPosition.y - transform.position.y);
 
 
-		//接地判定
-		//
-		bool lLanding = IsLanding();
-
 		//接地し始めた瞬間で
-		if (mBeforeLanding == false && lLanding == true) {
+		if (mLanding.noticeLandEffect == true) {
+
+			mLanding.noticeLandEffect = false;	//falseにしておく
 
 			//一定距離以上落ちていたら
 			if (lFallDistance >= GetImpactDistance()) {
@@ -82,7 +79,6 @@ public class LandImpact : MonoBehaviour {
 				mHighestPosition = transform.position;	//最高地点を更新
 			}
 		}
-		mBeforeLanding = lLanding;
 
 
 		//着水判定
@@ -124,11 +120,6 @@ public class LandImpact : MonoBehaviour {
 		
 		//前回位置を更新
 		mBeforePosition = transform.position;
-	}
-
-	//着地しているかどうかを取得する
-	bool IsLanding() {
-		return mLanding.IsLanding;
 	}
 
 	//水の中にいるかどうかを取得する
