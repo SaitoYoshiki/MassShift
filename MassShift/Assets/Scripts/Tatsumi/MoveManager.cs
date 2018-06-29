@@ -680,7 +680,11 @@ public class MoveManager : MonoBehaviour {
 								(hitLand.IsWaterFloatLanding)) {
  								if (land.GetIsLanding(Vector3.up * moveVec.y)) {
 									bool nowLanding = true; // 結果がtrueならIsLandingをtrueにする
-									
+
+									// 落下方向と異なる方向の移動では着地しない
+									if (moveMng && (moveVec.y != moveMng.GetFallVec())) {
+										nowLanding = false;
+									}
 									// 相手がボタンなら着地しない
 									if (hitInfo.collider.tag == "Button") {
 										nowLanding = false;
