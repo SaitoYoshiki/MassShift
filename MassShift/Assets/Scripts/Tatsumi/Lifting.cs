@@ -204,6 +204,9 @@ public class Lifting : MonoBehaviour {
 	[SerializeField]
 	bool liftDownWeit = false;
 
+	[SerializeField]
+	bool underPriority = false;
+
 	void Awake() {
 		if (autoLiftingColMask) liftingColMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		if (autoBoxMask) boxMask = LayerMask.GetMask(new string[] { "Box" });
@@ -273,7 +276,7 @@ public class Lifting : MonoBehaviour {
 
 			// オブジェクトの位置を同期
 			if (liftMoveFlg) {
-				if (heavyFailedFlg || (!MoveManager.Move(GetLiftUpBoxMove(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true))) {
+				if (heavyFailedFlg || (!MoveManager.Move(GetLiftUpBoxMove(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true) && (Pl.transform.position.x != LiftObj.transform.position.x))) {
 					Debug.Log("持ち上げ失敗");
 
 					//					// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
@@ -516,12 +519,19 @@ public class Lifting : MonoBehaviour {
 
 			GameObject liftableObj = null;
 			float dis = float.MaxValue;
-//			Debug.LogWarning(hitInfos.Count);
+			//			Debug.LogWarning(hitInfos.Count);
+
 			foreach (var hitInfo in hitInfos) {
-//				Debug.LogWarning(hitInfo.collider.name + " " + hitInfo.collider.tag);
-				if ((hitInfo.collider.tag == "LiftableObject") && (hitInfo.distance < dis)) {
-					liftableObj = hitInfo.collider.gameObject;
-					dis = hitInfo.distance;
+				//				Debug.LogWarning(hitInfo.collider.name + " " + hitInfo.collider.tag);
+				if (!underPriority) {
+					if ((hitInfo.collider.tag == "LiftableObject") && (hitInfo.distance < dis)) {
+						liftableObj = hitInfo.collider.gameObject;
+						dis = hitInfo.distance;
+					}
+				} else {
+					if ((hitInfo.collider.tag == "LiftableObject") && (!liftableObj || (hitInfo.transform.position.y < liftableObj.transform.position.y))) {
+						liftableObj = hitInfo.collider.gameObject;
+					}
 				}
 			}
 
@@ -881,7 +891,8 @@ public class Lifting : MonoBehaviour {
 
 		// x軸が後に回ろうとした場合は補正
 		if (pointVec != befVec) {
-			retMove = new Vector3((LiftObj.transform.position.x - Pl.transform.position.x), retMove.y, retMove.z);
+			retMove = new Vector3(Mathf.Abs(LiftObj.transform.position.x - Pl.transform.position.x) * moveVec, retMove.y, retMove.z);
+			Debug.LogWarning(retMove);
 		}	
 
 		return retMove;
