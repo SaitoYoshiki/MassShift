@@ -212,10 +212,11 @@ public class GameManager : MonoBehaviour {
 			}
 			yield return null;
 		}
-		
+
 
 		//プレイヤーをゴールの中心まで歩かせる
 		//
+		mPlayer.GetComponent<MoveManager>().mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Fence" });
 
 		Vector3 lGoalCenter = mGoal.transform.position;
 

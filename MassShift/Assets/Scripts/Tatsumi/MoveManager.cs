@@ -200,7 +200,7 @@ public class MoveManager : MonoBehaviour {
 		}
 	}
 
-	[SerializeField] LayerMask mask;
+	[SerializeField] public LayerMask mask;
 	[SerializeField] bool autoMask = true;
 
 	// 今回の更新処理で移動を無視(削除)する移動種類のリスト
