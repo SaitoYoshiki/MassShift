@@ -423,6 +423,16 @@ public class GameManager : MonoBehaviour {
 			return false;   //ゴールできない
 		}
 
+		//持ち降ろしの最中なら
+		if (mPlayer.GetComponent<Lifting>().IsLiftCantMove) {
+			return false;
+		}
+
+		//ボックスを持っているなら
+		if (mPlayer.GetComponent<Lifting>().IsLifting) {
+			return false;
+		}
+
 		return true;    //ゴール可能
 
 	}
