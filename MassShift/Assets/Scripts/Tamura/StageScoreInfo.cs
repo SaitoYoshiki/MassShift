@@ -126,7 +126,7 @@ public class StageScoreInfo : MonoBehaviour {
                         bestScoretext.text = "Best Score : " + ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum).ToString();
                     }
                     else {
-                        bestScoretext.text = "Best Score : N/A";
+                        bestScoretext.text = "Best Score : -";
                     }
                 }
             }

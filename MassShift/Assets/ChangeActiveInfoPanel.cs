@@ -12,6 +12,12 @@ public class ChangeActiveInfoPanel : MonoBehaviour {
 
     int mAreaIndex = 0;
 
+    void Start() {
+        if(Area.sBeforeAreaNumber != -1){
+            mAreaIndex = Area.sBeforeAreaNumber - 1;
+        }
+    }
+
     // Update is called once per frame
     void FixedUpdate() {
         //現在いるエリア位置を更新
