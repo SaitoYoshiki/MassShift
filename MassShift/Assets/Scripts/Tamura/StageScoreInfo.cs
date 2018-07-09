@@ -13,6 +13,7 @@ public class StageScoreInfo : MonoBehaviour {
     [SerializeField]
     Text stageName;
 
+    
     // 各スコアの星画像
     [SerializeField]
     SetColor score3star;
@@ -20,14 +21,11 @@ public class StageScoreInfo : MonoBehaviour {
     SetColor score2star;
     [SerializeField]
     SetColor score1star;
+    
 
-    // 各スコアのポーズ用キャラ
+    // スコアのポーズ用キャラ
     [SerializeField]
-    SetActivePlayer score3player;
-    [SerializeField]
-    SetActivePlayer score2player;
-    [SerializeField]
-    SetActivePlayer score1player;
+    SetActivePlayer scorePlayer;
 
     // 星３必要手数
     [SerializeField]
@@ -85,34 +83,28 @@ public class StageScoreInfo : MonoBehaviour {
                         score2star.SetGrayColor();
                         score1star.SetGrayColor();
 
-                        score3player.ActiveStandPlayer();
-                        score2player.ActiveStandPlayer();
-                        score1player.ActiveStandPlayer();
+                        scorePlayer.ActiveStandPlayer();
                     }
                     else {
                         Debug.Log("くりあした");
                         // ステージの評価が星1
                         score1star.SetWhiteColor();
-                        score1player.ActiveCeleblatePlayer();
+                        scorePlayer.ActiveCeleblatePlayer();
 
                         // ステージの評価が星2
                         if (stageShiftTime <= ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)) {
                             score2star.SetWhiteColor();
-                            score2player.ActiveCeleblatePlayer();
                         }
                         else {
                             score2star.SetGrayColor();
-                            score2player.ActiveStandPlayer();
                         }
 
                         // ステージの評価が星3
                         if (stageShiftTime <= ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)) {
                             score3star.SetWhiteColor();
-                            score3player.ActiveCeleblatePlayer();
                         }
                         else {
                             score3star.SetGrayColor();
-                            score3player.ActiveStandPlayer();
                         }
                     }
 
@@ -141,7 +133,6 @@ public class StageScoreInfo : MonoBehaviour {
                 stageInfo.SetActive(false);
             }
         }
-
         oldStageNum = selectStageNum;
     }
 }
