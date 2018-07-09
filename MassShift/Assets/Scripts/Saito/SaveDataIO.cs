@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-
-
-
-
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class SaveDataIO {
 
@@ -128,4 +127,17 @@ public class SaveDataIO {
 	static string GetSaveFilePath() {
 		return Application.persistentDataPath + "/savedata.json";
 	}
+
+
+#if UNITY_EDITOR
+
+	//セーブデータを消去する
+	[MenuItem("Edit/DeleteSaveData")]
+	static void DeleteSaveData() {
+		if (File.Exists(GetSaveFilePath())) {
+			File.Delete(GetSaveFilePath());
+		}
+	}
+
+#endif
 }
