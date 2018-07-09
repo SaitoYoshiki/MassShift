@@ -100,7 +100,7 @@ public class StageClearDebug : MonoBehaviour {
 		int lStageNumber;
 		int lTimes;
 		if(GetInputData(out lAreaNumber, out lStageNumber, out lTimes)) {
-			SaveData.Instance.Data(lAreaNumber, lStageNumber).mShiftTimesOnClear = ScoreManager.Instance.Score3Times(lAreaNumber, lStageNumber);
+			SaveData.Instance.Data(lAreaNumber, lStageNumber).mShiftTimesOnClear = lTimes;
 			SaveData.Instance.Save();
 		}
 	}
