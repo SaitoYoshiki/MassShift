@@ -25,7 +25,6 @@ public class cameraMove : MonoBehaviour {
     PlayerAnimation pa;
 
     StageTransition st;
-    ChangeScene cs;
 
     float startZoomTime;
     float nowZoomTime;
@@ -58,7 +57,6 @@ public class cameraMove : MonoBehaviour {
         this.transform.position = cameraStartPoint;
         st = GameObject.Find("StageChangeCanvas").GetComponent<StageTransition>();
         st.gameObject.SetActive(false);
-        cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
 
         cli = FindObjectOfType<ChangeLoadingImage>();
         //RenderSettings.ambientSkyColor = startLightColor;
