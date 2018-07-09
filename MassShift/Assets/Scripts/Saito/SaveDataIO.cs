@@ -106,7 +106,7 @@ public class SaveDataIO {
 
 			for (int j = 0; j < Area.GetStageCount(i); j++) {
 				var lStageData = new SaveData.StageData();
-				lStageData.mShiftTimesOnClear = -1;
+				lStageData.mShiftTimesOnClear = SaveData.StageData.cInitTimes;
 				s.mStageData[i].mStagesData.Add(lStageData);
 			}
 		}
