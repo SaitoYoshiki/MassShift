@@ -390,6 +390,9 @@ public class GameManager : MonoBehaviour {
 			ScoreManager.Instance.ShiftTimes(lAreaNum, lStageNum, lNewTimes);
 			ScoreManager.Instance.IsShortestTimes = lIsShortest;
 		}
+
+		//データを保存
+		SaveData.Instance.Save();
 		
 
 		Cursor.visible = true;
