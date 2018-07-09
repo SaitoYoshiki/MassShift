@@ -24,6 +24,7 @@ public class SaveData {
 
 	[System.Serializable]
 	public class StageData {
+		public const int cInitTimes = -1;
 		public int mShiftTimesOnClear;
 	}
 
@@ -59,17 +60,14 @@ public class SaveData {
 		}
 	}
 
-	//対象のエリアに行けるかどうか
-	//
-	public bool CanGoArea(int aAreaNumber) {
-		return true;
-	}
-
 
 	//ステージのクリアデータを取得（書き込み、読み込み可能）
 	//
 	public StageData Data(int aAreaNumber, int aStageNumber) {
 		return mStageData[aAreaNumber].mStagesData[aStageNumber - 1];
+	}
+	public AreaData GetAreaData(int aAreaNumber) {
+		return mStageData[aAreaNumber];
 	}
 
 	public void Save() {
