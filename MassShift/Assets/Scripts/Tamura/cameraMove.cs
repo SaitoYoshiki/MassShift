@@ -49,6 +49,9 @@ public class cameraMove : MonoBehaviour {
     //Color endLightColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
     //float colorPer = 0.0f;
 
+    float loadStartTime;
+    ChangeLoadingImage cli;
+
 	void Start () {
         Time.timeScale = 1.0f;
 
@@ -57,6 +60,7 @@ public class cameraMove : MonoBehaviour {
         st.gameObject.SetActive(false);
         cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
 
+        cli = FindObjectOfType<ChangeLoadingImage>();
         //RenderSettings.ambientSkyColor = startLightColor;
 	}
 
@@ -204,6 +208,9 @@ public class cameraMove : MonoBehaviour {
         titleEndFlg = true;
         TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Single);
         TutorialActive.allowSceneActivation = false;
+
+        loadStartTime = Time.realtimeSinceStartup;
+        StartCoroutine(CheckProgress(TutorialActive));
     }
 
     public void OnStageSelectSelected() {
@@ -212,10 +219,27 @@ public class cameraMove : MonoBehaviour {
         titleEndFlg = true;
         StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
         StageSelectActive.allowSceneActivation = false;
-        //colorPer = 0.01f;
 
-        //SceneManager.sceneLoaded += OnSceneLoaded;
+        loadStartTime = Time.realtimeSinceStartup;
+        StartCoroutine(CheckProgress(StageSelectActive));
     }
 
-    // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする
+    // ロードの進捗(0～0.9)を出力
+    IEnumerator CheckProgress(AsyncOperation _aop) {
+        while (!_aop.isDone) {
+            //Debug.Log("読み込み進捗:" + _aop.progress);
+            float loadtime = Time.realtimeSinceStartup - loadStartTime;
+            //Debug.Log("ロード開始からの経過時間:" + loadtime);
+
+            SwitchLoadingImage(loadtime);
+
+            yield return null;
+        }
+    }
+
+    void SwitchLoadingImage(float _loadtime) {
+        int timeStage = (int)((_loadtime % 2.0f) * 2);
+        Debug.Log("経過時間段階:" + timeStage);
+        cli.ChangeImage(timeStage);
+    }
 }
