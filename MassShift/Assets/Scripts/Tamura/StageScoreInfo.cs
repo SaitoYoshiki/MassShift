@@ -13,15 +13,21 @@ public class StageScoreInfo : MonoBehaviour {
     [SerializeField]
     Text stageName;
 
+    [SerializeField]
+    List<Sprite> stagePreview;
     
     // 各スコアの星画像
     [SerializeField]
-    SetColor score3star;
+    GameObject score3star;
     [SerializeField]
-    SetColor score2star;
+    GameObject score2star;
     [SerializeField]
-    SetColor score1star;
-    
+    GameObject score1star;
+    [SerializeField]
+    GameObject score0star;
+
+    [SerializeField]
+    Image stagePic;
 
     // スコアのポーズ用キャラ
     [SerializeField]
@@ -79,34 +85,49 @@ public class StageScoreInfo : MonoBehaviour {
                     if (stageShiftTime == -1) {
                         Debug.Log("くりあしてない");
                         // マテリアルカラーは無効化した
-                        score3star.SetGrayColor();
-                        score2star.SetGrayColor();
-                        score1star.SetGrayColor();
+                        score3star.SetActive(false);
+                        score2star.SetActive(false);
+                        score1star.SetActive(false);
+
+                        score0star.SetActive(true);
 
                         scorePlayer.ActiveStandPlayer();
                     }
                     else {
                         Debug.Log("くりあした");
-                        // ステージの評価が星1
-                        score1star.SetWhiteColor();
+                        // 万歳キャラを表示
                         scorePlayer.ActiveCeleblatePlayer();
-
-                        // ステージの評価が星2
-                        if (stageShiftTime <= ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)) {
-                            score2star.SetWhiteColor();
-                        }
-                        else {
-                            score2star.SetGrayColor();
-                        }
 
                         // ステージの評価が星3
                         if (stageShiftTime <= ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)) {
-                            score3star.SetWhiteColor();
+                            score3star.SetActive(true);
+
+                            score2star.SetActive(false);
+                            score1star.SetActive(false);
                         }
+                        // 星3ではない
                         else {
-                            score3star.SetGrayColor();
+                            // ステージの評価が星2
+                            if (stageShiftTime <= ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)) {
+                                score2star.SetActive(true);
+
+                                score3star.SetActive(false);
+                                score1star.SetActive(false);
+                            }
+                            else {
+                                // ステージの評価が星1
+                                score1star.SetActive(true);
+
+                                score3star.SetActive(false);
+                                score2star.SetActive(false);
+                            }
                         }
+
+                        score0star.SetActive(false);
                     }
+
+                    // ステージ画像を変更
+                    stagePic.sprite = stagePreview[ssm.SelectStageNum % 5];
 
                     // ステージ名と必要手数を代入
                     stageName.text = ((int)placedArea).ToString() + " - " + selectStageNum.ToString();

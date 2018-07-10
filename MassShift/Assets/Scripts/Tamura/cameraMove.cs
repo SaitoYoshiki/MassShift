@@ -51,7 +51,7 @@ public class cameraMove : MonoBehaviour {
     float loadStartTime;
     ChangeLoadingImage cli;
 
-	void Start () {
+	void Start() {
         Time.timeScale = 1.0f;
 
         this.transform.position = cameraStartPoint;
@@ -59,7 +59,6 @@ public class cameraMove : MonoBehaviour {
         st.gameObject.SetActive(false);
 
         cli = FindObjectOfType<ChangeLoadingImage>();
-        //RenderSettings.ambientSkyColor = startLightColor;
 	}
 
     void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
@@ -225,19 +224,19 @@ public class cameraMove : MonoBehaviour {
     // ロードの進捗(0～0.9)を出力
     IEnumerator CheckProgress(AsyncOperation _aop) {
         while (!_aop.isDone) {
-            //Debug.Log("読み込み進捗:" + _aop.progress);
             float loadtime = Time.realtimeSinceStartup - loadStartTime;
-            //Debug.Log("ロード開始からの経過時間:" + loadtime);
+            Debug.Log(loadtime);
 
             SwitchLoadingImage(loadtime);
 
+            // ロード進捗を表示
+            cli.ChangeText(_aop.progress);
             yield return null;
         }
     }
 
     void SwitchLoadingImage(float _loadtime) {
         int timeStage = (int)((_loadtime % 2.0f) * 2);
-        Debug.Log("経過時間段階:" + timeStage);
         cli.ChangeImage(timeStage);
     }
 }

@@ -9,6 +9,7 @@ public class ChangeLoadingImage : MonoBehaviour {
     public Sprite right;
 
     Image loadingImage;
+    public Text text;
 	
     void Start(){
         loadingImage = GetComponent<Image>();
@@ -32,5 +33,9 @@ public class ChangeLoadingImage : MonoBehaviour {
             default:
                 break;
         }
+    }
+
+    public void ChangeText(float _progless) {
+        text.text = _progless.ToString();
     }
 }
