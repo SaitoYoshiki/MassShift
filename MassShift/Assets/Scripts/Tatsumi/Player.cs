@@ -594,7 +594,7 @@ public class Player : MonoBehaviour {
 		prevFlyFlg = flyFlg;
 
 		// 落下アニメーション
-		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (Mathf.Sign(MoveMng.PrevMove.y) == (MoveMng.GetFallVec())));
+		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface && !Land.IsExtrusionLanding) && (Mathf.Sign(MoveMng.PrevMove.y) == (MoveMng.GetFallVec())));
 		// 持ち上げ/下しの最中は落下しない
 		if (Lift.IsLiftCantMove) {
 			fallFlg = false;
@@ -636,9 +636,10 @@ public class Player : MonoBehaviour {
 		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
 		if ((landTrueChangeFlg && !IsSandwitch) ||																					// 通常の着地時
 			//(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
-			(prevIsSandwitch && !IsSandwitch && landColOverlap) ||                                                                  // 上下を挟まれている状態から解放された時
-			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {  // 反転したまま水上に落ちた時
-																																	// 入/出水時の戻り回転なら天井回転アニメーションは行わない
+			(prevIsSandwitch && !IsSandwitch && landColOverlap) ||																	// 上下を挟まれている状態から解放された時
+			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {	// 反転したまま水上に落ちた時
+
+			// 入水時の戻り回転なら天井回転アニメーションは行わない
 			bool notHandSpring = (WaterStt.IsInWater != prevIsInWater);
 
 			// 必要なら回転アニメーション
@@ -700,7 +701,8 @@ public class Player : MonoBehaviour {
 		// 着地アニメーション
 		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
 		//			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
-		if (landTrueChangeFlg) {
+		//if (landTrueChangeFlg) {
+		if ((landTrueChangeFlg || Land.IsExtrusionLanding) && !PlAnim.IsLandOnlyAnim) {
 			//			Land.IsLandingTrueChange = false;
 			//			Land.IsWaterFloatLandingTrueChange = false;
 			if (!Lift.IsLifting) {

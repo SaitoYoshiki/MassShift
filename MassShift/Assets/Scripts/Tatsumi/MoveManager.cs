@@ -757,8 +757,8 @@ public class MoveManager : MonoBehaviour {
 										(moveWeightMng.WeightLv > hitWeightMng.WeightLv) && !hitLand.IsLanding && !hitLand.IsExtrusionLanding) {
 										nowLanding = false;
 									}
-									// 自身にしか着地していない相手には着地しない
-									else if (hitLand && (hitLand.LandColList.Count == 1) && hitLand.LandColList.Contains(moveMng.UseCol)) {
+									// 自身にしか着地していない自身より軽い相手には着地しない
+									else if (hitLand && hitWeightMng && moveWeightMng && (hitLand.LandColList.Count == 1) && hitLand.LandColList.Contains(moveMng.UseCol) && (hitWeightMng.WeightLv < moveWeightMng.WeightLv)) {
 										nowLanding = false;
 									}
 									if (nowLanding) {
