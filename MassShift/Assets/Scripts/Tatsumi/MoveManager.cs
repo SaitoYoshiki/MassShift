@@ -763,7 +763,7 @@ public class MoveManager : MonoBehaviour {
 									}
 									if (nowLanding) {
 										land.IsLanding = true;
-										Debug.LogWarning("着地 " + _moveCol.name + " " + hitInfo.collider.name);
+										Debug.Log("着地 " + _moveCol.name + " " + hitInfo.collider.name);
 									}
 									else {
 										moveMng.StopMoveVirtical(MoveType.prevMove);
