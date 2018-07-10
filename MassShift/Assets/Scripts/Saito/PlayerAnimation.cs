@@ -78,6 +78,9 @@ public class PlayerAnimation : MonoBehaviour {
 
 		cHandSpring,
 		cHoldHandSpring,
+
+		cFly,
+		cHoldFly,
 	}
 
 	[SerializeField]
@@ -144,74 +147,81 @@ public class PlayerAnimation : MonoBehaviour {
 
 	void UpdateState() {
 
-		switch(mState) {
-			case CState.cStandBy:
-				UpdateStandBy();
-				break;
-			case CState.cWalk:
-				UpdateWalk();
-				break;
+		switch (mState) {
+		case CState.cStandBy:
+			UpdateStandBy();
+			break;
+		case CState.cWalk:
+			UpdateWalk();
+			break;
 
-			case CState.cWaterStandBy:
-				UpdateWaterStandBy();
-				break;
-			case CState.cSwim:
-				UpdateSwim();
-				break;
-			case CState.cHoldWaterStandBy:
-				UpdateHoldStandBy();
-				break;
-			case CState.cHoldSwim:
-				UpdateHoldSwim();
-				break;
+		case CState.cWaterStandBy:
+			UpdateWaterStandBy();
+			break;
+		case CState.cSwim:
+			UpdateSwim();
+			break;
+		case CState.cHoldWaterStandBy:
+			UpdateHoldStandBy();
+			break;
+		case CState.cHoldSwim:
+			UpdateHoldSwim();
+			break;
 
-			case CState.cJumpStart:
-				UpdateJumpStart();
-				break;
-			case CState.cJumpMid:
-				UpdateJumpMid();
-				break;
-			case CState.cJumpFall:
-				UpdateJumpFall();
-				break;
-			case CState.cJumpLand:
-				UpdateJumpLand();
-				break;
-			case CState.cCatch:
-				UpdateCatch();
-				break;
-			case CState.cCatchFailed:
-				UpdateCatchFailed();
-				break;
+		case CState.cJumpStart:
+			UpdateJumpStart();
+			break;
+		case CState.cJumpMid:
+			UpdateJumpMid();
+			break;
+		case CState.cJumpFall:
+			UpdateJumpFall();
+			break;
+		case CState.cJumpLand:
+			UpdateJumpLand();
+			break;
+		case CState.cCatch:
+			UpdateCatch();
+			break;
+		case CState.cCatchFailed:
+			UpdateCatchFailed();
+			break;
 
-			case CState.cHoldStandBy:
-				UpdateHoldStandBy();
-				break;
-			case CState.cHoldWalk:
-				UpdateHoldWalk();
-				break;
-			case CState.cHoldJumpStart:
-				UpdateHoldJumpStart();
-				break;
-			case CState.cHoldJumpMid:
-				UpdateHoldJumpMid();
-				break;
-			case CState.cHoldJumpFall:
-				UpdateHoldJumpFall();
-				break;
-			case CState.cHoldJumpLand:
-				UpdateHoldJumpLand();
-				break;
-			case CState.cRelease:
-				UpdateRelease();
-				break;
+		case CState.cHoldStandBy:
+			UpdateHoldStandBy();
+			break;
+		case CState.cHoldWalk:
+			UpdateHoldWalk();
+			break;
+		case CState.cHoldJumpStart:
+			UpdateHoldJumpStart();
+			break;
+		case CState.cHoldJumpMid:
+			UpdateHoldJumpMid();
+			break;
+		case CState.cHoldJumpFall:
+			UpdateHoldJumpFall();
+			break;
+		case CState.cHoldJumpLand:
+			UpdateHoldJumpLand();
+			break;
+		case CState.cRelease:
+			UpdateRelease();
+			break;
 
-			case CState.cHandSpring:
-				UpdateHandSpring();
-				break;
-			case CState.cHoldHandSpring:
-				UpdateHoldHandSpring();
-				break;
+		case CState.cHandSpring:
+			UpdateHandSpring();
+			break;
+		case CState.cHoldHandSpring:
+			UpdateHoldHandSpring();
+			break;
+
+		case CState.cFly:
+			UpdateFly();
+			break;
+		case CState.cHoldFly:
+			UpdateHoldFly();
+			break;
 		}
 	}
 	
@@ -604,6 +614,32 @@ public class PlayerAnimation : MonoBehaviour {
 		}
 	}
 
+	void InitFly() {
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("Fly", 0.4f);
+		}
+	}
+
+	void UpdateFly() {
+		if (mIsInit) {
+			InitFly();
+			mIsInit = false;
+		}
+	}
+
+	void InitHoldFly() {
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("Fly", 0.4f);
+		}
+	}
+
+	void UpdateHoldFly() {
+		if (mIsInit) {
+			InitHoldFly();
+			mIsInit = false;
+		}
+	}
+
 
 	GameObject mBox;
 
@@ -798,6 +834,8 @@ public class PlayerAnimation : MonoBehaviour {
 		if (mState == CState.cJumpStart) return true;
 		if (mState == CState.cJumpMid) return true;
 		if (mState == CState.cJumpFall) return true;
+		if (mState == CState.cFly) return true;
+		if (mState == CState.cHoldFly) return true;
 		if ((mState == CState.cHandSpring) && (!Pl.IsHandSpringWeit)) return true;
 		return false;
 	}
@@ -868,6 +906,15 @@ public class PlayerAnimation : MonoBehaviour {
 		ChangeState(CState.cHoldHandSpring);
 	}
 
+	public void StartFly() {
+		if (IsLiftAction()) return;
+		ChangeState(CState.cFly);
+	}
+
+	public void StartHoldFly() {
+		if (IsLiftAction()) return;
+		ChangeState(CState.cHoldFly);
+	}
 
 	public void StartRelease() {
 		mStartDifference = mCatchEndBoxPosition.position - mCatchEndHandPosition.position;

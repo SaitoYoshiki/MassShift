@@ -238,6 +238,60 @@ public class Area {
 	}
 
 
+	//そのエリアに行くことが可能か
+	//
+	public static bool CanGoArea(int aAreaNumber) {
+
+		//チュートリアルとエリア1には、絶対に行くことができる
+		if(aAreaNumber == 0 || aAreaNumber == 1) {
+			return true;
+		}
+
+		//エリア2は、エリア1のステージを全てクリアしていると行ける
+		if(aAreaNumber == 2) {
+			foreach(var s in SaveData.Instance.GetAreaData(1).mStagesData) {
+				if(s.mShiftTimesOnClear == SaveData.StageData.cInitTimes) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		//エリア3は、エリア1とエリア2のステージを全てクリアしていると行ける
+		if (aAreaNumber == 3) {
+			foreach (var s in SaveData.Instance.GetAreaData(1).mStagesData) {
+				if (s.mShiftTimesOnClear == SaveData.StageData.cInitTimes) {
+					return false;
+				}
+			}
+			foreach (var s in SaveData.Instance.GetAreaData(2).mStagesData) {
+				if (s.mShiftTimesOnClear == SaveData.StageData.cInitTimes) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+
+	//そのエリア番号が有効か
+	public static bool IsValidArea(int aAreaNumber) {
+		if (aAreaNumber < 0) return false;
+		if (aAreaNumber > GetAreaCount()) return false;
+		return true;
+	}
+	//そのステージ番号が有効か
+	public static bool IsValidStage(int aAreaNumber, int aStageNumber) {
+		if (!IsValidArea(aAreaNumber)) return false;
+
+		if (aStageNumber <= 0) return false;
+		if (aStageNumber > GetStageCount(aAreaNumber)) return false;
+		return true;
+	}
+
+
 	public static int sBeforeAreaNumber = 1;
 	public static int sBeforeStageNumber = 1;
 }

@@ -274,6 +274,8 @@ public class Player : MonoBehaviour {
 	bool prevIsWaterFloatLanding = false;
 	[SerializeField]
 	bool prevFallFlg = false;
+	[SerializeField]
+	bool prevFlyFlg = false;
 
 	WeightManager weightMng = null;
 	WeightManager WeightMng {
@@ -526,6 +528,11 @@ public class Player : MonoBehaviour {
 	bool autoSandwitchMask = true;
 	LayerMask sandwitchMask;
 
+	[SerializeField]
+	Transform noFlyAnimCol = null;
+	[SerializeField]
+	LayerMask noFlyAnimColMask;
+
 	void Start() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * CameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
@@ -568,6 +575,24 @@ public class Player : MonoBehaviour {
 			}
 		}
 
+		// 浮かびアニメーション
+		bool flyFlg = false;
+		if ((Mathf.Sign(RotVec.y * 2 - 1) != MoveMng.GetFallVec()) &&  !WaterStt.IsInWater && !WaterStt.IsWaterSurface) {
+			// 浮かびアニメーションを行わないコライダーに足場が触れていない
+			if (Physics.OverlapBox(noFlyAnimCol.position, noFlyAnimCol.lossyScale * 0.5f, noFlyAnimCol.rotation, noFlyAnimColMask).Length == 0) {
+				flyFlg = true;
+				if (!prevFlyFlg) {
+					Debug.Log("Fly");
+					if (!Lift.IsLifting) {
+						PlAnim.StartFly();
+					} else {
+						PlAnim.StartHoldFly();
+					}
+				}
+			}
+		}
+		prevFlyFlg = flyFlg;
+
 		// 落下アニメーション
 		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (Mathf.Sign(MoveMng.PrevMove.y) == (MoveMng.GetFallVec())));
 		// 持ち上げ/下しの最中は落下しない
@@ -575,12 +600,13 @@ public class Player : MonoBehaviour {
 			fallFlg = false;
 		}
 		if (fallFlg && !prevFallFlg) {
-			Debug.Log("Fall");
-			if (!Lift.IsLifting) {
-				PlAnim.StartFall();
-			}
-			else {
-				PlAnim.StartHoldFall();
+			if (!flyFlg) {
+				Debug.Log("Fall");
+				if (!Lift.IsLifting) {
+					PlAnim.StartFall();
+				} else {
+					PlAnim.StartHoldFall();
+				}
 			}
 		}
 		prevFallFlg = fallFlg;
