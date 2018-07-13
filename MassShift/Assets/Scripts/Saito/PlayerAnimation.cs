@@ -51,7 +51,7 @@ public class PlayerAnimation : MonoBehaviour {
 	float mBeforeStandByLoopTime = 1.0f;
 
 	Animator mAnimator;
-	
+
 	public enum CState {
 
 		cStandBy,
@@ -81,9 +81,6 @@ public class PlayerAnimation : MonoBehaviour {
 
 		cFly,
 		cHoldFly,
-
-		cNone,
-
 	}
 
 	[SerializeField]
@@ -94,7 +91,7 @@ public class PlayerAnimation : MonoBehaviour {
 
 	bool mIsInit = true;
 
-	public bool mBeforeCatch = false;	//持ち上げ状態ではあるが、まだボックスを持ち上げていない
+	public bool mBeforeCatch = false;   //持ち上げ状態ではあるが、まだボックスを持ち上げていない
 
 	bool mCompleteCatchFailed = false;
 	bool mCompleteCatch = false;
@@ -117,7 +114,7 @@ public class PlayerAnimation : MonoBehaviour {
 			return pl;
 		}
 	}
-	
+
 	public void ChangeState(CState aNextState) {
 		mBeforeState = mState;
 		mState = aNextState;
@@ -126,7 +123,7 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	void Start () {
+	void Start() {
 		mStateTime = 0.0f;
 		mAnimator = GetAnimator(mAnimationModel[0]);
 	}
@@ -140,7 +137,7 @@ public class PlayerAnimation : MonoBehaviour {
 
 
 	// Update is called once per frame
-	void Update () {
+	void Update() {
 		mStateTime += Time.deltaTime;
 
 		UpdateState();
@@ -227,15 +224,15 @@ public class PlayerAnimation : MonoBehaviour {
 			break;
 		}
 	}
-	
+
 	void InitStandBy() {
-		foreach(var a in mAnimationModel) {
+		foreach (var a in mAnimationModel) {
 			GetAnimator(a).CrossFadeInFixedTime("StandBy", 0.2f);
 		}
 	}
 
 	void UpdateStandBy() {
-		if(mIsInit) {
+		if (mIsInit) {
 			InitStandBy();
 			mIsInit = false;
 		}
@@ -354,7 +351,7 @@ public class PlayerAnimation : MonoBehaviour {
 		}
 
 		//落下しているなら
-		if(IsFall()) {
+		if (IsFall()) {
 			ChangeState(CState.cJumpFall);
 		}
 
@@ -362,12 +359,11 @@ public class PlayerAnimation : MonoBehaviour {
 	}
 
 	bool IsFall() {
-		if(IsHover() == false) {
+		if (IsHover() == false) {
 			if (mBeforePosition.y > transform.position.y) {
 				return true;
 			}
-		}
-		else {
+		} else {
 			if (mBeforePosition.y < transform.position.y) {
 				return true;
 			}
@@ -659,16 +655,15 @@ public class PlayerAnimation : MonoBehaviour {
 						if (mHandTransform.position.y >= mBox.transform.position.y - 0.25f) {
 							mBeforeCatch = false;   //プレイヤーが上向きで、手の位置がボックスより上なら、持ち始める
 						}
-					}
-					else {
+					} else {
 						if (mHandTransform.position.y <= mBox.transform.position.y + 0.25f) {
 							mBeforeCatch = false;   //プレイヤーが下向きで、手の位置がボックスよりも下なら、持ち始める
 						}
 					}
 				}
-				
 
-				if(mBeforeCatch) {
+
+				if (mBeforeCatch) {
 					lRes = mBox.transform.position;
 					return ToZeroZ(lRes);
 				}
@@ -684,10 +679,9 @@ public class PlayerAnimation : MonoBehaviour {
 			if (mCatchEndTime <= mStateTime) {
 				lRes = mCatchEndBoxPosition.position;
 				return ToZeroZ(lRes);
-			}
-			else {
+			} else {
 				float lUnder = (mCatchEndTime - mCatchStartTime);
-				if(Mathf.Approximately(0.0f, lUnder)) {
+				if (Mathf.Approximately(0.0f, lUnder)) {
 					lRes = mCatchEndBoxPosition.position;
 					return ToZeroZ(lRes);
 				}
@@ -697,11 +691,10 @@ public class PlayerAnimation : MonoBehaviour {
 				lRes = mHandTransform.position + lDifference;
 				mLiftDifference = lDifference;
 			}
-		}
-		else if (IsReleasing()) {
+		} else if (IsReleasing()) {
 
 			float lEndTime = mReleaseEndTime;
-			if(IsWaterSurface()) {
+			if (IsWaterSurface()) {
 				lEndTime = mWaterReleaseEndTime;
 			}
 
@@ -709,11 +702,11 @@ public class PlayerAnimation : MonoBehaviour {
 				Vector3 lStartDifference;
 				Vector3 lEndDifference;
 				float lRate;
-				
+
 				lStartDifference = mCatchEndBoxPosition.position - mCatchEndHandPosition.position;
 
 				//水面なら
-				if(IsWaterSurface()) {
+				if (IsWaterSurface()) {
 					lEndDifference = mWaterReleaseEndBoxPosition.position - mWaterReleaseEndHandPosition.position;
 					lRate = (mStateTime - mReleaseStartTime) / (mWaterReleaseEndTime - mReleaseStartTime);
 				}
@@ -723,16 +716,13 @@ public class PlayerAnimation : MonoBehaviour {
 					lRate = (mStateTime - mReleaseStartTime) / (mReleaseEndTime - mReleaseStartTime);
 				}
 				lRes = mHandTransform.position + Vector3.Lerp(mStartDifference, mEndDifference, Mathf.Clamp01(lRate));
-			}
-			else if (mStateTime < mReleaseStartTime) {
+			} else if (mStateTime < mReleaseStartTime) {
 				lRes = mCatchEndBoxPosition.position;
 				return ToZeroZ(lRes);
-			}
-			else {
-				if(IsWaterSurface()) {
+			} else {
+				if (IsWaterSurface()) {
 					lRes = mWaterReleaseEndBoxPosition.position;
-				}
-				else {
+				} else {
 					lRes = mReleaseEndBoxPosition.position;
 				}
 				return ToZeroZ(lRes);
@@ -792,7 +782,7 @@ public class PlayerAnimation : MonoBehaviour {
 
 	public void StartStandBy() {
 		if (IsLiftAction()) return;
-		if (mState != CState.cWalk) return;	//歩き状態からしか外からは呼び出せない
+		if (mState != CState.cWalk) return; //歩き状態からしか外からは呼び出せない
 		ChangeState(CState.cStandBy);
 	}
 	public void StartWalk() {
@@ -954,7 +944,7 @@ public class PlayerAnimation : MonoBehaviour {
 		float lLoopTime = lTime % 1.0f;
 
 		if (lTime >= 1.0f && lLoopTime > 0.9f) {
-			if(mBeforeStandByLoopTime <= 0.9f) {
+			if (mBeforeStandByLoopTime <= 0.9f) {
 				lRes = true;
 			}
 		}
@@ -962,10 +952,34 @@ public class PlayerAnimation : MonoBehaviour {
 		return lRes;
 	}
 
-	public void StartNone() {
-		ChangeState(CState.cNone);
-		foreach (var a in mAnimationModel) {
-			GetAnimator(a).CrossFadeInFixedTime("None", 0.0f);
+	public bool IsLandOnlyAnim {
+		get {
+			switch (mState) {
+			case CState.cStandBy: return true;
+			case CState.cWalk: return true;
+			case CState.cJumpStart: return false;
+			case CState.cJumpMid: return false;
+			case CState.cJumpFall: return false;
+			case CState.cJumpLand: return true;
+			case CState.cHoldStandBy: return true;
+			case CState.cHoldWalk: return true;
+			case CState.cHoldJumpStart: return false;
+			case CState.cHoldJumpMid: return false;
+			case CState.cHoldJumpFall: return false;
+			case CState.cHoldJumpLand: return true;
+			case CState.cCatch: return true;
+			case CState.cCatchFailed: return true;
+			case CState.cRelease: return true;
+			case CState.cWaterStandBy: return false;
+			case CState.cHoldWaterStandBy: return false;
+			case CState.cSwim: return false;
+			case CState.cHoldSwim: return false;
+			case CState.cHandSpring: return false;
+			case CState.cHoldHandSpring: return false;
+			case CState.cFly: return false;
+			case CState.cHoldFly: return false;
+			}
+			return false;
 		}
 	}
 }
