@@ -886,6 +886,11 @@ public class Player : MonoBehaviour {
 			return false;
 		}
 
+		// 着地していなければ
+		if (!IsLanding && !WaterStt.IsWaterSurface && !Land.IsWaterFloatLanding) {
+			return false;
+		}
+
 		// ステージに接地、又は水面で安定していなければ
 		//		Debug.LogWarning("IsLanding:" + Land.IsLanding);
 		//if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
