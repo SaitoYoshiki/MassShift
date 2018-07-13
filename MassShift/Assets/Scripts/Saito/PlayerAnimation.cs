@@ -81,6 +81,9 @@ public class PlayerAnimation : MonoBehaviour {
 
 		cFly,
 		cHoldFly,
+
+		cNone,
+
 	}
 
 	[SerializeField]
@@ -957,6 +960,13 @@ public class PlayerAnimation : MonoBehaviour {
 		}
 		mBeforeStandByLoopTime = lLoopTime;
 		return lRes;
+	}
+
+	public void StartNone() {
+		ChangeState(CState.cNone);
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("None", 0.0f);
+		}
 	}
 }
 

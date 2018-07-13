@@ -200,11 +200,13 @@ public class Pause : MonoBehaviour {
             // オプション画面を閉じる
             optionCanvas.SetActive(false);
 
-            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
-                pauseCanvas_SS.SetActive(true);
-            }
-            else {
-                pauseCanvas.SetActive(true);
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Title") {
+                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "StageSelect") {
+                    pauseCanvas_SS.SetActive(true);
+                }
+                else {
+                    pauseCanvas.SetActive(true);
+                }
             }
 
             GetComponent<SetPlayerPrefs>().SaveOptionSetting();
