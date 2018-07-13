@@ -81,6 +81,8 @@ public class PlayerAnimation : MonoBehaviour {
 
 		cFly,
 		cHoldFly,
+
+		cNone,
 	}
 
 	[SerializeField]
@@ -980,6 +982,13 @@ public class PlayerAnimation : MonoBehaviour {
 			case CState.cHoldFly: return false;
 			}
 			return false;
+		}
+	}
+
+	public void StartNone() {
+		ChangeState(CState.cNone);
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("None", 0.0f);
 		}
 	}
 }
