@@ -18,7 +18,7 @@ public class MovieBelt : MonoBehaviour {
 	}
 
 	[SerializeField]
-	float move = 0.5f;
+	float move = 0.025f;
 	public float Move {
 		get {
 			return move;
@@ -29,7 +29,7 @@ public class MovieBelt : MonoBehaviour {
 	}
 
 	[SerializeField]
-	float ratioSpd = 0.01f;
+	float ratioSpd = 0.05f;
 	public float RatioSpd {
 		get {
 			return ratioSpd;
