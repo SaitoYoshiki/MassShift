@@ -307,7 +307,7 @@ public class Player : MonoBehaviour {
 	Landing Land {
 		get {
 			if (land == null) {
-				land = GetComponent<Landing>();
+				land = GetComponent<Landing>(); 
 				if (land == null) {
 					Debug.LogError("Landingが見つかりませんでした。");
 				}
@@ -532,11 +532,15 @@ public class Player : MonoBehaviour {
 	Transform noFlyAnimCol = null;
 	[SerializeField]
 	LayerMask noFlyAnimColMask;
+	[SerializeField]
+	Transform WaterCol = null;
+	LayerMask waterAreaMask;
 
 	void Start() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * CameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
 		if (autoSandwitchMask) sandwitchMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
+		waterAreaMask = LayerMask.GetMask("WaterArea");
 	}
 
 	void Update() {
@@ -577,16 +581,20 @@ public class Player : MonoBehaviour {
 
 		// 浮かびアニメーション
 		bool flyFlg = false;
-		if ((Mathf.Sign(RotVec.y * 2 - 1) != MoveMng.GetFallVec()) &&  !WaterStt.IsInWater && !WaterStt.IsWaterSurface) {
-			// 浮かびアニメーションを行わないコライダーに足場が触れていない
-			if (Physics.OverlapBox(noFlyAnimCol.position, noFlyAnimCol.lossyScale * 0.5f, noFlyAnimCol.rotation, noFlyAnimColMask).Length == 0) {
-				flyFlg = true;
-				if (!prevFlyFlg) {
-					Debug.Log("Fly");
-					if (!Lift.IsLifting) {
-						PlAnim.StartFly();
-					} else {
-						PlAnim.StartHoldFly();
+		// 水中以外で落下方向と体の上下向きが逆の場合
+		if ((!WaterStt.IsInWater && !WaterStt.IsWaterSurface) && (Mathf.Sign(RotVec.y * 2 - 1) != MoveMng.GetFallVec())) {
+			// 落下方向に移動していれば
+			if (MoveMng.GetFallVec() == Mathf.Sign(MoveMng.PrevMove.y)) {
+				// 浮かびアニメーションを行わないコライダーに足場や水場が触れていない
+				if (Physics.OverlapBox(noFlyAnimCol.position, noFlyAnimCol.lossyScale * 0.5f, noFlyAnimCol.rotation, noFlyAnimColMask).Length == 0) {
+					flyFlg = true;
+					if (!prevFlyFlg) {
+						Debug.Log("Fly");
+						if (!Lift.IsLifting) {
+							PlAnim.StartFly();
+						} else {
+							PlAnim.StartHoldFly();
+						}
 					}
 				}
 			}
@@ -594,7 +602,7 @@ public class Player : MonoBehaviour {
 		prevFlyFlg = flyFlg;
 
 		// 落下アニメーション
-		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface) && (Mathf.Sign(MoveMng.PrevMove.y) == (MoveMng.GetFallVec())));
+		bool fallFlg = ((!Land.IsLanding && !Land.IsWaterFloatLanding && !WaterStt.IsWaterSurface && !Land.IsExtrusionLanding) && (Mathf.Sign(MoveMng.PrevMove.y) == (MoveMng.GetFallVec())));
 		// 持ち上げ/下しの最中は落下しない
 		if (Lift.IsLiftCantMove) {
 			fallFlg = false;
@@ -636,9 +644,10 @@ public class Player : MonoBehaviour {
 		//		if ((Land.IsLandingTrueChange || Land.IsWaterFloatLandingTrueChange) ||   // 着地時の判定
 		if ((landTrueChangeFlg && !IsSandwitch) ||																					// 通常の着地時
 			//(IsLanding && !prevIsExtrusionLanding && Land.IsExtrusionLanding) ||													// 上下を挟まれている時の落下方向変化時
-			(prevIsSandwitch && !IsSandwitch && landColOverlap) ||                                                                  // 上下を挟まれている状態から解放された時
-			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {  // 反転したまま水上に落ちた時
-																																	// 入/出水時の戻り回転なら天井回転アニメーションは行わない
+			(prevIsSandwitch && !IsSandwitch && landColOverlap) ||																	// 上下を挟まれている状態から解放された時
+			((WaterStt.IsInWater != prevIsInWater) && (WeightMng.WeightLv == WeightManager.Weight.light) && (RotVec.y != 0.0f))) {	// 反転したまま水上に落ちた時
+
+			// 入水時の戻り回転なら天井回転アニメーションは行わない
 			bool notHandSpring = (WaterStt.IsInWater != prevIsInWater);
 
 			// 必要なら回転アニメーション
@@ -700,7 +709,8 @@ public class Player : MonoBehaviour {
 		// 着地アニメーション
 		//		if ((Land.IsLanding && Land.IsLandingTrueChange) ||
 		//			(Land.IsWaterFloatLanding && Land.IsWaterFloatLandingTrueChange)) {
-		if (landTrueChangeFlg) {
+		//if (landTrueChangeFlg) {
+		if ((landTrueChangeFlg || Land.IsExtrusionLanding) && !PlAnim.IsLandOnlyAnim) {
 			//			Land.IsLandingTrueChange = false;
 			//			Land.IsWaterFloatLandingTrueChange = false;
 			if (!Lift.IsLifting) {
@@ -720,11 +730,32 @@ public class Player : MonoBehaviour {
 			WaterStt.IsWaterSurfaceChange = false;
 			// 着水解除時
 			if (!WaterStt.IsWaterSurface) {
-				// 落下アニメーションに遷移
-				if (!Lift.IsLifting) {
-					PlAnim.StartFall();
-				} else {
-					PlAnim.StartHoldFall();
+				// 落下の場合
+				if (WeightMng.WeightLv == WeightManager.Weight.heavy) {
+					// 落下アニメーションに遷移
+					if (!Lift.IsLifting) {
+						PlAnim.StartFall();
+					} else {
+						PlAnim.StartHoldFall();
+					}
+				}
+				// 浮遊の場合
+				else if (WeightMng.WeightLv == WeightManager.Weight.flying) {
+					// 浮遊アニメーションに遷移
+					if (!Lift.IsLifting) {
+						PlAnim.StartFly();
+					} else {
+						PlAnim.StartHoldFly();
+					}
+				}
+				// ジャンプでの出水の場合
+				else {
+					// ジャンプアニメーションに遷移
+					if (!Lift.IsLifting) {
+						PlAnim.StartJump();
+					} else {
+						PlAnim.StartHoldJump();
+					}
 				}
 			}
 		}
@@ -852,6 +883,11 @@ public class Player : MonoBehaviour {
 		}
 		// 天井反転中なら
 		if (IsHandSpring) {
+			return false;
+		}
+
+		// 着地していなければ
+		if (!IsLanding && !WaterStt.IsWaterSurface && !Land.IsWaterFloatLanding) {
 			return false;
 		}
 

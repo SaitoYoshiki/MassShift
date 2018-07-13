@@ -376,11 +376,12 @@ public class Landing : MonoBehaviour {
 			}
 		}
 
-		// 自身にしか着地していないオブジェクトを除外
+		// 自身にしか着地していない自身より軽いオブジェクトを除外
 		List<Collider> thisOnlyLandList = new List<Collider>();
 		for (int idx = LandColList.Count - 1; idx >= 0; idx--) {
+			WeightManager colWeightMng = LandColList[idx].GetComponent<WeightManager>();
 			Landing colLand = LandColList[idx].GetComponent<Landing>();
-			if (colLand && ((colLand.LandColList.Count == 1) && colLand.LandColList.Contains(MoveMng.UseCol))) {
+			if (colLand && WeightMng && colWeightMng && ((colLand.LandColList.Count == 1) && colLand.LandColList.Contains(MoveMng.UseCol)) && (WeightMng.WeightLv > colWeightMng.WeightLv)) {
 				thisOnlyLandList.Add(LandColList[idx]);
 			}
 		}
