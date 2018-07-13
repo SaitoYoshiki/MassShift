@@ -4,30 +4,31 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ChangeLoadingImage : MonoBehaviour {
-    public Sprite stop;
-    public Sprite left;
-    public Sprite right;
+    public Sprite anim1;
+    public Sprite anim2;
+    public Sprite anim3;
+    public Sprite anim4;
 
     Image loadingImage;
     public Text text;
 	
-    void Start(){
+    void Awake(){
         loadingImage = GetComponent<Image>();
     }
 
 	public void ChangeImage(int _timeStage){
         switch (_timeStage) {
             case 0:
-                loadingImage.sprite = stop;
+                loadingImage.sprite = anim1;
                 break;
             case 1:
-                loadingImage.sprite = left;
+                loadingImage.sprite = anim2;
                 break;
             case 2:
-                loadingImage.sprite = stop;
+                loadingImage.sprite = anim3;
                 break;
             case 3:
-                loadingImage.sprite = right;
+                loadingImage.sprite = anim4;
                 break;
 
             default:
@@ -36,6 +37,6 @@ public class ChangeLoadingImage : MonoBehaviour {
     }
 
     public void ChangeText(float _progless) {
-        text.text = _progless.ToString();
+        //text.text = _progless.ToString();
     }
 }

@@ -18,32 +18,53 @@ public class SyncChangeColor : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     float startColorChangeTime;
 
+    [SerializeField]
+    GameObject MouseOverSE;
+
 	// Use this for initialization
 	void Start () {
         colorChangeTime = button.colors.fadeDuration;
-        img.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
-        text.color = new Color(0.2f, 0.8f, 0.8f, 0.5f);
+
+        if (img != null) {
+            img.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+
+        if (text != null) {
+            text.color = new Color(0.2f, 0.8f, 0.8f, 0.5f);
+        }
 	}
 
     // マウスカーソルが範囲内に入った
     public void OnPointerEnter(PointerEventData eventData) {
-        startColor = img.color;
-        endColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        if (img != null) {
+            startColor = img.color;
+            endColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        }
 
-        startColor2 = text.color;
-        endColor2 = new Color(0.2f, 0.8f, 0.8f, 1.0f);
+        if (text != null) {
+            startColor2 = text.color;
+            endColor2 = new Color(0.2f, 0.8f, 0.8f, 1.0f);
+        }
 
         startColorChangeTime = Time.unscaledTime;
         colorChangeFlg = true;
+
+        if (MouseOverSE != null) {
+            SoundManager.SPlay(MouseOverSE);
+        }
     }
 
     // マウスカーソルが範囲外に出た
     public void OnPointerExit(PointerEventData eventData) {
-        startColor = img.color;
-        endColor = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        if (img != null) {
+            startColor = img.color;
+            endColor = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
 
-        startColor2 = text.color;
-        endColor2 = new Color(0.2f, 0.8f, 0.8f, 0.5f);
+        if (text != null) {
+            startColor2 = text.color;
+            endColor2 = new Color(0.2f, 0.8f, 0.8f, 0.5f);
+        }
 
         startColorChangeTime = Time.unscaledTime;
         colorChangeFlg = true;
@@ -63,15 +84,26 @@ public class SyncChangeColor : MonoBehaviour, IPointerEnterHandler, IPointerExit
         float nowColorChangeTime = Time.unscaledTime - startColorChangeTime;
         float colorChangePer = Mathf.Clamp((nowColorChangeTime / colorChangeTime), 0.0f, 1.0f);
 
-        img.color = Color.Lerp(startColor, endColor, colorChangePer);
-        text.color = Color.Lerp(startColor2, endColor2, colorChangePer);
+        if (img != null) {
+            img.color = Color.Lerp(startColor, endColor, colorChangePer);
+        }
+
+        if (text != null) {
+            text.color = Color.Lerp(startColor2, endColor2, colorChangePer);
+        }
+
         if (colorChangePer >= 1.0f) {
             colorChangeFlg = false;
         }
     }
 
     public void DeactiveButton() {
-        img.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
-        text.color = new Color(0.2f, 0.8f, 0.8f, 0.5f);
+        if (img != null) {
+            img.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+
+        if (text != null) {
+            text.color = new Color(0.2f, 0.8f, 0.8f, 0.5f);
+        }
     }
 }
