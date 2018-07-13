@@ -9494,7 +9494,7 @@ Animator:
   m_GameObject: {fileID: 1636122572185688}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: f160d10187c6d32499ebb0c1c589982e, type: 3}
-  m_Controller: {fileID: 9100000, guid: e1ffeb3b3857fc3499967ef261280b74, type: 2}
+  m_Controller: {fileID: 9100000, guid: d3de4e9566a732146a72df8392918063, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -10055,7 +10055,7 @@ MonoBehaviour:
   noFlyAnimColMask:
     serializedVersion: 2
     m_Bits: 537088
-  WaterCol: {fileID: 4383589482049790}
+  WaterCol: {fileID: 0}
 --- !u!114 &114886177498330112
 MonoBehaviour:
   m_ObjectHideFlags: 1
