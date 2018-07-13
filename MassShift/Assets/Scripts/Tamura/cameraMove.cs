@@ -22,6 +22,12 @@ public class cameraMove : MonoBehaviour {
     GameObject stageselect;
 
     [SerializeField]
+    GameObject loadingCanvas;
+
+    [SerializeField]
+    GameObject SmallButtons;
+
+    [SerializeField]
     PlayerAnimation pa;
 
     StageTransition st;
@@ -57,8 +63,6 @@ public class cameraMove : MonoBehaviour {
         this.transform.position = cameraStartPoint;
         st = GameObject.Find("StageChangeCanvas").GetComponent<StageTransition>();
         st.gameObject.SetActive(false);
-
-        cli = FindObjectOfType<ChangeLoadingImage>();
 	}
 
     void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
@@ -123,6 +127,7 @@ public class cameraMove : MonoBehaviour {
                 oldZoomInFlg = zoomInFlg;
                 tutorial.SetActive(true);
                 stageselect.SetActive(true);
+                SmallButtons.SetActive(true);
             }
         }
         // ズームイン中なら
@@ -179,7 +184,7 @@ public class cameraMove : MonoBehaviour {
         title.SetActive(false);
         tutorial.SetActive(false);
         stageselect.SetActive(false);
-
+        SmallButtons.SetActive(false);
         //RenderSettings.ambientSkyColor = endLightColor;
 
         fromTitle = true;
@@ -206,6 +211,8 @@ public class cameraMove : MonoBehaviour {
         TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Single);
         TutorialActive.allowSceneActivation = false;
 
+        loadingCanvas.SetActive(true);
+        cli = FindObjectOfType<ChangeLoadingImage>();
         loadStartTime = Time.realtimeSinceStartup;
         StartCoroutine(CheckProgress(TutorialActive));
     }
@@ -217,6 +224,8 @@ public class cameraMove : MonoBehaviour {
         StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
         StageSelectActive.allowSceneActivation = false;
 
+        loadingCanvas.SetActive(true);
+        cli = FindObjectOfType<ChangeLoadingImage>();
         loadStartTime = Time.realtimeSinceStartup;
         StartCoroutine(CheckProgress(StageSelectActive));
     }
@@ -236,7 +245,7 @@ public class cameraMove : MonoBehaviour {
     }
 
     void SwitchLoadingImage(float _loadtime) {
-        int timeStage = (int)((_loadtime % 2.0f) * 2);
+        int timeStage = (int)((_loadtime % 1.0f) * 4);
         cli.ChangeImage(timeStage);
     }
 }

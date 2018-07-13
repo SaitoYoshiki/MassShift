@@ -2660,7 +2660,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1291095736488648
 GameObject:
   m_ObjectHideFlags: 1
@@ -15762,7 +15762,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30DD\u30FC\u30BA\u30E1\u30CB\u30E5\u30FC\u306B\u623B\u308B"
+  m_Text: "\u30AA\u30D7\u30B7\u30E7\u30F3\u8A2D\u5B9A\u7D42\u4E86"
 --- !u!114 &114081965904373826
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -15828,6 +15828,8 @@ MonoBehaviour:
   img: {fileID: 114924665548023028}
   button: {fileID: 114664735509474878}
   text: {fileID: 114048165063752844}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114083383331736728
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -16119,6 +16121,8 @@ MonoBehaviour:
   img: {fileID: 114793145369386364}
   button: {fileID: 114502316654943306}
   text: {fileID: 114973506524032988}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114139434722570660
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -16330,6 +16334,8 @@ MonoBehaviour:
   img: {fileID: 114537793449654894}
   button: {fileID: 114651840941193908}
   text: {fileID: 114214534639913170}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114159908179885476
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -16625,6 +16631,8 @@ MonoBehaviour:
   img: {fileID: 114308039351998546}
   button: {fileID: 114947774905778670}
   text: {fileID: 114986803520523506}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114228530101094200
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -16639,6 +16647,8 @@ MonoBehaviour:
   img: {fileID: 114378413806431404}
   button: {fileID: 114669186869313612}
   text: {fileID: 114467246193690688}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114229470151996272
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -16852,6 +16862,8 @@ MonoBehaviour:
   img: {fileID: 114908953856150220}
   button: {fileID: 114764749194509446}
   text: {fileID: 114061469687305084}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114239724353658244
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -17226,6 +17238,8 @@ MonoBehaviour:
   img: {fileID: 114727356190354972}
   button: {fileID: 114804463201794010}
   text: {fileID: 114457309687177640}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114286308412442276
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -17633,6 +17647,8 @@ MonoBehaviour:
   img: {fileID: 114109220092394856}
   button: {fileID: 114755545971443578}
   text: {fileID: 114288356117141620}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114306257659608012
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -20026,6 +20042,8 @@ MonoBehaviour:
   img: {fileID: 114161538126079722}
   button: {fileID: 114270051983046082}
   text: {fileID: 114003998075369814}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114602370317750178
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -20045,7 +20063,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 3acdc97755940194f8ace243acd7950b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: eb755272a5a6b294d987dfa1d461d76b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -20067,6 +20085,8 @@ MonoBehaviour:
   img: {fileID: 114345445502086660}
   button: {fileID: 114961186812821520}
   text: {fileID: 114286308412442276}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114607427772505970
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -20162,6 +20182,8 @@ MonoBehaviour:
   img: {fileID: 114032505890205600}
   button: {fileID: 114315897758976832}
   text: {fileID: 114232446264190876}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114621156192959890
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -20890,6 +20912,8 @@ MonoBehaviour:
   img: {fileID: 114841784705213066}
   button: {fileID: 114388415817793376}
   text: {fileID: 114398869603033132}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114685169745043358
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -20988,9 +21012,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5593977e32f7f14dae82aab15a2a633, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stop: {fileID: 21300000, guid: 3acdc97755940194f8ace243acd7950b, type: 3}
-  left: {fileID: 21300000, guid: 9f3b2d06678b62e439432a5465c9b635, type: 3}
-  right: {fileID: 21300000, guid: 7dbe7af55e439cf47a7a7c12e10d06e6, type: 3}
+  anim1: {fileID: 21300000, guid: eb755272a5a6b294d987dfa1d461d76b, type: 3}
+  anim2: {fileID: 21300000, guid: 61ac89dd48c8d6949adcc051d06d338f, type: 3}
+  anim3: {fileID: 21300000, guid: 636d550c3ce274245a52d7798e29fdc9, type: 3}
+  anim4: {fileID: 21300000, guid: f3d559fad9b44544d94c3d71f1e8a20c, type: 3}
   text: {fileID: 114631214711878740}
 --- !u!114 &114691433197094170
 MonoBehaviour:
@@ -21651,6 +21676,8 @@ MonoBehaviour:
   img: {fileID: 114199286382552006}
   button: {fileID: 114304378168592386}
   text: {fileID: 114498834852213886}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114785602682788504
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -21935,6 +21962,8 @@ MonoBehaviour:
   img: {fileID: 114114837629888408}
   button: {fileID: 114003696811438550}
   text: {fileID: 114306257659608012}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114810062087728718
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -22194,6 +22223,8 @@ MonoBehaviour:
   img: {fileID: 114997249916060570}
   button: {fileID: 114902691006778576}
   text: {fileID: 114825903720581230}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114867006018169166
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -22268,6 +22299,8 @@ MonoBehaviour:
   img: {fileID: 114525582832870790}
   button: {fileID: 114637016016622856}
   text: {fileID: 114082959886964864}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114877568919494816
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -22295,6 +22328,8 @@ MonoBehaviour:
   img: {fileID: 114790157801222878}
   button: {fileID: 114520902841520628}
   text: {fileID: 114533159873613410}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114896649782717812
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -22309,6 +22344,8 @@ MonoBehaviour:
   img: {fileID: 114830534375941896}
   button: {fileID: 114093298455676586}
   text: {fileID: 114696624414368958}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114898339646188424
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -22323,6 +22360,8 @@ MonoBehaviour:
   img: {fileID: 114497066508266086}
   button: {fileID: 114312453931733184}
   text: {fileID: 114210772143044356}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114902691006778576
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -22545,6 +22584,8 @@ MonoBehaviour:
   img: {fileID: 114816975284936332}
   button: {fileID: 114047162390461082}
   text: {fileID: 114233051197491022}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114933927335189114
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -22871,6 +22912,8 @@ MonoBehaviour:
   img: {fileID: 114237521271486042}
   button: {fileID: 114156410608871578}
   text: {fileID: 114442548326485968}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114955179825953148
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -23036,6 +23079,8 @@ MonoBehaviour:
   img: {fileID: 114202646336584946}
   button: {fileID: 114295314484604670}
   text: {fileID: 114384559329346176}
+  MouseOverSE: {fileID: 1002633115495712, guid: 7917c2d60312cf7459c987ca6eba4007,
+    type: 2}
 --- !u!114 &114973506524032988
 MonoBehaviour:
   m_ObjectHideFlags: 1
