@@ -10,11 +10,13 @@ public class WeightEffect : MonoBehaviour {
 	public event OnWeightChangeEvent OnWeightChange;
 
 	WeightManager mWeightManager;
+
+	[SerializeField, Disable]
 	WeightManager.Weight mBeforeWeight;
 
 
 	// Use this for initialization
-	void Start () {
+	void OnEnable () {
 		mWeightManager = GetComponent<WeightManager>();
 		mBeforeWeight = mWeightManager.WeightLvSeem;    //見かけの重さでエフェクトを出す
 		OnWeightChange(mBeforeWeight);

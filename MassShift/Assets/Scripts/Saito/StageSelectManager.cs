@@ -186,11 +186,19 @@ public class StageSelectManager : MonoBehaviour {
 		//クリアしたエリアによって、ボックスを消して次のエリアに行けないようにする
 		if (Area.CanGoArea(2) == false) {
 			mTopStaticWeightBox.SetActive(false);
+		}
+		if (Area.CanGoArea(3) == false) {
 			mBottomStaticWeightBox.SetActive(false);
 		}
-		else if (Area.CanGoArea(3) == false) {
+
+		//もしエリア開放イベントがされていなかったら、ボックスを出さないようにしておく
+		if(SaveData.Instance.mEventDoneFlag.mArea2Open == false) {
+			mTopStaticWeightBox.SetActive(false);
+		}
+		if (SaveData.Instance.mEventDoneFlag.mArea3Open == false) {
 			mBottomStaticWeightBox.SetActive(false);
 		}
+
 
 		//カメラをズームされた位置に移動
 		mCameraMove.MoveStartPosition();
@@ -274,7 +282,30 @@ public class StageSelectManager : MonoBehaviour {
 		SoundManager.SFade(t, 0.0f, SoundManager.SVolume(mStageSelectBGMPrefab), 2.0f);
 
 
+		//
+		//エリア開放イベント
+		//
+
+		//エリア2が開放されているが、エリア2の開放イベントが行われていない場合
+		if(Area.CanGoArea(2) && SaveData.Instance.mEventDoneFlag.mArea2Open == false) {
+			yield return AreaOpenEvent(2);
+			SaveData.Instance.mEventDoneFlag.mArea2Open = true; //イベントを行った
+			SaveData.Instance.Save();   //ファイルにセーブ
+		}
+
+		//エリア3が開放されているが、エリア3の開放イベントが行われていない場合
+		if (Area.CanGoArea(3) && SaveData.Instance.mEventDoneFlag.mArea3Open == false) {
+			yield return AreaOpenEvent(3);
+			SaveData.Instance.mEventDoneFlag.mArea3Open = true; //イベントを行った
+			SaveData.Instance.Save();	//ファイルにセーブ
+		}
+
+
 		//カメラのズームアウトを始める
+
+		//ズーム終了後のカメラ位置を変更
+		mCameraMove.mEndPosition = mStageSelectScroll.mAreaCameraPosition[Area.sBeforeAreaNumber - 1].transform.position;
+		mCameraMove.mStartPosition = GetPlayerZoomCameraPosition(g.transform.up.y <= 0.0f);
 		mCameraMove.MoveStart();
 
 
@@ -798,4 +829,133 @@ public class StageSelectManager : MonoBehaviour {
             return mSelectStageNum;
         }
     }
+
+
+	//エリアの開放イベント
+	//
+	IEnumerator AreaOpenEvent(int aAreaNumber) {
+
+		//エラーチェック
+		if (aAreaNumber == 2) {}
+		else if (aAreaNumber == 3) {}
+		else {
+			Debug.LogError("エリア2、エリア3以外でエリア開放イベントが呼ばれました", this);
+		}
+
+
+
+		//元のカメラ位置を保存
+		Vector3 lBeforeCameraPosition = mCameraMove.transform.position;
+
+
+		//
+		//カメラを現在地点から、演出する位置まで動かす
+		//
+
+		Vector3 lEventCameraPosition = Vector3.zero;
+
+		//エリア2の開放演出なら
+		if(aAreaNumber == 2) {
+			lEventCameraPosition = mTopStaticWeightBox.transform.position;
+			lEventCameraPosition.z = 35.0f;
+		}
+		//エリア3の開放演出なら
+		else if (aAreaNumber == 3) {
+			lEventCameraPosition = mBottomStaticWeightBox.transform.position;
+			lEventCameraPosition.z = 35.0f;
+		}
+
+		//移動の情報の設定
+		mCameraMove.mTakeTime = 2.0f;
+		mCameraMove.mStartPosition = mCameraMove.transform.position;
+		mCameraMove.mEndPosition = lEventCameraPosition;
+		mCameraMove.MoveStart();
+
+		//動き終わるまで待機
+		while (true) {
+			if (mCameraMove.IsMoveEnd == true) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//
+		//開放演出
+		//
+
+		if (aAreaNumber == 2) {
+
+			//
+			//ボックスが壁からにゅるっと出てくる
+			//
+
+			mTopStaticWeightBox.SetActive(true);
+
+			Vector3 lStart = mTopStaticWeightBox.transform.position;
+			lStart.x += 3.0f;
+			Vector3 lEnd = mTopStaticWeightBox.transform.position;
+			
+			float lTime = 0.0f;
+			const float cTakeTime = 3.0f;
+			while (true) {
+				lTime += Time.deltaTime;
+
+				mTopStaticWeightBox.transform.position = Vector3.Lerp(lStart, lEnd, Mathf.Clamp01(lTime / cTakeTime));
+
+				if(lTime >= cTakeTime) {
+					break;
+				}
+				yield return null;
+			}
+		}
+		else if (aAreaNumber == 3) {
+
+			//
+			//ボックスが壁からにゅるっと出てくる
+			//
+
+			mBottomStaticWeightBox.SetActive(true);
+
+			Vector3 lStart = mBottomStaticWeightBox.transform.position;
+			lStart.x += 3.0f;
+			Vector3 lEnd = mBottomStaticWeightBox.transform.position;
+
+			float lTime = 0.0f;
+			const float cTakeTime = 3.0f;
+			while (true) {
+				lTime += Time.deltaTime;
+
+				mBottomStaticWeightBox.transform.position = Vector3.Lerp(lStart, lEnd, Mathf.Clamp01(lTime / cTakeTime));
+
+				if (lTime >= cTakeTime) {
+					break;
+				}
+				yield return null;
+			}
+
+		}
+
+
+
+		//
+		//カメラを現在地点から、元の位置まで動かす
+		//
+
+		//移動の情報の設定
+		mCameraMove.mTakeTime = 2.0f;
+		mCameraMove.mStartPosition = mCameraMove.transform.position;
+		mCameraMove.mEndPosition = lBeforeCameraPosition;
+		mCameraMove.MoveStart();
+
+		//動き終わるまで待機
+		while(true) {
+			if(mCameraMove.IsMoveEnd == true) {
+				break;
+			}
+			yield return null;
+		}
+	}
+
+
 }
