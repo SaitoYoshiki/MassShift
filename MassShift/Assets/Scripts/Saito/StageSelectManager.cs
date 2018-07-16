@@ -191,12 +191,15 @@ public class StageSelectManager : MonoBehaviour {
 		mCameraMove.MoveStartPosition();
 
 
+		mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f);    //少し奥に移動
+
+
 		//プレイヤーを移動不可にする
 		CanMovePlayer(false);
 		CanJumpPlayer(false);
 
 		OnPlayerEffect(true);   //プレイヤーの更新を切る
-		mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f);    //少し奥に移動
+
 
 		//ステージ開始時の演出
 		mTransition.OpenDoorParent();
@@ -212,58 +215,9 @@ public class StageSelectManager : MonoBehaviour {
 		//
 		//プレイヤーがドアから出てくる演出
 		//
-
-		yield return new WaitForSeconds(mFromStageBeforeWalkingTime);
-
-		g.mOpenForce = true;    //ドアを強制的に開く
-
-		mGoalBlack.transform.position = g.transform.position;
-		mGoalBlack.transform.rotation = g.transform.rotation;
+		yield return WalkExitDoor(g);
 
 
-		mPlayer.transform.rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f); //回転させる
-		
-		//歩きアニメーションの再生
-		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
-		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
-
-		//zが0.0fになるまで移動させる。同時に、黒い板を透明にしていく
-		mGoalBlack.StartFade(1.0f, 0.0f, 0.0f, 2.0f);
-		
-		while(true) {
-			mPlayer.transform.position += new Vector3(0.0f, 0.0f, -3.0f / mFromStageWalkingTime * Time.deltaTime);
-			if(mPlayer.transform.position.z <= 0.0f) {
-				Vector3 lPos = mPlayer.transform.position;
-				lPos.z = 0.0f;
-				mPlayer.transform.position = lPos;
-				break;
-			}
-
-			yield return null;
-		}
-
-		yield return new WaitForSeconds(mFromStageBeforeRotateTime);
-
-		//プレイヤーの回転を元に戻す
-
-		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(0.3f);
-
-		float lAngle = 90.0f;
-		while (true) {
-			lAngle -= 90.0f / mFromStageRotateTime * Time.deltaTime;
-
-			mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
-			if (lAngle <= 0.0f) {
-				mPlayer.transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-				break;
-			}
-
-			yield return null;
-		}
-
-		OnPlayerEffect(false);   //プレイヤーの更新を戻す
-
-		yield return new WaitForSeconds(mFromStageAfterRotateTime);
 
 		//BGMを流し始める
 		var t = SoundManager.SPlay(mStageSelectBGMPrefab);
@@ -616,94 +570,14 @@ public class StageSelectManager : MonoBehaviour {
 		*/
 
 
+		Goal g = mGoal[lDecideSelectStageNum];
+
 		//
 		//プレイヤーがドアに入っていく演出
 		//
+		yield return WalkEnterDoor(g);
 
-		yield return new WaitForSeconds(mToStageBeforeRotateTime);
-
-		Goal g = mGoal[lDecideSelectStageNum];
-		g.mOpenForce = true;    //ドアを強制的に開く
-
-		mGoalBlack.transform.position = g.transform.position;	//黒い背景をゴールのところに移動させる
-		mGoalBlack.transform.rotation = g.transform.rotation;
 		
-		//歩きアニメーションの再生
-		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(0.3f);
-		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
-
-
-		//プレイヤーを回転させていく
-		//
-
-		bool lIsRight = mPlayer.RotVec.x > 0.0f;
-		
-		if(lIsRight) {
-			float lAngle = 0.0f;
-			while (true) {
-
-				//プレイヤーのモデルの回転を、ゆっくり元に戻す
-				mPlayer.CameraLookRatio = Mathf.Clamp01(mPlayer.CameraLookRatio - 1.0f / mToStageRotateTime * Time.deltaTime);
-				mPlayer.LookCamera();
-
-				//プレイヤーを回転させる
-				lAngle -= 90.0f / mToStageRotateTime * Time.deltaTime;
-				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
-				if (lAngle <= -90.0f) {
-					mPlayer.transform.rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
-					break;
-				}
-
-				yield return null;
-			}
-		}
-		else {
-			float lAngle = 0.0f;
-			while (true) {
-
-				//プレイヤーのモデルの回転を、ゆっくり元に戻す
-				mPlayer.CameraLookRatio = Mathf.Clamp01(mPlayer.CameraLookRatio - 1.0f / mToStageRotateTime * Time.deltaTime);
-				mPlayer.LookCamera();
-
-				//プレイヤーを回転させる
-				lAngle += 90.0f / mToStageRotateTime * Time.deltaTime;
-				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
-				if (lAngle >= 90.0f) {
-					mPlayer.transform.rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f);
-					break;
-				}
-
-				yield return null;
-			}
-		}
-
-
-		yield return new WaitForSeconds(mToStageBeforeWalkingTime);
-
-
-		//プレイヤーを歩かせる
-		//
-
-		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
-
-		mGoalBlack.StartFade(0.0f, 1.0f, 0.0f, mToStageWalkingTime);
-		
-		while (true) {
-			mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f / mToStageWalkingTime * Time.deltaTime);
-			if (mPlayer.transform.position.z >= 3.0f) {
-				break;
-			}
-
-			yield return null;
-		}
-
-		yield return new WaitForSeconds(mToStageAfterWalkingTime);
-
-
-		//歩くのをやめる
-		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
-
-
 		//ステージ終了時の演出
 		mTransition.CloseDoorParent();
 
@@ -987,4 +861,150 @@ public class StageSelectManager : MonoBehaviour {
 		}
 
 	}
+
+	
+	//ドアに入る歩く動き
+	IEnumerator WalkEnterDoor(Goal g) {
+
+		yield return new WaitForSeconds(mToStageBeforeRotateTime);
+
+
+		g.mOpenForce = true;    //ドアを強制的に開く
+
+		mGoalBlack.transform.position = g.transform.position;   //黒い背景をゴールのところに移動させる
+		mGoalBlack.transform.rotation = g.transform.rotation;
+
+		//歩きアニメーションの再生
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(0.3f);
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
+
+
+		//プレイヤーを回転させていく
+		//
+
+		bool lIsRight = mPlayer.RotVec.x > 0.0f;
+
+		if (lIsRight) {
+			float lAngle = 0.0f;
+			while (true) {
+
+				//プレイヤーのモデルの回転を、ゆっくり元に戻す
+				mPlayer.CameraLookRatio = Mathf.Clamp01(mPlayer.CameraLookRatio - 1.0f / mToStageRotateTime * Time.deltaTime);
+				mPlayer.LookCamera();
+
+				//プレイヤーを回転させる
+				lAngle -= 90.0f / mToStageRotateTime * Time.deltaTime;
+				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
+				if (lAngle <= -90.0f) {
+					mPlayer.transform.rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
+					break;
+				}
+
+				yield return null;
+			}
+		}
+		else {
+			float lAngle = 0.0f;
+			while (true) {
+
+				//プレイヤーのモデルの回転を、ゆっくり元に戻す
+				mPlayer.CameraLookRatio = Mathf.Clamp01(mPlayer.CameraLookRatio - 1.0f / mToStageRotateTime * Time.deltaTime);
+				mPlayer.LookCamera();
+
+				//プレイヤーを回転させる
+				lAngle += 90.0f / mToStageRotateTime * Time.deltaTime;
+				mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
+				if (lAngle >= 90.0f) {
+					mPlayer.transform.rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f);
+					break;
+				}
+
+				yield return null;
+			}
+		}
+
+
+		yield return new WaitForSeconds(mToStageBeforeWalkingTime);
+
+
+		//プレイヤーを歩かせる
+		//
+
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
+
+		mGoalBlack.StartFade(0.0f, 1.0f, 0.0f, mToStageWalkingTime);
+
+		while (true) {
+			mPlayer.transform.position += new Vector3(0.0f, 0.0f, 3.0f / mToStageWalkingTime * Time.deltaTime);
+			if (mPlayer.transform.position.z >= 3.0f) {
+				break;
+			}
+
+			yield return null;
+		}
+
+		yield return new WaitForSeconds(mToStageAfterWalkingTime);
+
+
+		//歩くのをやめる
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
+
+	}
+	
+	//ドアから出る歩く動き
+	IEnumerator WalkExitDoor(Goal g) {
+
+		yield return new WaitForSeconds(mFromStageBeforeWalkingTime);
+
+		g.mOpenForce = true;    //ドアを強制的に開く
+
+		mGoalBlack.transform.position = g.transform.position;
+		mGoalBlack.transform.rotation = g.transform.rotation;
+
+		mPlayer.transform.rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f); //回転させる
+
+		//歩きアニメーションの再生
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(1.0f);
+		mPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cWalk);
+
+		//zが0.0fになるまで移動させる。同時に、黒い板を透明にしていく
+		mGoalBlack.StartFade(1.0f, 0.0f, 0.0f, 2.0f);
+
+		while (true) {
+			mPlayer.transform.position += new Vector3(0.0f, 0.0f, -3.0f / mFromStageWalkingTime * Time.deltaTime);
+			if (mPlayer.transform.position.z <= 0.0f) {
+				Vector3 lPos = mPlayer.transform.position;
+				lPos.z = 0.0f;
+				mPlayer.transform.position = lPos;
+				break;
+			}
+
+			yield return null;
+		}
+
+		yield return new WaitForSeconds(mFromStageBeforeRotateTime);
+
+		//プレイヤーの回転を元に戻す
+
+		mPlayer.GetComponent<PlayerAnimation>().SetSpeed(0.3f);
+
+		float lAngle = 90.0f;
+		while (true) {
+			lAngle -= 90.0f / mFromStageRotateTime * Time.deltaTime;
+
+			mPlayer.transform.rotation = Quaternion.Euler(0.0f, lAngle, 0.0f);
+			if (lAngle <= 0.0f) {
+				mPlayer.transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+				break;
+			}
+
+			yield return null;
+		}
+
+		OnPlayerEffect(false);   //プレイヤーの更新を戻す
+
+		yield return new WaitForSeconds(mFromStageAfterRotateTime);
+
+	}
+	
 }
