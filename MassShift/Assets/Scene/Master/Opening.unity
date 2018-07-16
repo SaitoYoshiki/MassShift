@@ -2065,7 +2065,7 @@ Prefab:
         type: 2}
       propertyPath: mCapsuleAnimator
       value: 
-      objectReference: {fileID: 1199275279}
+      objectReference: {fileID: 2074043658}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 4a0dc6bda61b02847b2f417333c4def7, type: 2}
   m_IsPrefabParent: 0
@@ -26496,11 +26496,6 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: afb3ec674dc36e24980cf7dab83c44bc, type: 2}
   m_IsPrefabParent: 0
---- !u!95 &1199275279 stripped
-Animator:
-  m_PrefabParentObject: {fileID: 95304173985255142, guid: 4ccfc557696ec5445973a1f4ab94e547,
-    type: 2}
-  m_PrefabInternal: {fileID: 561195044}
 --- !u!1001 &1200046239
 Prefab:
   m_ObjectHideFlags: 0
@@ -48820,6 +48815,11 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2072685329}
   m_Mesh: {fileID: 4300000, guid: c501daf59ef5c594d8c2b5e8cda22fba, type: 3}
+--- !u!95 &2074043658 stripped
+Animator:
+  m_PrefabParentObject: {fileID: 95143971019666834, guid: 4ccfc557696ec5445973a1f4ab94e547,
+    type: 2}
+  m_PrefabInternal: {fileID: 561195044}
 --- !u!1001 &2078539223
 Prefab:
   m_ObjectHideFlags: 0
