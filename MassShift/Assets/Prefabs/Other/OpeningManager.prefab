@@ -51,9 +51,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6530b33394491284caca355aac9eab2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mBGMPrefab: {fileID: 1814487403731412, guid: 34f0ca04e715fac4581c731ae8022a8d, type: 2}
-  mAwakeSEPrefab: {fileID: 0}
-  mOpenSEPrefab: {fileID: 0}
-  mSurpriseSEPrefab: {fileID: 0}
+  mCamera: {fileID: 0}
+  mCameraZoomOutPosition: {fileID: 0}
+  mBGMPrefab: {fileID: 1814487403731412, guid: 8105081438941894098c8f26a1bcddab, type: 2}
+  mAwakeSEPrefab: {fileID: 1814487403731412, guid: 508358195dcb9b24e99a1521ec38a1f3,
+    type: 2}
+  mOpenSEPrefab: {fileID: 1814487403731412, guid: f77811e082fdc494ab11be2c53965d02,
+    type: 2}
+  mSurpriseSEPrefab: {fileID: 1814487403731412, guid: 764f7d673d82cdf4daf037db3e73725b,
+    type: 2}
   mSurpriseIcon: {fileID: 0}
   mCapsuleAnimator: {fileID: 0}
