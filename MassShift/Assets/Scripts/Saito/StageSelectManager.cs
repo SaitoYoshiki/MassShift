@@ -183,21 +183,8 @@ public class StageSelectManager : MonoBehaviour {
 		}
 
 
-		//クリアしたエリアによって、ボックスを消して次のエリアに行けないようにする
-		if (Area.CanGoArea(2) == false) {
-			mTopStaticWeightBox.SetActive(false);
-		}
-		if (Area.CanGoArea(3) == false) {
-			mBottomStaticWeightBox.SetActive(false);
-		}
-
-		//もしエリア開放イベントがされていなかったら、ボックスを出さないようにしておく
-		if(SaveData.Instance.mEventDoneFlag.mArea2Open == false) {
-			mTopStaticWeightBox.SetActive(false);
-		}
-		if (SaveData.Instance.mEventDoneFlag.mArea3Open == false) {
-			mBottomStaticWeightBox.SetActive(false);
-		}
+		//エリアの開放状況によって、ボックスを消す
+		HideBoxByAreaOpen();
 
 
 		//カメラをズームされた位置に移動
@@ -219,6 +206,7 @@ public class StageSelectManager : MonoBehaviour {
 			if (mTransition.GetOpenEnd()) break;
 			yield return null;
 		}
+
 
 
 		//
@@ -302,10 +290,6 @@ public class StageSelectManager : MonoBehaviour {
 
 
 		//カメラのズームアウトを始める
-
-		//ズーム終了後のカメラ位置を変更
-		mCameraMove.mEndPosition = mStageSelectScroll.mAreaCameraPosition[Area.sBeforeAreaNumber - 1].transform.position;
-		mCameraMove.mStartPosition = GetPlayerZoomCameraPosition(g.transform.up.y <= 0.0f);
 		mCameraMove.MoveStart();
 
 
@@ -341,14 +325,9 @@ public class StageSelectManager : MonoBehaviour {
 		mTopStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.flying;
 		mBottomStaticWeightBox.GetComponent<WeightManager>().WeightLv = WeightManager.Weight.heavy;
 
-		//クリアしたエリアによって、ボックスを消して次のエリアに行けないようにする
-		if (Area.CanGoArea(2) == false) {
-			mTopStaticWeightBox.SetActive(false);
-			mBottomStaticWeightBox.SetActive(false);
-		}
-		else if (Area.CanGoArea(3) == false) {
-			mBottomStaticWeightBox.SetActive(false);
-		}
+
+		//エリアの開放状況によって、重さボックスを消す
+		HideBoxByAreaOpen();
 
 
 		//カメラの開始地点を決める
@@ -424,6 +403,27 @@ public class StageSelectManager : MonoBehaviour {
 
 		//カメラの移動にかける時間を戻す
 		mCameraMove.mTakeTime = lBeforeCameraMoveTime;
+
+
+
+		//
+		//エリア開放イベント
+		//
+
+		//エリア2が開放されているが、エリア2の開放イベントが行われていない場合
+		if (Area.CanGoArea(2) && SaveData.Instance.mEventDoneFlag.mArea2Open == false) {
+			yield return AreaOpenEvent(2);
+			SaveData.Instance.mEventDoneFlag.mArea2Open = true; //イベントを行った
+			SaveData.Instance.Save();   //ファイルにセーブ
+		}
+
+		//エリア3が開放されているが、エリア3の開放イベントが行われていない場合
+		if (Area.CanGoArea(3) && SaveData.Instance.mEventDoneFlag.mArea3Open == false) {
+			yield return AreaOpenEvent(3);
+			SaveData.Instance.mEventDoneFlag.mArea3Open = true; //イベントを行った
+			SaveData.Instance.Save();   //ファイルにセーブ
+		}
+
 
 		//メインのコルーチンの開始
 		//
@@ -844,8 +844,11 @@ public class StageSelectManager : MonoBehaviour {
 
 
 
-		//元のカメラ位置を保存
+		//元のデータを保存
 		Vector3 lBeforeCameraPosition = mCameraMove.transform.position;
+		Vector3 lBeforeCameraMoveStartPosition = mCameraMove.mStartPosition;
+		Vector3 lBeforeCameraMoveEndPosition = mCameraMove.mEndPosition;
+		float lBeforeCameraMoveTakeTime = mCameraMove.mTakeTime;
 
 
 		//
@@ -955,7 +958,33 @@ public class StageSelectManager : MonoBehaviour {
 			}
 			yield return null;
 		}
+
+
+		//元のデータに戻す
+		mCameraMove.mStartPosition = lBeforeCameraMoveStartPosition;
+		mCameraMove.mEndPosition = lBeforeCameraMoveEndPosition;
+		mCameraMove.mTakeTime = lBeforeCameraMoveTakeTime;
 	}
 
 
+	//エリアの開放状況によって、重さボックスを消したりする
+	void HideBoxByAreaOpen() {
+
+		//クリアしたエリアによって、ボックスを消して次のエリアに行けないようにする
+		if (Area.CanGoArea(2) == false) {
+			mTopStaticWeightBox.SetActive(false);
+		}
+		if (Area.CanGoArea(3) == false) {
+			mBottomStaticWeightBox.SetActive(false);
+		}
+
+		//もしエリア開放イベントがされていなかったら、ボックスを出さないようにしておく
+		if (SaveData.Instance.mEventDoneFlag.mArea2Open == false) {
+			mTopStaticWeightBox.SetActive(false);
+		}
+		if (SaveData.Instance.mEventDoneFlag.mArea3Open == false) {
+			mBottomStaticWeightBox.SetActive(false);
+		}
+
+	}
 }
