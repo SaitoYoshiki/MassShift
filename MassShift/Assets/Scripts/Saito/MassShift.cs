@@ -1119,7 +1119,7 @@ public class MassShift : MonoBehaviour
 
 	//カーソルの位置を設定する
 	//
-	void SetCursorPosition(Vector3 aPosition) {
+	public void SetCursorPosition(Vector3 aPosition) {
 		mCursor.transform.position = aPosition;
 	}
 

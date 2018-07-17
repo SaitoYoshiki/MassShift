@@ -536,6 +536,17 @@ public class Player : MonoBehaviour {
 	Transform WaterCol = null;
 	LayerMask waterAreaMask;
 
+	[SerializeField]
+	bool camLookDown = false;
+	public bool CamLookDown {
+		get {
+			return camLookDown;
+		}
+		set {
+			camLookDown = value;
+		}
+	}
+
 	void Start() {
 		if (autoClimbJumpMask) climbJumpMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		cameraLookTransform.localRotation = Quaternion.Euler(new Vector3(cameraLookTransform.localRotation.eulerAngles.x, (cameraLookMaxAngle * CameraLookRatio), cameraLookTransform.localRotation.eulerAngles.z));
@@ -589,10 +600,11 @@ public class Player : MonoBehaviour {
 				if (Physics.OverlapBox(noFlyAnimCol.position, noFlyAnimCol.lossyScale * 0.5f, noFlyAnimCol.rotation, noFlyAnimColMask).Length == 0) {
 					flyFlg = true;
 					if (!prevFlyFlg) {
-						Debug.Log("Fly");
 						if (!Lift.IsLifting) {
+							Debug.Log("Fly");
 							PlAnim.StartFly();
 						} else {
+							Debug.Log("HoldFly");
 							PlAnim.StartHoldFly();
 						}
 					}
@@ -1190,9 +1202,10 @@ public class Player : MonoBehaviour {
 
 	void UpdateLookCamera() {
 		// 接地状態で待機状態なら少しカメラ方向を向く
-		if ((Land.IsLanding || land.IsWaterFloatLanding || WaterStt.IsWaterSurface) &&
+		if (!CamLookDown && (
+			(Land.IsLanding || land.IsWaterFloatLanding || WaterStt.IsWaterSurface) &&
 			!(!Lift.IsLifting && Lift.LiftObj) &&	// 持ち上げ/下ろしの最中ならfalse
-			(Mathf.Abs(MoveMng.TotalMove.magnitude) <= cameraLookBorderSpd)) {
+			(Mathf.Abs(MoveMng.TotalMove.magnitude) <= cameraLookBorderSpd))) {
 			CameraLookRatio += (cameraLookRatioSpd * RotVec.x * -(RotVec.y * 2 - 1));
 		}
 		// 移動があればキャラクター進行方向を向く

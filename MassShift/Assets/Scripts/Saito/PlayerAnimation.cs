@@ -630,7 +630,7 @@ public class PlayerAnimation : MonoBehaviour {
 
 	void InitHoldFly() {
 		foreach (var a in mAnimationModel) {
-			GetAnimator(a).CrossFadeInFixedTime("Fly", 0.4f);
+			GetAnimator(a).CrossFadeInFixedTime("HoldFly", 0.4f);
 		}
 	}
 
