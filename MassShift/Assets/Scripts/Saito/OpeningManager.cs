@@ -36,8 +36,14 @@ public class OpeningManager : MonoBehaviour {
 	[SerializeField, Tooltip("カプセルのアニメーション")]
 	Animator mCapsuleAnimator;
 
+	StageTransition mStageTransition;   //ドアフェードに使う
+	SceneFade mSceneFade;	//黒フェードに使う
+
 	// Use this for initialization
 	void Start () {
+
+		mStageTransition = FindObjectOfType<StageTransition>();
+		mSceneFade = FindObjectOfType<SceneFade>();
 
 		//オープニングのコルーチンを開始する
 		StartCoroutine(OpeningCoroutine());
@@ -73,7 +79,20 @@ public class OpeningManager : MonoBehaviour {
 		SoundManager.SPlay(mBGMPrefab);
 
 
-		//TODO:フェードイン
+		//フェードイン
+		//
+
+		//黒フェードでフェードイン
+		mSceneFade.FadeOutStart();
+
+		//フェードインが終わるまで待機
+		while(true) {
+			if(mSceneFade.IsFadeOut() == false) {
+				break;
+			}
+			yield return null;
+		}
+
 
 		//待機
 		yield return new WaitForSeconds(1.0f);
@@ -211,8 +230,24 @@ public class OpeningManager : MonoBehaviour {
 		//画面外に出た後の待機
 		yield return new WaitForSeconds(0.5f);
 
-		//TODO:フェードアウト
 
+		//フェードアウト
+		//
+
+		//ドアフェードで、フェードアウト
+		mStageTransition.CloseDoorParent();
+
+		//フェードインが終わるまで待機
+		while (true) {
+			if (mStageTransition.GetCloseEnd() == true) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//チュートリアルへシーン遷移
+		yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Tutorial-1");
 
 		yield return null;
 	}
