@@ -5328,7 +5328,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 764484175}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &645955391
 Prefab:
@@ -5933,7 +5933,6 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 119962484}
   - {fileID: 833615462}
   - {fileID: 2031560959}
   - {fileID: 1827260052}
@@ -6354,8 +6353,9 @@ Transform:
   - {fileID: 2089945812}
   - {fileID: 265103505}
   - {fileID: 145894743}
+  - {fileID: 119962484}
   m_Father: {fileID: 764484175}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &839905844
 Prefab:
@@ -13016,7 +13016,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4105541603640928, guid: e405de846c95efb45b4fb957a197823b, type: 2}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: e405de846c95efb45b4fb957a197823b, type: 2}
@@ -14406,7 +14406,7 @@ Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 764484175}
+    m_TransformParent: {fileID: 833615462}
     m_Modifications:
     - target: {fileID: 400000, guid: d3285c7f61822234caf381b505245c71, type: 3}
       propertyPath: m_LocalPosition.x
@@ -14438,7 +14438,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: d3285c7f61822234caf381b505245c71, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: d3285c7f61822234caf381b505245c71, type: 3}
       propertyPath: m_LocalScale.x
@@ -14997,7 +14997,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 764484175}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2031852430
 Prefab:
