@@ -27,21 +27,17 @@ public class SceneFade : MonoBehaviour {
         if (isFadeIn) {
             // 単色フェードのコルーチンを開始
             StartCoroutine(SceneFadeIn());
-            Debug.Log("a");
         }
         else {
             StopCoroutine(SceneFadeIn());
-            Debug.Log("b");
         }
 
         if (isFadeOut) {
             // 単色フェードのコルーチンを開始
             StartCoroutine(SceneFadeOut());
-            Debug.Log("c");
         }
         else {
             StopCoroutine(SceneFadeOut());
-            Debug.Log("d");
         }
     }
 
