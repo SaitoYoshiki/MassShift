@@ -27,6 +27,9 @@ public class StageClearDebug : MonoBehaviour {
 	[SerializeField]
 	UnityEngine.UI.Button mNotClearAllButton;
 
+	[SerializeField]
+	UnityEngine.UI.Button mDeleteSaveDataButton;
+
 	// Use this for initialization
 	void Start () {
 		mToggle.onValueChanged.AddListener(ToggleValueChanged);
@@ -36,6 +39,8 @@ public class StageClearDebug : MonoBehaviour {
 		mNotClearButton.onClick.AddListener(NotClear);
 		mClearAllButton.onClick.AddListener(AllClear);
 		mNotClearAllButton.onClick.AddListener(NotAllClear);
+
+		mDeleteSaveDataButton.onClick.AddListener(DeleteSaveData);
 	}
 
 	// Update is called once per frame
@@ -134,5 +139,11 @@ public class StageClearDebug : MonoBehaviour {
 			}
 		}
 		SaveData.Instance.Save();
+	}
+
+	//セーブデータを消去する
+	//
+	void DeleteSaveData() {
+		SaveDataIO.Delete();
 	}
 }

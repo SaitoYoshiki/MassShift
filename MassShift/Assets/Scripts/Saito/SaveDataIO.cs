@@ -128,15 +128,19 @@ public class SaveDataIO {
 		return Application.persistentDataPath + "/savedata.json";
 	}
 
+	public static void Delete() {
+		if (File.Exists(GetSaveFilePath())) {
+			File.Delete(GetSaveFilePath());
+		}
+	}
+
 
 #if UNITY_EDITOR
 
 	//セーブデータを消去する
 	[MenuItem("Edit/DeleteSaveData")]
 	static void DeleteSaveData() {
-		if (File.Exists(GetSaveFilePath())) {
-			File.Delete(GetSaveFilePath());
-		}
+		Delete();
 	}
 
 #endif
