@@ -36,6 +36,11 @@ public class Ending : MonoBehaviour {
 	[SerializeField]
 	float doorInTime = 2.0f;
 
+	[SerializeField]
+	GameObject shiftSoundPrefab = null;
+	[SerializeField]
+	GameObject doorOpenSoundPrefab = null;
+
 	void Start() {
 		// エンディングコルーチン
 		StartCoroutine(EndingCoroutine());
@@ -127,11 +132,14 @@ public class Ending : MonoBehaviour {
 			hermite.SetPoints(shiftFromTrans.position, shiftToTrans.position, midPoint);
 			hermite.EndDestroy = true;
 			particleList.Add(newParticle);
+
+			SoundManager.SPlay(shiftSoundPrefab);
+
 			yield return new WaitForSeconds(particleStandbyTime);
 		}
 
 		// 待機
-		yield return new WaitForSeconds(0.75f);
+		yield return new WaitForSeconds(1.0f);
 
 		// 落下開始
 		boxLockCol.enabled = false;
@@ -162,6 +170,7 @@ public class Ending : MonoBehaviour {
 
 		// 扉を開く
 		doorAnim.Play("Open");
+		SoundManager.SPlay(doorOpenSoundPrefab);
 
 		// 待機
 		yield return new WaitForSeconds(3.0f);
@@ -197,6 +206,12 @@ public class Ending : MonoBehaviour {
 			yield return null;
 		}
 
+		// 待機
+		PlayerAnimation plAnim = pl.GetComponent<PlayerAnimation>();
+		plAnim.StartStandBy();
+		yield return new WaitForSeconds(1.0f);
+		plAnim.StartWalk();
+
 		// 自機を扉の中に移動
 		Camera.main.transform.parent = plTrans;
 		Vector3 defPlPos = plTrans.position;
@@ -212,15 +227,18 @@ public class Ending : MonoBehaviour {
 		}
 
 		// 待機
-		yield return new WaitForSeconds(1.0f);
+		yield return new WaitForSeconds(0.75f);
+
+		// 立ち止まる
+		plAnim.StartStandBy();
 
 		// ムービー帯解除
 		Camera.main.GetComponent<MovieBelt>().IsDisplay = false;
 		while (Camera.main.GetComponent<MovieBelt>().Ratio <= 0.0f) {
 			yield return null;
 		};
-		
-		// シーン遷移
 
+		// シーン遷移
+		((ChangeScene)FindObjectOfType(typeof(ChangeScene))).OnTitleButtonDown();	// タイトルへ
 	}
 }

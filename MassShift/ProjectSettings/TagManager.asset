@@ -10,6 +10,7 @@ TagManager:
   - LiftableObject
   - Button
   - Fan
+  - Area3BackgroundTrigger
   layers:
   - Default
   - TransparentFX

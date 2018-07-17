@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LoopLine : MonoBehaviour {
+public class BackgroundLoopLine : MonoBehaviour {
 	[SerializeField]
 	GameObject linePrefab = null;
 	[SerializeField]
@@ -24,7 +24,7 @@ public class LoopLine : MonoBehaviour {
 		firstTime = Time.time;
 
 		// 最初のオブジェクトを生成
-		instanceList.Add(linePrefab);
+		instanceList.Add(Instantiate(linePrefab));
 		ratioList.Add(0.0f);
 	}
 
@@ -38,7 +38,7 @@ public class LoopLine : MonoBehaviour {
 			// 終了
 			if (ratioList[idx] >= 1.0f) {
 				if (instanceList[idx]) {
-					Destroy(instanceList[idx]);
+					Destroy(instanceList[idx].gameObject);
 				}
 				instanceList.RemoveAt(idx);
 				ratioList.RemoveAt(idx);
