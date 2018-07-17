@@ -142,7 +142,7 @@ public class OpeningManager : MonoBehaviour {
 			lPlayer.transform.position += Vector3.right * Time.deltaTime * cWalkSpeed;
 
 			lTime += Time.deltaTime;
-			if(lTime >= 3.0f) {
+			if(lTime >= 1.5f) {
 				break;	//終了
 			}
 			yield return null;
@@ -202,7 +202,7 @@ public class OpeningManager : MonoBehaviour {
 			lPlayer.transform.position += Vector3.right * Time.deltaTime * cWalkSpeed;
 
 			lTime += Time.deltaTime;
-			if (lTime >= 3.0f) {
+			if (lTime >= 4.5f) {
 				break;  //終了
 			}
 			yield return null;
