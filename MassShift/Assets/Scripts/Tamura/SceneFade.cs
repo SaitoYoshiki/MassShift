@@ -57,13 +57,38 @@ public class SceneFade : MonoBehaviour {
         isFadeIn = true;
     }
 
-    // フェードイン開始
+    public void FadeInStart(float _fadeTime) {
+        // エラー防止
+        if (isFadeIn || isFadeOut) {
+            return;
+        }
+
+        fadeTime = _fadeTime;
+        fadeStartTime = Time.realtimeSinceStartup;
+        fadeColor.a = 0.0f;
+        isFadeIn = true;
+    }
+
+    // フェードアウト開始
     public void FadeOutStart() {
         // エラー防止
         if (isFadeOut || isFadeOut) {
             return;
         }
 
+        fadeStartTime = Time.realtimeSinceStartup;
+        fadeColor.a = 1.0f;
+        isFadeOut = true;
+    }
+
+    // フェードアウト開始
+    public void FadeOutStart(float _fadeTime) {
+        // エラー防止
+        if (isFadeOut || isFadeOut) {
+            return;
+        }
+
+        fadeTime = _fadeTime;
         fadeStartTime = Time.realtimeSinceStartup;
         fadeColor.a = 1.0f;
         isFadeOut = true;

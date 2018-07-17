@@ -49,11 +49,31 @@ public class DoorAnimManager : MonoBehaviour {
         isDoorAnimating = true;
     }
 
+    // ドア開き開始(親から呼び出し)
+    public void StartDoorOpen(float _animTime) {
+        SoundManager.SPlay(doorOpenSEPrefab);
+        foreach (GameObject door in doorList) {
+            door.GetComponent<StageChangeScenematic>().StartOpening(_animTime);
+        }
+
+        isDoorAnimating = true;
+    }
+
     // ドア閉じ開始(親から呼び出し)
     public void StartDoorClose() {
         SoundManager.SPlay(doorCloseSEPrefab);
         foreach (GameObject door in doorList) {
             door.GetComponent<StageChangeScenematic>().StartClosing();
+        }
+
+        isDoorAnimating = true;
+    }
+
+    // ドア閉じ開始(親から呼び出し)
+    public void StartDoorClose(float _animTime) {
+        SoundManager.SPlay(doorCloseSEPrefab);
+        foreach (GameObject door in doorList) {
+            door.GetComponent<StageChangeScenematic>().StartClosing(_animTime);
         }
 
         isDoorAnimating = true;
