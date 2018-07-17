@@ -39,6 +39,17 @@ public class StageTransition : MonoBehaviour {
         }
     }
 
+    // エリアに対応したドアを開ける
+    public void OpenDoorParent(float _animTime) {
+        // 対応したエリアが存在するなら
+        if (area > 0) {
+            door[area - 1].GetComponent<DoorAnimManager>().StartDoorOpen(_animTime);
+        }
+        else {
+            door[0].GetComponent<DoorAnimManager>().StartDoorOpen(_animTime);
+        }
+    }
+
     // エリアに対応したドアを閉じる
     public void CloseDoorParent() {
         // 対応したエリアが存在するなら
@@ -47,6 +58,17 @@ public class StageTransition : MonoBehaviour {
         }
         else {
             door[0].GetComponent<DoorAnimManager>().StartDoorClose();
+        }
+    }
+
+    // エリアに対応したドアを閉じる
+    public void CloseDoorParent(float _animTime) {
+        // 対応したエリアが存在するなら
+        if (area > 0) {
+            door[area - 1].GetComponent<DoorAnimManager>().StartDoorClose(_animTime);
+        }
+        else {
+            door[0].GetComponent<DoorAnimManager>().StartDoorClose(_animTime);
         }
     }
 

@@ -51,6 +51,7 @@ public class SaveData {
 	public class EventDoneFlag {
 		public bool mArea2Open;   //エリア2に行けるよう
 		public bool mArea3Open;   //エリア3に行けるよう
+		public bool mArea4Open;   //エリア4に行けるよう
 	}
 	public EventDoneFlag mEventDoneFlag;    //イベントを行ったかどうかのフラグ
 
