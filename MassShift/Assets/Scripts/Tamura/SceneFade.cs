@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class SceneFade : MonoBehaviour {
-    /*[SerializeField]
+    [SerializeField]
     Image fadeImage;
 
     [SerializeField]
@@ -14,8 +14,8 @@ public class SceneFade : MonoBehaviour {
     [SerializeField]
     Color fadeColor;
 
-    bool isFadeIn;
-    bool isFadeOut;
+    bool isFadeIn = false;
+    bool isFadeOut = false;
 
     // 初期化
     void Start() {
@@ -24,52 +24,91 @@ public class SceneFade : MonoBehaviour {
     }
 
     void Update() {
-        if (isFading) {
+        if (isFadeIn) {
             // 単色フェードのコルーチンを開始
             StartCoroutine(SceneFadeIn());
+            Debug.Log("a");
         }
         else {
             StopCoroutine(SceneFadeIn());
+            Debug.Log("b");
+        }
+
+        if (isFadeOut) {
+            // 単色フェードのコルーチンを開始
+            StartCoroutine(SceneFadeOut());
+            Debug.Log("c");
+        }
+        else {
+            StopCoroutine(SceneFadeOut());
+            Debug.Log("d");
         }
     }
 
-    // フェード開始
-    public override void FadeStart() {
+    // フェードイン開始
+    public void FadeInStart() {
         // エラー防止
-        if (isFading || !isFadeEnd) {
+        if (isFadeIn || isFadeOut) {
             return;
         }
 
-        isFading = true;
+        fadeStartTime = Time.realtimeSinceStartup;
+        fadeColor.a = 0.0f;
+        isFadeIn = true;
+    }
+
+    // フェードイン開始
+    public void FadeOutStart() {
+        // エラー防止
+        if (isFadeOut || isFadeOut) {
+            return;
+        }
+
+        fadeStartTime = Time.realtimeSinceStartup;
+        fadeColor.a = 1.0f;
+        isFadeOut = true;
     }
 
     // フェードイン/アウト
-    IEnumerator SceneFade() {
-        if (!isFadeEnd) {
-            // フェードイン処理
-            fadeColor.a += 1.0f * (Time.deltaTime / fadeTime);
-            fadeImage.color = fadeColor;
-            if (fadeColor.a >= 1.0f) {
-                fadeColor.a = 1.0f;
-                isFadeEnd = true;
-            }
+    IEnumerator SceneFadeIn() {
+        float nowTime = Time.realtimeSinceStartup - fadeStartTime;
+        float timePer = nowTime / fadeTime;
 
-            yield return null;
-        }
-        else {
-            // フェードアウト処理
-            fadeColor.a -= 1.0f * (Time.deltaTime / fadeTime);
-            fadeImage.color = fadeColor;
-            if (fadeColor.a <= 0.0f) {
-                fadeColor.a = 0.0f;
-                isFading = false;
-            }
+        Debug.Log("rt" + Time.realtimeSinceStartup);
+        Debug.Log("nt" + nowTime);
+        Debug.Log("tp" + timePer);
 
-            yield return null;
+        // フェードイン処理
+        fadeColor.a = timePer;
+        fadeImage.color = fadeColor;
+        if (fadeColor.a >= 1.0f) {
+            fadeColor.a = 1.0f;
+            isFadeIn = false;
         }
+
+        yield return null;
     }
 
-    public bool IsFading() {
-        return isFading;
-    }*/
+    IEnumerator SceneFadeOut() {
+        float nowTime = Time.realtimeSinceStartup - fadeStartTime;
+        float timePer = nowTime / fadeTime;
+
+        // フェードアウト処理
+        fadeColor.a = 1.0f - timePer;
+        fadeImage.color = fadeColor;
+        if (fadeColor.a <= 0.0f) {
+            fadeColor.a = 0.0f;
+            isFadeOut = false;
+        }
+
+        yield return null;
+    }
+
+    public bool IsFadeIn() {
+        return isFadeIn;
+    }
+
+    public bool IsFadeOut() {
+        return isFadeOut;
+    }
 }
