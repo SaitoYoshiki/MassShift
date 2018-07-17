@@ -35,11 +35,20 @@ public class Ending : MonoBehaviour {
 	float doorLookTime = 1.0f;
 	[SerializeField]
 	float doorInTime = 2.0f;
+	[SerializeField]
+	float shiftHopForce = 25.0f;
 
 	[SerializeField]
 	GameObject shiftSoundPrefab = null;
 	[SerializeField]
 	GameObject doorOpenSoundPrefab = null;
+
+	[SerializeField]
+	Transform sizeUpParticle = null;
+	[SerializeField]
+	float sizeUpMin = 1.0f;
+	[SerializeField]
+	float sizeUpMax = 1.0f;
 
 	void Start() {
 		// エンディングコルーチン
@@ -119,7 +128,11 @@ public class Ending : MonoBehaviour {
 		Vector3 center = ((shiftFromTrans.position + shiftToTrans.position) * 0.5f);
 		Vector3 pointA = new Vector3(((shiftFromTrans.position.x - center.x) * particleRandomVec + center.x), ((shiftToTrans.position.y - center.y) * particleRandomVec + center.y), center.z);
 		Vector3 pointB = new Vector3(((shiftToTrans.position.x - center.x) * particleRandomVec + center.x), ((shiftFromTrans.position.y - center.y) * particleRandomVec + center.y), center.z);
+		float lastWaitTime = Time.time;
+		int endCnt = 1;
+		SetSizeUpParticle((float)endCnt / (float)particleNum);
 		for (int cnt = 1; cnt < particleNum; cnt++) {
+
 			GameObject newParticle = Instantiate(shiftParticle);
 			hermite = newParticle.AddComponent<HermiteCurveMove>();
 
@@ -127,7 +140,7 @@ public class Ending : MonoBehaviour {
 			//Vector3 midPoint = ((pointA * ratio) + (pointB * (1.0f - ratio)));
 
 			Vector3 vec = new Vector3((Random.value * 2.0f - 1.0f), (Random.value * 2.0f - 1.0f), 0.0f).normalized;
-			Vector3 midPoint = (shiftFromTrans.position) + vec * 25.0f;
+			Vector3 midPoint = (shiftFromTrans.position) + vec * shiftHopForce;
 
 			hermite.SetPoints(shiftFromTrans.position, shiftToTrans.position, midPoint);
 			hermite.EndDestroy = true;
@@ -135,11 +148,32 @@ public class Ending : MonoBehaviour {
 
 			SoundManager.SPlay(shiftSoundPrefab);
 
-			yield return new WaitForSeconds(particleStandbyTime);
+			while (Time.time < (lastWaitTime + particleStandbyTime)) {
+				// 終了したパーティクルをカウント
+				while ((particleList.Count > 0) && !particleList[0]) {
+					particleList.RemoveAt(0);
+					endCnt++;
+					SetSizeUpParticle((float)endCnt / (float)particleNum);
+				}
+				yield return null;
+			}
+			lastWaitTime = Time.time;
+			//yield return new WaitForSeconds(particleStandbyTime);
 		}
 
 		// 待機
-		yield return new WaitForSeconds(1.0f);
+		lastWaitTime = Time.time;
+		while (endCnt < (particleNum - 1)) {
+			// 終了したパーティクルをカウント
+			while ((particleList.Count > 0) && !particleList[0]) {
+				particleList.RemoveAt(0);
+				endCnt++;
+				SetSizeUpParticle((float)endCnt / (float)particleNum);
+				lastWaitTime = Time.time;
+			}
+			yield return null;
+		}
+		SetSizeUpParticle(1.0f);
 
 		// 落下開始
 		boxLockCol.enabled = false;
@@ -240,5 +274,9 @@ public class Ending : MonoBehaviour {
 
 		// シーン遷移
 		((ChangeScene)FindObjectOfType(typeof(ChangeScene))).OnTitleButtonDown();	// タイトルへ
+	}
+
+	void SetSizeUpParticle(float _ratio) {
+		sizeUpParticle.localScale = Vector3.one * Mathf.Lerp(sizeUpMin, sizeUpMax, _ratio);
 	}
 }
