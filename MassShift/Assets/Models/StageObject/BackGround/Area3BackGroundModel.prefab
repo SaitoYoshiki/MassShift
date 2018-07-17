@@ -430,7 +430,7 @@ MonoBehaviour:
   aftMat: {fileID: 2100000, guid: 3cf0268a32bb51f469d9f5826a05a6d6, type: 2}
   ratio: 0
   beginTime: 0
-  ratioUpTime: 0.2
+  ratioUpTime: 1
   holdTime: 0.5
   ratioDownTime: 1
   spanTimeMin: 1
@@ -452,7 +452,7 @@ MonoBehaviour:
   aftMat: {fileID: 2100000, guid: 3cf0268a32bb51f469d9f5826a05a6d6, type: 2}
   ratio: 0
   beginTime: 0
-  ratioUpTime: 0.2
+  ratioUpTime: 1
   holdTime: 0.5
   ratioDownTime: 1
   spanTimeMin: 1
@@ -474,7 +474,7 @@ MonoBehaviour:
   aftMat: {fileID: 2100000, guid: 3cf0268a32bb51f469d9f5826a05a6d6, type: 2}
   ratio: 0
   beginTime: 0
-  ratioUpTime: 0.2
+  ratioUpTime: 1
   holdTime: 0.5
   ratioDownTime: 1
   spanTimeMin: 1
@@ -496,7 +496,7 @@ MonoBehaviour:
   aftMat: {fileID: 2100000, guid: 3cf0268a32bb51f469d9f5826a05a6d6, type: 2}
   ratio: 0
   beginTime: 0
-  ratioUpTime: 0.2
+  ratioUpTime: 1
   holdTime: 0.5
   ratioDownTime: 1
   spanTimeMin: 1

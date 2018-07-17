@@ -2848,7 +2848,7 @@ Transform:
   m_LocalScale: {x: 0.049999997, y: 0.050000027, z: 0.050000027}
   m_Children: []
   m_Father: {fileID: 1278952829}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!135 &379584851
 SphereCollider:
@@ -2879,7 +2879,7 @@ MonoBehaviour:
   aftMat: {fileID: 2100000, guid: 3cf0268a32bb51f469d9f5826a05a6d6, type: 2}
   ratio: 0
   beginTime: 0
-  ratioUpTime: 0.2
+  ratioUpTime: 1
   holdTime: 0.5
   ratioDownTime: 1
   spanTimeMin: 1
@@ -3813,7 +3813,7 @@ MonoBehaviour:
   aftMat: {fileID: 2100000, guid: 3cf0268a32bb51f469d9f5826a05a6d6, type: 2}
   ratio: 0
   beginTime: 0
-  ratioUpTime: 0.2
+  ratioUpTime: 1
   holdTime: 0.5
   ratioDownTime: 1
   spanTimeMin: 1
@@ -7221,7 +7221,7 @@ Transform:
   m_LocalScale: {x: 0.049999997, y: 0.050000027, z: 0.050000027}
   m_Children: []
   m_Father: {fileID: 1278952829}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!135 &1118713647
 SphereCollider:
@@ -7252,7 +7252,7 @@ MonoBehaviour:
   aftMat: {fileID: 2100000, guid: 3cf0268a32bb51f469d9f5826a05a6d6, type: 2}
   ratio: 0
   beginTime: 0
-  ratioUpTime: 0.2
+  ratioUpTime: 1
   holdTime: 0.5
   ratioDownTime: 1
   spanTimeMin: 1
@@ -8443,8 +8443,8 @@ Transform:
   - {fileID: 1776237297}
   - {fileID: 1526430174}
   - {fileID: 591533367}
-  - {fileID: 379584850}
   - {fileID: 1118713646}
+  - {fileID: 379584850}
   m_Father: {fileID: 1044437498}
   m_RootOrder: 51
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10091,7 +10091,7 @@ MonoBehaviour:
   aftMat: {fileID: 2100000, guid: 3cf0268a32bb51f469d9f5826a05a6d6, type: 2}
   ratio: 0
   beginTime: 0
-  ratioUpTime: 0.2
+  ratioUpTime: 1
   holdTime: 0.5
   ratioDownTime: 1
   spanTimeMin: 1
@@ -11392,7 +11392,7 @@ MonoBehaviour:
   aftMat: {fileID: 2100000, guid: 3cf0268a32bb51f469d9f5826a05a6d6, type: 2}
   ratio: 0
   beginTime: 0
-  ratioUpTime: 0.2
+  ratioUpTime: 1
   holdTime: 0.5
   ratioDownTime: 1
   spanTimeMin: 1
@@ -11512,6 +11512,21 @@ Prefab:
     - target: {fileID: 4937255056195262, guid: 477f4bd5e771f354986d649550e31fac, type: 2}
       propertyPath: m_LocalPosition.x
       value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114205331281042090, guid: 477f4bd5e771f354986d649550e31fac,
+        type: 2}
+      propertyPath: ratioUpTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114760506380641856, guid: 477f4bd5e771f354986d649550e31fac,
+        type: 2}
+      propertyPath: ratioUpTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114047803028062508, guid: 477f4bd5e771f354986d649550e31fac,
+        type: 2}
+      propertyPath: ratioUpTime
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 477f4bd5e771f354986d649550e31fac, type: 2}
