@@ -17,6 +17,14 @@ public class WeightEffect : MonoBehaviour {
 
 	// Use this for initialization
 	void OnEnable () {
+		Init();
+	}
+
+	private void Start() {
+		Init();
+	}
+
+	void Init() {
 		mWeightManager = GetComponent<WeightManager>();
 		mBeforeWeight = mWeightManager.WeightLvSeem;    //見かけの重さでエフェクトを出す
 		OnWeightChange(mBeforeWeight);
