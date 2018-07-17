@@ -150,8 +150,12 @@ public class GameManager : MonoBehaviour {
 		CanMovePlayer(true);
 		CanJumpPlayer(true);
 
-        if (mPause != null) {
+        // エンディングならポーズ不可
+        if (mPause != null && SceneManager.GetActiveScene().name != "Ending") {
             mPause.canPause = true;
+        }
+        else {
+
         }
 
 		//カメラのズームアウトを始める
