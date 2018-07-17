@@ -21,6 +21,9 @@ public class StageSelectManager : MonoBehaviour {
 	[SerializeField]
 	Color mStagePlateOffColor;
 
+    [SerializeField]
+    Color mStagePlateClearedColor;
+
 	StageTransition mTransition;
 	Pause mPause;
 	StageSelectScroll mStageSelectScroll;
@@ -726,8 +729,19 @@ public class StageSelectManager : MonoBehaviour {
 	}
 
 	void SetEnterColor(int aIndex) {
+        int index = 0;
 		foreach(var t in mText) {
-			t.color = mStagePlateOffColor;
+            // ステージがクリア済みなら
+            if (ScoreManager.Instance.ShiftTimes((index / 5) + 1, (index % 5) + 1) != -1) {
+                // ステージ名の色を変える
+                t.color = mStagePlateClearedColor;
+            }
+            else{
+                // ステージ名の色を灰色に
+                t.color = mStagePlateOffColor;
+            }
+
+            index++;
 		}
 		if (aIndex == -1) return;
 		mText[aIndex].color = mStagePlateOnColor;

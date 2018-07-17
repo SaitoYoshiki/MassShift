@@ -71,7 +71,9 @@ public class GameManager : MonoBehaviour {
 
 		//ポーズ画面から来たら、ポーズを戻す
 		Time.timeScale = 1.0f;
-		mPause.pauseEvent.Invoke();
+        if (mPause != null) {
+            mPause.pauseEvent.Invoke();
+        }
 
         //ゲーム進行のコルーチンを開始
         StartCoroutine(GameMain());
@@ -105,8 +107,10 @@ public class GameManager : MonoBehaviour {
 		CanMovePlayer(false);
 		CanJumpPlayer(false);
 		OnCanShiftOperation(false);
-		mPause.canPause = false;
 
+        if (mPause != null) {
+            mPause.canPause = false;
+        }
 
 		//BGMを再生する
 		int lAreaNumber = Area.GetAreaNumber();
@@ -121,14 +125,16 @@ public class GameManager : MonoBehaviour {
 
 		// タイトルシーンからの遷移かチュートリアルでなければ
         if (!cameraMove.fromTitle && Area.GetAreaNumber() != 0) {
-			//ステージ開始時の演出
-			mTransition.OpenDoorParent();
+            if (mTransition != null) {
+                //ステージ開始時の演出
+                mTransition.OpenDoorParent();
 
-			//演出が終了するまで待機
-			while (true) {
-				if (mTransition.GetOpenEnd()) break;
-				yield return null;
-			}
+                //演出が終了するまで待機
+                while (true) {
+                    if (mTransition.GetOpenEnd()) break;
+                    yield return null;
+                }
+            }
 		}
 		else {
 			cameraMove.fromTitle = false;
@@ -143,7 +149,10 @@ public class GameManager : MonoBehaviour {
 		//プレイヤーが操作可能になる
 		CanMovePlayer(true);
 		CanJumpPlayer(true);
-		mPause.canPause = true;
+
+        if (mPause != null) {
+            mPause.canPause = true;
+        }
 
 		//カメラのズームアウトを始める
 		mCameraMove.MoveStart();
@@ -158,15 +167,17 @@ public class GameManager : MonoBehaviour {
 				mCameraMove.IsMoveEnd = false;
 			}
 
-			//ポーズ中なら
-			if(mPause.pauseFlg) {
-				//mMassShift.CanShift = false;
-				Cursor.visible = true;
-			}
-			else {
-				//mMassShift.CanShift = true;
-				Cursor.visible = false;
-			}
+            if (mPause != null) {
+                //ポーズ中なら
+                if (mPause.pauseFlg) {
+                    //mMassShift.CanShift = false;
+                    Cursor.visible = true;
+                }
+                else {
+                    //mMassShift.CanShift = true;
+                    Cursor.visible = false;
+                }
+            }
 
 			//ゴール判定
 			//
@@ -179,7 +190,9 @@ public class GameManager : MonoBehaviour {
 
 		//重さを移せないようにする
 		OnCanShiftOperation(false);
-		mPause.canPause = false;
+        if (mPause != null) {
+            mPause.canPause = false;
+        }
 
 		//プレイヤーを操作不可にする
 		CanInputPlayer(false);

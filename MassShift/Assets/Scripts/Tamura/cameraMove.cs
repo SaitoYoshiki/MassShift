@@ -245,7 +245,7 @@ public class cameraMove : MonoBehaviour {
     }
 
     void SwitchLoadingImage(float _loadtime) {
-        int timeStage = (int)((_loadtime % 1.0f) * 4);
+        int timeStage = (int)((_loadtime % 0.8f) * 5);
         cli.ChangeImage(timeStage);
     }
 }
