@@ -245,6 +245,13 @@ public class StageSelectManager : MonoBehaviour {
 			SaveData.Instance.Save();	//ファイルにセーブ
 		}
 
+		//エリア4が開放されているが、エリア4の開放イベントが行われていない場合
+		if (Area.CanGoArea(4) && SaveData.Instance.mEventDoneFlag.mArea4Open == false) {
+			yield return AreaOpenEvent(4);
+			SaveData.Instance.mEventDoneFlag.mArea4Open = true; //イベントを行った
+			SaveData.Instance.Save();   //ファイルにセーブ
+		}
+
 
 		//カメラのズームアウトを始める
 		mCameraMove.MoveStart();
@@ -378,6 +385,13 @@ public class StageSelectManager : MonoBehaviour {
 		if (Area.CanGoArea(3) && SaveData.Instance.mEventDoneFlag.mArea3Open == false) {
 			yield return AreaOpenEvent(3);
 			SaveData.Instance.mEventDoneFlag.mArea3Open = true; //イベントを行った
+			SaveData.Instance.Save();   //ファイルにセーブ
+		}
+
+		//エリア4が開放されているが、エリア4の開放イベントが行われていない場合
+		if (Area.CanGoArea(4) && SaveData.Instance.mEventDoneFlag.mArea4Open == false) {
+			yield return AreaOpenEvent(4);
+			SaveData.Instance.mEventDoneFlag.mArea4Open = true; //イベントを行った
 			SaveData.Instance.Save();   //ファイルにセーブ
 		}
 
@@ -726,8 +740,9 @@ public class StageSelectManager : MonoBehaviour {
 		//エラーチェック
 		if (aAreaNumber == 2) {}
 		else if (aAreaNumber == 3) {}
+		else if (aAreaNumber == 4) { }
 		else {
-			Debug.LogError("エリア2、エリア3以外でエリア開放イベントが呼ばれました", this);
+			Debug.LogError("エリア2、エリア3、エリア4以外でエリア開放イベントが呼ばれました", this);
 		}
 
 
@@ -753,6 +768,11 @@ public class StageSelectManager : MonoBehaviour {
 		//エリア3の開放演出なら
 		else if (aAreaNumber == 3) {
 			lEventCameraPosition = mBottomStaticWeightBox.transform.position;
+			lEventCameraPosition.z = 35.0f;
+		}
+		//エリア4の開放演出なら
+		else if (aAreaNumber == 4) {
+			lEventCameraPosition = mGoal[0].transform.position;
 			lEventCameraPosition.z = 35.0f;
 		}
 
@@ -826,7 +846,14 @@ public class StageSelectManager : MonoBehaviour {
 			}
 
 		}
+		else if (aAreaNumber == 4) {
 
+			//
+			//ドアが壁からにゅるっと出てくる
+			//
+
+			Debug.Log("ドアがにゅるっと");
+		}
 
 
 		//
@@ -866,6 +893,14 @@ public class StageSelectManager : MonoBehaviour {
 			mBottomStaticWeightBox.SetActive(false);
 		}
 
+		//エリア4に行けて、エリア開放演出も終わっている場合
+		if (Area.CanGoArea(4) == true && SaveData.Instance.mEventDoneFlag.mArea4Open == true) {
+			//ToDo ドアに重なっている背景を消す
+		}
+		else {
+			//ToDo ドアをかなり奥にやって消す
+		}
+
 		//もしエリア開放イベントがされていなかったら、ボックスを出さないようにしておく
 		if (SaveData.Instance.mEventDoneFlag.mArea2Open == false) {
 			mTopStaticWeightBox.SetActive(false);
@@ -873,7 +908,6 @@ public class StageSelectManager : MonoBehaviour {
 		if (SaveData.Instance.mEventDoneFlag.mArea3Open == false) {
 			mBottomStaticWeightBox.SetActive(false);
 		}
-
 	}
 
 	
