@@ -114,8 +114,18 @@ public class GameManager : MonoBehaviour {
 
 		//BGMを再生する
 		int lAreaNumber = Area.GetAreaNumber();
-		if (lAreaNumber != -1) {
-			GameObject lBGMPrefab = mAreaBGM[lAreaNumber];
+		if(lAreaNumber == -1) {
+
+		}
+		else {
+			GameObject lBGMPrefab = null;
+
+			if(lAreaNumber <= 3) {
+				lBGMPrefab = mAreaBGM[lAreaNumber];
+			}
+			else if(lAreaNumber == 4) {
+				lBGMPrefab = mAreaBGM[3];
+			}
 
 			//BGMを流し始める
 			mBGMInstance = SoundManager.SPlay(lBGMPrefab);

@@ -7,6 +7,16 @@ public class StageSelectManager : MonoBehaviour {
 	[SerializeField]
 	List<Goal> mGoal;
 
+	[SerializeField, Tooltip("エリア1からExエリアに行くドア")]
+	Goal mArea1ToExDoor;
+
+	[SerializeField, Tooltip("エリア1からExエリアに行くドアに重なっている背景")]
+	GameObject mArea1ToExDoorBackGround;
+
+	[SerializeField, Tooltip("Exエリアからエリア1に行くドア")]
+	Goal mExToArea1Door;
+
+
 	[SerializeField]
 	List<TextMesh> mText;
 
@@ -772,8 +782,9 @@ public class StageSelectManager : MonoBehaviour {
 		}
 		//エリア4の開放演出なら
 		else if (aAreaNumber == 4) {
-			lEventCameraPosition = mGoal[0].transform.position;
+			lEventCameraPosition = mArea1ToExDoor.transform.position;
 			lEventCameraPosition.z = 35.0f;
+			lEventCameraPosition.y += 1.0f;
 		}
 
 		//移動の情報の設定
@@ -819,6 +830,8 @@ public class StageSelectManager : MonoBehaviour {
 				}
 				yield return null;
 			}
+
+			yield return new WaitForSeconds(1.0f);
 		}
 		else if (aAreaNumber == 3) {
 
@@ -845,6 +858,8 @@ public class StageSelectManager : MonoBehaviour {
 				yield return null;
 			}
 
+			yield return new WaitForSeconds(1.0f);
+
 		}
 		else if (aAreaNumber == 4) {
 
@@ -852,7 +867,60 @@ public class StageSelectManager : MonoBehaviour {
 			//ドアが壁からにゅるっと出てくる
 			//
 
-			Debug.Log("ドアがにゅるっと");
+			/*にゅるっと出すと、背景に透過部分があるのでおかしな見た目になってしまう
+
+			mArea1ToExDoor.gameObject.SetActive(true);
+
+			Vector3 lStart = mArea1ToExDoor.transform.position;
+			lStart.z += 2.0f;
+			Vector3 lEnd = mArea1ToExDoor.transform.position;
+
+			float lTime = 0.0f;
+			const float cTakeTime = 3.0f;
+			while (true) {
+				lTime += Time.deltaTime;
+
+				mArea1ToExDoor.transform.position = Vector3.Lerp(lStart, lEnd, Mathf.Clamp01(lTime / cTakeTime));
+
+				if (lTime >= cTakeTime) {
+					break;
+				}
+				yield return null;
+			}
+
+
+			//背景を奥にする
+			//
+
+			lStart = mArea1ToExDoorBackGround.transform.position;
+			lEnd = mArea1ToExDoorBackGround.transform.position;
+			lEnd.z += 2.0f;
+
+			lTime = 0.0f;
+			const float cTakeTimeBackGround = 1.0f;
+			while (true) {
+				lTime += Time.deltaTime;
+
+				mArea1ToExDoorBackGround.transform.position = Vector3.Lerp(lStart, lEnd, Mathf.Clamp01(lTime / cTakeTimeBackGround));
+
+				if (lTime >= cTakeTimeBackGround) {
+					break;
+				}
+				yield return null;
+			}
+
+			*/
+
+			//
+			//ドアと背景を入れ替える
+			//
+
+			yield return new WaitForSeconds(1.0f);
+
+			mArea1ToExDoor.gameObject.SetActive(true);
+			mArea1ToExDoorBackGround.gameObject.SetActive(false);
+
+			yield return new WaitForSeconds(1.0f);
 		}
 
 
@@ -895,10 +963,12 @@ public class StageSelectManager : MonoBehaviour {
 
 		//エリア4に行けて、エリア開放演出も終わっている場合
 		if (Area.CanGoArea(4) == true && SaveData.Instance.mEventDoneFlag.mArea4Open == true) {
-			//ToDo ドアに重なっている背景を消す
+			//ドアに重なっている背景を消す
+			mArea1ToExDoorBackGround.gameObject.SetActive(false);
 		}
 		else {
-			//ToDo ドアをかなり奥にやって消す
+			//ドアを消す
+			mArea1ToExDoor.gameObject.SetActive(false);
 		}
 
 		//もしエリア開放イベントがされていなかったら、ボックスを出さないようにしておく
