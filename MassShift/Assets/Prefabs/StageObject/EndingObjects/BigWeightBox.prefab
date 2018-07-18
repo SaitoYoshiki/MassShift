@@ -1162,11 +1162,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4de8a8ec26a248a43937996db716d10e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mFlyingParticlePrefab: {fileID: 1587012052956802, guid: 02b2b75e212761343977af2b152bdad3,
+  mFlyingParticlePrefab: {fileID: 1096024616955784, guid: 06b6e198c57418941b85514d54fca415,
     type: 2}
-  mLightParticlePrefab: {fileID: 1587012052956802, guid: 02b2b75e212761343977af2b152bdad3,
+  mLightParticlePrefab: {fileID: 1096024616955784, guid: 06b6e198c57418941b85514d54fca415,
     type: 2}
-  mHeavyParticlePrefab: {fileID: 1587012052956802, guid: 02b2b75e212761343977af2b152bdad3,
+  mHeavyParticlePrefab: {fileID: 1096024616955784, guid: 06b6e198c57418941b85514d54fca415,
     type: 2}
   mParticleParent: {fileID: 1295604573305022}
   mHilightModel: {fileID: 1703115477758632}
