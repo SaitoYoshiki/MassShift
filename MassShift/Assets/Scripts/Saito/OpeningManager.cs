@@ -112,7 +112,7 @@ public class OpeningManager : MonoBehaviour {
 		lPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cStandBy);
 
 		//待機
-		yield return new WaitForSeconds(1.0f);
+		yield return new WaitForSeconds(3.0f);
 
 
 		//
@@ -179,7 +179,7 @@ public class OpeningManager : MonoBehaviour {
 		//
 
 		//見回すアニメーションの再生
-		lPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cSwim);
+		lPlayer.GetComponent<PlayerAnimation>().StartFind();
 
 		//待機
 		yield return new WaitForSeconds(1.5f);
@@ -189,9 +189,6 @@ public class OpeningManager : MonoBehaviour {
 		//脱出マークを見つけて驚く処理
 		//
 
-		//発見して驚く
-		lPlayer.GetComponent<PlayerAnimation>().ChangeState(PlayerAnimation.CState.cRelease);
-
 		//驚く音の再生
 		SoundManager.SPlay(mSurpriseSEPrefab);
 
@@ -199,7 +196,7 @@ public class OpeningManager : MonoBehaviour {
 		mSurpriseIcon.SetActive(true);
 
 		//驚いている間、待機
-		yield return new WaitForSeconds(1.5f);
+		yield return new WaitForSeconds(2.5f);
 
 		//驚くアイコンの表示
 		mSurpriseIcon.SetActive(false);
