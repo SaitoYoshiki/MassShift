@@ -14,8 +14,14 @@ public class MonoColorFade : MyFade {
 
     // 初期化
     void Start() {
-        isFading = true;
-        isFadeEnd = false;
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Ending" && Area.GetAreaNumber() != 0) {
+            isFading = true;
+            isFadeEnd = false;
+        }
+        else {
+            isFading = false;
+            isFadeEnd = true;
+        }
 
         fadeColor.a = 0.0f;
         fadeObject.GetComponent<Text>().color = fadeColor;

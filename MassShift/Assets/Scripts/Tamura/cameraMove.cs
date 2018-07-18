@@ -22,10 +22,15 @@ public class cameraMove : MonoBehaviour {
     GameObject stageselect;
 
     [SerializeField]
+    GameObject loadingCanvas;
+
+    [SerializeField]
+    GameObject SmallButtons;
+
+    [SerializeField]
     PlayerAnimation pa;
 
     StageTransition st;
-    ChangeScene cs;
 
     float startZoomTime;
     float nowZoomTime;
@@ -49,15 +54,15 @@ public class cameraMove : MonoBehaviour {
     //Color endLightColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
     //float colorPer = 0.0f;
 
-	void Start () {
+    float loadStartTime;
+    ChangeLoadingImage cli;
+
+	void Start() {
         Time.timeScale = 1.0f;
 
         this.transform.position = cameraStartPoint;
         st = GameObject.Find("StageChangeCanvas").GetComponent<StageTransition>();
         st.gameObject.SetActive(false);
-        cs = GameObject.Find("UIObject").GetComponent<ChangeScene>();
-
-        //RenderSettings.ambientSkyColor = startLightColor;
 	}
 
     void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
@@ -122,6 +127,7 @@ public class cameraMove : MonoBehaviour {
                 oldZoomInFlg = zoomInFlg;
                 tutorial.SetActive(true);
                 stageselect.SetActive(true);
+                SmallButtons.SetActive(true);
             }
         }
         // ズームイン中なら
@@ -178,7 +184,7 @@ public class cameraMove : MonoBehaviour {
         title.SetActive(false);
         tutorial.SetActive(false);
         stageselect.SetActive(false);
-
+        SmallButtons.SetActive(false);
         //RenderSettings.ambientSkyColor = endLightColor;
 
         fromTitle = true;
@@ -204,6 +210,11 @@ public class cameraMove : MonoBehaviour {
         titleEndFlg = true;
         TutorialActive = SceneManager.LoadSceneAsync("Tutorial-1", LoadSceneMode.Single);
         TutorialActive.allowSceneActivation = false;
+
+        loadingCanvas.SetActive(true);
+        cli = FindObjectOfType<ChangeLoadingImage>();
+        loadStartTime = Time.realtimeSinceStartup;
+        StartCoroutine(CheckProgress(TutorialActive));
     }
 
     public void OnStageSelectSelected() {
@@ -212,10 +223,29 @@ public class cameraMove : MonoBehaviour {
         titleEndFlg = true;
         StageSelectActive = SceneManager.LoadSceneAsync("StageSelect", LoadSceneMode.Single);
         StageSelectActive.allowSceneActivation = false;
-        //colorPer = 0.01f;
 
-        //SceneManager.sceneLoaded += OnSceneLoaded;
+        loadingCanvas.SetActive(true);
+        cli = FindObjectOfType<ChangeLoadingImage>();
+        loadStartTime = Time.realtimeSinceStartup;
+        StartCoroutine(CheckProgress(StageSelectActive));
     }
 
-    // チュートリアル1の部屋と、ステージセレクト前の部屋を同じサイズにして、カメラ引きの位置は同じにする
+    // ロードの進捗(0～0.9)を出力
+    IEnumerator CheckProgress(AsyncOperation _aop) {
+        while (!_aop.isDone) {
+            float loadtime = Time.realtimeSinceStartup - loadStartTime;
+            Debug.Log(loadtime);
+
+            SwitchLoadingImage(loadtime);
+
+            // ロード進捗を表示
+            cli.ChangeText(_aop.progress);
+            yield return null;
+        }
+    }
+
+    void SwitchLoadingImage(float _loadtime) {
+        int timeStage = (int)((_loadtime % 0.8f) * 5);
+        cli.ChangeImage(timeStage);
+    }
 }

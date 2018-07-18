@@ -1108,6 +1108,21 @@ public class MassShift : MonoBehaviour
 
 	#region Input
 
+	//入力を、スクリプトから上書きするかどうか
+	//
+	public bool mOverrideInputFromScript = false;
+
+	//クリック入力がされているか
+	//
+	public bool mInputClick = false;
+
+
+	//カーソルの位置を設定する
+	//
+	public void SetCursorPosition(Vector3 aPosition) {
+		mCursor.transform.position = aPosition;
+	}
+
 	void UpdateClickRightClick() {
 
 		if (mInitState == true) {
@@ -1169,6 +1184,9 @@ public class MassShift : MonoBehaviour
 			return Input.GetAxis("JoyShift") >= mShiftOnValue;
 		}
 		*/
+		if(mOverrideInputFromScript) {
+			return mInputClick;
+		}
 		return Input.GetKey(KeyCode.Mouse0);
 	}
 	bool GetDoubleShiftButton() {
@@ -1189,6 +1207,7 @@ public class MassShift : MonoBehaviour
 	}
 
 	void MoveCursor() {
+		if (mOverrideInputFromScript) return;	//入力をスクリプトから上書きするなら、更新しない
 		MoveCursorByMouse();    //マウスで動かす
 	}
 

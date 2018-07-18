@@ -5,22 +5,25 @@ using System.Text.RegularExpressions;
 
 public class Area {
 
-	readonly int mTutorialNum = 3;	//チュートリアルのステージ数
+	readonly int mTutorialNum = 3;  //チュートリアルのステージ数
 
 	readonly List<int> mStageNum = new List<int>() {
 		5,	//エリア１
 		5,	//エリア２
-		5	//エリア３
+		5,	//エリア３
+		4	//最終エリア
 	};
 
 	const string cTutorialSceneName = "Tutorial-{0}";
 	const string cStageSceneName = "Stage{0}-{1}";
 
+	const string cFinalStageSceneName = "Final";
+
 
 	//シングルトン
 	//
 	static Area sInstance = null;
-	
+
 	static Area Instance {
 		get {
 			if (sInstance == null) {
@@ -37,6 +40,14 @@ public class Area {
 		return UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 	}
 
+	static bool IsFinalStage(int aAreaNumber, int aStageNumber) {
+		if (aAreaNumber == Instance.mStageNum.Count) {
+			if (aStageNumber == Instance.mStageNum[Instance.mStageNum.Count - 1]) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	//ステージのシーン名を返す
 	//
@@ -46,6 +57,12 @@ public class Area {
 		if (aAreaNumber == 0) {
 			return string.Format(cTutorialSceneName, aStageNumber);
 		}
+
+		//最終ステージなら
+		if (IsFinalStage(aAreaNumber, aStageNumber)) {
+			return cFinalStageSceneName;
+		}
+
 
 		int lAreaIndex = GetAreaIndex(aAreaNumber);
 
@@ -69,10 +86,16 @@ public class Area {
 		}
 
 
+		//ラストステージかどうかの判定
+		if (lSceneName == cFinalStageSceneName) {
+			return Instance.mStageNum.Count;
+		}
+
+
 		//ステージかどうかの判定
 		r = new Regex(string.Format(cStageSceneName, @"(\d+?)", @"(\d+?)"));
 
-		if(r.IsMatch(lSceneName)) {
+		if (r.IsMatch(lSceneName)) {
 			var m = r.Match(lSceneName);
 			int lRes = 0;
 			int.TryParse(m.Groups[1].Value, out lRes);
@@ -97,6 +120,13 @@ public class Area {
 			int.TryParse(m.Groups[1].Value, out lRes);
 			return lRes;
 		}
+
+
+		//ラストステージかどうかの判定
+		if (lSceneName == cFinalStageSceneName) {
+			return Instance.mStageNum[Instance.mStageNum.Count - 1];
+		}
+
 
 		//エリア１・２・３かどうかの判定
 		r = new Regex(string.Format(cStageSceneName, @"(\d+?)", @"(\d+?)"));
@@ -123,7 +153,7 @@ public class Area {
 	public static int GetStageCount(int aAreaNumber) {
 
 		//チュートリアルなら
-		if(aAreaNumber == 0) {
+		if (aAreaNumber == 0) {
 			return Instance.mTutorialNum;
 		}
 
@@ -143,7 +173,7 @@ public class Area {
 		if (!ExistNextStage(aAreaNumber, aStageNumber)) return "";
 
 		//次のシーンが同じエリアに存在しないなら
-		if(!ExistNextStageSameArea(aAreaNumber, aStageNumber)) {
+		if (!ExistNextStageSameArea(aAreaNumber, aStageNumber)) {
 			//次のエリアの最初のステージへ
 			aAreaNumber += 1;
 			aStageNumber = 1;
@@ -162,8 +192,8 @@ public class Area {
 	public static bool ExistNextStage(int aAreaNumber, int aStageNumber) {
 
 		//チュートリアルなら
-		if(aAreaNumber == 0) {
-			return true;	//必ず存在する
+		if (aAreaNumber == 0) {
+			return true;    //必ず存在する
 		}
 
 		int lAreaIndex = GetAreaIndex(aAreaNumber);
@@ -183,9 +213,9 @@ public class Area {
 	//同じエリアに、次のステージが存在しない
 	//
 	public static bool ExistNextStageSameArea(int aAreaNumber, int aStageNumber) {
-		
+
 		//チュートリアルの場合
-		if(aAreaNumber == 0) {
+		if (aAreaNumber == 0) {
 			//範囲外チェック
 			if (aStageNumber <= 0) return false;
 			if (Instance.mTutorialNum < aStageNumber) return false;
@@ -235,6 +265,141 @@ public class Area {
 	//
 	static int GetStageIndex(int aStageNumber) {
 		return aStageNumber - 1;
+	}
+
+
+	//そのエリアに行くことが可能か
+	//
+	public static bool CanGoArea(int aAreaNumber) {
+
+		//チュートリアルとエリア1には、絶対に行くことができる
+		if (aAreaNumber == 0 || aAreaNumber == 1) {
+			return true;
+		}
+
+		//エリア2は、エリア1のステージを全てクリアしていると行ける
+		if (aAreaNumber == 2) {
+			foreach (var s in SaveData.Instance.GetAreaData(1).mStagesData) {
+				if (s.mShiftTimesOnClear == SaveData.StageData.cInitTimes) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		//エリア3は、エリア1とエリア2のステージを全てクリアしていると行ける
+		if (aAreaNumber == 3) {
+			foreach (var s in SaveData.Instance.GetAreaData(1).mStagesData) {
+				if (s.mShiftTimesOnClear == SaveData.StageData.cInitTimes) {
+					return false;
+				}
+			}
+			foreach (var s in SaveData.Instance.GetAreaData(2).mStagesData) {
+				if (s.mShiftTimesOnClear == SaveData.StageData.cInitTimes) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		//エリア4は、エリア1とエリア2、エリア3のステージを全てクリアしていると行ける
+		if (aAreaNumber == 4) {
+			foreach (var s in SaveData.Instance.GetAreaData(1).mStagesData) {
+				if (s.mShiftTimesOnClear == SaveData.StageData.cInitTimes) {
+					return false;
+				}
+			}
+			foreach (var s in SaveData.Instance.GetAreaData(2).mStagesData) {
+				if (s.mShiftTimesOnClear == SaveData.StageData.cInitTimes) {
+					return false;
+				}
+			}
+			foreach (var s in SaveData.Instance.GetAreaData(3).mStagesData) {
+				if (s.mShiftTimesOnClear == SaveData.StageData.cInitTimes) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+
+		return false;
+	}
+
+
+	//Stage4-1に入ることが可能か
+	//
+	public static bool CanGoStage4_1() {
+		//エリア1の全てのステージで、星を2つ以上取得していたら可能
+		//→エリア1のどれかのステージで、星が2つ未満なら、不可能
+		for(int i = 1; i <= GetStageCount(1); i++) {
+			if (ScoreManager.Instance.Score(1, i, ScoreManager.Instance.ShiftTimes(1, i)) < 2) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//Stage4-2に入ることが可能か
+	//
+	public static bool CanGoStage4_2() {
+		//エリア2の全てのステージで、星を2つ以上取得していたら可能
+		//→エリア2のどれかのステージで、星が2つ未満なら、不可能
+		for (int i = 1; i <= GetStageCount(2); i++) {
+			if (ScoreManager.Instance.Score(2, i, ScoreManager.Instance.ShiftTimes(2, i)) < 2) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//Stage4-3に入ることが可能か
+	//
+	public static bool CanGoStage4_3() {
+		//エリア3の全てのステージで、星を2つ以上取得していたら可能
+		//→エリア3のどれかのステージで、星が2つ未満なら、不可能
+		for (int i = 1; i <= GetStageCount(3); i++) {
+			if (ScoreManager.Instance.Score(3, i, ScoreManager.Instance.ShiftTimes(3, i)) < 2) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//最後のステージに入ることが可能か
+	//
+	public static bool CanGoFinalStage() {
+		//Stage4-1,Stage4-2,Stage4-3を全てクリアしていれば可能
+		if(ScoreManager.Instance.ShiftTimes(3, 1) == ScoreManager.cInvalidScoreTimes) {
+			return false;
+		}
+
+		if (ScoreManager.Instance.ShiftTimes(3, 2) == ScoreManager.cInvalidScoreTimes) {
+			return false;
+		}
+
+		if (ScoreManager.Instance.ShiftTimes(3, 3) == ScoreManager.cInvalidScoreTimes) {
+			return false;
+		}
+
+		return true;
+	}
+
+
+
+	//そのエリア番号が有効か
+	public static bool IsValidArea(int aAreaNumber) {
+		if (aAreaNumber < 0) return false;
+		if (aAreaNumber > GetAreaCount()) return false;
+		return true;
+	}
+	//そのステージ番号が有効か
+	public static bool IsValidStage(int aAreaNumber, int aStageNumber) {
+		if (!IsValidArea(aAreaNumber)) return false;
+
+		if (aStageNumber <= 0) return false;
+		if (aStageNumber > GetStageCount(aAreaNumber)) return false;
+		return true;
 	}
 
 

@@ -19,6 +19,9 @@ public class Result : MonoBehaviour {
     [SerializeField]
     GameObject ClearJingleSEPrefab;
 
+    [SerializeField]
+    StageTransition st;
+
     // ゴールしたかどうか、GameManager側から変更
     public bool canGoal;
 
@@ -28,6 +31,8 @@ public class Result : MonoBehaviour {
 
     float alpha = 0.0f;
 
+    bool isStartCloseDoor = false;
+
     void Start() {
         if (!Area.ExistNextStageSameArea(Area.GetAreaNumber(), Area.GetStageNumber())) {
             ResultCanvas = ResultCanvas_AC;
@@ -36,6 +41,8 @@ public class Result : MonoBehaviour {
         ResultUI = ResultCanvas.transform.Find("ResultUI").gameObject;
         clearImage = ResultUI.transform.Find("GameClear/ClearText").gameObject;
         bgLightImage = ResultUI.transform.Find("BG_light").gameObject;
+
+        st = FindObjectOfType<StageTransition>();
     }
 
 	void Update () {
@@ -74,7 +81,14 @@ public class Result : MonoBehaviour {
             }
             // チュートリアルなら
             else {
-                GetComponent<ChangeScene>().OnNextButtonDown();
+                if (!isStartCloseDoor) {
+                    st.CloseDoorParent();
+                    isStartCloseDoor = true;
+                }
+
+                if (st.GetCloseEnd()) {
+                    GetComponent<ChangeScene>().OnNextButtonDown();
+                }
             }
         }
 	}

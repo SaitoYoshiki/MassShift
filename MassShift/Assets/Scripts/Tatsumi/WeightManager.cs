@@ -226,7 +226,7 @@ public class WeightManager : MonoBehaviour {
 		}
 	}
 
-	void Start() {
+	void Awake() {
 		WeightLvSeem = WeightLv;
 	}
 }

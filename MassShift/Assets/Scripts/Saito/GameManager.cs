@@ -71,7 +71,9 @@ public class GameManager : MonoBehaviour {
 
 		//ポーズ画面から来たら、ポーズを戻す
 		Time.timeScale = 1.0f;
-		mPause.pauseEvent.Invoke();
+        if (mPause != null) {
+            mPause.pauseEvent.Invoke();
+        }
 
         //ゲーム進行のコルーチンを開始
         StartCoroutine(GameMain());
@@ -105,13 +107,25 @@ public class GameManager : MonoBehaviour {
 		CanMovePlayer(false);
 		CanJumpPlayer(false);
 		OnCanShiftOperation(false);
-		mPause.canPause = false;
 
+        if (mPause != null) {
+            mPause.canPause = false;
+        }
 
 		//BGMを再生する
 		int lAreaNumber = Area.GetAreaNumber();
-		if (lAreaNumber != -1) {
-			GameObject lBGMPrefab = mAreaBGM[lAreaNumber];
+		if(lAreaNumber == -1) {
+
+		}
+		else {
+			GameObject lBGMPrefab = null;
+
+			if(lAreaNumber <= 3) {
+				lBGMPrefab = mAreaBGM[lAreaNumber];
+			}
+			else if(lAreaNumber == 4) {
+				lBGMPrefab = mAreaBGM[3];
+			}
 
 			//BGMを流し始める
 			mBGMInstance = SoundManager.SPlay(lBGMPrefab);
@@ -120,21 +134,23 @@ public class GameManager : MonoBehaviour {
 
 
 		// タイトルシーンからの遷移かチュートリアルでなければ
-        if (!cameraMove.fromTitle && Area.GetAreaNumber() != 0) {
-			//ステージ開始時の演出
-			mTransition.OpenDoorParent();
+        //if (!cameraMove.fromTitle && Area.GetAreaNumber() != 0) {
+            if (mTransition != null) {
+                //ステージ開始時の演出
+                mTransition.OpenDoorParent();
 
-			//演出が終了するまで待機
-			while (true) {
-				if (mTransition.GetOpenEnd()) break;
-				yield return null;
-			}
-		}
-		else {
+                //演出が終了するまで待機
+                while (true) {
+                    if (mTransition.GetOpenEnd()) break;
+                    yield return null;
+                }
+            }
+		//}
+		/*else {
 			cameraMove.fromTitle = false;
 			Debug.Log("fromTitle" + cameraMove.fromTitle);
 			yield return null;
-		}
+		}*/
 
 
 		//ゲームメインの開始
@@ -143,7 +159,14 @@ public class GameManager : MonoBehaviour {
 		//プレイヤーが操作可能になる
 		CanMovePlayer(true);
 		CanJumpPlayer(true);
-		mPause.canPause = true;
+
+        // エンディングならポーズ不可
+        if (mPause != null && SceneManager.GetActiveScene().name != "Ending") {
+            mPause.canPause = true;
+        }
+        else {
+
+        }
 
 		//カメラのズームアウトを始める
 		mCameraMove.MoveStart();
@@ -158,15 +181,17 @@ public class GameManager : MonoBehaviour {
 				mCameraMove.IsMoveEnd = false;
 			}
 
-			//ポーズ中なら
-			if(mPause.pauseFlg) {
-				//mMassShift.CanShift = false;
-				Cursor.visible = true;
-			}
-			else {
-				//mMassShift.CanShift = true;
-				Cursor.visible = false;
-			}
+            if (mPause != null) {
+                //ポーズ中なら
+                if (mPause.pauseFlg) {
+                    //mMassShift.CanShift = false;
+                    Cursor.visible = true;
+                }
+                else {
+                    //mMassShift.CanShift = true;
+                    Cursor.visible = false;
+                }
+            }
 
 			//ゴール判定
 			//
@@ -179,7 +204,9 @@ public class GameManager : MonoBehaviour {
 
 		//重さを移せないようにする
 		OnCanShiftOperation(false);
-		mPause.canPause = false;
+        if (mPause != null) {
+            mPause.canPause = false;
+        }
 
 		//プレイヤーを操作不可にする
 		CanInputPlayer(false);
@@ -390,6 +417,9 @@ public class GameManager : MonoBehaviour {
 			ScoreManager.Instance.ShiftTimes(lAreaNum, lStageNum, lNewTimes);
 			ScoreManager.Instance.IsShortestTimes = lIsShortest;
 		}
+
+		//データを保存
+		SaveData.Instance.Save();
 		
 
 		Cursor.visible = true;

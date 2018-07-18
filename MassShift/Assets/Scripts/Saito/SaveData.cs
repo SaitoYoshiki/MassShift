@@ -1,15 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
+[System.Serializable]
 public class SaveData {
-
-	//起動時に、セーブされたデータをロードする
-	//
-	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-	static void OnLoad() {
-		Instance.LoadData();
-	}
 
 	//シングルトン
 	//
@@ -17,90 +12,66 @@ public class SaveData {
 
 	public static SaveData Instance {
 		get {
-			if(sInstance == null) {
-				sInstance = new SaveData();
-			}
 			return sInstance;
+		}
+		set {
+			if (sInstance == null) {
+				sInstance = value;
+			}
 		}
 	}
 
 
 	[System.Serializable]
 	public class StageData {
+		public const int cInitTimes = -1;
 		public int mShiftTimesOnClear;
 	}
 
-	public List<List<StageData>> mStageData;	//そのステージに関するデータ
+	[System.Serializable]
+	public class AreaData {
 
+		public AreaData(int aCount) {
+			mStagesData = new List<StageData>(aCount);
+		}
 
+		public List<StageData> mStagesData;
+	}
+
+	public List<AreaData> mStageData;    //そのステージに関するデータ
+
+	[System.Serializable]
 	public class LastPlayStage {
 		public int mAreaNumber = -1;
 		public int mStageNumber = -1;
 	}
-	public LastPlayStage mLastPlayStage;	//最後に遊んだステージ番号
-	
-	
+	public LastPlayStage mLastPlayStage;    //最後に遊んだステージ番号
+
+	[System.Serializable]
 	public class EventDoneFlag {
 		public bool mArea2Open;   //エリア2に行けるよう
 		public bool mArea3Open;   //エリア3に行けるよう
+		public bool mArea4Open;   //エリア4に行けるよう
 	}
-	public EventDoneFlag mEventDoneFlag;	//イベントを行ったかどうかのフラグ
+	public EventDoneFlag mEventDoneFlag;    //イベントを行ったかどうかのフラグ
 
-	
-
-
-	//現在のクリアデータを、外部にセーブする
-	//
-	void Save() {
-
-		//ToDo
-		//
-	}
-
-
-	//外部にセーブされているデータを、ロードしてくる
-	//
-	void LoadData() {
-
-		//Listのリサイズ
-		mStageData = new List<List<StageData>>(Area.GetAreaCount() + 1);
-		
-		for(int i = 0; i < Area.GetAreaCount() + 1; i++) {
-			mStageData.Add(new List<StageData>(Area.GetStageCount(i)));
-
-			for(int j = 0; j < Area.GetStageCount(i); j++) {
-				var lStageData = new StageData();
-				lStageData.mShiftTimesOnClear = -1;
-				mStageData[i].Add(lStageData);
-			}
+	public static string Version {
+		get {
+			return "ver1.0";
 		}
-
-
-		mLastPlayStage = new LastPlayStage();
-		mLastPlayStage.mAreaNumber = -1;
-		mLastPlayStage.mStageNumber = -1;
-
-		mEventDoneFlag = new EventDoneFlag();
-		mEventDoneFlag.mArea2Open = false;
-		mEventDoneFlag.mArea3Open = false;
-
-
-		//ToDo
-		//テキストからデータを読んでくる
-		//
-	}
-
-
-	//対象のエリアに行けるかどうか
-	//
-	public bool CanGoArea(int aAreaNumber) {
-		return true;
 	}
 
 
 	//ステージのクリアデータを取得（書き込み、読み込み可能）
 	//
 	public StageData Data(int aAreaNumber, int aStageNumber) {
-		return mStageData[aAreaNumber][aStageNumber - 1];
+		return mStageData[aAreaNumber].mStagesData[aStageNumber - 1];
+	}
+	public AreaData GetAreaData(int aAreaNumber) {
+		return mStageData[aAreaNumber];
+	}
+
+	public void Save() {
+		SaveDataIO.Save();
 	}
 }
