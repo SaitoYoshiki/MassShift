@@ -14,7 +14,7 @@ public class MonoColorFade : MyFade {
 
     // 初期化
     void Start() {
-        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Ending") {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Ending" && Area.GetAreaNumber() != 0) {
             isFading = true;
             isFadeEnd = false;
         }

@@ -124,7 +124,7 @@ public class GameManager : MonoBehaviour {
 
 
 		// タイトルシーンからの遷移かチュートリアルでなければ
-        if (!cameraMove.fromTitle && Area.GetAreaNumber() != 0) {
+        //if (!cameraMove.fromTitle && Area.GetAreaNumber() != 0) {
             if (mTransition != null) {
                 //ステージ開始時の演出
                 mTransition.OpenDoorParent();
@@ -135,12 +135,12 @@ public class GameManager : MonoBehaviour {
                     yield return null;
                 }
             }
-		}
-		else {
+		//}
+		/*else {
 			cameraMove.fromTitle = false;
 			Debug.Log("fromTitle" + cameraMove.fromTitle);
 			yield return null;
-		}
+		}*/
 
 
 		//ゲームメインの開始
