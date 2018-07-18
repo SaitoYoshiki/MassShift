@@ -65,6 +65,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scene/Master/Stage3-5.unity
     guid: c42393389423cf447873916018a13cea
+  - enabled: 1
+    path: Assets/Scene/Master/Final.unity
+    guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scene/Master/Stage4-1.unity
+    guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scene/Master/Stage4-2.unity
+    guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scene/Master/Stage4-3.unity
+    guid: 00000000000000000000000000000000
   - enabled: 0
     path: Assets/Scene/Master/Filming.unity
     guid: 6a141e52cc9990f419a7889b221258ef

@@ -7,6 +7,16 @@ public class StageSelectManager : MonoBehaviour {
 	[SerializeField]
 	List<Goal> mGoal;
 
+	[SerializeField, Tooltip("エリア1からExエリアに行くドア")]
+	Goal mArea1ToExDoor;
+
+	[SerializeField, Tooltip("エリア1からExエリアに行くドアに重なっている背景")]
+	GameObject mArea1ToExDoorBackGround;
+
+	[SerializeField, Tooltip("Exエリアからエリア1に行くドア")]
+	Goal mExToArea1Door;
+
+
 	[SerializeField]
 	List<TextMesh> mText;
 
@@ -24,6 +34,7 @@ public class StageSelectManager : MonoBehaviour {
     [SerializeField]
     Color mStagePlateClearedColor;
 
+	SceneFade mFade;
 	StageTransition mTransition;
 	Pause mPause;
 	StageSelectScroll mStageSelectScroll;
@@ -80,11 +91,16 @@ public class StageSelectManager : MonoBehaviour {
 	float mSelectTime = 0.0f;   //選び続けている秒数
 	bool mSelectInit = false;
 
+	bool mSelectArea1ToEx = false;	//エリア1からExエリアに行くドアに立っているか
+	bool mSelectExToArea1 = false;	//Exエリアからエリア1に行くドアに立っているか
+
 	bool mFromTitle;
 
 
 	// Use this for initialization
 	void Start() {
+
+		mFade = FindObjectOfType<SceneFade>();
 
 		mPlayer = FindObjectOfType<Player>();
 		mTransition = FindObjectOfType<StageTransition>();
@@ -122,10 +138,24 @@ public class StageSelectManager : MonoBehaviour {
 		//
 		mSelectStageNum = -1;
 		for (int i = 0; i < mGoal.Count; i++) {
+			if(mGoal[i] == null) continue;
 			if (CanEnter(mGoal[i])) {
 				mSelectStageNum = i;
 				break;
 			}
+		}
+
+		//エリア1からExエリアに行くドアが選択されているか
+		mSelectArea1ToEx = false;
+		if (mArea1ToExDoor.gameObject.activeSelf) {
+			if (CanEnter(mArea1ToExDoor)) {
+				mSelectArea1ToEx = true;
+			}
+		}
+
+		mSelectExToArea1 = false;
+		if (CanEnter(mExToArea1Door)) {
+			mSelectExToArea1 = true;
 		}
 	}
 
@@ -471,13 +501,29 @@ public class StageSelectManager : MonoBehaviour {
 			//ゴール判定
 			//
 			if (mSelectStageNum != -1) {
-
+				
 				//もし入る操作が行われているなら
-				if (lIsEnter && CanGoal(mGoal[mSelectStageNum])) {
+				if (lIsEnter && CanGoal(mGoal[mSelectStageNum]) && Area.IsValidArea((mSelectStageNum / 5) + 1)) {
 					lDecideSelectStageNum = mSelectStageNum;
 					break;
 				}
 			}
+
+			//Exと行き来するドアを通ったかの判定
+			if (mSelectArea1ToEx) {
+				if(lIsEnter) {
+					yield return MoveArea1ToEx();
+				}
+			}
+
+			lIsEnter = Input.GetKey(KeyCode.W);
+
+			if (mSelectExToArea1) {
+				if (lIsEnter) {
+					yield return MoveExToArea1();
+				}
+			}
+
 
 
 			yield return null;  //ゲームメインを続ける
@@ -650,15 +696,30 @@ public class StageSelectManager : MonoBehaviour {
 	void SetEnterColor(int aIndex) {
         int index = 0;
 		foreach(var t in mText) {
-            // ステージがクリア済みなら
-            if (ScoreManager.Instance.ShiftTimes((index / 5) + 1, (index % 5) + 1) != -1) {
-                // ステージ名の色を変える
-                t.color = mStagePlateClearedColor;
-            }
-            else{
-                // ステージ名の色を灰色に
-                t.color = mStagePlateOffColor;
-            }
+
+			if (t == null) {
+				index++;
+				continue;
+			}
+
+			int lAreaNum = (index / 5) + 1;
+			int lStageNum = (index % 5) + 1;
+
+			// ステージがクリア済みなら
+			if(Area.IsValidArea(lAreaNum)) {
+				if (ScoreManager.Instance.ShiftTimes(lAreaNum, lStageNum) != -1) {
+					// ステージ名の色を変える
+					t.color = mStagePlateClearedColor;
+				}
+				else {
+					// ステージ名の色を灰色に
+					t.color = mStagePlateOffColor;
+				}
+			}
+			else {
+				// ステージ名の色を灰色に
+				t.color = mStagePlateOffColor;
+			}
 
             index++;
 		}
@@ -772,8 +833,9 @@ public class StageSelectManager : MonoBehaviour {
 		}
 		//エリア4の開放演出なら
 		else if (aAreaNumber == 4) {
-			lEventCameraPosition = mGoal[0].transform.position;
+			lEventCameraPosition = mArea1ToExDoor.transform.position;
 			lEventCameraPosition.z = 35.0f;
+			lEventCameraPosition.y += 1.0f;
 		}
 
 		//移動の情報の設定
@@ -819,6 +881,8 @@ public class StageSelectManager : MonoBehaviour {
 				}
 				yield return null;
 			}
+
+			yield return new WaitForSeconds(1.0f);
 		}
 		else if (aAreaNumber == 3) {
 
@@ -845,6 +909,8 @@ public class StageSelectManager : MonoBehaviour {
 				yield return null;
 			}
 
+			yield return new WaitForSeconds(1.0f);
+
 		}
 		else if (aAreaNumber == 4) {
 
@@ -852,7 +918,60 @@ public class StageSelectManager : MonoBehaviour {
 			//ドアが壁からにゅるっと出てくる
 			//
 
-			Debug.Log("ドアがにゅるっと");
+			/*にゅるっと出すと、背景に透過部分があるのでおかしな見た目になってしまう
+
+			mArea1ToExDoor.gameObject.SetActive(true);
+
+			Vector3 lStart = mArea1ToExDoor.transform.position;
+			lStart.z += 2.0f;
+			Vector3 lEnd = mArea1ToExDoor.transform.position;
+
+			float lTime = 0.0f;
+			const float cTakeTime = 3.0f;
+			while (true) {
+				lTime += Time.deltaTime;
+
+				mArea1ToExDoor.transform.position = Vector3.Lerp(lStart, lEnd, Mathf.Clamp01(lTime / cTakeTime));
+
+				if (lTime >= cTakeTime) {
+					break;
+				}
+				yield return null;
+			}
+
+
+			//背景を奥にする
+			//
+
+			lStart = mArea1ToExDoorBackGround.transform.position;
+			lEnd = mArea1ToExDoorBackGround.transform.position;
+			lEnd.z += 2.0f;
+
+			lTime = 0.0f;
+			const float cTakeTimeBackGround = 1.0f;
+			while (true) {
+				lTime += Time.deltaTime;
+
+				mArea1ToExDoorBackGround.transform.position = Vector3.Lerp(lStart, lEnd, Mathf.Clamp01(lTime / cTakeTimeBackGround));
+
+				if (lTime >= cTakeTimeBackGround) {
+					break;
+				}
+				yield return null;
+			}
+
+			*/
+
+			//
+			//ドアと背景を入れ替える
+			//
+
+			yield return new WaitForSeconds(1.0f);
+
+			mArea1ToExDoor.gameObject.SetActive(true);
+			mArea1ToExDoorBackGround.gameObject.SetActive(false);
+
+			yield return new WaitForSeconds(1.0f);
 		}
 
 
@@ -895,10 +1014,12 @@ public class StageSelectManager : MonoBehaviour {
 
 		//エリア4に行けて、エリア開放演出も終わっている場合
 		if (Area.CanGoArea(4) == true && SaveData.Instance.mEventDoneFlag.mArea4Open == true) {
-			//ToDo ドアに重なっている背景を消す
+			//ドアに重なっている背景を消す
+			mArea1ToExDoorBackGround.gameObject.SetActive(false);
 		}
 		else {
-			//ToDo ドアをかなり奥にやって消す
+			//ドアを消す
+			mArea1ToExDoor.gameObject.SetActive(false);
 		}
 
 		//もしエリア開放イベントがされていなかったら、ボックスを出さないようにしておく
@@ -1055,4 +1176,85 @@ public class StageSelectManager : MonoBehaviour {
 
 	}
 	
+
+	IEnumerator MoveArea1ToEx() {
+		yield return null;
+
+		//
+		//フェード
+		//
+
+		mFade.FadeInStart(1.0f);
+
+		while (true) {
+			if (mFade.IsFadeIn() == false) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//プレイヤーの位置を変更
+		Goal g = mExToArea1Door;
+		Vector3 lNewPlayerPosition = g.transform.position;
+		lNewPlayerPosition += g.transform.rotation * Vector3.up * 1.0f;
+		lNewPlayerPosition.z = 0.0f;
+		mPlayer.transform.position = lNewPlayerPosition;
+
+		//カメラの位置を変更
+		mCameraMove.transform.position = mStageSelectScroll.mAreaCameraPosition[3].transform.position;
+
+
+		mFade.FadeOutStart(1.0f);
+
+		while (true) {
+			if (mFade.IsFadeOut() == false) {
+				break;
+			}
+			yield return null;
+		}
+	}
+
+	IEnumerator MoveExToArea1() {
+
+		yield return null;
+
+		mStageSelectScroll.mIsScroll = false;
+
+
+		//
+		//フェード
+		//
+
+		mFade.FadeInStart(1.0f);
+
+		while (true) {
+			if (mFade.IsFadeIn() == false) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//プレイヤーの位置を変更
+		Goal g = mArea1ToExDoor;
+		Vector3 lNewPlayerPosition = g.transform.position;
+		lNewPlayerPosition += g.transform.rotation * Vector3.up * 1.0f;
+		lNewPlayerPosition.z = 0.0f;
+		mPlayer.transform.position = lNewPlayerPosition;
+
+		//カメラの位置を変更
+		mCameraMove.transform.position = mStageSelectScroll.mAreaCameraPosition[0].transform.position;
+
+
+		mFade.FadeOutStart(1.0f);
+
+		while (true) {
+			if (mFade.IsFadeOut() == false) {
+				break;
+			}
+			yield return null;
+		}
+	}
+
 }

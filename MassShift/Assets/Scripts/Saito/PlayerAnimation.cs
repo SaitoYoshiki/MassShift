@@ -82,6 +82,7 @@ public class PlayerAnimation : MonoBehaviour {
 		cFly,
 		cHoldFly,
 
+		cFind,
 		cNone,
 	}
 
@@ -989,6 +990,13 @@ public class PlayerAnimation : MonoBehaviour {
 		ChangeState(CState.cNone);
 		foreach (var a in mAnimationModel) {
 			GetAnimator(a).CrossFadeInFixedTime("None", 0.0f);
+		}
+	}
+
+	public void StartFind() {
+		ChangeState(CState.cFind);
+		foreach (var a in mAnimationModel) {
+			GetAnimator(a).CrossFadeInFixedTime("Find", 0.5f);
 		}
 	}
 }
