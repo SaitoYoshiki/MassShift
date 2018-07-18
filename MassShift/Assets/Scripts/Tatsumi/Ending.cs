@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Ending : MonoBehaviour {
-	[SerializeField]
+	[Space, SerializeField]
 	Transform plTrans = null;
 	[SerializeField]
 	Transform shiftFromTrans = null;
@@ -19,11 +19,10 @@ public class Ending : MonoBehaviour {
 	Transform doorInPointTrans = null;
 	[SerializeField]
 	Animator doorAnim = null;
-
 	[SerializeField]
 	GameObject shiftParticle = null;
 
-	[SerializeField]
+	[Space, SerializeField]
 	int particleNum = 100;
 	[SerializeField]
 	float particleStandbyTime = 0.1f;
@@ -38,19 +37,45 @@ public class Ending : MonoBehaviour {
 	[SerializeField]
 	float shiftHopForce = 25.0f;
 
-	[SerializeField]
+	[Space, SerializeField]
 	GameObject shiftSoundPrefab = null;
 	[SerializeField]
 	GameObject doorOpenSoundPrefab = null;
 
-	[SerializeField]
+	[Space, SerializeField]
 	Transform sizeUpParticle = null;
 	[SerializeField]
 	float sizeUpMin = 1.0f;
 	[SerializeField]
 	float sizeUpMax = 1.0f;
 
+	[Space, SerializeField]
+	Transform armTrans = null;
+	[SerializeField]
+	float armMoveTime = 0.2f;
+	[SerializeField]
+	Transform armBefPoint = null;
+	[SerializeField]
+	Transform armAftPoint = null;
+
+	[Space, SerializeField]
+	Transform impactEffectTrans = null;
+	[SerializeField]
+	GameObject impactEffect = null;
+	[SerializeField]
+	float shakeTime = 0.5f;
+	[SerializeField]
+	float shakeMagnitude = 0.5f;
+
+	[Space, SerializeField]
+	Material backgourndCellAfterMat;
+	[SerializeField]
+	List<BackgroundCell> backgroundCellList = new List<BackgroundCell>();
+
 	void Start() {
+		// 背景のセルを全て取得
+		backgroundCellList.AddRange(FindObjectsOfType<BackgroundCell>());
+
 		// エンディングコルーチン
 		StartCoroutine(EndingCoroutine());
 	}
@@ -120,8 +145,8 @@ public class Ending : MonoBehaviour {
 		// カーソルを非表示
 		shift.mInvisibleCursor = true;
 
-		// 待機
-		yield return new WaitForSeconds(0.0f);
+		// カーソルを移動する時間を設定
+		float cursorMoveTime = (Time.time + shift.ShiftTimes);
 
 		// 重さ移し演出を強化
 		List<GameObject> particleList = new List<GameObject>();
@@ -149,6 +174,11 @@ public class Ending : MonoBehaviour {
 			SoundManager.SPlay(shiftSoundPrefab);
 
 			while (Time.time < (lastWaitTime + particleStandbyTime)) {
+				// カーソル移動判定
+				if (cursorMoveTime < Time.time) {
+					shift.SetCursorPosition(Vector3.right * 100.0f);
+				}
+
 				// 終了したパーティクルをカウント
 				while ((particleList.Count > 0) && !particleList[0]) {
 					particleList.RemoveAt(0);
@@ -179,11 +209,33 @@ public class Ending : MonoBehaviour {
 		boxLockCol.enabled = false;
 
 		// 待機
-		yield return new WaitForSeconds(1.0f);
+		yield return new WaitForSeconds(0.04f);
+
+		// アーム移動
+		float armMoveBeginTime = Time.time;
+		while (true) {
+			if ((armMoveBeginTime + armMoveTime) <= Time.time) {
+				break;
+			}
+			float ratio = ((Time.time - armMoveBeginTime) / armMoveTime);
+			armTrans.position = new Vector3(Mathf.Lerp(armBefPoint.position.x, armAftPoint.position.x, ratio), Mathf.Lerp(armBefPoint.position.y, armAftPoint.position.y, ratio), Mathf.Lerp(armBefPoint.position.z, armAftPoint.position.z, ratio));
+			armTrans.rotation = Quaternion.Slerp(armBefPoint.rotation, armAftPoint.rotation, ratio);
+			yield return null;
+		}
+
+		// 待機
+		yield return new WaitForSeconds(0.5f);
 
 		// 着地演出
+		ShakeCamera.ShakeAll(shakeTime, shakeMagnitude);
+		GameObject impactEffectObj = Instantiate(impactEffect);
+		impactEffectObj.transform.position = impactEffectTrans.position;
 
-
+		// 背景セルの色を全て変更
+		foreach (var cell in backgroundCellList) {
+			cell.PowerfulLighting(backgourndCellAfterMat);
+		}
+			
 		// 待機
 		yield return new WaitForSeconds(1.0f);
 
