@@ -370,15 +370,15 @@ public class Area {
 	//
 	public static bool CanGoFinalStage() {
 		//Stage4-1,Stage4-2,Stage4-3を全てクリアしていれば可能
-		if(ScoreManager.Instance.ShiftTimes(3, 1) == ScoreManager.cInvalidScoreTimes) {
+		if(ScoreManager.Instance.ShiftTimes(4, 1) == ScoreManager.cInvalidScoreTimes) {
 			return false;
 		}
 
-		if (ScoreManager.Instance.ShiftTimes(3, 2) == ScoreManager.cInvalidScoreTimes) {
+		if (ScoreManager.Instance.ShiftTimes(4, 2) == ScoreManager.cInvalidScoreTimes) {
 			return false;
 		}
 
-		if (ScoreManager.Instance.ShiftTimes(3, 3) == ScoreManager.cInvalidScoreTimes) {
+		if (ScoreManager.Instance.ShiftTimes(4, 3) == ScoreManager.cInvalidScoreTimes) {
 			return false;
 		}
 

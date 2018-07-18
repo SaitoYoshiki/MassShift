@@ -82,8 +82,8 @@ public class StageScoreInfo : MonoBehaviour {
 
         // 前のステージ番号から変更があった場合
         if (selectStageNum != oldStageNum) {
-            // キャラがドア前にいる
-            if (ssm.SelectStageNum != -1) {
+            // キャラがドア前にいて、かつエリア移動の扉でないなら
+            if (ssm.SelectStageNum != -1 && ssm.SelectStageNum < 20) {
                 // かつパネルの置いてあるエリアが今キャラのいるエリアと同じなら
                 if (caip.AreaIndex == (int)placedArea) {
                     // Exエリア内かつまだそのステージに入れない場合
@@ -155,10 +155,22 @@ public class StageScoreInfo : MonoBehaviour {
                         stagePic.sprite = stagePreview[ssm.SelectStageNum % 5];
 
                         // ステージ名と必要手数を代入
+                        // Exステージの場合
+                        if (placedArea == AREA.AREA4) {
+                            if (selectStageNum < 4) {
+                                stageName.text = "EX - " + selectStageNum.ToString();
+                            }
+                            else {
+                                stageName.text = "Final";
+                            }
+                        }
+                        // それ以外
+                        else {
                         stageName.text = ((int)placedArea).ToString() + " - " + selectStageNum.ToString();
                         score3text.text = "～" + (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)).ToString();
                         score2text.text = (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum) + 1).ToString() + "～" + (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)).ToString();
                         score1text.text = (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum) + 1).ToString() + "～";
+                            }
 
                         if (ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum) != -1) {
                             bestScoretext.text = "Best Score : " + ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum).ToString();

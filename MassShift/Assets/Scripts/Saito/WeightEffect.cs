@@ -14,7 +14,6 @@ public class WeightEffect : MonoBehaviour {
 	[SerializeField, Disable]
 	WeightManager.Weight mBeforeWeight;
 
-
 	// Use this for initialization
 	void OnEnable () {
 		Init();
@@ -27,7 +26,9 @@ public class WeightEffect : MonoBehaviour {
 	void Init() {
 		mWeightManager = GetComponent<WeightManager>();
 		mBeforeWeight = mWeightManager.WeightLvSeem;    //見かけの重さでエフェクトを出す
-		OnWeightChange(mBeforeWeight);
+		if(OnWeightChange != null) {
+			OnWeightChange(mBeforeWeight);
+		}
 	}
 	
 	// Update is called once per frame
