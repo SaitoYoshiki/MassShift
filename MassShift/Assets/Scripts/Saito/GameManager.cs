@@ -212,10 +212,11 @@ public class GameManager : MonoBehaviour {
 			}
 			yield return null;
 		}
-		
+
 
 		//プレイヤーをゴールの中心まで歩かせる
 		//
+		mPlayer.GetComponent<MoveManager>().mask = LayerMask.GetMask(new string[] { "Stage", "Player", "Fence" });
 
 		Vector3 lGoalCenter = mGoal.transform.position;
 
@@ -421,6 +422,16 @@ public class GameManager : MonoBehaviour {
 		//重さを移した後1秒以内なら
 		if (mMassShift.FromLastShiftTime <= 1.0f) {
 			return false;   //ゴールできない
+		}
+
+		//持ち降ろしの最中なら
+		if (mPlayer.GetComponent<Lifting>().IsLiftCantMove) {
+			return false;
+		}
+
+		//ボックスを持っているなら
+		if (mPlayer.GetComponent<Lifting>().IsLifting) {
+			return false;
 		}
 
 		return true;    //ゴール可能

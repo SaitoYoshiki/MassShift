@@ -456,7 +456,7 @@ public class StageSelectManager : MonoBehaviour {
 
 				if (lSelectStageNum != -1) {
 					Vector3 lUIPosition = mGoal[lSelectStageNum].transform.position;
-					lUIPosition += mGoal[lSelectStageNum].transform.rotation * Vector3.up * 5.0f;
+					lUIPosition += mGoal[lSelectStageNum].transform.rotation * Vector3.down * 2.0f;
 					mEnterUI.SetPosition(lUIPosition);
 					mEnterUI.SetRotation(mGoal[lSelectStageNum].transform.rotation);
 					mEnterUI.StartAnimation();

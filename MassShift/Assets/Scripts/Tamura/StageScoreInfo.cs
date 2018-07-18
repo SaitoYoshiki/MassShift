@@ -13,12 +13,21 @@ public class StageScoreInfo : MonoBehaviour {
     [SerializeField]
     Text stageName;
 
+    // 各スコアの星画像
     [SerializeField]
-    Material score3mat;
+    SetColor score3star;
     [SerializeField]
-    Material score2mat;
+    SetColor score2star;
     [SerializeField]
-    Material score1mat;
+    SetColor score1star;
+
+    // 各スコアのポーズ用キャラ
+    [SerializeField]
+    SetActivePlayer score3player;
+    [SerializeField]
+    SetActivePlayer score2player;
+    [SerializeField]
+    SetActivePlayer score1player;
 
     // 星３必要手数
     [SerializeField]
@@ -32,6 +41,10 @@ public class StageScoreInfo : MonoBehaviour {
     [SerializeField]
     Text score1text;
 
+    // プレイヤーのこれまでの最短手
+    [SerializeField]
+    Text bestScoretext;
+
     [SerializeField]
     GameObject stageInfo;
 
@@ -40,6 +53,8 @@ public class StageScoreInfo : MonoBehaviour {
 
     StageSelectManager ssm;
 
+    ChangeActiveInfoPanel caip;
+
     int oldStageNum = 0;
 
     int stageShiftTime;
@@ -47,6 +62,7 @@ public class StageScoreInfo : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         ssm = FindObjectOfType<StageSelectManager>();
+        caip = FindObjectOfType<ChangeActiveInfoPanel>();
 	}
 
     void Update() {
@@ -54,38 +70,65 @@ public class StageScoreInfo : MonoBehaviour {
 
         if (selectStageNum != oldStageNum) {
             if (ssm.SelectStageNum != -1) {
-                stageInfo.SetActive(true);
 
-                //stageShiftTime = ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum);
+                if (caip.AreaIndex == (int)placedArea) {
 
-                // そもそもステージをクリアしていない場合
-                if (stageShiftTime == -1) {
-                    Debug.Log("くりあしてない");
-                    score3mat.color = Color.grey;
-                    score2mat.color = Color.grey;
-                    score1mat.color = Color.grey;
-                }
-                else {
-                    Debug.Log("くりあしてる");
-                    // ステージの評価が星1
-                    score1mat.color = Color.white;
+                    stageInfo.SetActive(true);
 
-                    // ステージの評価が星2
-                    if (stageShiftTime <= ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)) {
-                        score2mat.color = Color.white;
+                    stageShiftTime = ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum);
+
+                    // そもそもステージをクリアしていない場合
+                    if (stageShiftTime == -1) {
+                        Debug.Log("くりあしてない");
+                        // マテリアルカラーは無効化した
+                        score3star.SetGrayColor();
+                        score2star.SetGrayColor();
+                        score1star.SetGrayColor();
+
+                        score3player.ActiveStandPlayer();
+                        score2player.ActiveStandPlayer();
+                        score1player.ActiveStandPlayer();
+                    }
+                    else {
+                        Debug.Log("くりあした");
+                        // ステージの評価が星1
+                        score1star.SetWhiteColor();
+                        score1player.ActiveCeleblatePlayer();
+
+                        // ステージの評価が星2
+                        if (stageShiftTime <= ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)) {
+                            score2star.SetWhiteColor();
+                            score2player.ActiveCeleblatePlayer();
+                        }
+                        else {
+                            score2star.SetGrayColor();
+                            score2player.ActiveStandPlayer();
+                        }
+
+                        // ステージの評価が星3
+                        if (stageShiftTime <= ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)) {
+                            score3star.SetWhiteColor();
+                            score3player.ActiveCeleblatePlayer();
+                        }
+                        else {
+                            score3star.SetGrayColor();
+                            score3player.ActiveStandPlayer();
+                        }
                     }
 
-                    // ステージの評価が星3
-                    if (stageShiftTime <= ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)) {
-                        score3mat.color = Color.white;
+                    // ステージ名と必要手数を代入
+                    stageName.text = ((int)placedArea).ToString() + " - " + selectStageNum.ToString();
+                    score3text.text = "～" + (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)).ToString();
+                    score2text.text = (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum) + 1).ToString() + "～" + (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)).ToString();
+                    score1text.text = (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum) + 1).ToString() + "～";
+
+                    if (ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum) != -1) {
+                        bestScoretext.text = "Best Score : " + ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum).ToString();
+                    }
+                    else {
+                        bestScoretext.text = "Best Score : -";
                     }
                 }
-
-                // ステージ名と必要手数を代入
-                stageName.text = ((int)placedArea).ToString() + "-" + selectStageNum.ToString();
-                score3text.text = (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum) - 2).ToString() + "～" + (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)).ToString();
-                score2text.text = (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum) - 2).ToString() + "～" + (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)).ToString();
-                score1text.text = (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum) + 1).ToString() + "～";
             }
             else {
                 // パネル上の表示物を消す

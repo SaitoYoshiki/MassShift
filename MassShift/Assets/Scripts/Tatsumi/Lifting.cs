@@ -204,6 +204,12 @@ public class Lifting : MonoBehaviour {
 	[SerializeField]
 	bool liftDownWeit = false;
 
+	[SerializeField]
+	bool underPriority = false;
+
+	[SerializeField]
+	Transform catchEndTransform, releaseEndTransform;
+
 	void Awake() {
 		if (autoLiftingColMask) liftingColMask = LayerMask.GetMask(new string[] { "Stage", "Box", "Fence" });
 		if (autoBoxMask) boxMask = LayerMask.GetMask(new string[] { "Box" });
@@ -273,7 +279,7 @@ public class Lifting : MonoBehaviour {
 
 			// オブジェクトの位置を同期
 			if (liftMoveFlg) {
-				if (heavyFailedFlg || (!MoveManager.Move(GetLiftUpBoxMove(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true))) {
+				if (heavyFailedFlg || (!MoveManager.Move(GetLiftUpBoxMove(), LiftObj.GetComponent<BoxCollider>(), liftingColMask, false, true) && (Pl.transform.position.x != LiftObj.transform.position.x))) {
 					Debug.Log("持ち上げ失敗");
 
 					//					// 持ち上げ中オブジェクトの強制押し出しフラグを戻す
@@ -516,12 +522,19 @@ public class Lifting : MonoBehaviour {
 
 			GameObject liftableObj = null;
 			float dis = float.MaxValue;
-//			Debug.LogWarning(hitInfos.Count);
+			//			Debug.LogWarning(hitInfos.Count);
+
 			foreach (var hitInfo in hitInfos) {
-//				Debug.LogWarning(hitInfo.collider.name + " " + hitInfo.collider.tag);
-				if ((hitInfo.collider.tag == "LiftableObject") && (hitInfo.distance < dis)) {
-					liftableObj = hitInfo.collider.gameObject;
-					dis = hitInfo.distance;
+				//				Debug.LogWarning(hitInfo.collider.name + " " + hitInfo.collider.tag);
+				if (!underPriority) {
+					if ((hitInfo.collider.tag == "LiftableObject") && (hitInfo.distance < dis)) {
+						liftableObj = hitInfo.collider.gameObject;
+						dis = hitInfo.distance;
+					}
+				} else {
+					if ((hitInfo.collider.tag == "LiftableObject") && (!liftableObj || (hitInfo.transform.position.y < liftableObj.transform.position.y))) {
+						liftableObj = hitInfo.collider.gameObject;
+					}
 				}
 			}
 
@@ -856,8 +869,10 @@ public class Lifting : MonoBehaviour {
 	Vector3 GetLiftUpBoxMove() {
 		if (LiftObj == null) return Vector3.zero;
 
-		Vector3 ret = (PlAnim.GetBoxPosition() - LiftObj.transform.position);
-		float vec = Mathf.Sign(LiftObj.transform.position.x - Pl.transform.position.x);
+		Vector3 retMove = (PlAnim.GetBoxPosition() - LiftObj.transform.position);
+		float befVec = Mathf.Sign(LiftObj.transform.position.x - Pl.transform.position.x);	// プレイヤーから持ち上げ対象への方向
+		float moveVec = Mathf.Sign(retMove.x);
+		float pointVec = Mathf.Sign(PlAnim.GetBoxPosition().x - Pl.transform.position.x);
 
 		//// x軸が離れようとした場合は離さない
 		//float defDis = (LiftObj.transform.position.x - Pl.transform.position.x);
@@ -865,32 +880,48 @@ public class Lifting : MonoBehaviour {
 		//if (Mathf.Abs(dis) > Mathf.Abs(defDis)) {
 		//	ret = new Vector3((Pl.transform.position.x + defDis), ret.y, ret.z);
 		//}
-		if (vec == Mathf.Sign(ret.x)) {
-			ret = new Vector3(0.0f, ret.y, ret.z);
+		if (befVec == moveVec) {
+			retMove = new Vector3(0.0f, retMove.y, retMove.z);
 		}
 
-		// x軸がプレイヤーの中心より後ろだったら
-		float posX = (LiftObj.transform.position.x + ret.x);
-		float posVec = Mathf.Sign(posX - Pl.transform.position.x);
-		if (Pl.RotVec.x != posVec) {
-			// 中央に補正
-			ret = new Vector3((LiftObj.transform.position.x - Pl.transform.position.x), ret.y, ret.z);
+		//		// x軸がプレイヤーの中心より後ろだったら
+		//		float posX = (LiftObj.transform.position.x + ret.x);
+		//		float posVec = Mathf.Sign(posX - Pl.transform.position.x);
+		//		if (Pl.RotVec.x != posVec) {
+		//			// 中央に補正
+		//			ret = new Vector3((LiftObj.transform.position.x - Pl.transform.position.x), ret.y, ret.z);
+		//		}
+
+		// x軸が後に回ろうとした場合は補正
+		if (pointVec != befVec) {
+			retMove = new Vector3(Mathf.Abs(LiftObj.transform.position.x - Pl.transform.position.x) * moveVec, retMove.y, retMove.z);
+			Debug.LogWarning(retMove);
 		}
 
-		return ret;
+		// y軸が終了位置より高かったら補正
+		if (Mathf.Sign(LiftObj.transform.position.y - catchEndTransform.position.y) != Mathf.Sign((LiftObj.transform.position.y + retMove.y) - catchEndTransform.position.y)) {
+			retMove = new Vector3(retMove.x, (catchEndTransform.position.y - LiftObj.transform.position.y), retMove.z);
+		}
+
+		return retMove;
 	}
 
 	Vector3 GetLiftDownBoxPosition() {
-		Vector3 ret = PlAnim.GetBoxPosition();
+		Vector3 retPos = PlAnim.GetBoxPosition();
 
 		// x軸がプレイヤーの中心より後ろだったら
-		float posVec = Mathf.Sign(ret.x - Pl.transform.position.x);
+		float posVec = Mathf.Sign(retPos.x - Pl.transform.position.x);
 		if(Pl.RotVec.x != posVec) {
 			// 中央に補正
-			ret = new Vector3(Pl.transform.position.x, ret.y, ret.z);
+			retPos = new Vector3(Pl.transform.position.x, retPos.y, retPos.z);
 		}
 
-		return ret;
+		// y軸が終了位置より高かったら補正
+		if (Mathf.Sign(LiftObj.transform.position.y - releaseEndTransform.position.y) != Mathf.Sign(retPos.y - releaseEndTransform.position.y)) {
+			retPos = new Vector3(retPos.x, releaseEndTransform.position.y, retPos.z);
+		}
+
+		return retPos;
 	}
 
 //	public void ReleaseLiftObject() {

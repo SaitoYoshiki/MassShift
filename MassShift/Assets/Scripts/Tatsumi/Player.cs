@@ -558,7 +558,9 @@ public class Player : MonoBehaviour {
 			if ((Land.IsLanding || WaterStt.IsWaterSurface || land.IsWaterFloatLanding) /*&& !IsRotation*/ && !IsHandSpring) {
 				//			if ((Input.GetAxis("Lift") != 0.0f)) {
 				//if (!liftTrg) {
-				Lift.Lift();
+				if (!(IsRotation && Lift.St == Lifting.LiftState.standby)) {
+					Lift.Lift();
+				}
 				//}
 				//	liftTrg = true;
 				//} else {
@@ -646,17 +648,18 @@ public class Player : MonoBehaviour {
 		Walk();
 
 		// ジャンプ
-		if (jumpReserveInput) {
-			if (Jump()) {
-				prevJumpStandbyFlg = true;
+		if (!Land.noticeLandEffect) {
+			if (jumpReserveInput) {
+				if (Jump()) {
+					prevJumpStandbyFlg = true;
+				}
+				if (!jumpStandbyFlg) {
+					prevJumpStandbyFlg = false;
+				}
+			} else {
+				Jump();
+				prevJumpStandbyFlg = jumpStandbyFlg;
 			}
-			if (!jumpStandbyFlg) {
-				prevJumpStandbyFlg = false;
-			}
-		} else {
-			Jump();
-			prevJumpStandbyFlg = jumpStandbyFlg;
-			Debug.LogWarning(prevJumpStandbyFlg);
 		}
 
 		// 立ち止まり
