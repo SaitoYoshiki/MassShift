@@ -34,6 +34,7 @@ public class StageSelectManager : MonoBehaviour {
     [SerializeField]
     Color mStagePlateClearedColor;
 
+	SceneFade mFade;
 	StageTransition mTransition;
 	Pause mPause;
 	StageSelectScroll mStageSelectScroll;
@@ -90,11 +91,16 @@ public class StageSelectManager : MonoBehaviour {
 	float mSelectTime = 0.0f;   //選び続けている秒数
 	bool mSelectInit = false;
 
+	bool mSelectArea1ToEx = false;	//エリア1からExエリアに行くドアに立っているか
+	bool mSelectExToArea1 = false;	//Exエリアからエリア1に行くドアに立っているか
+
 	bool mFromTitle;
 
 
 	// Use this for initialization
 	void Start() {
+
+		mFade = FindObjectOfType<SceneFade>();
 
 		mPlayer = FindObjectOfType<Player>();
 		mTransition = FindObjectOfType<StageTransition>();
@@ -132,10 +138,24 @@ public class StageSelectManager : MonoBehaviour {
 		//
 		mSelectStageNum = -1;
 		for (int i = 0; i < mGoal.Count; i++) {
+			if(mGoal[i] == null) continue;
 			if (CanEnter(mGoal[i])) {
 				mSelectStageNum = i;
 				break;
 			}
+		}
+
+		//エリア1からExエリアに行くドアが選択されているか
+		mSelectArea1ToEx = false;
+		if (mArea1ToExDoor.gameObject.activeSelf) {
+			if (CanEnter(mArea1ToExDoor)) {
+				mSelectArea1ToEx = true;
+			}
+		}
+
+		mSelectExToArea1 = false;
+		if (CanEnter(mExToArea1Door)) {
+			mSelectExToArea1 = true;
 		}
 	}
 
@@ -481,13 +501,29 @@ public class StageSelectManager : MonoBehaviour {
 			//ゴール判定
 			//
 			if (mSelectStageNum != -1) {
-
+				
 				//もし入る操作が行われているなら
-				if (lIsEnter && CanGoal(mGoal[mSelectStageNum])) {
+				if (lIsEnter && CanGoal(mGoal[mSelectStageNum]) && Area.IsValidArea((mSelectStageNum / 5) + 1)) {
 					lDecideSelectStageNum = mSelectStageNum;
 					break;
 				}
 			}
+
+			//Exと行き来するドアを通ったかの判定
+			if (mSelectArea1ToEx) {
+				if(lIsEnter) {
+					yield return MoveArea1ToEx();
+				}
+			}
+
+			lIsEnter = Input.GetKey(KeyCode.W);
+
+			if (mSelectExToArea1) {
+				if (lIsEnter) {
+					yield return MoveExToArea1();
+				}
+			}
+
 
 
 			yield return null;  //ゲームメインを続ける
@@ -660,15 +696,30 @@ public class StageSelectManager : MonoBehaviour {
 	void SetEnterColor(int aIndex) {
         int index = 0;
 		foreach(var t in mText) {
-            // ステージがクリア済みなら
-            if (ScoreManager.Instance.ShiftTimes((index / 5) + 1, (index % 5) + 1) != -1) {
-                // ステージ名の色を変える
-                t.color = mStagePlateClearedColor;
-            }
-            else{
-                // ステージ名の色を灰色に
-                t.color = mStagePlateOffColor;
-            }
+
+			if (t == null) {
+				index++;
+				continue;
+			}
+
+			int lAreaNum = (index / 5) + 1;
+			int lStageNum = (index % 5) + 1;
+
+			// ステージがクリア済みなら
+			if(Area.IsValidArea(lAreaNum)) {
+				if (ScoreManager.Instance.ShiftTimes(lAreaNum, lStageNum) != -1) {
+					// ステージ名の色を変える
+					t.color = mStagePlateClearedColor;
+				}
+				else {
+					// ステージ名の色を灰色に
+					t.color = mStagePlateOffColor;
+				}
+			}
+			else {
+				// ステージ名の色を灰色に
+				t.color = mStagePlateOffColor;
+			}
 
             index++;
 		}
@@ -1125,4 +1176,85 @@ public class StageSelectManager : MonoBehaviour {
 
 	}
 	
+
+	IEnumerator MoveArea1ToEx() {
+		yield return null;
+
+		//
+		//フェード
+		//
+
+		mFade.FadeInStart(1.0f);
+
+		while (true) {
+			if (mFade.IsFadeIn() == false) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//プレイヤーの位置を変更
+		Goal g = mExToArea1Door;
+		Vector3 lNewPlayerPosition = g.transform.position;
+		lNewPlayerPosition += g.transform.rotation * Vector3.up * 1.0f;
+		lNewPlayerPosition.z = 0.0f;
+		mPlayer.transform.position = lNewPlayerPosition;
+
+		//カメラの位置を変更
+		mCameraMove.transform.position = mStageSelectScroll.mAreaCameraPosition[3].transform.position;
+
+
+		mFade.FadeOutStart(1.0f);
+
+		while (true) {
+			if (mFade.IsFadeOut() == false) {
+				break;
+			}
+			yield return null;
+		}
+	}
+
+	IEnumerator MoveExToArea1() {
+
+		yield return null;
+
+		mStageSelectScroll.mIsScroll = false;
+
+
+		//
+		//フェード
+		//
+
+		mFade.FadeInStart(1.0f);
+
+		while (true) {
+			if (mFade.IsFadeIn() == false) {
+				break;
+			}
+			yield return null;
+		}
+
+
+		//プレイヤーの位置を変更
+		Goal g = mArea1ToExDoor;
+		Vector3 lNewPlayerPosition = g.transform.position;
+		lNewPlayerPosition += g.transform.rotation * Vector3.up * 1.0f;
+		lNewPlayerPosition.z = 0.0f;
+		mPlayer.transform.position = lNewPlayerPosition;
+
+		//カメラの位置を変更
+		mCameraMove.transform.position = mStageSelectScroll.mAreaCameraPosition[0].transform.position;
+
+
+		mFade.FadeOutStart(1.0f);
+
+		while (true) {
+			if (mFade.IsFadeOut() == false) {
+				break;
+			}
+			yield return null;
+		}
+	}
+
 }
