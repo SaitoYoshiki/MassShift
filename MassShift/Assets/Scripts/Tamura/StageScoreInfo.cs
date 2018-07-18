@@ -82,8 +82,8 @@ public class StageScoreInfo : MonoBehaviour {
 
         // 前のステージ番号から変更があった場合
         if (selectStageNum != oldStageNum) {
-            // キャラがドア前にいる
-            if (ssm.SelectStageNum != -1) {
+            // キャラがドア前にいて、かつエリア移動の扉でないなら
+            if (ssm.SelectStageNum != -1 && ssm.SelectStageNum < 20) {
                 // かつパネルの置いてあるエリアが今キャラのいるエリアと同じなら
                 if (caip.AreaIndex == (int)placedArea) {
                     // Exエリア内かつまだそのステージに入れない場合
