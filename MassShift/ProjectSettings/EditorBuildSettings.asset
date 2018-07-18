@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scene/Master/Title.unity
     guid: 7b1039e807c5d6047806b5acf4cb3fdf
   - enabled: 1
+    path: Assets/Scene/Master/Opening.unity
+    guid: 00000000000000000000000000000000
+  - enabled: 1
     path: Assets/Scene/Master/Tutorial-1.unity
     guid: 282228890fc60fc4b8e96e6a414bbfca
   - enabled: 1
@@ -67,16 +70,16 @@ EditorBuildSettings:
     guid: c42393389423cf447873916018a13cea
   - enabled: 1
     path: Assets/Scene/Master/Final.unity
-    guid: 00000000000000000000000000000000
+    guid: 7efdfb40636d9e848b4ed630b1ff4ac1
   - enabled: 1
     path: Assets/Scene/Master/Stage4-1.unity
-    guid: 00000000000000000000000000000000
+    guid: b4d296d537499e2428984ae681f58720
   - enabled: 1
     path: Assets/Scene/Master/Stage4-2.unity
-    guid: 00000000000000000000000000000000
+    guid: b959566ba581cb344978844da589af01
   - enabled: 1
     path: Assets/Scene/Master/Stage4-3.unity
-    guid: 00000000000000000000000000000000
+    guid: 80fe960b41c7ddf43adbf37a3f1b7461
   - enabled: 0
     path: Assets/Scene/Master/Filming.unity
     guid: 6a141e52cc9990f419a7889b221258ef
