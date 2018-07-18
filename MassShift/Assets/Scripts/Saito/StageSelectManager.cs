@@ -466,16 +466,23 @@ public class StageSelectManager : MonoBehaviour {
 			//現在いる場所のドアを開くのと、プレートを光らせるのの更新
 			lSelectStageNum = mSelectStageNum;
 			if (lSelectStageNum != lBeforeSelectStageNum) {
-				SetEnterColor(mSelectStageNum);
-				OpenDoor(lSelectStageNum, true);
+				
+				if(CanEnterStage(lSelectStageNum)) {
+					SetEnterColor(mSelectStageNum);
+					OpenDoor(lSelectStageNum, true);
+
+					mSelectInit = false;
+					mSelectTime = 0.0f;
+				}
+				else {
+					SetEnterColor(-1);
+				}
+				
 				OpenDoor(lBeforeSelectStageNum, false);
 
 				if (lBeforeSelectStageNum != -1) {
 					mEnterUI.StopAnimation();
 				}
-
-				mSelectInit = false;
-				mSelectTime = 0.0f;
 			}
 			lBeforeSelectStageNum = lSelectStageNum;
 
@@ -503,16 +510,19 @@ public class StageSelectManager : MonoBehaviour {
 			if (mSelectStageNum != -1) {
 				
 				//もし入る操作が行われているなら
-				if (lIsEnter && CanGoal(mGoal[mSelectStageNum]) && Area.IsValidArea((mSelectStageNum / 5) + 1)) {
+				if (lIsEnter && CanGoal(mGoal[mSelectStageNum]) && CanEnterStage(mSelectStageNum) && Area.IsValidArea((mSelectStageNum / 5) + 1)) {
 					lDecideSelectStageNum = mSelectStageNum;
 					break;
 				}
 			}
 
+			bool lEnterDoor = false;
+
 			//Exと行き来するドアを通ったかの判定
 			if (mSelectArea1ToEx) {
 				if(lIsEnter) {
 					yield return MoveArea1ToEx();
+					lEnterDoor = true;
 				}
 			}
 
@@ -521,12 +531,18 @@ public class StageSelectManager : MonoBehaviour {
 			if (mSelectExToArea1) {
 				if (lIsEnter) {
 					yield return MoveExToArea1();
+					lEnterDoor = true;
 				}
 			}
 
-
-
 			yield return null;  //ゲームメインを続ける
+
+
+			//Exエリアと行き来するドアを、開きっぱなしにしないようにする
+			if(lEnterDoor == true) {
+				mExToArea1Door.mOpenForce = false;
+				mArea1ToExDoor.mOpenForce = false;
+			}
 		}
 
 
@@ -718,7 +734,7 @@ public class StageSelectManager : MonoBehaviour {
 			}
 			else {
 				// ステージ名の色を灰色に
-				t.color = mStagePlateOffColor;
+				t.color = mStagePlateClearedColor;
 			}
 
             index++;
@@ -1178,7 +1194,21 @@ public class StageSelectManager : MonoBehaviour {
 	
 
 	IEnumerator MoveArea1ToEx() {
-		yield return null;
+
+		//ポーズや、プレイヤーの操作などを不可能にする
+		//
+
+		OnCanShiftOperation(false);
+		mPause.canPause = false;
+		CanInputPlayer(false);
+		CanMovePlayer(false);
+		CanJumpPlayer(false);
+
+
+
+		//行き先のエリアのドアを、開かせる
+		mExToArea1Door.mOpenForce = true;
+		mEnterUI.StopAnimation();
 
 		//
 		//フェード
@@ -1193,6 +1223,8 @@ public class StageSelectManager : MonoBehaviour {
 			yield return null;
 		}
 
+		//行き先のエリアのプレートを点灯
+		SetEnterColor(21);
 
 		//プレイヤーの位置を変更
 		Goal g = mExToArea1Door;
@@ -1213,14 +1245,32 @@ public class StageSelectManager : MonoBehaviour {
 			}
 			yield return null;
 		}
+
+
+		//ポーズや、プレイヤーの操作などを可能にする
+		//
+
+		OnCanShiftOperation(true);
+		mPause.canPause = true;
+		CanInputPlayer(true);
+		CanMovePlayer(true);
+		CanJumpPlayer(true);
 	}
 
 	IEnumerator MoveExToArea1() {
 
-		yield return null;
+		//ポーズや、プレイヤーの操作などを不可能にする
+		//
 
-		mStageSelectScroll.mIsScroll = false;
+		OnCanShiftOperation(false);
+		mPause.canPause = false;
+		CanInputPlayer(false);
+		CanMovePlayer(false);
+		CanJumpPlayer(false);
 
+
+		mArea1ToExDoor.mOpenForce = true;
+		mEnterUI.StopAnimation();
 
 		//
 		//フェード
@@ -1235,6 +1285,9 @@ public class StageSelectManager : MonoBehaviour {
 			yield return null;
 		}
 
+
+		//行き先のエリアのプレートを点灯
+		SetEnterColor(20);
 
 		//プレイヤーの位置を変更
 		Goal g = mArea1ToExDoor;
@@ -1255,6 +1308,40 @@ public class StageSelectManager : MonoBehaviour {
 			}
 			yield return null;
 		}
+
+
+		//ポーズや、プレイヤーの操作などを可能にする
+		//
+
+		OnCanShiftOperation(true);
+		mPause.canPause = true;
+		CanInputPlayer(true);
+		CanMovePlayer(true);
+		CanJumpPlayer(true);
 	}
 
+
+	bool CanEnterStage(int aSelectStageNum) {
+
+		bool lCanEnter = true;
+		int lAreaNum = aSelectStageNum / 5 + 1;
+		int lStageNum = aSelectStageNum % 5 + 1;
+
+		if (lAreaNum == 4) {
+			if (lStageNum == 1 && Area.CanGoStage4_1() == false) {
+				lCanEnter = false;
+			}
+			if (lStageNum == 2 && Area.CanGoStage4_2() == false) {
+				lCanEnter = false;
+			}
+			if (lStageNum == 3 && Area.CanGoStage4_3() == false) {
+				lCanEnter = false;
+			}
+			if (lStageNum == 4 && Area.CanGoFinalStage() == false) {
+				lCanEnter = false;
+			}
+		}
+
+		return lCanEnter;
+	}
 }
