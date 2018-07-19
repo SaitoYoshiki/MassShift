@@ -76,10 +76,13 @@ public class Ending : MonoBehaviour {
 	float shakeMagnitude = 0.5f;
 
 	[Space, SerializeField]
-	Material backgourndCellAfterMat;
+	Material backgourndCellMidMat;
+	[SerializeField]
+	Transform cellChangeSpherePoint = null;
+	[SerializeField]
+	GameObject cellChangeSpherePrefab = null;
 	[SerializeField]
 	List<BackgroundCell> backgroundCellList = new List<BackgroundCell>();
-
 
 	[Space, SerializeField]
 	Transform creditTrans = null;
@@ -263,8 +266,12 @@ public class Ending : MonoBehaviour {
 
 		// 背景セルの色を全て変更
 		foreach (var cell in backgroundCellList) {
-			cell.PowerfulLighting(backgourndCellAfterMat);
+			cell.PowerfulLighting(backgourndCellMidMat);
 		}
+
+		// 背景セルの色を変更する巨大化する球を生成
+		GameObject cellChangeSphereObj = Instantiate(cellChangeSpherePrefab, cellChangeSpherePoint);
+		cellChangeSphereObj.transform.localPosition = Vector3.zero;
 			
 		// 待機
 		yield return new WaitForSeconds(1.0f);
