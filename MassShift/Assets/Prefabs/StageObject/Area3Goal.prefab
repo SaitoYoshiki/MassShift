@@ -1050,8 +1050,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mOpenForce: 0
   mPlayOpenSE: 1
-  mOpenTakeTime: 0.2
-  mCloseTakeTime: 0.2
+  mOpenTakeTime: 1
+  mCloseTakeTime: 1
   mOpenSE: {fileID: 1814487403731412, guid: 262a8cddffad8d447b108228970d601a, type: 2}
   mInPlayerList: []
   mLampTopPrefab: {fileID: 1142396243667796, guid: fab6f0b2cc713bb4baa508d0466f7579,
