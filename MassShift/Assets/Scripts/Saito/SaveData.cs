@@ -49,6 +49,7 @@ public class SaveData {
 
 	[System.Serializable]
 	public class EventDoneFlag {
+        public bool mAlreadyVisitStageSelect; // ステージセレクトに一度行ったことがあるかどうか
 		public bool mArea2Open;   //エリア2に行けるよう
 		public bool mArea3Open;   //エリア3に行けるよう
 		public bool mArea4Open;   //エリア4に行けるよう

@@ -8448,12 +8448,11 @@ Prefab:
       propertyPath: m_RootOrder
       value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: 102412277583976422, guid: 28de7fafecc2e0e4ca29a01906723e54,
+    - target: {fileID: 23168108264828740, guid: 28de7fafecc2e0e4ca29a01906723e54,
         type: 2}
-      propertyPath: m_Font
+      propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 12800000, guid: 4d47dd3cf8642df49a032c0977b844e4,
-        type: 3}
+      objectReference: {fileID: 2100000, guid: 9c0a6beb4d1c6044d9939cde4c17ddab, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 28de7fafecc2e0e4ca29a01906723e54, type: 2}
   m_IsPrefabParent: 0

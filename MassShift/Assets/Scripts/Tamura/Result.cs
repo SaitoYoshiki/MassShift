@@ -16,7 +16,6 @@ public class Result : MonoBehaviour {
     [SerializeField]
     GameObject ResultCanvas_GC;
 
-
     GameObject ResultUI;
     GameObject clearImage;
     GameObject bgLightImage;

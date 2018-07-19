@@ -32,6 +32,9 @@ public class cameraMove : MonoBehaviour {
 
     StageTransition st;
 
+    [SerializeField]
+    SceneObject openingScene;
+
     float startZoomTime;
     float nowZoomTime;
 
@@ -100,16 +103,32 @@ public class cameraMove : MonoBehaviour {
     void CheckFirstZoom() {
         // ズームインし終わっていたら何もしない
         if (firstZoom) {
+            if (!SaveData.Instance.mEventDoneFlag.mAlreadyVisitStageSelect) {
+                if (!FindObjectOfType<SceneFade>().IsFadeIn() && !titleEndFlg) {
+                    SceneManager.LoadSceneAsync("Opening");
+                    titleEndFlg = true;
+                }
+            }
+
             return;
         }
         // ズームされていない初期状態なら
         else {
+            // 何かボタンが押されたら
             if (Input.GetMouseButtonDown(0)) {
                 // 「InputAnyKey」の表示を消す
                 text.SetActive(false);
-                firstZoom = true;
-                zoomInFlg = true;
-                startZoomTime = Time.realtimeSinceStartup;
+
+                // 一度でもステセレシーンに入ったことがあれば
+                if (SaveData.Instance.mEventDoneFlag.mAlreadyVisitStageSelect) {
+                    firstZoom = true;
+                    zoomInFlg = true;
+                    startZoomTime = Time.realtimeSinceStartup;
+                }
+                else {
+                    FindObjectOfType<SceneFade>().FadeInStart();
+                    firstZoom = true;
+                }
             }
         }
     }

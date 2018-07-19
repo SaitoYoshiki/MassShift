@@ -99,6 +99,9 @@ public class StageSelectManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
+        // ステージセレクトを訪れたかどうか保存
+        SaveData.Instance.mEventDoneFlag.mAlreadyVisitStageSelect = true;
+        SaveData.Instance.Save();
 
 		mFade = FindObjectOfType<SceneFade>();
 
