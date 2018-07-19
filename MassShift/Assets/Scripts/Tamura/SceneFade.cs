@@ -17,6 +17,8 @@ public class SceneFade : MonoBehaviour {
     bool isFadeIn = false;
     bool isFadeOut = false;
 
+    bool isFadeEnd = false;
+
     // 初期化
     void Start() {
         fadeColor.a = 0.0f;
@@ -65,6 +67,18 @@ public class SceneFade : MonoBehaviour {
         isFadeIn = true;
     }
 
+    public void FadeInStart(Color _fadeColor) {
+        // エラー防止
+        if (isFadeIn || isFadeOut) {
+            return;
+        }
+
+        fadeStartTime = Time.realtimeSinceStartup;
+        fadeColor = _fadeColor;
+        fadeColor.a = 0.0f;
+        isFadeIn = true;
+    }
+
     // フェードアウト開始
     public void FadeOutStart() {
         // エラー防止
@@ -101,6 +115,7 @@ public class SceneFade : MonoBehaviour {
         if (fadeColor.a >= 1.0f) {
             fadeColor.a = 1.0f;
             isFadeIn = false;
+            isFadeEnd = true;
         }
 
         yield return null;
@@ -116,6 +131,7 @@ public class SceneFade : MonoBehaviour {
         if (fadeColor.a <= 0.0f) {
             fadeColor.a = 0.0f;
             isFadeOut = false;
+            isFadeEnd = true;
         }
 
         yield return null;
@@ -127,5 +143,9 @@ public class SceneFade : MonoBehaviour {
 
     public bool IsFadeOut() {
         return isFadeOut;
+    }
+
+    public bool IsFadeEnd() {
+        return isFadeEnd;
     }
 }

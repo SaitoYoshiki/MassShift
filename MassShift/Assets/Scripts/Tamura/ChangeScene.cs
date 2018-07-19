@@ -28,9 +28,11 @@ public class ChangeScene : MonoBehaviour {
 
     [SerializeField]
     private StageTransition st;
+    SceneFade sf;
     Result result;
 
     void Start() {
+        sf = FindObjectOfType<SceneFade>();
         changeSceneFlg = false;
         endGameFlg = false;
         pauseFlg = false;
@@ -48,7 +50,7 @@ public class ChangeScene : MonoBehaviour {
 
     void Update() {
         if (!changeSceneFlg) {
-            if (!st.GetCloseEnd() /*|| !st.GetOpenEnd()*/) {
+            if (!st.GetCloseEnd() && !sf.IsFadeEnd()) {
                 return;
             }
             else {
@@ -174,7 +176,9 @@ public class ChangeScene : MonoBehaviour {
         GetComponent<Pause>().canPause = false;
         GetComponent<Result>().DisableGraphicRaycaster();
         changeSceneMode = CHANGE_SCENE_MODE.RETRY;
-        changeSceneFlg = true;
+
+        sf.FadeInStart();
+        //changeSceneFlg = true;
 
         // リザルト画面を消す
         /*if (result.IsResultCanvasActive()) {
@@ -209,7 +213,8 @@ public class ChangeScene : MonoBehaviour {
         }*/
 
         if (SceneManager.GetActiveScene().name == "Title") {
-            changeSceneFlg = true;
+            //changeSceneFlg = true;
+            sf.FadeInStart();
         }
         else {
             // ドア閉め演出
@@ -225,7 +230,14 @@ public class ChangeScene : MonoBehaviour {
         GetComponent<Pause>().DisableGraphicRaycaster();
         GetComponent<Pause>().canPause = false;
         changeSceneMode = CHANGE_SCENE_MODE.TITLE;
-        changeSceneFlg = true;
+        //changeSceneFlg = true;
+
+        if (SceneManager.GetActiveScene().name != "Ending") {
+            sf.FadeInStart();
+        }
+        else {
+            sf.FadeInStart(Color.white);
+        }
     }
 
     public void OnEscapeButtonDown() {

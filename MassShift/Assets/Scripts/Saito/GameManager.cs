@@ -132,24 +132,25 @@ public class GameManager : MonoBehaviour {
 			SoundManager.SFade(mBGMInstance, 0.0f, SoundManager.SVolume(lBGMPrefab), 2.0f);
 		}
 
-        // ステージ開始時のドア開き
-        if (mTransition != null) {
-            //ステージ開始時の演出
-            mTransition.OpenDoorParent();
-
-            //演出が終了するまで待機
-            while (true) {
-                if (mTransition.GetOpenEnd()) break;
-                yield return null;
-            }
-        }
-
 		// タイトルシーンからの遷移なら
         if (cameraMove.fromTitle){
 			cameraMove.fromTitle = false;
 			Debug.Log("fromTitle" + cameraMove.fromTitle);
 			yield return null;
 		}
+        else {
+            // ステージ開始時のドア開き
+            if (mTransition != null) {
+                //ステージ開始時の演出
+                mTransition.OpenDoorParent();
+
+                //演出が終了するまで待機
+                while (true) {
+                    if (mTransition.GetOpenEnd()) break;
+                    yield return null;
+                }
+            }
+        }
 
 
 		//ゲームメインの開始
