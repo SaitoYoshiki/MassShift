@@ -38,7 +38,11 @@ public class Ending : MonoBehaviour {
 	float shiftHopForce = 25.0f;
 
 	[Space, SerializeField]
+	GameObject musicSoundPrefab = null;
+	[SerializeField]
 	GameObject shiftSoundPrefab = null;
+	[SerializeField]
+	GameObject impactSoundPrefab = null;
 	[SerializeField]
 	GameObject doorOpenSoundPrefab = null;
 
@@ -72,6 +76,16 @@ public class Ending : MonoBehaviour {
 	[SerializeField]
 	List<BackgroundCell> backgroundCellList = new List<BackgroundCell>();
 
+
+	[Space, SerializeField]
+	Transform creditTrans = null;
+	[SerializeField]
+	Transform creditBeginPoint = null;
+	[SerializeField]
+	Transform creditEndPoint = null;
+	[SerializeField]
+	float creditTime = 10.0f;
+
 	void Start() {
 		// 背景のセルを全て取得
 		backgroundCellList.AddRange(FindObjectsOfType<BackgroundCell>());
@@ -99,7 +113,13 @@ public class Ending : MonoBehaviour {
 		shift.SetCursorPosition(plTrans.position);
 
 		// 待機
-		yield return new WaitForSeconds(4.0f);
+		yield return new WaitForSeconds(1.6f);
+
+		// BGM再生
+		SoundManager.SPlay(musicSoundPrefab);
+
+		// 待機
+		yield return new WaitForSeconds(2.4f);
 
 		// カーソル位置のオブジェクトを生成
 		GameObject cursorPoint = new GameObject("CursorPoint");
@@ -196,6 +216,7 @@ public class Ending : MonoBehaviour {
 		while (endCnt < (particleNum - 1)) {
 			// 終了したパーティクルをカウント
 			while ((particleList.Count > 0) && !particleList[0]) {
+				SoundManager.SPlay(shiftSoundPrefab);
 				particleList.RemoveAt(0);
 				endCnt++;
 				SetSizeUpParticle((float)endCnt / (float)particleNum);
@@ -212,6 +233,7 @@ public class Ending : MonoBehaviour {
 		yield return new WaitForSeconds(0.04f);
 
 		// アーム移動
+		SoundManager.SPlay(impactSoundPrefab);
 		float armMoveBeginTime = Time.time;
 		while (true) {
 			if ((armMoveBeginTime + armMoveTime) <= Time.time) {
@@ -230,6 +252,7 @@ public class Ending : MonoBehaviour {
 		ShakeCamera.ShakeAll(shakeTime, shakeMagnitude);
 		GameObject impactEffectObj = Instantiate(impactEffect);
 		impactEffectObj.transform.position = impactEffectTrans.position;
+		SoundManager.SPlay(impactSoundPrefab);
 
 		// 背景セルの色を全て変更
 		foreach (var cell in backgroundCellList) {
@@ -326,6 +349,19 @@ public class Ending : MonoBehaviour {
 
 		// 待機
 		yield return new WaitForSeconds(0.5f);
+
+		float creditBeginTime = Time.time;
+		while (true) {
+			float ratio = ((Time.time - creditBeginTime) / creditTime);
+			if (ratio >= 1.0f) {
+				creditTrans.position = creditEndPoint.position;
+				break;
+			}
+			creditTrans.position = new Vector3(Mathf.Lerp(creditBeginPoint.position.x, creditEndPoint.position.x, ratio), Mathf.Lerp(creditBeginPoint.position.y, creditEndPoint.position.y, ratio), Mathf.Lerp(creditBeginPoint.position.z, creditEndPoint.position.z, ratio));
+			yield return null;
+		}
+
+
 
 		// シーン遷移
 		((ChangeScene)FindObjectOfType(typeof(ChangeScene))).OnTitleButtonDown();	// タイトルへ
