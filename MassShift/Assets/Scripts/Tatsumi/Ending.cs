@@ -369,7 +369,7 @@ public class Ending : MonoBehaviour {
 		}
 
 		// 待機
-		yield return new WaitForSeconds(5.0f);
+		yield return new WaitForSeconds(4.3f);
 
 		// シーン遷移
 		((ChangeScene)FindObjectOfType(typeof(ChangeScene))).OnTitleButtonDown();	// タイトルへ
