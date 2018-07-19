@@ -95,10 +95,6 @@ public class SceneFade : MonoBehaviour {
         float nowTime = Time.realtimeSinceStartup - fadeStartTime;
         float timePer = nowTime / fadeTime;
 
-        Debug.Log("rt" + Time.realtimeSinceStartup);
-        Debug.Log("nt" + nowTime);
-        Debug.Log("tp" + timePer);
-
         // フェードイン処理
         fadeColor.a = timePer;
         fadeImage.color = fadeColor;

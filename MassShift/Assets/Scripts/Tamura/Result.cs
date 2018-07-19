@@ -15,7 +15,8 @@ public class Result : MonoBehaviour {
     // ゲーム(ファイナルステージ)クリア時のリザルト画面
     [SerializeField]
     GameObject ResultCanvas_GC;
-
+    // 表示物は"StageClear"と[もう一度遊ぶ][ステージセレクトへ戻る][脱出する]
+    // タイトル画面はステージセレクトに一度入ったことがあるかどうか
 
     GameObject ResultUI;
     GameObject clearImage;
