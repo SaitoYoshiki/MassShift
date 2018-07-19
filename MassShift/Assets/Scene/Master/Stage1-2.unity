@@ -4859,6 +4859,11 @@ Prefab:
       propertyPath: mLampList.Array.data[1]
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 23941708438392452, guid: 1f1956d9b73847c4092129475cb30fc0,
+        type: 2}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 779a9fb0e5348f447b030047860eb919, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1f1956d9b73847c4092129475cb30fc0, type: 2}
   m_IsPrefabParent: 0

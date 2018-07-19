@@ -2886,6 +2886,7 @@ MonoBehaviour:
   spanTimeMax: 20
   useCollisionTrigger: 1
   useRandomTime: 0
+  isPowerfulLighting: 0
 --- !u!23 &379584853
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3820,6 +3821,7 @@ MonoBehaviour:
   spanTimeMax: 20
   useCollisionTrigger: 1
   useRandomTime: 0
+  isPowerfulLighting: 0
 --- !u!23 &591533370
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7259,6 +7261,7 @@ MonoBehaviour:
   spanTimeMax: 20
   useCollisionTrigger: 1
   useRandomTime: 0
+  isPowerfulLighting: 0
 --- !u!23 &1118713649
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10098,6 +10101,7 @@ MonoBehaviour:
   spanTimeMax: 20
   useCollisionTrigger: 1
   useRandomTime: 0
+  isPowerfulLighting: 0
 --- !u!23 &1526430177
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11399,6 +11403,7 @@ MonoBehaviour:
   spanTimeMax: 20
   useCollisionTrigger: 1
   useRandomTime: 0
+  isPowerfulLighting: 0
 --- !u!23 &1776237300
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11527,6 +11532,15 @@ Prefab:
         type: 2}
       propertyPath: ratioUpTime
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 23635530403770360, guid: 477f4bd5e771f354986d649550e31fac,
+        type: 2}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 5da33d3e90f5b254d8026dc387f2b181, type: 2}
+    - target: {fileID: 4243703349629696, guid: 477f4bd5e771f354986d649550e31fac, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 1.98
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 477f4bd5e771f354986d649550e31fac, type: 2}
