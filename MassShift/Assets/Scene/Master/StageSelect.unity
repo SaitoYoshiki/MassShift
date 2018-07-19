@@ -16700,6 +16700,26 @@ Prefab:
       propertyPath: mText.Array.data[21]
       value: 
       objectReference: {fileID: 905145111}
+    - target: {fileID: 114607455862085226, guid: 4b79edb39236487409e814958c2c51ff,
+        type: 2}
+      propertyPath: mStagePlateClearedColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114607455862085226, guid: 4b79edb39236487409e814958c2c51ff,
+        type: 2}
+      propertyPath: mStagePlateClearedColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114607455862085226, guid: 4b79edb39236487409e814958c2c51ff,
+        type: 2}
+      propertyPath: mStagePlateClearedColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114607455862085226, guid: 4b79edb39236487409e814958c2c51ff,
+        type: 2}
+      propertyPath: mStagePlateClearedColor.a
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 4b79edb39236487409e814958c2c51ff, type: 2}
   m_IsPrefabParent: 0
@@ -18796,6 +18816,11 @@ Prefab:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 114554971347857646, guid: 70d7fdc3aa743f34abeada56d3271560,
+        type: 2}
+      propertyPath: clearInfo
+      value: 
+      objectReference: {fileID: 1015888610}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 70d7fdc3aa743f34abeada56d3271560, type: 2}
   m_IsPrefabParent: 0
@@ -38242,7 +38267,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1015888611
 RectTransform:
   m_ObjectHideFlags: 0
