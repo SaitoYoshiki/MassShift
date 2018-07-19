@@ -210,7 +210,7 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1825079554132560}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -242,7 +242,7 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1408136231417892}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -274,7 +274,7 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1844272181694134}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -306,7 +306,7 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1920052217707870}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -437,6 +437,7 @@ MonoBehaviour:
   spanTimeMax: 20
   useCollisionTrigger: 1
   useRandomTime: 0
+  isPowerfulLighting: 0
 --- !u!114 &114125954599017628
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -459,6 +460,7 @@ MonoBehaviour:
   spanTimeMax: 20
   useCollisionTrigger: 1
   useRandomTime: 0
+  isPowerfulLighting: 0
 --- !u!114 &114278236322584630
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -481,6 +483,7 @@ MonoBehaviour:
   spanTimeMax: 20
   useCollisionTrigger: 1
   useRandomTime: 0
+  isPowerfulLighting: 0
 --- !u!114 &114586425700989858
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -503,6 +506,7 @@ MonoBehaviour:
   spanTimeMax: 20
   useCollisionTrigger: 1
   useRandomTime: 0
+  isPowerfulLighting: 0
 --- !u!135 &135191000366751034
 SphereCollider:
   m_ObjectHideFlags: 1
