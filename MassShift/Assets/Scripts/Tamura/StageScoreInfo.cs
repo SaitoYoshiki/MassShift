@@ -166,11 +166,11 @@ public class StageScoreInfo : MonoBehaviour {
                         }
                         // それ以外
                         else {
-                        stageName.text = ((int)placedArea).ToString() + " - " + selectStageNum.ToString();
-                        score3text.text = "～" + (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)).ToString();
-                        score2text.text = (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum) + 1).ToString() + "～" + (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)).ToString();
-                        score1text.text = (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum) + 1).ToString() + "～";
-                            }
+                            stageName.text = ((int)placedArea).ToString() + " - " + selectStageNum.ToString();
+                            score3text.text = "～" + (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)).ToString();
+                            score2text.text = (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum) + 1).ToString() + "～" + (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)).ToString();
+                            score1text.text = (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum) + 1).ToString() + "～";
+                        }
 
                         if (ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum) != -1) {
                             bestScoretext.text = "Best Score : " + ScoreManager.Instance.ShiftTimes((int)placedArea, selectStageNum).ToString();
@@ -217,6 +217,7 @@ public class StageScoreInfo : MonoBehaviour {
                 return Area.CanGoFinalStage();
 
             default:
+                Debug.Log("default");
                 return false;
         }
     }
