@@ -16,6 +16,9 @@ public class StageScoreInfo : MonoBehaviour {
     Text stageName;
 
     [SerializeField]
+    Text areaName;
+
+    [SerializeField]
     List<Sprite> stagePreview;
     
     // 各スコアの星画像
@@ -157,11 +160,21 @@ public class StageScoreInfo : MonoBehaviour {
                         // ステージ名と必要手数を代入
                         // Exステージの場合
                         if (placedArea == AREA.AREA4) {
-                            if (selectStageNum < 4) {
-                                stageName.text = "EX - " + selectStageNum.ToString();
+                            if (canGoArea4Stage(selectStageNum)) {
+                                if (selectStageNum < 4) {
+                                    stageName.text = "EX - " + selectStageNum.ToString();
+                                }
+                                else {
+                                    stageName.text = "Final";
+                                }
                             }
                             else {
-                                stageName.text = "Final";
+                                if (selectStageNum < 4) {
+                                    areaName.text = selectStageNum.ToString();
+                                }
+                                else {
+                                    areaName.text = "EX";
+                                }
                             }
                         }
                         // それ以外
@@ -208,12 +221,16 @@ public class StageScoreInfo : MonoBehaviour {
     bool canGoArea4Stage(int _stageNum) {
         switch (_stageNum) {
             case 1:
+                Debug.Log("Area1 : " + Area.CanGoStage4_1());
                 return Area.CanGoStage4_1();
             case 2:
+                Debug.Log("Area2 : " + Area.CanGoStage4_2());
                 return Area.CanGoStage4_2();
             case 3:
+                Debug.Log("Area3 : " + Area.CanGoStage4_3());
                 return Area.CanGoStage4_3();
             case 4:
+                Debug.Log("AreaEx : " + Area.CanGoFinalStage());
                 return Area.CanGoFinalStage();
 
             default:

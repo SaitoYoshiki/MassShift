@@ -19049,6 +19049,15 @@ Prefab:
       propertyPath: clearInfo
       value: 
       objectReference: {fileID: 1015888610}
+    - target: {fileID: 1252194488823376, guid: 70d7fdc3aa743f34abeada56d3271560, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114554971347857646, guid: 70d7fdc3aa743f34abeada56d3271560,
+        type: 2}
+      propertyPath: areaName
+      value: 
+      objectReference: {fileID: 834422873}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 70d7fdc3aa743f34abeada56d3271560, type: 2}
   m_IsPrefabParent: 0
@@ -31880,7 +31889,7 @@ GameObject:
   - component: {fileID: 834422874}
   - component: {fileID: 834422873}
   m_Layer: 5
-  m_Name: StageNameText
+  m_Name: AreaNameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31938,7 +31947,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Stage '
+  m_Text: 
 --- !u!222 &834422874
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -43942,7 +43951,7 @@ GameObject:
   - component: {fileID: 1165662417}
   - component: {fileID: 1165662416}
   m_Layer: 5
-  m_Name: Stage
+  m_Name: Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44000,7 +44009,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: STAGE
+  m_Text: AREA
 --- !u!222 &1165662417
 CanvasRenderer:
   m_ObjectHideFlags: 0
