@@ -57,6 +57,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  mArea1ToExDoor: {fileID: 0}
+  mArea1ToExDoorBackGround: {fileID: 0}
+  mExToArea1Door: {fileID: 0}
   mText:
   - {fileID: 0}
   - {fileID: 0}
@@ -67,6 +70,7 @@ MonoBehaviour:
     type: 2}
   mStagePlateOnColor: {r: 0, g: 0.759, b: 0.747, a: 0}
   mStagePlateOffColor: {r: 0.41176468, g: 0.41176468, b: 0.41176468, a: 0}
+  mStagePlateClearedColor: {r: 0, g: 0, b: 0, a: 0}
   mCameraMove: {fileID: 0}
   mEnterUI: {fileID: 0}
   mTopStaticWeightBox: {fileID: 0}
@@ -76,7 +80,7 @@ MonoBehaviour:
   mToStageBeforeWalkingTime: 0.5
   mToStageWalkingTime: 1
   mToStageAfterWalkingTime: 0.5
-  mFromStageBeforeWalkingTime: 0
+  mFromStageBeforeWalkingTime: 1
   mFromStageWalkingTime: 1
   mFromStageBeforeRotateTime: 0.5
   mFromStageRotateTime: 0.5
