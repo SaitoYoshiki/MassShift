@@ -18,7 +18,7 @@ public class BackgroundLoopLine : MonoBehaviour {
 	[SerializeField]
 	float firstTime = 0.0f;
 	[SerializeField]
-	int cnt = 0;
+	int cnt = -1;
 
 	void Start() {
 		firstTime = Time.time;
