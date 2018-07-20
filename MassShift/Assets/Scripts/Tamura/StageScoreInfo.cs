@@ -69,6 +69,8 @@ public class StageScoreInfo : MonoBehaviour {
 
     ChangeActiveInfoPanel caip;
 
+    changeClearInfo cci;
+
     int oldStageNum = 0;
 
     int stageShiftTime;
@@ -77,6 +79,7 @@ public class StageScoreInfo : MonoBehaviour {
 	void Start () {
         ssm = FindObjectOfType<StageSelectManager>();
         caip = FindObjectOfType<ChangeActiveInfoPanel>();
+        cci = FindObjectOfType<changeClearInfo>();
 	}
 
     void Update() {
@@ -96,9 +99,13 @@ public class StageScoreInfo : MonoBehaviour {
 
                         if (selectStageNum == 4) {
                             // 最終ステージの前に立った場合
+                            areaName.text = "EX";
+                            cci.ChangeStageInfo(selectStageNum);
                         }
                         else {
                             // Ex-1～3の前に立った場合
+                            areaName.text = selectStageNum.ToString();
+                            cci.ChangeStageInfo(selectStageNum);
                         }
                         // 少なくともクリアしてないステージはない
                         // 全ステージ星2以上ならOK
@@ -160,21 +167,11 @@ public class StageScoreInfo : MonoBehaviour {
                         // ステージ名と必要手数を代入
                         // Exステージの場合
                         if (placedArea == AREA.AREA4) {
-                            if (canGoArea4Stage(selectStageNum)) {
-                                if (selectStageNum < 4) {
-                                    stageName.text = "EX - " + selectStageNum.ToString();
-                                }
-                                else {
-                                    stageName.text = "Final";
-                                }
+                            if (selectStageNum < 4) {
+                                stageName.text = "EX - " + selectStageNum.ToString();
                             }
                             else {
-                                if (selectStageNum < 4) {
-                                    areaName.text = selectStageNum.ToString();
-                                }
-                                else {
-                                    areaName.text = "EX";
-                                }
+                                stageName.text = "Final";
                             }
                         }
                         // それ以外
