@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System.Text;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -21,11 +22,23 @@ public class SaveDataIO {
 	//現在のクリアデータを、外部にセーブする
 	//
 	public static void Save() {
+
+		string json = JsonUtility.ToJson(SaveData.Instance);
+
+		string iv;
+		string base64;
+		MyCryptography.Encrypt(json, out iv, out base64);
+
+		byte[] ivBytes = Encoding.UTF8.GetBytes(iv);
+		byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
+
 		using (FileStream fs = new FileStream(GetSaveFilePath(), FileMode.Create, FileAccess.Write)) {
-			using (StreamWriter sw = new StreamWriter(fs)) {
-				sw.WriteLine(SaveData.Version);
-				string json = JsonUtility.ToJson(SaveData.Instance);
-				sw.WriteLine(json);
+
+			using (BinaryWriter bw = new BinaryWriter(fs)) {
+				bw.Write(ivBytes.Length);
+				bw.Write(ivBytes);
+				bw.Write(base64Bytes.Length);
+				bw.Write(base64Bytes);
 			}
 		}
 	}
@@ -51,38 +64,49 @@ public class SaveDataIO {
 		}
 
 
-		//ファイルを開いてロードする
-		//
+		byte[] ivBytes = null;
+		byte[] base64Bytes = null;
 		using (FileStream fs = new FileStream(GetSaveFilePath(), FileMode.Open, FileAccess.Read)) {
+			using (BinaryReader br = new BinaryReader(fs)) {
+				int length = br.ReadInt32();
+				ivBytes = br.ReadBytes(length);
 
-			using (StreamReader sr = new StreamReader(fs)) {
-
-				//バージョンが違うならロードしない
-				string lVersion = sr.ReadLine();
-				if (lVersion != SaveData.Version) {
-					SaveData.Instance = s;
-					return;
-				}
-
-				string json = sr.ReadToEnd();
-				SaveData sd = JsonUtility.FromJson<SaveData>(json);
-
-				//エラーが起きたらロードしない
-				if (sd == null) {
-					SaveData.Instance = s;
-					return;
-				}
-
-				
-				//ステージ数が違っていたらロードしない
-				if(!IsSameStageNum(s, sd)) {
-					SaveData.Instance = s;
-					return;
-				}
-
-				//ロードする
-				SaveData.Instance = sd;
+				length = br.ReadInt32();
+				base64Bytes = br.ReadBytes(length);
 			}
+
+			//復号化
+			string json;
+			string iv = Encoding.UTF8.GetString(ivBytes);
+			string base64 = Encoding.UTF8.GetString(base64Bytes);
+
+			try {
+				MyCryptography.Decrypt(iv, base64, out json);
+			}
+			catch {
+				//エラー発生時はロードしない
+				SaveData.Instance = s;
+				return;
+			}
+
+
+			SaveData sd = JsonUtility.FromJson<SaveData>(json);
+
+			//エラーが起きたらロードしない
+			if (sd == null) {
+				SaveData.Instance = s;
+				return;
+			}
+
+
+			//ステージ数が違っていたらロードしない
+			if (!IsSameStageNum(s, sd)) {
+				SaveData.Instance = s;
+				return;
+			}
+
+			//ロードする
+			SaveData.Instance = sd;
 		}
 	}
 
@@ -127,7 +151,7 @@ public class SaveDataIO {
 
 
 	static string GetSaveFilePath() {
-		return Application.persistentDataPath + "/savedata.json";
+		return Application.persistentDataPath + "/savedata";
 	}
 
 	public static void Delete() {
