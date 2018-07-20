@@ -407,6 +407,10 @@ public class StageSelectManager : MonoBehaviour {
 		mCameraMove.mTakeTime = lBeforeCameraMoveTime;
 
 
+		//プレイヤーを移動不可にする
+		CanMovePlayer(false);
+		CanJumpPlayer(false);
+
 
 		//
 		//エリア開放イベント
