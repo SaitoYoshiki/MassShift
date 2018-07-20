@@ -172,7 +172,7 @@ public class StageScoreInfo : MonoBehaviour {
                                 stageName.text = "EX - " + selectStageNum.ToString();
                             }
                             else {
-                                stageName.text = "Final";
+                                stageName.text = "FINAL";
                             }
 
                             score3text.text = "～" + (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)).ToString();

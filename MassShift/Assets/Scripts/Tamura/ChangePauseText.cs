@@ -18,7 +18,7 @@ public class ChangePauseText : MonoBehaviour {
         if (Area.GetAreaNumber() != 0) {
             if (Area.GetAreaNumber() == 4) {
                 if (Area.GetStageNumber() == 4) {
-                    StageName.text = "Stage FINAL";
+                    StageName.text = "STAGE FINAL";
                 }
                 else {
                     StageName.text = "STAGE EX - " + Area.GetStageNumber();
