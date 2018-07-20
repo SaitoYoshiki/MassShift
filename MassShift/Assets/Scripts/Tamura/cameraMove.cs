@@ -66,6 +66,16 @@ public class cameraMove : MonoBehaviour {
         this.transform.position = cameraStartPoint;
         st = GameObject.Find("StageChangeCanvas").GetComponent<StageTransition>();
         st.gameObject.SetActive(false);
+
+        if (SceneFade.isGoTitleWithBlackFade) {
+            FindObjectOfType<SceneFade>().FadeOutStart();
+            SceneFade.isGoTitleWithBlackFade = false;
+        }
+
+        if (SceneFade.isGoTitleWithWhiteFade) {
+            FindObjectOfType<SceneFade>().FadeOutStart(Color.white);
+            SceneFade.isGoTitleWithWhiteFade = false;
+        }
 	}
 
     void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
@@ -74,8 +84,10 @@ public class cameraMove : MonoBehaviour {
     }
 	
 	void Update () {
-        CheckFirstZoom();
-        CheckZoomIn();
+        if (FindObjectOfType<SceneFade>().IsFadeEnd()) {
+            CheckFirstZoom();
+            CheckZoomIn();
+        }
 
         /*if (colorPer > 0.0f && colorPer < 1.0f) {
             colorPer += 0.01f;

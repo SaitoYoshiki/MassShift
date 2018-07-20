@@ -19,6 +19,9 @@ public class SceneFade : MonoBehaviour {
 
     bool isFadeEnd = false;
 
+    public static bool isGoTitleWithBlackFade = false;
+    public static bool isGoTitleWithWhiteFade = false;
+
     // 初期化
     void Start() {
         fadeColor.a = 0.0f;
@@ -100,6 +103,18 @@ public class SceneFade : MonoBehaviour {
 
         fadeTime = _fadeTime;
         fadeStartTime = Time.realtimeSinceStartup;
+        fadeColor.a = 1.0f;
+        isFadeOut = true;
+    }
+
+    public void FadeOutStart(Color _fadeColor) {
+        // エラー防止
+        if (isFadeOut || isFadeOut) {
+            return;
+        }
+
+        fadeStartTime = Time.realtimeSinceStartup;
+        fadeColor = _fadeColor;
         fadeColor.a = 1.0f;
         isFadeOut = true;
     }
