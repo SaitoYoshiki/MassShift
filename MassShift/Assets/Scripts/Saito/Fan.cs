@@ -19,7 +19,7 @@ public class Fan : MonoBehaviour {
 		ApplyWindMove();
 
 		//風のエフェクトを止めるコライダーの位置を更新
-		mWindStop.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 0.5f + mWindStop.transform.lossyScale.x / 2.0f);
+		mWindStop.transform.localPosition = GetDirectionVector(mDirection) * (mWindHitDistance + 1.0f + mWindStop.transform.lossyScale.x / 2.0f);
 
 		//風が止まった位置に出すエフェクトの、位置を更新
 		mWindStopEffect.transform.localPosition = Vector3.left * (mWindHitDistance + 0.5f);

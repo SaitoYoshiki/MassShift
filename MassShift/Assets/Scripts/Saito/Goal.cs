@@ -26,7 +26,7 @@ public class Goal : MonoBehaviour {
 
 		//ステージ中なら
 		if(Area.IsInStage()) {
-			Utility.ChangeMaterialColor(mModel, mInsideMaterial, "_EmissionColor", Color.white);
+			Utility.ChangeMaterialColor(mModel, mInsideMaterial, "_EmissionColor", (Color.white * 1.1f));
 		}
 		else {
 			Utility.ChangeMaterialColor(mModel, mInsideMaterial, "_EmissionColor", Color.black);

@@ -61,6 +61,10 @@ public class Ending : MonoBehaviour {
 	Transform armBefPoint = null;
 	[SerializeField]
 	Transform armAftPoint = null;
+	[SerializeField]
+	Animator armAnim = null;
+	[SerializeField]
+	float armCrashDownDis = 1.0f;
 
 	[Space, SerializeField]
 	Transform impactEffectTrans = null;
@@ -72,10 +76,13 @@ public class Ending : MonoBehaviour {
 	float shakeMagnitude = 0.5f;
 
 	[Space, SerializeField]
-	Material backgourndCellAfterMat;
+	Material backgourndCellMidMat;
+	[SerializeField]
+	Transform cellChangeSpherePoint = null;
+	[SerializeField]
+	GameObject cellChangeSpherePrefab = null;
 	[SerializeField]
 	List<BackgroundCell> backgroundCellList = new List<BackgroundCell>();
-
 
 	[Space, SerializeField]
 	Transform creditTrans = null;
@@ -147,13 +154,11 @@ public class Ending : MonoBehaviour {
 		// カーソルを移す先に移動
 		hermite = cursorPoint.AddComponent<HermiteCurveMove>();
 		hermite.SetPoints(shiftFromTrans.position, shiftToTrans.position, ((shiftFromTrans.position + shiftToTrans.position) * 0.5f));
-		Debug.LogWarning("LoopStart");
 		while (hermite.Ratio <= 1.0f) {
 			shift.SetCursorPosition(hermite.Point);
 			yield return null;
 		}
 		shift.SetCursorPosition(shiftToTrans.position);
-		Debug.LogWarning("LoopEnd");
 		Destroy(hermite);
 
 		// 待機
@@ -180,9 +185,6 @@ public class Ending : MonoBehaviour {
 
 			GameObject newParticle = Instantiate(shiftParticle);
 			hermite = newParticle.AddComponent<HermiteCurveMove>();
-
-			//float ratio = Mathf.Clamp((Random.value * 5.0f) / 5.0f, 0.0f, 1.0f);    // 0.0f～1.0f、0.0fや1.0fより0.5f付近が出やすい
-			//Vector3 midPoint = ((pointA * ratio) + (pointB * (1.0f - ratio)));
 
 			Vector3 vec = new Vector3((Random.value * 2.0f - 1.0f), (Random.value * 2.0f - 1.0f), 0.0f).normalized;
 			Vector3 midPoint = (shiftFromTrans.position) + vec * shiftHopForce;
@@ -226,11 +228,19 @@ public class Ending : MonoBehaviour {
 		}
 		SetSizeUpParticle(1.0f);
 
-		// 落下開始
-		boxLockCol.enabled = false;
-
 		// 待機
-		yield return new WaitForSeconds(0.04f);
+		yield return new WaitForSeconds(0.08f);
+
+		// 落下開始
+		boxLockCol.transform.position += (Vector3.down * armCrashDownDis);
+		
+		// 待機
+		yield return new WaitForSeconds(0.15f);
+
+		// アームを開く
+		armAnim.Play("arm");
+		boxLockCol.enabled = false;
+		SoundManager.SPlay(impactSoundPrefab);
 
 		// アーム移動
 		SoundManager.SPlay(impactSoundPrefab);
@@ -256,8 +266,12 @@ public class Ending : MonoBehaviour {
 
 		// 背景セルの色を全て変更
 		foreach (var cell in backgroundCellList) {
-			cell.PowerfulLighting(backgourndCellAfterMat);
+			cell.PowerfulLighting(backgourndCellMidMat);
 		}
+
+		// 背景セルの色を変更する巨大化する球を生成
+		GameObject cellChangeSphereObj = Instantiate(cellChangeSpherePrefab, cellChangeSpherePoint);
+		cellChangeSphereObj.transform.localPosition = Vector3.zero;
 			
 		// 待機
 		yield return new WaitForSeconds(1.0f);
@@ -362,7 +376,7 @@ public class Ending : MonoBehaviour {
 		}
 
 		// 待機
-		yield return new WaitForSeconds(5.0f);
+		yield return new WaitForSeconds(4.3f);
 
 		// シーン遷移
 		((ChangeScene)FindObjectOfType(typeof(ChangeScene))).OnTitleButtonDown();	// タイトルへ
