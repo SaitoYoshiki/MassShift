@@ -26,6 +26,8 @@ public class ChangeScene : MonoBehaviour {
     private bool endGameFlg;
     private bool pauseFlg;
 
+    bool changeSceneInStageSelect;
+
     [SerializeField]
     private StageTransition st;
     SceneFade sf;
