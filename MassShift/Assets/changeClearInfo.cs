@@ -26,14 +26,14 @@ public class changeClearInfo : MonoBehaviour {
                     StageNames[1].color = Color.red;
                 }
 
-                if (ScoreManager.Instance.ShiftTimes(_selectStageNum, 1) != -1) {
+                if (ScoreManager.Instance.ShiftTimes(_selectStageNum, 2) != -1) {
                     StageNames[2].color = Color.green;
                 }
                 else {
                     StageNames[2].color = Color.red;
                 }
 
-                if (ScoreManager.Instance.ShiftTimes(_selectStageNum, 1) != -1) {
+                if (ScoreManager.Instance.ShiftTimes(_selectStageNum, 3) != -1) {
                     StageNames[3].color = Color.green;
                 }
                 else {
@@ -41,9 +41,9 @@ public class changeClearInfo : MonoBehaviour {
                 }
 
                 StarsNormal[0].SetActive(false);
-                StarsNormal[1].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 1, ScoreManager.Instance.ShiftTimes(4,1)));
+                StarsNormal[1].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 1, ScoreManager.Instance.ShiftTimes(4, 1)));
                 StarsNormal[2].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 2, ScoreManager.Instance.ShiftTimes(4, 2)));
-                StarsNormal[3].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 2, ScoreManager.Instance.ShiftTimes(4, 2)));
+                StarsNormal[3].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 3, ScoreManager.Instance.ShiftTimes(4, 3)));
                 StarsNormal[4].SetActive(false);
 
                 break;
