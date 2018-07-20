@@ -124,7 +124,19 @@ public class GameManager : MonoBehaviour {
 				lBGMPrefab = mAreaBGM[lAreaNumber];
 			}
 			else if(lAreaNumber == 4) {
-				lBGMPrefab = mAreaBGM[3];
+				int lStageNumber = Area.GetStageNumber();
+				if(lStageNumber == 1) {
+					lBGMPrefab = mAreaBGM[1];
+				}
+				else if (lStageNumber == 2) {
+					lBGMPrefab = mAreaBGM[2];
+				}
+				else if (lStageNumber == 3) {
+					lBGMPrefab = mAreaBGM[3];
+				}
+				else {
+					lBGMPrefab = mAreaBGM[3];
+				}
 			}
 
 			//BGMを流し始める

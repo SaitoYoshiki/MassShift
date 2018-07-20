@@ -90,8 +90,13 @@ public class StageSelectManager : MonoBehaviour {
 	[SerializeField]
 	float mFromStageAfterRotateTime = 0.5f;
 
+	[SerializeField, Tooltip("エリア2が開放されるまで表示されないオブジェクト")]
+	List<GameObject> mArea2RelativeObject;
 
-	
+	[SerializeField, Tooltip("エリア3が開放されるまで表示されないオブジェクト")]
+	List<GameObject> mArea3RelativeObject;
+
+
 	int mSelectStageNum = -1;
 	float mSelectTime = 0.0f;   //選び続けている秒数
 	bool mSelectInit = false;
@@ -406,6 +411,10 @@ public class StageSelectManager : MonoBehaviour {
 		//カメラの移動にかける時間を戻す
 		mCameraMove.mTakeTime = lBeforeCameraMoveTime;
 
+
+		//プレイヤーを移動不可にする
+		CanMovePlayer(false);
+		CanJumpPlayer(false);
 
 
 		//
@@ -1046,9 +1055,19 @@ public class StageSelectManager : MonoBehaviour {
 		//クリアしたエリアによって、ボックスを消して次のエリアに行けないようにする
 		if (Area.CanGoArea(2) == false) {
 			mTopStaticWeightBox.SetActive(false);
+
+			//エリア2が開放されるまで表示されないオブジェクトを、非表示にする
+			foreach(var g in mArea2RelativeObject) {
+				g.SetActive(false);
+			}
 		}
 		if (Area.CanGoArea(3) == false) {
 			mBottomStaticWeightBox.SetActive(false);
+
+			//エリア3が開放されるまで表示されないオブジェクトを、非表示にする
+			foreach (var g in mArea3RelativeObject) {
+				g.SetActive(false);
+			}
 		}
 
 		//エリア4に行けて、エリア開放演出も終わっている場合
