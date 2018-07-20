@@ -12,6 +12,10 @@ public class Result : MonoBehaviour {
     [SerializeField]
     GameObject ResultCanvas_AC;
 
+    // エクストラステージクリア時のリザルト画面
+    [SerializeField]
+    GameObject ResultCanvas_ExC;
+
     // ゲーム(ファイナルステージ)クリア時のリザルト画面
     [SerializeField]
     GameObject ResultCanvas_GC;
@@ -44,6 +48,11 @@ public class Result : MonoBehaviour {
             }
             else {
                 ResultCanvas = ResultCanvas_GC;
+            }
+        }
+        else {
+            if (Area.GetAreaNumber() == 4) {
+                ResultCanvas = ResultCanvas_ExC;
             }
         }
 
