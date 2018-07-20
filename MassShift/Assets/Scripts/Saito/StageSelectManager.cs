@@ -25,6 +25,11 @@ public class StageSelectManager : MonoBehaviour {
 	[SerializeField, EditOnPrefab]
 	GameObject mStageSelectBGMPrefab;
 
+	[SerializeField, EditOnPrefab, Tooltip("エリア4が出るとき、画面が揺れるときのSE")]
+	GameObject mEarthQuakeSEPrefab;
+	
+	GameObject mEarthQuakeSE;
+
 	[SerializeField]
 	Color mStagePlateOnColor;
 
@@ -987,8 +992,23 @@ public class StageSelectManager : MonoBehaviour {
 
 			yield return new WaitForSeconds(1.0f);
 
+			//揺れる音再生
+			mEarthQuakeSE = SoundManager.SPlay(mEarthQuakeSEPrefab);
+
+			//揺らす
+			ShakeCamera.ShakeAll(1.5f, 0.05f);
+
+			yield return new WaitForSeconds(1.0f);
+
+			//ドアを出す
 			mArea1ToExDoor.gameObject.SetActive(true);
 			mArea1ToExDoorBackGround.gameObject.SetActive(false);
+
+			yield return new WaitForSeconds(0.5f);
+
+			//揺れる音停止
+			SoundManager.SStop(mEarthQuakeSE);
+			Destroy(mEarthQuakeSE);
 
 			yield return new WaitForSeconds(1.0f);
 		}
