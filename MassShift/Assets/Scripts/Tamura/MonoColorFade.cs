@@ -27,14 +27,14 @@ public class MonoColorFade : MyFade {
         fadeObject.GetComponent<Text>().color = fadeColor;
         
         if (Area.GetAreaNumber() != 4) {
-            fadeObject.GetComponent<Text>().text = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            fadeObject.GetComponent<Text>().text = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.ToUpper().Insert(5, " ");
         }
         else {
             if (Area.GetStageNumber() != 4) {
-                fadeObject.GetComponent<Text>().text = "Stage EX-" + Area.GetStageNumber();
+                fadeObject.GetComponent<Text>().text = "STAGE EX-" + Area.GetStageNumber();
             }
             else {
-                fadeObject.GetComponent<Text>().text = "Stage FINAL";
+                fadeObject.GetComponent<Text>().text = "STAGE FINAL";
             }
         }
 

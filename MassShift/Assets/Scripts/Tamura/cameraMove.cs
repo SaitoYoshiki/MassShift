@@ -74,8 +74,10 @@ public class cameraMove : MonoBehaviour {
     }
 	
 	void Update () {
-        CheckFirstZoom();
-        CheckZoomIn();
+        if (FindObjectOfType<SceneFade>().IsFadeEnd()) {
+            CheckFirstZoom();
+            CheckZoomIn();
+        }
 
         /*if (colorPer > 0.0f && colorPer < 1.0f) {
             colorPer += 0.01f;
