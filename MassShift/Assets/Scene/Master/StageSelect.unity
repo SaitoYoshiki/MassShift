@@ -69293,6 +69293,30 @@ Prefab:
       propertyPath: scorePlayer
       value: 
       objectReference: {fileID: 1431509588}
+    - target: {fileID: 114554971347857646, guid: 70d7fdc3aa743f34abeada56d3271560,
+        type: 2}
+      propertyPath: stagePreview.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 1641a8021067bce47b28c736dca07888,
+        type: 3}
+    - target: {fileID: 114554971347857646, guid: 70d7fdc3aa743f34abeada56d3271560,
+        type: 2}
+      propertyPath: stagePreview.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: 5a42153be402cbd4da1772402bf05db0,
+        type: 3}
+    - target: {fileID: 114554971347857646, guid: 70d7fdc3aa743f34abeada56d3271560,
+        type: 2}
+      propertyPath: stagePreview.Array.data[2]
+      value: 
+      objectReference: {fileID: 21300000, guid: 3cb9ca689db8bd648ba5bfab5aafef03,
+        type: 3}
+    - target: {fileID: 114554971347857646, guid: 70d7fdc3aa743f34abeada56d3271560,
+        type: 2}
+      propertyPath: stagePreview.Array.data[3]
+      value: 
+      objectReference: {fileID: 21300000, guid: 52e04833037146b41b2af2b376309ea5,
+        type: 3}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 70d7fdc3aa743f34abeada56d3271560, type: 2}
   m_IsPrefabParent: 0
