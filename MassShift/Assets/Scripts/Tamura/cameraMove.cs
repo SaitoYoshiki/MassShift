@@ -55,10 +55,6 @@ public class cameraMove : MonoBehaviour {
 
     bool noFade = false;
 
-    //Color startLightColor = new Color(0.0f, 0.0f, 0.0f);
-    //Color endLightColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
-    //float colorPer = 0.0f;
-
     float loadStartTime;
     ChangeLoadingImage cli;
 
