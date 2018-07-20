@@ -58,6 +58,12 @@ public class ScoreManager {
 	//スコア
 	//
 	public int Score(int aAreaNumber, int aStageNumber, int aShiftTimes) {
+
+		//初期値の場合、スコアは0とする
+		if(aShiftTimes == cInvalidScoreTimes) {
+			return 0;
+		}
+
 		if (aShiftTimes <= Score3Times(aAreaNumber, aStageNumber)) {
 			return 3;
 		}
