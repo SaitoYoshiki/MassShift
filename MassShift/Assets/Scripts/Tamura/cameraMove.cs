@@ -104,7 +104,7 @@ public class cameraMove : MonoBehaviour {
         // ズームインし終わっていたら何もしない
         if (firstZoom) {
             if (!SaveData.Instance.mEventDoneFlag.mAlreadyVisitStageSelect) {
-                if (!FindObjectOfType<SceneFade>().IsFadeIn() && !titleEndFlg) {
+                if (FindObjectOfType<SceneFade>().IsFadeEnd() && !titleEndFlg) {
                     SceneManager.LoadSceneAsync("Opening");
                     titleEndFlg = true;
                 }
