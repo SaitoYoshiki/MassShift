@@ -190,6 +190,9 @@ public class Pause : MonoBehaviour {
                 pauseCanvas_SS.SetActive(false);
             }
             else {
+                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Title") {
+
+                }
                 pauseCanvas.SetActive(false);
             }
 

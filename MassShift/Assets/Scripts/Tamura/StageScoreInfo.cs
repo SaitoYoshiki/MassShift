@@ -94,6 +94,7 @@ public class StageScoreInfo : MonoBehaviour {
                 if (caip.AreaIndex == (int)placedArea) {
                     // Exエリア内かつまだそのステージに入れない場合
                     if (placedArea == AREA.AREA4 && !canGoArea4Stage(selectStageNum)) {
+                        Debug.Log(selectStageNum);
                         // 各エリアのクリア状況を表示
                         clearInfo.SetActive(true);
 
