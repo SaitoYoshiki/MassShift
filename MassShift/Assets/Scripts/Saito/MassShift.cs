@@ -6,9 +6,7 @@ using System.Linq;
 public class MassShift : MonoBehaviour
 {
 
-	// Use this for initialization
-	void Start()
-	{
+	private void Awake() {
 
 		mMassShiftLine = Instantiate(mMassShiftLinePrefab, transform);
 		mMassShiftLine.name = "MassShiftLine";
@@ -23,6 +21,10 @@ public class MassShift : MonoBehaviour
 		mLightBallTemplate.SetActive(false);
 
 		mLightBall = null;
+	}
+
+	// Use this for initialization
+	void Start() {
 
 		mAllWeightModel = FindObjectsOfType<WeightManager>();
 		mPlayer = FindObjectOfType<Player>();
