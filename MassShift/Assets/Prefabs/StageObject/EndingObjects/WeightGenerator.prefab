@@ -536,6 +536,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1581184353451982
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4668886500450848}
+  m_Layer: 12
+  m_Name: ParticlePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1601815833539738
 GameObject:
   m_ObjectHideFlags: 0
@@ -1195,8 +1210,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1938531782014298}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4929730813870806}
@@ -1233,6 +1248,7 @@ Transform:
   - {fileID: 4185362501997158}
   - {fileID: 4921017863922948}
   - {fileID: 4528113484390204}
+  - {fileID: 4668886500450848}
   - {fileID: 4936105870651914}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -1320,6 +1336,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4351362574362550}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4668886500450848
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1581184353451982}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.35, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4586782541908884}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4676650869226980
 Transform:
@@ -1540,7 +1569,7 @@ Transform:
   m_Children:
   - {fileID: 4434796694778538}
   m_Father: {fileID: 4586782541908884}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4960935556831696
 Transform:
@@ -2867,11 +2896,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4de8a8ec26a248a43937996db716d10e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mFlyingParticlePrefab: {fileID: 1823062599502544, guid: 60ffb408f9476fa48860252b996a3b54,
+  mFlyingParticlePrefab: {fileID: 1096024616955784, guid: 06b6e198c57418941b85514d54fca415,
     type: 2}
-  mLightParticlePrefab: {fileID: 1943309195706024, guid: d23858ac300be1547af8dc64c88fd77b,
+  mLightParticlePrefab: {fileID: 1096024616955784, guid: 06b6e198c57418941b85514d54fca415,
     type: 2}
-  mHeavyParticlePrefab: {fileID: 1426558771623038, guid: c11dddebd423f854687433195eccbc17,
+  mHeavyParticlePrefab: {fileID: 1096024616955784, guid: 06b6e198c57418941b85514d54fca415,
     type: 2}
   mParticleParent: {fileID: 1317831575128630}
   mHilightModel: {fileID: 1829238638273618}

@@ -1435,6 +1435,9 @@ public class MassShift : MonoBehaviour
 		Transform lFrame;
 		WeightParticle lWeightParticle = aModel.GetComponent<WeightParticle>();
 		if (lWeightParticle != null) {
+			if(lWeightParticle.HilightModel == null) {
+				return;
+			}
 			lFrame = lWeightParticle.HilightModel.transform;
 		}
 		else {

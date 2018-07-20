@@ -27,6 +27,8 @@ public class BackgroundCell : MonoBehaviour {
 	bool useCollisionTrigger = true;
 	[SerializeField]
 	bool useRandomTime = false;
+	[SerializeField]
+	bool isPowerfulLighting = false;
 
 	void Start() {
 		GetComponent<MeshRenderer>().material = mat = GetComponent<MeshRenderer>().material;
@@ -36,7 +38,7 @@ public class BackgroundCell : MonoBehaviour {
 	}
 
 	void Update() {
-		if ((beginTime <= Time.time) || (ratio > 0.0f)) {
+		if ((beginTime <= Time.time) || (ratio > 0.0f) || (isPowerfulLighting && (ratio < 1.0f))) {
 			float elapsedTime = (Time.time - beginTime);
 			// 点灯
 			if (elapsedTime <= ratioUpTime) {
@@ -47,11 +49,11 @@ public class BackgroundCell : MonoBehaviour {
 				ratio = 1.0f;
 			}
 			// 滅灯
-			else if ((elapsedTime - ratioUpTime - holdTime) <= ratioDownTime) {
+			else if (((elapsedTime - ratioUpTime - holdTime) <= ratioDownTime) && (!isPowerfulLighting)) {
 				ratio = (1.0f - ((elapsedTime - ratioUpTime - holdTime) / ratioDownTime));
 			}
 			// 終了
-			else {
+			else if (!isPowerfulLighting) {
 				ratio = 0.0f;
 
 				if (useRandomTime) {
@@ -72,5 +74,19 @@ public class BackgroundCell : MonoBehaviour {
 
 		// 衝突時を開始時間として設定
 		beginTime = Time.time;
+	}
+
+	public void PowerfulLighting(Material _newMat) {
+		// 現在のマテリアルを変更前マテリアルに設定
+		befMat = mat;
+
+		// 新たなマテリアルを変更後マテリアルに設定
+		aftMat = _newMat;
+
+		// 現在時間を開始時間として設定
+		beginTime = Time.time;
+
+		// 強制的に点灯
+		isPowerfulLighting = true;
 	}
 }

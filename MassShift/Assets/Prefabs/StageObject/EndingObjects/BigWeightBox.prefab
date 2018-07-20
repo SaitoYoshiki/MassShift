@@ -11,23 +11,6 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1384545756476838}
   m_IsPrefabParent: 1
---- !u!1 &1013307063029438
-GameObject:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 4585563178451676}
-  - component: {fileID: 33864194020406770}
-  - component: {fileID: 23127140685183482}
-  m_Layer: 12
-  m_Name: Sphere
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
 --- !u!1 &1076619696298188
 GameObject:
   m_ObjectHideFlags: 1
@@ -548,7 +531,6 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
-  - {fileID: 4585563178451676}
   - {fileID: 4946549611047974}
   m_Father: {fileID: 4062354499796062}
   m_RootOrder: 5
@@ -637,19 +619,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4946549611047974}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4585563178451676
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013307063029438}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4353130963878318}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4749320533177772
 Transform:
@@ -758,7 +727,7 @@ Transform:
   - {fileID: 4551544910653764}
   - {fileID: 4036604540567072}
   m_Father: {fileID: 4353130963878318}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4955030277528224
 Transform:
@@ -774,38 +743,6 @@ Transform:
   m_Father: {fileID: 4490744043424230}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &23127140685183482
-MeshRenderer:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013307063029438}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_PreserveUVs: 1
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
 --- !u!23 &23129798947325724
 MeshRenderer:
   m_ObjectHideFlags: 1
@@ -1121,13 +1058,6 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1553291770085830}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!33 &33864194020406770
-MeshFilter:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013307063029438}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!65 &65169096308921662
 BoxCollider:
@@ -1461,9 +1391,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4de8a8ec26a248a43937996db716d10e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mFlyingParticlePrefab: {fileID: 0}
-  mLightParticlePrefab: {fileID: 0}
-  mHeavyParticlePrefab: {fileID: 0}
+  mFlyingParticlePrefab: {fileID: 1096024616955784, guid: 06b6e198c57418941b85514d54fca415,
+    type: 2}
+  mLightParticlePrefab: {fileID: 1096024616955784, guid: 06b6e198c57418941b85514d54fca415,
+    type: 2}
+  mHeavyParticlePrefab: {fileID: 1096024616955784, guid: 06b6e198c57418941b85514d54fca415,
+    type: 2}
   mParticleParent: {fileID: 1295604573305022}
   mHilightModel: {fileID: 1703115477758632}
   mWeightPosition: {fileID: 1295604573305022}

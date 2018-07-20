@@ -12,6 +12,10 @@ public class Result : MonoBehaviour {
     [SerializeField]
     GameObject ResultCanvas_AC;
 
+    // ゲーム(ファイナルステージ)クリア時のリザルト画面
+    [SerializeField]
+    GameObject ResultCanvas_GC;
+
     GameObject ResultUI;
     GameObject clearImage;
     GameObject bgLightImage;
@@ -35,7 +39,12 @@ public class Result : MonoBehaviour {
 
     void Start() {
         if (!Area.ExistNextStageSameArea(Area.GetAreaNumber(), Area.GetStageNumber())) {
-            ResultCanvas = ResultCanvas_AC;
+            if (Area.GetAreaNumber() != 4) {
+                ResultCanvas = ResultCanvas_AC;
+            }
+            else {
+                ResultCanvas = ResultCanvas_GC;
+            }
         }
 
         ResultUI = ResultCanvas.transform.Find("ResultUI").gameObject;

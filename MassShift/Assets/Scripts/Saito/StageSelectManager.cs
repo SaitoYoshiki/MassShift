@@ -99,6 +99,9 @@ public class StageSelectManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
+        // ステージセレクトを訪れたかどうか保存
+        SaveData.Instance.mEventDoneFlag.mAlreadyVisitStageSelect = true;
+        SaveData.Instance.Save();
 
 		mFade = FindObjectOfType<SceneFade>();
 
@@ -1139,10 +1142,10 @@ public class StageSelectManager : MonoBehaviour {
 	//ドアから出る歩く動き
 	IEnumerator WalkExitDoor(Goal g) {
 
-		yield return new WaitForSeconds(mFromStageBeforeWalkingTime);
-
 		g.mOpenForce = true;    //ドアを強制的に開く
 
+		yield return new WaitForSeconds(mFromStageBeforeWalkingTime);
+		
 		mGoalBlack.transform.position = g.transform.position;
 		mGoalBlack.transform.rotation = g.transform.rotation;
 

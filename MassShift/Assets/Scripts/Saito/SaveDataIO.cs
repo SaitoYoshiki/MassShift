@@ -117,8 +117,10 @@ public class SaveDataIO {
 		s.mLastPlayStage.mStageNumber = -1;
 
 		s.mEventDoneFlag = new SaveData.EventDoneFlag();
+        s.mEventDoneFlag.mAlreadyVisitStageSelect = false;
 		s.mEventDoneFlag.mArea2Open = false;
 		s.mEventDoneFlag.mArea3Open = false;
+        s.mEventDoneFlag.mArea4Open = false;
 
 		return s;
 	}

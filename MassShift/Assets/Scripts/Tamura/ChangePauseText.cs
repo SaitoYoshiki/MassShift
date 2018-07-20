@@ -16,7 +16,17 @@ public class ChangePauseText : MonoBehaviour {
     void Start() {
         // チュートリアル以外なら
         if (Area.GetAreaNumber() != 0) {
-            StageName.text = "STAGE " + Area.GetAreaNumber() + " - " + Area.GetStageNumber();
+            if (Area.GetAreaNumber() == 4) {
+                if (Area.GetStageNumber() == 4) {
+                    StageName.text = "Stage FINAL";
+                }
+                else {
+                    StageName.text = "STAGE EX - " + Area.GetStageNumber();
+                }
+            }
+            else {
+                StageName.text = "STAGE " + Area.GetAreaNumber() + " - " + Area.GetStageNumber();
+            }
         }
         // チュートリアルなら
         else {
