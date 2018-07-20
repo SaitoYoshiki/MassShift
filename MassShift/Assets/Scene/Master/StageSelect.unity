@@ -18973,6 +18973,11 @@ Prefab:
       propertyPath: mArea3RelativeObject.Array.data[5]
       value: 
       objectReference: {fileID: 601329423}
+    - target: {fileID: 114607455862085226, guid: 4b79edb39236487409e814958c2c51ff,
+        type: 2}
+      propertyPath: mPlayerStopPosition
+      value: 
+      objectReference: {fileID: 1101350162}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 4b79edb39236487409e814958c2c51ff, type: 2}
   m_IsPrefabParent: 0
@@ -45561,6 +45566,11 @@ Prefab:
 --- !u!4 &1101350161 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4756448341190032, guid: 1f1956d9b73847c4092129475cb30fc0,
+    type: 2}
+  m_PrefabInternal: {fileID: 1101350160}
+--- !u!1 &1101350162 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1810163021872398, guid: 1f1956d9b73847c4092129475cb30fc0,
     type: 2}
   m_PrefabInternal: {fileID: 1101350160}
 --- !u!1001 &1104295784

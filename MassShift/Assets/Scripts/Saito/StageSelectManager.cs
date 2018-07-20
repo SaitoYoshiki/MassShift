@@ -96,6 +96,8 @@ public class StageSelectManager : MonoBehaviour {
 	[SerializeField, Tooltip("エリア3が開放されるまで表示されないオブジェクト")]
 	List<GameObject> mArea3RelativeObject;
 
+	[SerializeField]
+	GameObject mPlayerStopPosition;
 
 	int mSelectStageNum = -1;
 	float mSelectTime = 0.0f;   //選び続けている秒数
@@ -385,7 +387,7 @@ public class StageSelectManager : MonoBehaviour {
 		CanMovePlayer(true);    //プレイヤーは動けるようにするが、ユーザーの入力は受け付けない
 		var v = mPlayer.GetComponent<VirtualController>();
 
-		float cWalkTime = 1.1f; //プレイヤーを自動で歩かせる秒数
+		float cWalkTime = 10.0f; //プレイヤーを自動で歩かせる秒数
 		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 1.0f, cWalkTime);
 		VirtualController.SetAxis(VirtualController.CtrlCode.Jump, 0.0f, cWalkTime);
 		VirtualController.SetAxis(VirtualController.CtrlCode.Lift, 0.0f, cWalkTime);
@@ -400,12 +402,19 @@ public class StageSelectManager : MonoBehaviour {
 		const float cCameraMoveTime = 1.0f;
 		mCameraMove.mTakeTime = cCameraMoveTime;
 
-		yield return new WaitForSeconds(cWalkTime - cCameraMoveTime);
-
 		mCameraMove.MoveStart();
 
 		//歩かせている間待機
-		yield return new WaitForSeconds(cCameraMoveTime);
+		while(true) {
+			if(mCameraMove.IsMoveEnd == true && mPlayer.transform.position.x >= mPlayerStopPosition.transform.position.x) {
+				break;
+			}
+			yield return null;
+		}
+		VirtualController.SetAxis(VirtualController.CtrlCode.Horizontal, 0.0f, 0.0f);
+		VirtualController.SetAxis(VirtualController.CtrlCode.Jump, 0.0f, 0.0f);
+		VirtualController.SetAxis(VirtualController.CtrlCode.Lift, 0.0f, 0.0f);
+		VirtualController.SetAxis(VirtualController.CtrlCode.Vertical, 0.0f, 0.0f);
 
 
 		//カメラの移動にかける時間を戻す
