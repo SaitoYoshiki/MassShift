@@ -19,6 +19,9 @@ public class SceneFade : MonoBehaviour {
 
     bool isFadeEnd = false;
 
+    public static bool isGoTitleWithBlackFade = false;
+    public static bool isGoTitleWithWhiteFade = false;
+
     // 初期化
     void Start() {
         fadeColor.a = 0.0f;

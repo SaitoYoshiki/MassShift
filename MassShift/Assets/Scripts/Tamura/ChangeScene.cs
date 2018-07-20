@@ -247,9 +247,11 @@ public class ChangeScene : MonoBehaviour {
 
         if (SceneManager.GetActiveScene().name != "Ending") {
             sf.FadeInStart();
+            SceneFade.isGoTitleWithBlackFade = true;
         }
         else {
             sf.FadeInStart(Color.white);
+            SceneFade.isGoTitleWithWhiteFade = true;
         }
     }
 
