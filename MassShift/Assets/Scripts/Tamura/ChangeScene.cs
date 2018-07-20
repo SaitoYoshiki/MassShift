@@ -26,6 +26,8 @@ public class ChangeScene : MonoBehaviour {
     private bool endGameFlg;
     private bool pauseFlg;
 
+    bool changeSceneInStageSelect;
+
     [SerializeField]
     private StageTransition st;
     SceneFade sf;
@@ -50,7 +52,8 @@ public class ChangeScene : MonoBehaviour {
 
     void Update() {
         if (!changeSceneFlg) {
-            if (!st.GetCloseEnd() && (!sf.IsFadeEnd() || SceneManager.GetActiveScene().name == "StageSelect")) {
+            //if (!st.GetCloseEnd() && (!sf.IsFadeEnd() || SceneManager.GetActiveScene().name == "StageSelect")) {
+            if (!st.GetCloseEnd() ){
                 return;
             }
             else {

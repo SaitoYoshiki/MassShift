@@ -25,7 +25,18 @@ public class MonoColorFade : MyFade {
 
         fadeColor.a = 0.0f;
         fadeObject.GetComponent<Text>().color = fadeColor;
-        fadeObject.GetComponent<Text>().text = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        
+        if (Area.GetAreaNumber() != 4) {
+            fadeObject.GetComponent<Text>().text = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        }
+        else {
+            if (Area.GetStageNumber() != 4) {
+                fadeObject.GetComponent<Text>().text = "Stage EX-" + Area.GetStageNumber();
+            }
+            else {
+                fadeObject.GetComponent<Text>().text = "Stage FINAL";
+            }
+        }
 
         FadeStart();
     }

@@ -903,6 +903,11 @@ public class Player : MonoBehaviour {
 			return false;
 		}
 
+		// 水面で安定した瞬間であれば
+		if (WaterStt.IsWaterSurfaceChange && WaterStt.IsWaterSurface) {
+			return false;
+		}
+
 		// ステージに接地、又は水面で安定していなければ
 		//		Debug.LogWarning("IsLanding:" + Land.IsLanding);
 		//if (!Land.IsLanding && !WaterStt.IsWaterSurface) {
@@ -938,6 +943,15 @@ public class Player : MonoBehaviour {
 		//		if (jumpLimitTime > Time.time) return;
 
 		Debug.Log("Jump");
+
+		// パーティクル生成
+		if (IsLanding) {
+			GetComponent<GeneratePlayerJumpJet>().GenerateInGroundEffect();
+		}else if (WaterStt.IsWaterSurface) {
+			GetComponent<GeneratePlayerJumpJet>().GenerateInWaterSurfaceEffect();
+		} else {
+			GetComponent<GeneratePlayerJumpJet>().GenerateInWaterEffect();
+		}
 
 		// ジャンプアニメーション
 		if (!Lift.IsLifting) {

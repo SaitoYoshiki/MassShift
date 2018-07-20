@@ -173,6 +173,10 @@ public class StageScoreInfo : MonoBehaviour {
                             else {
                                 stageName.text = "Final";
                             }
+
+                            score3text.text = "～" + (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum)).ToString();
+                            score2text.text = (ScoreManager.Instance.Score3Times((int)placedArea, selectStageNum) + 1).ToString() + "～" + (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum)).ToString();
+                            score1text.text = (ScoreManager.Instance.Score2Times((int)placedArea, selectStageNum) + 1).ToString() + "～";
                         }
                         // それ以外
                         else {
