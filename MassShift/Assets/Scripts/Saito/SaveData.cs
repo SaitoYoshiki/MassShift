@@ -56,12 +56,6 @@ public class SaveData {
 	}
 	public EventDoneFlag mEventDoneFlag;    //イベントを行ったかどうかのフラグ
 
-	public static string Version {
-		get {
-			return "ver1.0";
-		}
-	}
-
 
 	//ステージのクリアデータを取得（書き込み、読み込み可能）
 	//
