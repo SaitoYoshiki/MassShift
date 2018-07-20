@@ -26,7 +26,7 @@ public class ChangeScene : MonoBehaviour {
     private bool endGameFlg;
     private bool pauseFlg;
 
-    bool changeSceneInStageSelect;
+    bool flg;
 
     [SerializeField]
     private StageTransition st;
@@ -52,8 +52,15 @@ public class ChangeScene : MonoBehaviour {
 
     void Update() {
         if (!changeSceneFlg) {
+            if (!st.GetCloseEnd()){
+                // これだとステセレとかでタイトル戻れない
             //if (!st.GetCloseEnd() && (!sf.IsFadeEnd() || SceneManager.GetActiveScene().name == "StageSelect")) {
-            if (!st.GetCloseEnd() ){
+                // これだとオープニング流れない、ステセレでタイトル戻れない
+            //if (!st.GetCloseEnd() && !sf.IsFadeEnd()){
+                // これだとオープニング流れない、ステセレでEXエリア行けない
+                if (flg && sf.IsFadeEnd()) {
+                    changeSceneFlg = true;
+                }
                 return;
             }
             else {
@@ -63,7 +70,7 @@ public class ChangeScene : MonoBehaviour {
         else {
             switch (changeSceneMode) {
                 // 次のステージへ
-                case CHANGE_SCENE_MODE.NEXT: 
+                case CHANGE_SCENE_MODE.NEXT:
                     {
                         int area, stage;
                         area = Area.GetAreaNumber();
@@ -182,6 +189,7 @@ public class ChangeScene : MonoBehaviour {
 
         sf.FadeInStart();
         //changeSceneFlg = true;
+        flg = true;
 
         // リザルト画面を消す
         /*if (result.IsResultCanvasActive()) {
@@ -217,6 +225,7 @@ public class ChangeScene : MonoBehaviour {
 
         if (SceneManager.GetActiveScene().name == "Title") {
             //changeSceneFlg = true;
+            flg = true;
             sf.FadeInStart();
         }
         else {
@@ -234,6 +243,7 @@ public class ChangeScene : MonoBehaviour {
         GetComponent<Pause>().canPause = false;
         changeSceneMode = CHANGE_SCENE_MODE.TITLE;
         //changeSceneFlg = true;
+        flg = true;
 
         if (SceneManager.GetActiveScene().name != "Ending") {
             sf.FadeInStart();
