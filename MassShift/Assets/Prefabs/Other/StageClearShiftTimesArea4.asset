@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Name: StageClearShiftTimesArea4
   m_EditorClassIdentifier: 
   mStages:
-  - mScore2Times: 7
-    mScore3Times: 5
+  - mScore2Times: 18
+    mScore3Times: 14
+  - mScore2Times: 18
+    mScore3Times: 10
   - mScore2Times: 11
     mScore3Times: 9
-  - mScore2Times: 11
-    mScore3Times: 9
-  - mScore2Times: 11
-    mScore3Times: 9
+  - mScore2Times: 14
+    mScore3Times: 12

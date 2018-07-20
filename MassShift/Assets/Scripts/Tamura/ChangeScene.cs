@@ -52,7 +52,8 @@ public class ChangeScene : MonoBehaviour {
 
     void Update() {
         if (!changeSceneFlg) {
-            if (!st.GetCloseEnd() && (!sf.IsFadeEnd() || SceneManager.GetActiveScene().name == "StageSelect")) {
+            //if (!st.GetCloseEnd() && (!sf.IsFadeEnd() || SceneManager.GetActiveScene().name == "StageSelect")) {
+            if (!st.GetCloseEnd() ){
                 return;
             }
             else {

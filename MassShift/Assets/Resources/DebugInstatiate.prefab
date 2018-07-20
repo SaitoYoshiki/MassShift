@@ -53,8 +53,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mPrefabList:
   - {fileID: 1015160792713966, guid: bd77c589e77784d47a445be0224c04d2, type: 2}
-  - {fileID: 0}
   - {fileID: 1788670202349206, guid: b794cec6de862f146b57efcabffef4c4, type: 2}
+  - {fileID: 0}
   - {fileID: 1293535607077126, guid: 5d34c4153d97b4543952cd9c16c69abe, type: 2}
   - {fileID: 1972266662029618, guid: 0d4b9b3d2d4882347a66d7b48a0b7e73, type: 2}
   - {fileID: 1391392456637660, guid: 3a8828749d59d984f9a933c67ceeb002, type: 2}
