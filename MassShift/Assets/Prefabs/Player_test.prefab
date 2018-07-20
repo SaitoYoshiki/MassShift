@@ -9550,6 +9550,7 @@ MonoBehaviour:
   mJumpEffectPrefab: {fileID: 1500092770686958, guid: 6b2a979341e3c4f44bd25a89ce6a3b36,
     type: 2}
   mFollowTransform: {fileID: 1629601774145562}
+  mEffectStopTime: 0.2
 --- !u!114 &114051615029942324
 MonoBehaviour:
   m_ObjectHideFlags: 1
