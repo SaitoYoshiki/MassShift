@@ -3234,7 +3234,7 @@ Prefab:
         type: 2}
       propertyPath: SmallButtons
       value: 
-      objectReference: {fileID: 1307257432}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 2eed6378a9b2b7247a5aa56ea05bcaa4, type: 2}
   m_IsPrefabParent: 0

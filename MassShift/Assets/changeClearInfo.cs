@@ -14,10 +14,14 @@ public class changeClearInfo : MonoBehaviour {
         switch (_selectStageNum) {
             case 4:
                 StageNames[0].text = "";
-                StageNames[1].text = "EX - 1";
-                StageNames[2].text = "EX - 2";
-                StageNames[3].text = "EX - 3";
+                StageNames[1].text = "";
+                StageNames[2].text = "";
+                StageNames[3].text = "";
                 StageNames[4].text = "";
+
+                StageNames[5].text = "EX - 1";
+                StageNames[6].text = "EX - 2";
+                StageNames[7].text = "EX - 3";
 
                 if (ScoreManager.Instance.ShiftTimes(_selectStageNum, 1) != -1) {
                     StageNames[1].color = Color.green;
@@ -41,16 +45,31 @@ public class changeClearInfo : MonoBehaviour {
                 }
 
                 StarsNormal[0].SetActive(false);
-                StarsNormal[1].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 1, ScoreManager.Instance.ShiftTimes(4, 1)));
-                StarsNormal[2].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 2, ScoreManager.Instance.ShiftTimes(4, 2)));
-                StarsNormal[3].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 3, ScoreManager.Instance.ShiftTimes(4, 3)));
+                StarsNormal[1].SetActive(false);
+                StarsNormal[2].SetActive(false);
+                StarsNormal[3].SetActive(false);
                 StarsNormal[4].SetActive(false);
+
+                StarsNormal[5].SetActive(true);
+                StarsNormal[6].SetActive(true);
+                StarsNormal[7].SetActive(true);
+
+                StarsNormal[5].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 1, ScoreManager.Instance.ShiftTimes(4, 1)));
+                StarsNormal[6].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 2, ScoreManager.Instance.ShiftTimes(4, 2)));
+                StarsNormal[7].GetComponent<ChangeStar>().ChangeStarColorEX(ScoreManager.Instance.Score(4, 3, ScoreManager.Instance.ShiftTimes(4, 3)));
 
                 break;
 
             default:
                 StarsNormal[0].SetActive(true);
+                StarsNormal[1].SetActive(true);
+                StarsNormal[2].SetActive(true);
+                StarsNormal[3].SetActive(true);
                 StarsNormal[4].SetActive(true);
+
+                StarsNormal[5].SetActive(false);
+                StarsNormal[6].SetActive(false);
+                StarsNormal[7].SetActive(false);
 
                 int count = 1;
                 foreach(var text in StageNames){
@@ -62,6 +81,10 @@ public class changeClearInfo : MonoBehaviour {
                     else {
                         text.color = Color.green;
                     }
+
+                    StageNames[5].text = "";
+                    StageNames[6].text = "";
+                    StageNames[7].text = "";
 
                     StarsNormal[count - 1].GetComponent<ChangeStar>().ChangeStarColor(score);
 
