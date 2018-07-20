@@ -107,6 +107,18 @@ public class SceneFade : MonoBehaviour {
         isFadeOut = true;
     }
 
+    public void FadeOutStart(Color _fadeColor) {
+        // エラー防止
+        if (isFadeOut || isFadeOut) {
+            return;
+        }
+
+        fadeStartTime = Time.realtimeSinceStartup;
+        fadeColor = _fadeColor;
+        fadeColor.a = 1.0f;
+        isFadeOut = true;
+    }
+
     // フェードイン/アウト
     IEnumerator SceneFadeIn() {
         float nowTime = Time.realtimeSinceStartup - fadeStartTime;

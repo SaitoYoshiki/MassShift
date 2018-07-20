@@ -66,6 +66,16 @@ public class cameraMove : MonoBehaviour {
         this.transform.position = cameraStartPoint;
         st = GameObject.Find("StageChangeCanvas").GetComponent<StageTransition>();
         st.gameObject.SetActive(false);
+
+        if (SceneFade.isGoTitleWithBlackFade) {
+            FindObjectOfType<SceneFade>().FadeOutStart();
+            SceneFade.isGoTitleWithBlackFade = false;
+        }
+
+        if (SceneFade.isGoTitleWithWhiteFade) {
+            FindObjectOfType<SceneFade>().FadeOutStart(Color.white);
+            SceneFade.isGoTitleWithWhiteFade = false;
+        }
 	}
 
     void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
