@@ -939,6 +939,15 @@ public class Player : MonoBehaviour {
 
 		Debug.Log("Jump");
 
+		// パーティクル生成
+		if (IsLanding) {
+			GetComponent<GeneratePlayerJumpJet>().GenerateInGroundEffect();
+		}else if (WaterStt.IsWaterSurface) {
+			GetComponent<GeneratePlayerJumpJet>().GenerateInWaterSurfaceEffect();
+		} else {
+			GetComponent<GeneratePlayerJumpJet>().GenerateInWaterEffect();
+		}
+
 		// ジャンプアニメーション
 		if (!Lift.IsLifting) {
 			PlAnim.StartJump();
