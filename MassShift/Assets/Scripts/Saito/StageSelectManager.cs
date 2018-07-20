@@ -485,7 +485,7 @@ public class StageSelectManager : MonoBehaviour {
 			if (lSelectStageNum != lBeforeSelectStageNum) {
 				
 				if(CanEnterStage(lSelectStageNum)) {
-					SetEnterColor(mSelectStageNum);
+					SetEnterColor(lSelectStageNum);
 					OpenDoor(lSelectStageNum, true);
 
 					mSelectInit = false;
@@ -1364,6 +1364,8 @@ public class StageSelectManager : MonoBehaviour {
 
 
 	bool CanEnterStage(int aSelectStageNum) {
+
+		if (aSelectStageNum == -1) return false;
 
 		bool lCanEnter = true;
 		int lAreaNum = aSelectStageNum / 5 + 1;
