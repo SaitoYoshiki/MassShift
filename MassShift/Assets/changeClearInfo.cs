@@ -24,24 +24,24 @@ public class changeClearInfo : MonoBehaviour {
                 StageNames[7].text = "EX - 3";
 
                 if (ScoreManager.Instance.ShiftTimes(_selectStageNum, 1) != -1) {
-                    StageNames[1].color = Color.green;
+                    StageNames[5].color = Color.green;
                 }
                 else {
-                    StageNames[1].color = Color.red;
+                    StageNames[5].color = Color.red;
                 }
 
                 if (ScoreManager.Instance.ShiftTimes(_selectStageNum, 2) != -1) {
-                    StageNames[2].color = Color.green;
+                    StageNames[6].color = Color.green;
                 }
                 else {
-                    StageNames[2].color = Color.red;
+                    StageNames[6].color = Color.red;
                 }
 
                 if (ScoreManager.Instance.ShiftTimes(_selectStageNum, 3) != -1) {
-                    StageNames[3].color = Color.green;
+                    StageNames[7].color = Color.green;
                 }
                 else {
-                    StageNames[3].color = Color.red;
+                    StageNames[7].color = Color.red;
                 }
 
                 StarsNormal[0].SetActive(false);
