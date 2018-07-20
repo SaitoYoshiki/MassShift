@@ -53,6 +53,8 @@ public class cameraMove : MonoBehaviour {
 
     public static bool fromTitle = false;
 
+    bool noFade = false;
+
     //Color startLightColor = new Color(0.0f, 0.0f, 0.0f);
     //Color endLightColor = new Color(0.5019608f, 0.5019608f, 0.5019608f);
     //float colorPer = 0.0f;
@@ -71,10 +73,16 @@ public class cameraMove : MonoBehaviour {
             FindObjectOfType<SceneFade>().FadeOutStart();
             SceneFade.isGoTitleWithBlackFade = false;
         }
+        else {
+            noFade = true;
+        }
 
         if (SceneFade.isGoTitleWithWhiteFade) {
             FindObjectOfType<SceneFade>().FadeOutStart(Color.white);
             SceneFade.isGoTitleWithWhiteFade = false;
+        }
+        else {
+            noFade = true;
         }
 	}
 
@@ -84,7 +92,7 @@ public class cameraMove : MonoBehaviour {
     }
 	
 	void Update () {
-        if (FindObjectOfType<SceneFade>().IsFadeEnd()) {
+        if (FindObjectOfType<SceneFade>().IsFadeEnd() || noFade) {
             CheckFirstZoom();
             CheckZoomIn();
         }

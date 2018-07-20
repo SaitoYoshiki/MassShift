@@ -64,25 +64,25 @@ public class ChangeStar : MonoBehaviour {
             case 1:
                 Stars[0].sprite = starOffY;
                 Stars[1].sprite = starOffY;
-                Stars[2].sprite = starOnY;
+                Stars[2].sprite = starOnB;
                 break;
 
             case 2:
                 Stars[0].sprite = starOffY;
                 Stars[1].sprite = starOnY;
-                Stars[2].sprite = starOnY;
+                Stars[2].sprite = starOnB;
                 break;
 
             case 3:
                 Stars[0].sprite = starOnY;
                 Stars[1].sprite = starOnY;
-                Stars[2].sprite = starOnY;
+                Stars[2].sprite = starOnB;
                 break;
 
             default:
                 Stars[0].sprite = starOffY;
                 Stars[1].sprite = starOffY;
-                Stars[2].sprite = starOffY;
+                Stars[2].sprite = starOffB;
                 break;
         }
     }
