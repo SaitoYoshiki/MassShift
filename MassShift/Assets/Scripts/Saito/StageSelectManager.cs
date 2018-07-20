@@ -1142,10 +1142,10 @@ public class StageSelectManager : MonoBehaviour {
 	//ドアから出る歩く動き
 	IEnumerator WalkExitDoor(Goal g) {
 
-		yield return new WaitForSeconds(mFromStageBeforeWalkingTime);
-
 		g.mOpenForce = true;    //ドアを強制的に開く
 
+		yield return new WaitForSeconds(mFromStageBeforeWalkingTime);
+		
 		mGoalBlack.transform.position = g.transform.position;
 		mGoalBlack.transform.rotation = g.transform.rotation;
 
